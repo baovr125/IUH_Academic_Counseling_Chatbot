@@ -1,0 +1,12 @@
+# Bỏ qua môi trường ảo (Thêm tên thư mục môi trường ảo của bạn vào đây)
+chatbot/
+venv/
+env/
+
+# Bỏ qua cache của Python
+__pycache__/
+*.pyc
+.vscode/
+
+# Bỏ qua file môi trường 
+.env
