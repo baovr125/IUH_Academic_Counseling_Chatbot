@@ -8,3 +8,6 @@ Trạm y tế của Trường được đặt tại vị trí thoáng mát, dễ
                                                     
 
 Phối hợp chặt chẽ với cơ quan Bảo hiểm xã hội nơi trường trú đóng để hướng dẫn thực hiện Bảo hiểm y tế (BHYT) nhằm bảo đảm quyền lợi được chăm sóc sức khỏe ban đầu cho sinh viên. Tất cả sinh viên khóa mới được khám sức khỏe tổng quát miễn phí và được chăm sóc bảo hiểm y tế trong suốt thời gian học tập tại trường theo quy định.
+
+Thông tin liên hệ:
+- Trạm Y tế (Tầng trệt - Nhà A (lối phía sau Ngân hàng Agribank), Trường Đại học Công nghiệp Thành phố Hồ Chí Minh, Số 12 Nguyễn Văn Bảo, phường Hạnh Thông, Thành phố Hồ Chí Minh)

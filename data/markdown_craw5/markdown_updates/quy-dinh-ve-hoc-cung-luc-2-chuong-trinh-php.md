@@ -12,3 +12,9 @@ a) Học lực tính theo ĐTBCTL từ 2.50 trở lên *(theo thang điểm 4)* 
                                                     
 
 b) Học lực tính theo ĐTBCTL từ 2.00 trở lên *(theo thang điểm 4)* và đáp ứng điều kiện trúng tuyển của chương trình thứ hai trong năm tuyển sinh.
+
+**Lưu ý:**
+- Trong quá trình sinh viên học cùng lúc hai chương trình, nếu điểm trung bình chung tích lũy của chương trình thứ nhất đạt dưới 2.00 (theo thang điểm 4) hoặc sinh viên thuộc diện bị cảnh báo kết quả học tập thì phải dừng học chương trình thứ hai ở học kỳ tiếp theo.
+- Thời gian tối đa được phép học tập tại Trường đối với sinh viên học cùng lúc hai chương trình là thời gian tối đa quy định cho chương trình thứ nhất.
+- Khi học chương trình thứ hai, sinh viên được công nhận kết quả học tập của những học phần có nội dung và khối lượng kiến thức tương đương có trong chương trình thứ nhất.
+- Sinh viên chỉ được đăng ký xét tốt nghiệp chương trình thứ hai nếu có đủ điều kiện tốt nghiệp ở chương trình thứ nhất.

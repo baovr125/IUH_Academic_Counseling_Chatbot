@@ -12,3 +12,10 @@ crawled_at: "2026-06-10T03:35:04.532535"
 | B2 | Bậc 4 | 6.0 | Nghe: 400 Đọc: 385 Nói: 160 Viết: 150 | 5.5 | 46 | B2 First/B2 Business Vantage (160) | |
 | B1 | Bậc 3 | 4.0 | Nghe: 275 Đọc: 275 Nói: 120 Viết: 120 | 450 | 4.0 | 30 | B1 Preliminary/B1 Business Preliminary (140) | 
 | A2 | Bậc 2 | 6.5** | Nghe: 115 Đọc: 115 Nói: 90 Viết: 70 | 360 | 3.0 | A2 Key/KET (120) |
+
+Lưu ý:
+- (*): Không chấp nhận chứng chỉ TOEFL iBT phiên bản Home Edition
+
+- (**): Bài thi Bậc 2 có định dạng và cách tính điểm khác so với bài thi Bậc 3-5
+
+- Sinh viên bậc đại học được công nhận đạt chuẩn đầu ra về tiếng Anh khi nộp chứng nhận năng lực tiếng Anh do Trường Đại học Công nghiệp Thành phố Hồ Chí Minh cấp. Nếu dự thi ngoài Trường, Nhà trường khuyến nghị sinh viên nên đăng ký thi tại các trung tâm chính thức của các tổ chức khảo thí quốc tế để đảm bảo tính hợp lệ của chứng chỉ được cấp.

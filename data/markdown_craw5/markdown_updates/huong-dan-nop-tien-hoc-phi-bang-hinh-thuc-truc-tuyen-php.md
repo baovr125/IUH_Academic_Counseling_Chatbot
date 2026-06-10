@@ -31,3 +31,8 @@ Phụ huynh, sinh viên nộp học phí cần hỗ trợ, vui lòng liên hệ:
 - Ngân hàng Nam Á, điện thoại liên hệ 0765.447.773 (Chị Kha).
 
 - Ngân hàng Vietcombank, điện thoại liên hệ 0938.435.465 (Ms. Thiện Nhi).
+
+**Lưu ý:**
+- Sinh viên nộp tiền các khoản khác ngoài học phí (chứng chỉ ngắn hạn, ký túc xá...) liên hệ phòng Tài chính Kế toán tại Cơ sở chính và Phòng Kế toán tại các cơ sở để nộp tiền.
+
+- Sinh viên nộp học phí tại quầy giao dịch yêu cầu ngân hàng đóng dấu của ngân hàng để lưu giữ. Ngay sau khi nộp học phí sinh viên truy cập vào "Tra cứu công nợ" (https://sv.iuh.edu.vn/tra-cuu-thong-tin.html) trên trang website phòng Tài chính - Kế toán kiểm tra thông tin. Nếu vẫn chưa được cập nhật vào hệ thống, sinh viên liên hệ fanpage hoặc Zalo để đối soát, điện thoại liên hệ: 0283.8940390, gọi tiếp số nội bộ 124, 125.

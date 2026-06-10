@@ -14,3 +14,6 @@ b) Vượt quá thời gian tối đa được phép học tập tại Trường
 c) Bị kỷ luật lần thứ hai vì lý do thi hộ hoặc nhờ người thi hộ trong các kỳ thi hoặc bị kỷ luật ở mức xoá tên khỏi danh sách sinh viên của Trường;
 
 d) Tự ý bỏ học 2 học kỳ liên tiếp.
+
+Lưu ý:
+Chậm nhất một tháng sau khi sinh viên có quyết định buộc thôi học, Phòng Công tác chính trị và Hỗ trợ sinh viên sẽ thông báo về địa phương, theo địa chỉ thường trú mà sinh viên đã đăng ký lúc nhập học.

@@ -29,3 +29,5 @@ Công nghiệp IV
 Công nghiệp IV
 
 2004
+
+### Trường Đại học Công nghiệp TP.HCM

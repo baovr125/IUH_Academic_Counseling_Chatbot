@@ -23,3 +23,8 @@ Nhằm phục vụ các em sinh viên nhận tiền học bổng, tiền miễn 
                                                         
 
                                                         - Số căn cước công dân, ngày cấp, nơi cấp.
+
+**Lưu ý:**
+- Cập nhật thông tin số tài khoản là để sinh viên nhận các khoản chi hỗ trợ từ Nhà trường, bao gồm tiền miễn giảm học phí, tiền học bổng, các khoản chi hỗ trợ khác. Do đó đề nghị các em sinh viên nhập chính xác các dữ liệu về thông tin của chính mình, không lấy số tài khoản và thông tin của người khác. Để thuận tiện trong quá trình chi, giảm thiểu sai sót ưu tiên cập nhật tài khoản ngân hàng mở tại ngân hàng Nông nghiệp và phát triển nông thôn Agribank.
+- Trường hợp chưa có tài khoản ngân hàng, sinh viên liên hệ phòng giao dịch của ngân hàng Nông Nghiệp và Phát triển nông thôn, số 12 đường Nguyễn Văn Bảo, kế bên cổng số 1 để được mở tài khoản ngân hàng hoặc mở tài khoản theo hình thức trực tuyến (xem clip hướng dẫn) (Chọn chi nhánh 1610. Sau khi mở trực tuyến SV ghé Agribank ở cổng số 1 cập nhật hồ sơ mở tài khoản).
+- Sinh viên kê khai thông tin cần hỗ trợ, vui lòng liên hệ Phòng Tài chính - Kế toán, qua Zalo qua link: https://zalo.me/tcktiuh12; hoặc điện thoại 0283.8940 390, gọi tiếp số nội bộ 124, 125 gặp Cô Ngân Trang.

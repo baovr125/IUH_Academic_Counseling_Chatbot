@@ -29,7 +29,12 @@ Sinh viên đăng nhập lần đầu tiên vào hệ thống thi thử tại: [
 
 - Tên đăng nhập: **Mã số sinh viên**
 
-- Mật khẩu mặc định lần đầu: **1111 **
+- Mật khẩu mặc định lần đầu: **1111**
+
+**Lưu ý:**
+- Đối với sinh viên Khóa 20 nếu đã có tài khoản đăng nhập trước đây trên hệ thống thì đăng nhập lại bằng tài khoản của mình.
+- Sinh viên phải đổi mật khẩu sau lần đăng nhập đầu tiên và ghi nhớ mật khẩu đã đổi để dùng cho ngày thi chính thức.
+- Sinh viên phải bảo mật thông tin tài khoản của mình
 
 *2.2. Hướng dẫn vào bài thi và cách làm bài: *
 
@@ -69,6 +74,13 @@ Sau khi hoàn tất trả lời các câu hỏi để kết thúc phần thi Ngh
                                           nên tải Chrome về để thi thử, không dùng trình duyệt Safari vì file nghe có
                                           thể không tương thích, không nghe được).
                                        
+**Lưu ý:**
+Trong thời gian thi thử, sẽ có Ban hỗ trợ kỹ thuật trực tuyến qua Zoom, SV có thể vào để được hỗ trợ: Link cuộc họp Zoom hoặc ID cuộc họp: 925 5792 2511 - Mật khẩu: 319168
+
+Thời gian: ngày 29/9/2025 và ngày 01/10/2025
+- Buổi sáng: từ 07g00 - 11g30;
+- Buổi chiều: từ 13g30 - 16g30;
+- Buổi tối: từ 17g00 - 20g30.
 
 Mỗi ngày có 8 ca thi thử:
                                           
@@ -146,8 +158,17 @@ Ví dụ: sinh viên được xếp lịch thi thử vào ca 1 *(tiết 1-2)* nh
                                           - Hết thời gian cho phép ở mỗi phần thi, hệ thống sẽ tự động thu bài, do đó SV
                                           chú ý phân bổ thời gian trong lúc làm bài để đạt kết quả tốt nhất.
                                        
+**Lưu ý:**
+Trong phòng thi, Sinh viên gặp vấn đề gì phải báo ngay cho Cán bộ coi thi để được hỗ trợ.
 
 *3.3 Dặn dò sinh viên*
+Sinh viên khóa 20 + 21 tham dự kỳ thi sát hạch tiếng Anh đầu vào cần lưu ý những điều sau:
+1. Giấy tờ và dụng cụ: Mang theo thẻ SV/ CMND/ CCCD/ bằng lái xe có ảnh và bút bi xanh.
+2. Thời gian: Có mặt tại phòng thi trước 20 phút để làm thủ tục.
+3. Quy định phòng thi:
+- Vào phòng đúng giờ: Không được vào phòng thi muộn hơn 15 phút sau khi bắt đầu bài thi Reading.
+- Đồ dùng cá nhân: Ngoài bút bi xanh, không mang theo điện thoại, túi xách hoặc các đồ dùng cá nhân khác.
+- Tuân thủ quy định: Ngồi đúng vị trí được cán bộ coi thi sắp xếp, không trao đổi, không sử dụng tài liệu.
 
 ###### 4. Bài thi
 
@@ -167,3 +188,9 @@ Ví dụ: sinh viên được xếp lịch thi thử vào ca 1 *(tiết 1-2)* nh
                                           chính (trước ngày 28/09/2025).
                                           *Địa chỉ: Tầng trệt, nhà G, Phân hiệu Quảng Ngãi, 938 Quang Trung,
                                              Phường Cẩm Thành, tỉnh Quảng Ngãi*
+
+**Lưu ý:**
+1. SV không đăng nhập được vào hệ thống, không vào được bài thi, không nghe được âm thanh phải báo ngay cho Cán bộ coi thi trong phòng để được hỗ trợ.
+2. Sinh viên không có giấy tờ tùy thân sẽ không được dự thi.
+3. Vi phạm quy định phòng thi sẽ bị hủy bài thi.
+4. Đoạn ghi âm cho mỗi phần trong bài thi Listening sẽ được phát hai lần.

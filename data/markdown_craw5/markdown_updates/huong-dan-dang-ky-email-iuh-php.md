@@ -24,6 +24,9 @@ crawled_at: "2026-06-10T03:25:18.620257"
 
 Hệ thống sẽ tự động điền thông tin cá nhân của sinh viên, sinh viên cần bổ sung hoặc cập nhật lại số điện thoại và email cá nhân vào biểu mẫu đăng ký.
 
+Lưu ý:
+Số điện thoại và Email này dùng để hỗ trợ người dùng kích hoạt tài khoản trong lần đăng nhập đầu tiên cũng như lấy lại mật khẩu khi bị quên vì vậy cần điền chính xác thông tin
+
 Sau khi điền đầy đủ thông tin, sinh viên cần xem điều khoản và tích vào mục
                                           **“Tôi đã đọc hiểu và chấp nhận các điều khoản sử
                                              dụng email”** và nhấn nút **Đăng
@@ -73,3 +76,8 @@ Sau khi đăng nhập thành công lần đầu tiên, hệ thống yêu cầu s
 ###### Bước 5: Hoàn thành đăng ký
 
 Sau khi đăng ký thành công, sinh viên có thể truy cập vào email và sử dụng miễn phí các tiện ích của Microsoft.
+
+Lưu ý:
+- Sinh viên chịu trách nhiệm cập nhật đúng thông tin email và số điện thoại để làm cơ sở khôi phục mật khẩu. Trung tâm Quản trị Hệ thống không chịu trách nhiệm cấp lại mật khẩu mới.
+- Sau khi đăng ký, cập nhật email, số điện thoại thành công, hệ thống sẽ cần khoảng 15 phút để xây dựng hộp thư email. Vì vậy, sinh viên có thể sử dụng email sau 15 phút kể từ lúc đăng ký thành công.
+- Trong quá trình đăng ký sử dụng nếu gặp các vấn đề khó khăn về kỹ thuật, người dùng có thể liên hệ với Trung tâm Quản trị hệ thống qua các kênh thông tin qua số điện thoại 0283 8940 390 (nhánh 168, 838) trong giờ hành chính hoặc qua Cổng liên hệ - phản hồi từ website Trung tâm hoặc thông qua các kênh Facebook và Zalo OA.

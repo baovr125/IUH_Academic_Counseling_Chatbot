@@ -160,10 +160,44 @@ Hệ thống tổ chức của Trường Đại học Công nghiệp TP.HCM đư
 
 4 Đơn vị
 
+#### Viện Đào tạo Quốc tế và Sau đại học
+[](vi/vien-dao-tao-quoc-te-va-sau-dai-hoc.html)
+#### Viện Tài chính - Kế toán
+[](vi/vien-tai-chinh-ke-toan.html)
+#### Viện Công nghệ Sinh học và Thực phẩm
+[](vi/vien-cong-nghe-sinh-hoc-va-thuc-pham.html)
+#### Viện Khoa học Công nghệ và Quản lý Môi trường
+[](vi/vien-khoa-hoc-cong-nghe-va-quan-ly-moi-truong.html)
+
+
 ### Trung tâm
 
 6 Đơn vị
 
+#### Trung tâm Quản trị Hệ thống
+[](vi/trung-tam-quan-tri-he-thong.html)
+#### Trung tâm Thông tin - Truyền thông
+[](vi/trung-tam-thong-tin-truyen-thong.html)
+#### Trung tâm Ngoại ngữ - Tin học
+[](vi/trung-tam-ngoai-ngu-tin-hoc.html)
+#### Trung tâm Giáo dục quốc phòng và Thể chất
+[](vi/trung-tam-giao-duc-quoc-phong-va-the-chat.html)
+#### Trung tâm Thư viện
+[](vi/trung-tam-thu-vien.html)
+#### Trung tâm Nghiên cứu và Phát triển công nghệ - Máy công nghiệp
+[](vi/trung-tam-nghien-cuu-va-phat-trien-cong-nghe-may-cong-nghiep.html)
+
 ### Phân hiệu
 
 5 Đơn vị
+
+#### Phân hiệu Quảng Ngãi
+[](vi/phan-hieu-quang-ngai.html)
+#### Cơ sở Thanh Hóa
+[](vi/co-so-thanh-hoa.html)
+#### Cơ sở Phạm Văn Chiêu
+[](vi/co-so-pham-van-chieu.html)
+#### Cơ sở Nguyễn Văn Dung
+[](vi/co-so-nguyen-van-dung.html)
+#### Cơ sở Nhơn Trạch
+[](vi/co-so-nhon-trach.html)

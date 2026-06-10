@@ -44,6 +44,9 @@ crawled_at: "2026-06-10T03:24:51.406328"
 | DH21VL-1 | 6/2025 | 1,5 năm | 12/2026 | 1,5 năm | 6/2028 | 
 | 6/2025 | 2 năm | 6/2027 | 2 năm | 6/2029 | 
 
+**Lưu ý:**
+- Thời gian chính thức tùy vào tổng số tín chỉ của chương trình đào tạo.
+
 [
                               Trích Thông báo số 870/TB-ĐHCN ngày 26/8/2025 của Trường Đại học Công nghiệp Thành phố Hồ
                               Chí Minh về thời hạn học tập tại trường của sinh viên](https://iuh.edu.vn/vi/thong-bao-fi20/thong-bao-thoi-han-hoc-tap-tai-truong-cua-sinh-vien-truong-dai-hoc-cong-nghiep-thanh-pho-ho-chi-minh-a2561.html)

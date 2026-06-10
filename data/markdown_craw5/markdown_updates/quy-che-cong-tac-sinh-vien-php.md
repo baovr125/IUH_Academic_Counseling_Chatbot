@@ -30,3 +30,6 @@ b) Cảnh cáo: Áp dụng đối với sinh viên đã bị khiển trách mà 
 c) Đình chỉ học tập có thời hạn: Áp dụng đối với những sinh viên đang trong thời gian bị cảnh cáo mà vẫn vi phạm kỷ luật hoặc vi phạm nghiêm trọng các hành vi sinh viên không được làm; sinh viên vi phạm pháp luật bị xử phạt tù nhưng cho hưởng án treo; Tùy từng trường hợp cụ thể, Hiệu trưởng Nhà trường căn cứ vào Quy chế đào tạo để quyết định thời hạn đình chỉ học tập theo các mức: đình chỉ một học kỳ, đình chỉ 1 năm học hoặc đình chỉ theo thời gian sinh viên bị xử phạt tù nhưng cho hưởng án treo.
 
 d) Buộc thôi học: Áp dụng đối với sinh viên đang trong thời gian bị đình chỉ học tập mà vẫn tiếp tục vi phạm kỷ luật hoặc vi phạm lần đầu nhưng có tính chất và mức độ vi phạm đặc biệt nghiêm trọng, gây ảnh hưởng xấu đến Nhà trường và xã hội; vi phạm pháp luật bị xử phạt tù giam.
+
+**Lưu ý:**
+Trường hợp sinh viên bị kỷ luật mức đình chỉ học tập có thời hạn hoặc buộc thôi học Nhà trường gửi thông báo cho địa phương và gia đình sinh viên biết để phối hợp quản lý, giáo dục.

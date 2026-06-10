@@ -16,3 +16,7 @@ Mỗi sinh viên được cấp một tài khoản và mật khẩu riêng, tài
 [.](https://www.facebook.com/csm.iuh.edu.vn)
 
 **https://www.facebook.com/csm.iuh.edu.vn**
+
+**Lưu ý:**
+- Sinh viên cần cập nhật đầy đủ và chính xác thông tin của mình trên Cổng thông tin Sinh viên để làm cơ sở xác minh sau này. Trong quá trình sử dụng, sinh viên phải tự bảo vệ thông tin tài khoản, tránh trường hợp bị lợi dụng và đánh cắp thông tin cá nhân.
+- Sinh viên quên mật khẩu Cổng thông tin sinh viên có thể liên hệ với Khoa/Viện chủ quản, Phòng Đào Tạo hoặc liên hệ với Trung tâm Quản trị Hệ thống qua kênh OA Zalo tại link: https://zalo.me/csmiuh hoặc qua Fanpage Facebook tại link: https://www.facebook.com/csm.iuh.edu.vn để khôi phục lại mật khẩu.

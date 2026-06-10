@@ -11,3 +11,12 @@ Trong lĩnh vực văn hóa văn nghệ, Đoàn Thanh niên - Hội Sinh viên l
 Bên cạnh đó, hoạt động thể dục – thể thao cũng được tổ chức đa dạng và phong phú. Các giải thể thao như bóng đá, bóng chuyền, cầu lông, kéo co, giao lưu thể thao giữa các chi đoàn… được tổ chức thường niên hoặc theo các dịp lễ lớn. Đây là dịp để đoàn viên nâng cao sức khỏe, rèn luyện thể lực, phát huy tinh thần đoàn kết, hợp tác và thi đua trong học tập.
 
 Thông qua các hoạt động văn nghệ - thể thao, Đoàn Thanh niên - Hội Sinh viên trường đã tạo nên môi trường rèn luyện toàn diện cả về trí – đức – thể – mỹ, góp phần bồi dưỡng lớp thanh niên khỏe về thể chất, đẹp về tinh thần, giàu bản sắc văn hóa và sẵn sàng cống hiến cho tập thể, cộng đồng và đất nước.
+
+ Hội thao toàn trường
+ Hội diễn văn nghệ toàn trường
+ Ngày hội Sách
+ Nét đẹp Sinh viên Công nghiệp
+ Đại nhạc hội KPOP (Dance Cover)
+ Giải thể thao sinh viên Việt Nam - VUG
+ Giải Liên quân Mobile - Clash of Campus
+ Giải bóng đá sinh viên - IUH Cup
