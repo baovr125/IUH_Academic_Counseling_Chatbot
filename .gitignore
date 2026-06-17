@@ -2,7 +2,7 @@
 chatbot/
 venv/
 env/
-data/
+backend/data/
 
 # Bỏ qua cache của Python
 __pycache__/
