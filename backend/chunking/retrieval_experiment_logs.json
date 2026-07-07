@@ -1,0 +1,990 @@
+[
+    {
+        "query_id": 1,
+        "query": "Trường Đại học Công nghiệp TP.HCM có những giá trị cốt lõi nào?",
+        "true_tier": 1,
+        "expected_urls": "https://camnang.iuh.edu.vn/gia-tri-cot-loi.php",
+        "baseline_1": {
+            "latency": 0.023114681243896484,
+            "retrieved_urls": [
+                "https://camnang.iuh.edu.vn/gia-tri-cot-loi.php",
+                "https://iuh.edu.vn/Resource/Upload2/files/2021/07/qd966_2021.pdf",
+                "https://camnang.iuh.edu.vn/muc-tieu-chien-luoc.php"
+            ],
+            "chunks": [
+                "Giá trị cốt lõi Trường Đại học Công nghiệp TP.HCM được đúc kết: “Đổi mới - Đoàn kết - Nhân văn” **Innovation - Đổi mới**: Là liên tục tìm kiếm những cách làm mới và tốt hơn, sáng tạo, đổi mới và dám nghĩ dám làm để thử những điều mới và tạo cơ hội để cải tiến và đạt đến tầm cao mới.*(sáng tạo)* **Unity - Đoàn kết**: Là chịu trách nhiệm và làm chủ, đồng thời phối hợp làm việc với tất cả các đơn vị và các bên liên quan để khai thác triệt để các nguồn lực và năng lực cũng như sử dụng và triển khai hiệu quả chúng để thực hiện tầm nhìn và sứ mạng của Trường Đại học Công nghiệp TP.HCM. **Humanity - Nhân văn**: Là đối xử với từng cá nhân và tập thể bằng lòng nhân ái, vị tha, công bằng, công tâm và hướng đến phát triển tiềm năng và hiện thực hóa nguyện vọng. Làm việc chuyên nghiệp và đạo đức cũng như phục vụ và đóng góp cho cộng đồng với tư cách là một công dân có trách nhiệm.",
+                "Với mục tiêu và tầm nhìn trở thành Trường đại học đầu của Việt Nam; tiên phong trong lĩnh vực dục và nghiên cứu ứng dụng, giao nghệ và đổi mới tạo; giá trị cốt lõi Trường Đại học nghiệp Thành Hồ Chí Minh được Đoàn kết Nhân văn\" hàng chuyển công giáo phố Công sáng - Đổi mới: liên tục tìm kiếm những cách làm mới và tốt hơn; tạo; đổi mới và dám dám làm để thử những điều mới và tạo cơ hội để cải tiến và đạt đến tầm cao mới; sáng nghĩ; - Đoàn kết: chịu trách nhiệm và làm chủ, thời làm việc với tất cả các dơn vị và các bên liên quan để khai thác triệt để các lực và lực như sử và triển khai hiệu đồng phối hợp nguồn năng cũng quả chúng; dụng - Nhân văn: đối xử với cá nhân và tập thể nhân ái, vị tâm và hướng đến phát triển tiềm và hiện hóa nguyện vọng; làm việc chuyên nghiệp và đạo đức như phục vụ và góp cho với tư cách là một dân có trách nhiệm. bằng, lòng tha, công từng công năng thực đồng cũng đóng cộng công <!-- image -->",
+                "Để đạt được mục tiêu chung, Trường Đại học Công nghiệp Thành phố Hồ Chí Minh đã đặt ra các mục tiêu như sau: - Tiên phong trong các lĩnh vực giáo dục, nghiên cứu và chuyển giao công nghệ: tăng chất lượng người học tốt nghiệp; nâng cao tỷ lệ có việc làm và vị trí việc làm cho người học sau khi tốt nghiệp; tăng cường quốc tế hóa các chương trình đào tạo; nâng cao chất lượng chương trình đào tạo để đáp ứng yêu cầu của các tổ chức đảm bảo chất lượng; tăng cường hợp tác với các tổ chức trong việc tuyển dụng người học tốt nghiệp; tăng chất lượng các công trình nghiên cứu công bố trong nước và quốc tế; thực thi các chính sách hỗ trợ hợp tác nghiên cứu trong nước và quốc tế; thúc đẩy hoạt động chuyển giao công nghệ; - Thúc đẩy kết nối phục vụ cộng đồng: mở rộng các hoạt động của công dân tích cực trong kết nối cộng đồng; đẩy mạnh các hoạt động khởi nghiệp; khuyến khích người học, viên chức và người lao động tham gia các hoạt động phục vụ cộng đồng; khai thác các phương tiện truyền thông một cách hiệu quả; phát triển năng lực đội ngũ làm truyền thông; - Xây dựng cơ sở giáo dục hiện đại: phát triển cơ sở hạ tầng cho hoạt động giảng dạy và nghiên cứu; tạo ra nhiều hoạt động ngoại khóa sôi động ngay trong khuôn viên Nhà trường; xây dựng khuôn viên xanh và cơ sở hạ tầng công nghệ thông tin tiên tiến; phát triển hệ thống học tập trực tuyến hiệu quả; - Thu hút nguồn lực chất lượng cao trong và ngoài nước: duy trì được đội ngũ giảng viên có năng lực; có cơ chế đãi ngộ phù hợp; tuyển dụng và tìm kiếm nhân sự chất lượng cao; đa dạng hóa hình thức tuyển dụng; tăng cường phát triển năng lực nhân sự; thực hiện bố trí công việc phù hợp; cải thiện môi trường làm việc; nâng cao thu nhập của viên chức, người lao động; - Đầu tư và thu nhập ổn định, bền vững: tăng doanh thu thông qua các hoạt động đào tạo, nghiên cứu và các tài nguyên khác; đầu tư hợp lý cho nguồn nhân lực, đào tạo và nghiên cứu, hoạt động phục vụ cộng đồng và nâng cao chất lượng cuộc sống người học; duy trì khoản dự phòng; tăng cường ngân sách cho kế hoạch đảm bảo hoạt động liên tục."
+            ]
+        },
+        "baseline_2": {
+            "method": "Hybrid (Tier 1 - Vector)",
+            "latency": 8.322992086410522,
+            "retrieved_urls": [
+                "https://camnang.iuh.edu.vn/gia-tri-cot-loi.php",
+                "https://iuh.edu.vn/Resource/Upload2/files/2021/07/qd966_2021.pdf",
+                "https://camnang.iuh.edu.vn/muc-tieu-chien-luoc.php"
+            ],
+            "chunks": [
+                "Giá trị cốt lõi Trường Đại học Công nghiệp TP.HCM được đúc kết: “Đổi mới - Đoàn kết - Nhân văn” **Innovation - Đổi mới**: Là liên tục tìm kiếm những cách làm mới và tốt hơn, sáng tạo, đổi mới và dám nghĩ dám làm để thử những điều mới và tạo cơ hội để cải tiến và đạt đến tầm cao mới.*(sáng tạo)* **Unity - Đoàn kết**: Là chịu trách nhiệm và làm chủ, đồng thời phối hợp làm việc với tất cả các đơn vị và các bên liên quan để khai thác triệt để các nguồn lực và năng lực cũng như sử dụng và triển khai hiệu quả chúng để thực hiện tầm nhìn và sứ mạng của Trường Đại học Công nghiệp TP.HCM. **Humanity - Nhân văn**: Là đối xử với từng cá nhân và tập thể bằng lòng nhân ái, vị tha, công bằng, công tâm và hướng đến phát triển tiềm năng và hiện thực hóa nguyện vọng. Làm việc chuyên nghiệp và đạo đức cũng như phục vụ và đóng góp cho cộng đồng với tư cách là một công dân có trách nhiệm.",
+                "Với mục tiêu và tầm nhìn trở thành Trường đại học đầu của Việt Nam; tiên phong trong lĩnh vực dục và nghiên cứu ứng dụng, giao nghệ và đổi mới tạo; giá trị cốt lõi Trường Đại học nghiệp Thành Hồ Chí Minh được Đoàn kết Nhân văn\" hàng chuyển công giáo phố Công sáng - Đổi mới: liên tục tìm kiếm những cách làm mới và tốt hơn; tạo; đổi mới và dám dám làm để thử những điều mới và tạo cơ hội để cải tiến và đạt đến tầm cao mới; sáng nghĩ; - Đoàn kết: chịu trách nhiệm và làm chủ, thời làm việc với tất cả các dơn vị và các bên liên quan để khai thác triệt để các lực và lực như sử và triển khai hiệu đồng phối hợp nguồn năng cũng quả chúng; dụng - Nhân văn: đối xử với cá nhân và tập thể nhân ái, vị tâm và hướng đến phát triển tiềm và hiện hóa nguyện vọng; làm việc chuyên nghiệp và đạo đức như phục vụ và góp cho với tư cách là một dân có trách nhiệm. bằng, lòng tha, công từng công năng thực đồng cũng đóng cộng công <!-- image -->",
+                "Để đạt được mục tiêu chung, Trường Đại học Công nghiệp Thành phố Hồ Chí Minh đã đặt ra các mục tiêu như sau: - Tiên phong trong các lĩnh vực giáo dục, nghiên cứu và chuyển giao công nghệ: tăng chất lượng người học tốt nghiệp; nâng cao tỷ lệ có việc làm và vị trí việc làm cho người học sau khi tốt nghiệp; tăng cường quốc tế hóa các chương trình đào tạo; nâng cao chất lượng chương trình đào tạo để đáp ứng yêu cầu của các tổ chức đảm bảo chất lượng; tăng cường hợp tác với các tổ chức trong việc tuyển dụng người học tốt nghiệp; tăng chất lượng các công trình nghiên cứu công bố trong nước và quốc tế; thực thi các chính sách hỗ trợ hợp tác nghiên cứu trong nước và quốc tế; thúc đẩy hoạt động chuyển giao công nghệ; - Thúc đẩy kết nối phục vụ cộng đồng: mở rộng các hoạt động của công dân tích cực trong kết nối cộng đồng; đẩy mạnh các hoạt động khởi nghiệp; khuyến khích người học, viên chức và người lao động tham gia các hoạt động phục vụ cộng đồng; khai thác các phương tiện truyền thông một cách hiệu quả; phát triển năng lực đội ngũ làm truyền thông; - Xây dựng cơ sở giáo dục hiện đại: phát triển cơ sở hạ tầng cho hoạt động giảng dạy và nghiên cứu; tạo ra nhiều hoạt động ngoại khóa sôi động ngay trong khuôn viên Nhà trường; xây dựng khuôn viên xanh và cơ sở hạ tầng công nghệ thông tin tiên tiến; phát triển hệ thống học tập trực tuyến hiệu quả; - Thu hút nguồn lực chất lượng cao trong và ngoài nước: duy trì được đội ngũ giảng viên có năng lực; có cơ chế đãi ngộ phù hợp; tuyển dụng và tìm kiếm nhân sự chất lượng cao; đa dạng hóa hình thức tuyển dụng; tăng cường phát triển năng lực nhân sự; thực hiện bố trí công việc phù hợp; cải thiện môi trường làm việc; nâng cao thu nhập của viên chức, người lao động; - Đầu tư và thu nhập ổn định, bền vững: tăng doanh thu thông qua các hoạt động đào tạo, nghiên cứu và các tài nguyên khác; đầu tư hợp lý cho nguồn nhân lực, đào tạo và nghiên cứu, hoạt động phục vụ cộng đồng và nâng cao chất lượng cuộc sống người học; duy trì khoản dự phòng; tăng cường ngân sách cho kế hoạch đảm bảo hoạt động liên tục."
+            ]
+        }
+    },
+    {
+        "query_id": 2,
+        "query": "Điểm TOEIC 4 kỹ năng tối thiểu là bao nhiêu để đạt bậc B1 (bậc 3)?",
+        "true_tier": 1,
+        "expected_urls": "https://camnang.iuh.edu.vn/bang-quy-doi-diem-chung-chi-tieng-anh.php",
+        "baseline_1": {
+            "latency": 0.017745018005371094,
+            "retrieved_urls": [
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/danh-gia-ket-qua-ren-luyen.php"
+            ],
+            "chunks": [
+                "– Các khóa tuyển sinh từ năm 2017 đến năm 2020: + Bậc đào tạo đại học chính quy: điểm TOEIC đạt tối thiểu 450; + Bậc đào tạo đại học vừa làm vừa học, đại học liên thông: điểm TOEIC đạt tối thiểu 350; + Bậc cao đẳng: điểm TOEIC đạt tối thiểu 350; + Có Chứng chỉ Ứng dụng Công nghệ Thông tin cơ bản. – Các khóa tuyển sinh từ năm 2014 đến 2016: + Bậc đào tạo đại học chính quy: điểm TOEIC đạt tối thiểu 400; + Bậc đào tạo đại học vừa làm vừa học, đại học liên thông: điểm TOEIC tối thiểu 350; + Bậc cao đẳng: điểm TOEIC đạt tối thiểu 350; + Có Chứng chỉ Ứng dụng Công nghệ Thông tin cơ bản. – Các khóa tuyển sinh trước năm 2014: + Bậc đào tạo đại học chính quy: chứng chỉ C tiếng Anh hoặc tương đương; + Bậc đào tạo đại học theo hình thức vừa làm vừa học, đại học liên thông và cao đẳng: chứng chỉ B tiếng Anh hoặc tương đương; + Có chứng chỉ A tin học.",
+                "Lưu ý: – Trường hợp 1: Sinh viên không đạt điểm TOEIC hoặc chứng chỉ B hay C theo điều kiện ở trên mà có các chứng chỉ tiếng Anh khác tương đương(còn hiệu lực)sẽ được Nhà trường xem xét, đối chiếu với Bảng quy đổi điểm các chứng chỉ tiếng Anh dưới đây để công nhận đủ điều kiện về trình độ tiếng Anh. KNLNNVN CEFR TOEIC IELTS TOEFL ITP TOEFL iBT Cambridge Exam Bậc 3 B1 450 4.5 450 45 PET (140- dưới 160) Bậc 2 A2 350-400 3.0 360 30 KET (120- dưới 140) – Trường hợp 2: Sinh viên trong quá trình học tập được Nhà trường cử đi nước ngoài(sử dụng tiếng Anh trong quá trình sinh sống, học tập và nghiên cứu)làm thực tập sinh, thực tập doanh nghiệp, khóa luận tốt nghiệp… có thời gian liên tục từ 3 tháng trở lên có thể làm đơn trình Hội đồng xét tốt nghiệp để được miễn điều kiện về tiếng Anh. 2. Sinh viên đủ điều kiện tốt nghiệp được Hiệu trưởng ra quyết định công nhận tốt nghiệp và cấp bằng tốt nghiệp trong thời hạn 3 tháng, tính từ thời điểm được Hội đồng xét công nhận tốt nghiệp thông qua. 3.",
+                "| TT | Nội dung đánh giá | Khung điểm | | A | Xuất sắc | Từ 90 đến 100 điểm | | B | Tốt | Từ 80 đến 89 điểm | | C | Khá | Từ 65 đến 79 điểm | | D | Trung bình | Từ 50 đến 64 điểm | | E | Yếu | Từ 35 đến 49 điểm | | F | Kém | Dưới 35 điểm |"
+            ]
+        },
+        "baseline_2": {
+            "method": "Hybrid (Tier 1 - Vector)",
+            "latency": 9.473224878311157,
+            "retrieved_urls": [
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/danh-gia-ket-qua-ren-luyen.php"
+            ],
+            "chunks": [
+                "– Các khóa tuyển sinh từ năm 2017 đến năm 2020: + Bậc đào tạo đại học chính quy: điểm TOEIC đạt tối thiểu 450; + Bậc đào tạo đại học vừa làm vừa học, đại học liên thông: điểm TOEIC đạt tối thiểu 350; + Bậc cao đẳng: điểm TOEIC đạt tối thiểu 350; + Có Chứng chỉ Ứng dụng Công nghệ Thông tin cơ bản. – Các khóa tuyển sinh từ năm 2014 đến 2016: + Bậc đào tạo đại học chính quy: điểm TOEIC đạt tối thiểu 400; + Bậc đào tạo đại học vừa làm vừa học, đại học liên thông: điểm TOEIC tối thiểu 350; + Bậc cao đẳng: điểm TOEIC đạt tối thiểu 350; + Có Chứng chỉ Ứng dụng Công nghệ Thông tin cơ bản. – Các khóa tuyển sinh trước năm 2014: + Bậc đào tạo đại học chính quy: chứng chỉ C tiếng Anh hoặc tương đương; + Bậc đào tạo đại học theo hình thức vừa làm vừa học, đại học liên thông và cao đẳng: chứng chỉ B tiếng Anh hoặc tương đương; + Có chứng chỉ A tin học.",
+                "Lưu ý: – Trường hợp 1: Sinh viên không đạt điểm TOEIC hoặc chứng chỉ B hay C theo điều kiện ở trên mà có các chứng chỉ tiếng Anh khác tương đương(còn hiệu lực)sẽ được Nhà trường xem xét, đối chiếu với Bảng quy đổi điểm các chứng chỉ tiếng Anh dưới đây để công nhận đủ điều kiện về trình độ tiếng Anh. KNLNNVN CEFR TOEIC IELTS TOEFL ITP TOEFL iBT Cambridge Exam Bậc 3 B1 450 4.5 450 45 PET (140- dưới 160) Bậc 2 A2 350-400 3.0 360 30 KET (120- dưới 140) – Trường hợp 2: Sinh viên trong quá trình học tập được Nhà trường cử đi nước ngoài(sử dụng tiếng Anh trong quá trình sinh sống, học tập và nghiên cứu)làm thực tập sinh, thực tập doanh nghiệp, khóa luận tốt nghiệp… có thời gian liên tục từ 3 tháng trở lên có thể làm đơn trình Hội đồng xét tốt nghiệp để được miễn điều kiện về tiếng Anh. 2. Sinh viên đủ điều kiện tốt nghiệp được Hiệu trưởng ra quyết định công nhận tốt nghiệp và cấp bằng tốt nghiệp trong thời hạn 3 tháng, tính từ thời điểm được Hội đồng xét công nhận tốt nghiệp thông qua. 3.",
+                "| TT | Nội dung đánh giá | Khung điểm | | A | Xuất sắc | Từ 90 đến 100 điểm | | B | Tốt | Từ 80 đến 89 điểm | | C | Khá | Từ 65 đến 79 điểm | | D | Trung bình | Từ 50 đến 64 điểm | | E | Yếu | Từ 35 đến 49 điểm | | F | Kém | Dưới 35 điểm |"
+            ]
+        }
+    },
+    {
+        "query_id": 3,
+        "query": "Tài khoản Microsoft của sinh viên được yêu cầu xác thực bằng ứng dụng gì?",
+        "true_tier": 1,
+        "expected_urls": "https://camnang.iuh.edu.vn/cai-dat-tinh-nang-xac-thuc-microsoft-authenticator.php",
+        "baseline_1": {
+            "latency": 0.016526460647583008,
+            "retrieved_urls": [
+                "https://camnang.iuh.edu.vn/cai-dat-tinh-nang-xac-thuc-microsoft-authenticator.php",
+                "https://camnang.iuh.edu.vn/huong-dan-dang-ky-email-iuh.php",
+                "https://camnang.iuh.edu.vn/huong-dan-dang-ky-email-iuh.php"
+            ],
+            "chunks": [
+                "Hiện nay một số tài khoản đã được Microsoft yêu cầu bổ sung tính năng xác thực bằng App. Sau đây Trung tâm Quản trị Hệ thống xin hướng dẫn các bước cài App và xác thực như sau: Khi đăng nhập sử dụng các dịch vụ của Microsoft, thấy xuất hiện thông tin ở dưới, bạn vui lòng ấn Next để tiếp tục. Sau đó sẽ thấy màn hình bắt đầu cài App. Bạn dùng thiết bị di động lên cửa hàng và tìm cài app Microsoft Authenticator *(lưu ý tìm và cài đúng ứng dụng như hình bên dưới)* - Đối với điện thoại dùng hệ điều hành Android: bạn vào CH Play. - Đối với hệ điều hành IOS: bạn vào App Store Sau khi cài đặt xong ứng dụng, đồng thời bạn ấn **Next** ở màn hình chờ *(như hình dưới)*",
+                "Sau khi đăng ký thành công, sinh viên có thể truy cập vào email và sử dụng miễn phí các tiện ích của Microsoft. Lưu ý: - Sinh viên chịu trách nhiệm cập nhật đúng thông tin email và số điện thoại để làm cơ sở khôi phục mật khẩu. Trung tâm Quản trị Hệ thống không chịu trách nhiệm cấp lại mật khẩu mới. - Sau khi đăng ký, cập nhật email, số điện thoại thành công, hệ thống sẽ cần khoảng 15 phút để xây dựng hộp thư email. Vì vậy, sinh viên có thể sử dụng email sau 15 phút kể từ lúc đăng ký thành công. - Trong quá trình đăng ký sử dụng nếu gặp các vấn đề khó khăn về kỹ thuật, người dùng có thể liên hệ với Trung tâm Quản trị hệ thống qua các kênh thông tin qua số điện thoại 0283 8940 390 (nhánh 168, 838) trong giờ hành chính hoặc qua Cổng liên hệ - phản hồi từ website Trung tâm hoặc thông qua các kênh Facebook và Zalo OA.",
+                "Sau khi đăng nhập thành công, sinh viên chọn chức năng **ĐĂNG KÝ EMAIL** Hệ thống sẽ tự động điền thông tin cá nhân của sinh viên, sinh viên cần bổ sung hoặc cập nhật lại số điện thoại và email cá nhân vào biểu mẫu đăng ký. Lưu ý: Số điện thoại và Email này dùng để hỗ trợ người dùng kích hoạt tài khoản trong lần đăng nhập đầu tiên cũng như lấy lại mật khẩu khi bị quên vì vậy cần điền chính xác thông tin Sau khi điền đầy đủ thông tin, sinh viên cần xem điều khoản và tích vào mục **“Tôi đã đọc hiểu và chấp nhận các điều khoản sử dụng email”** và nhấn nút **Đăng ký**"
+            ]
+        },
+        "baseline_2": {
+            "method": "Hybrid (Tier 1 - Vector)",
+            "latency": 9.368216753005981,
+            "retrieved_urls": [
+                "https://camnang.iuh.edu.vn/cai-dat-tinh-nang-xac-thuc-microsoft-authenticator.php",
+                "https://camnang.iuh.edu.vn/huong-dan-dang-ky-email-iuh.php",
+                "https://camnang.iuh.edu.vn/huong-dan-dang-ky-email-iuh.php"
+            ],
+            "chunks": [
+                "Hiện nay một số tài khoản đã được Microsoft yêu cầu bổ sung tính năng xác thực bằng App. Sau đây Trung tâm Quản trị Hệ thống xin hướng dẫn các bước cài App và xác thực như sau: Khi đăng nhập sử dụng các dịch vụ của Microsoft, thấy xuất hiện thông tin ở dưới, bạn vui lòng ấn Next để tiếp tục. Sau đó sẽ thấy màn hình bắt đầu cài App. Bạn dùng thiết bị di động lên cửa hàng và tìm cài app Microsoft Authenticator *(lưu ý tìm và cài đúng ứng dụng như hình bên dưới)* - Đối với điện thoại dùng hệ điều hành Android: bạn vào CH Play. - Đối với hệ điều hành IOS: bạn vào App Store Sau khi cài đặt xong ứng dụng, đồng thời bạn ấn **Next** ở màn hình chờ *(như hình dưới)*",
+                "Sau khi đăng ký thành công, sinh viên có thể truy cập vào email và sử dụng miễn phí các tiện ích của Microsoft. Lưu ý: - Sinh viên chịu trách nhiệm cập nhật đúng thông tin email và số điện thoại để làm cơ sở khôi phục mật khẩu. Trung tâm Quản trị Hệ thống không chịu trách nhiệm cấp lại mật khẩu mới. - Sau khi đăng ký, cập nhật email, số điện thoại thành công, hệ thống sẽ cần khoảng 15 phút để xây dựng hộp thư email. Vì vậy, sinh viên có thể sử dụng email sau 15 phút kể từ lúc đăng ký thành công. - Trong quá trình đăng ký sử dụng nếu gặp các vấn đề khó khăn về kỹ thuật, người dùng có thể liên hệ với Trung tâm Quản trị hệ thống qua các kênh thông tin qua số điện thoại 0283 8940 390 (nhánh 168, 838) trong giờ hành chính hoặc qua Cổng liên hệ - phản hồi từ website Trung tâm hoặc thông qua các kênh Facebook và Zalo OA.",
+                "Sau khi đăng nhập thành công, sinh viên chọn chức năng **ĐĂNG KÝ EMAIL** Hệ thống sẽ tự động điền thông tin cá nhân của sinh viên, sinh viên cần bổ sung hoặc cập nhật lại số điện thoại và email cá nhân vào biểu mẫu đăng ký. Lưu ý: Số điện thoại và Email này dùng để hỗ trợ người dùng kích hoạt tài khoản trong lần đăng nhập đầu tiên cũng như lấy lại mật khẩu khi bị quên vì vậy cần điền chính xác thông tin Sau khi điền đầy đủ thông tin, sinh viên cần xem điều khoản và tích vào mục **“Tôi đã đọc hiểu và chấp nhận các điều khoản sử dụng email”** và nhấn nút **Đăng ký**"
+            ]
+        }
+    },
+    {
+        "query_id": 4,
+        "query": "Học kỳ đầu tiên tân sinh viên có phải tự đăng ký học phần không?",
+        "true_tier": 1,
+        "expected_urls": "https://camnang.iuh.edu.vn/huong-dan-dang-ky-hoc-phan.php",
+        "baseline_1": {
+            "latency": 0.019553422927856445,
+            "retrieved_urls": [
+                "https://camnang.iuh.edu.vn/huong-dan-dang-ky-hoc-phan.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/quy-dinh-ve-hoc-cung-luc-2-chuong-trinh.php"
+            ],
+            "chunks": [
+                " Học kỳ đầu tiên, Nhà trường sẽ đăng ký áp cứng các môn học tương ứng trong niên giám khóa học. Từ học kỳ thứ 2 trở đi, Nhà trường đăng ký áp cứng cho sinh viên đối với các lớp học phần bắt buộc theo niên giám, không bao gồm học phần Thực tập doanh nghiệp và Khóa luận tốt nghiệp. Khi Nhà trường mở cổng đăng ký học phần, Sinh viên đăng nhập vào cổng thông tin sinh viên để xem thời khóa biểu của các học phần đã được áp cứng và tiến hành đăng ký các học phần tự chọn. Lưu ý: Sinh viên có thể hủy học phần bắt buộc (đã áp cứng) và đăng ký bổ sung các học phần khác (nếu có nhu cầu). Sinh viên đăng ký các học phần qua Website của Trường **https://dkhp.iuh.edu.vn/** Trong quá trình thực hiện, nếu gặp khó khăn sinh viên liên hệ với giáo vụ của đơn vị đào tạo, giáo viên chủ nhiệm lớp sinh viên, cố vấn học tập hoặc Phòng Công tác chính trị và Hỗ trợ sinh viên để được hướng. Sinh viên có thể xem hướng dẫn chi tiết cách đăng ký học phần tại Cổng thông tin sinh viên bằng video bên dưới: [youtube](https://www.youtube.com/watch?v=Iieipc3W__4) - Xem kỹ đào tạo chương trình khung đang tham gia học.",
+                "Đối với khóa mới nhập học, các đơn vị đào tạo đăng ký học phần ở học kỳ thứ nhất cho sinh viên theo thời khóa biểu cho trước. Từ học kỳ thứ hai đến cuối khóa học, sinh viên căn cứ vào Niên giám và các lớp học phần được mở, tự đăng ký học phần học tập cho bản thân qua cổng đăng ký học phần trực tuyến của Trường. 6. Sinh viên xem kết quả đăng ký học tập trên cổng thông tin sinh viên. Nếu có vướng mắc, sinh viên liên hệ bộ phận giáo vụ của đơn vị đào tạo để được giải quyết. Trường hợp không thuộc thẩm quyền giải quyết, đơn vị đào tạo tổng hợp thông tin và gửi Phiếu đề nghị giải quyết công việc để Phòng Đào tạo hỗ trợ.",
+                "Sinh viên chỉ được đăng ký học chương trình thứ hai kể từ khi đã được xếp trình độ năm thứ hai của chương trình thứ nhất. Tại thời điểm đăng ký, sinh viên phải đáp ứng 1 trong 2 điều kiện sau:"
+            ]
+        },
+        "baseline_2": {
+            "method": "Hybrid (Tier 1 - Vector)",
+            "latency": 5.627495288848877,
+            "retrieved_urls": [
+                "https://camnang.iuh.edu.vn/huong-dan-dang-ky-hoc-phan.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/quy-dinh-ve-hoc-cung-luc-2-chuong-trinh.php"
+            ],
+            "chunks": [
+                " Học kỳ đầu tiên, Nhà trường sẽ đăng ký áp cứng các môn học tương ứng trong niên giám khóa học. Từ học kỳ thứ 2 trở đi, Nhà trường đăng ký áp cứng cho sinh viên đối với các lớp học phần bắt buộc theo niên giám, không bao gồm học phần Thực tập doanh nghiệp và Khóa luận tốt nghiệp. Khi Nhà trường mở cổng đăng ký học phần, Sinh viên đăng nhập vào cổng thông tin sinh viên để xem thời khóa biểu của các học phần đã được áp cứng và tiến hành đăng ký các học phần tự chọn. Lưu ý: Sinh viên có thể hủy học phần bắt buộc (đã áp cứng) và đăng ký bổ sung các học phần khác (nếu có nhu cầu). Sinh viên đăng ký các học phần qua Website của Trường **https://dkhp.iuh.edu.vn/** Trong quá trình thực hiện, nếu gặp khó khăn sinh viên liên hệ với giáo vụ của đơn vị đào tạo, giáo viên chủ nhiệm lớp sinh viên, cố vấn học tập hoặc Phòng Công tác chính trị và Hỗ trợ sinh viên để được hướng. Sinh viên có thể xem hướng dẫn chi tiết cách đăng ký học phần tại Cổng thông tin sinh viên bằng video bên dưới: [youtube](https://www.youtube.com/watch?v=Iieipc3W__4) - Xem kỹ đào tạo chương trình khung đang tham gia học.",
+                "Đối với khóa mới nhập học, các đơn vị đào tạo đăng ký học phần ở học kỳ thứ nhất cho sinh viên theo thời khóa biểu cho trước. Từ học kỳ thứ hai đến cuối khóa học, sinh viên căn cứ vào Niên giám và các lớp học phần được mở, tự đăng ký học phần học tập cho bản thân qua cổng đăng ký học phần trực tuyến của Trường. 6. Sinh viên xem kết quả đăng ký học tập trên cổng thông tin sinh viên. Nếu có vướng mắc, sinh viên liên hệ bộ phận giáo vụ của đơn vị đào tạo để được giải quyết. Trường hợp không thuộc thẩm quyền giải quyết, đơn vị đào tạo tổng hợp thông tin và gửi Phiếu đề nghị giải quyết công việc để Phòng Đào tạo hỗ trợ.",
+                "Sinh viên chỉ được đăng ký học chương trình thứ hai kể từ khi đã được xếp trình độ năm thứ hai của chương trình thứ nhất. Tại thời điểm đăng ký, sinh viên phải đáp ứng 1 trong 2 điều kiện sau:"
+            ]
+        }
+    },
+    {
+        "query_id": 5,
+        "query": "Các ngân hàng nào hỗ trợ nộp học phí qua quầy giao dịch?",
+        "true_tier": 1,
+        "expected_urls": "https://camnang.iuh.edu.vn/huong-dan-nop-tien-hoc-phi-bang-hinh-thuc-truc-tuyen.php",
+        "baseline_1": {
+            "latency": 0.0217745304107666,
+            "retrieved_urls": [
+                "https://camnang.iuh.edu.vn/huong-dan-nop-tien-hoc-phi-bang-hinh-thuc-truc-tuyen.php",
+                "https://camnang.iuh.edu.vn/huong-dan-nop-tien-hoc-phi-bang-hinh-thuc-truc-tuyen.php",
+                "https://iuh.edu.vn/upload/files/2026/05/TB_Dang%20ki%20hoc%20phan%20HK1-nam%20hoc%202026-2027.pdf"
+            ],
+            "chunks": [
+                "Nộp học phí online áp dụng cho tất cả ngân hàng theo đường link **https://sv.iuh.edu.vn/sinh-vien-dang-nhap.html***(gạch nợ trực tiếp)*. Phụ huynh, sinh viên nộp học phí cần hỗ trợ, vui lòng liên hệ: - Phòng Tài chính Kế toán, nhắn tin qua Zalo, Messenger trực tiếp trên website: [ https://ptckt.iuh.edu.vn](https://ptckt.iuh.edu.vn). *(Lưu ý: Chỉ chọn 1 trong 2 hình thức để nhắn tin - ngay góc cuối bên phải của website)* - Ngân hàng Agribank, điện thoại liên hệ 0909.917.456 (Chị Lưu) - Ngân hàng Vietinbank, điện thoại liên hệ 034.888.3748 (Ms.Ánh Diệp). - Ngân hàng Nam Á, điện thoại liên hệ 0765.447.773 (Chị Kha). - Ngân hàng Vietcombank, điện thoại liên hệ 0938.435.465 (Ms. Thiện Nhi). **Lưu ý:** - Sinh viên nộp tiền các khoản khác ngoài học phí (chứng chỉ ngắn hạn, ký túc xá...) liên hệ phòng Tài chính Kế toán tại Cơ sở chính và Phòng Kế toán tại các cơ sở để nộp tiền. - Sinh viên nộp học phí tại quầy giao dịch yêu cầu ngân hàng đóng dấu của ngân hàng để lưu giữ. Ngay sau khi nộp học phí sinh viên truy cập vào \"Tra cứu công nợ\" (https://sv.iuh.edu.vn/tra-cuu-thong-tin.html) trên trang website phòng Tài chính - Kế toán kiểm tra thông tin. Nếu vẫn chưa được cập nhật vào hệ thống, sinh viên liên hệ fanpage hoặc Zalo để đối soát, điện thoại liên hệ: 0283.8940390, gọi tiếp số nội bộ 124, 125.",
+                "- Nộp tiền tại các **quầy giao dịch** của **Ngân hàng Agribank, NamAbank, Vietcombank** *(tại các Chi nhánh và phòng giao dịch trên toàn quốc)* sinh viên cung cấp **MÃ SỐ SINH VIÊN** để thực hiện giao dịch nộp tiền học phí. - **Gạch nợ trực tiếp qua ứng dụng trên điện thoại từ Agribank, NamAbank, Vietcombank** bằng cách: vào ứng dụng app trên điện thoại/ thanh toán hoá đơn/ thanh toán học phí/ chọn Trường Đại học Công nghiệp Thành phố Hồ Chí Minh/ mã tra cứu (mã sinh viên)/ chọn môn cần đóng/ thực hiện thanh toán.",
+                "- Khuyến khích sinh viên học phí qua app Ngân Nông nghiệp &amp; Phát triển thôn; Ngân Nam Á hoặc nộp trực từ Ngân Vietinbank đóng hàng tuyến hàng Nông hàng - Lưu Ý: Trường hợp sinh viên học phí qua cần học trước thời gian quy định là 05 ngày và theo dõi nợ trên hệ thống. Nếu các môn đã phí nhưng chưa được cập nhật; sinh viên liên hệ Phòng Tài chính Kế toán được cập nhật và điều chỉnh. đóng đóng ngân hàng công phí đóng học - Nộp phí tại phòng Tài chính Kế toán trệt nhà E tại cơ sở chính, phòng Kế toán tại các phân hiệu và cơ sở./ .k tầng học <!-- image -->"
+            ]
+        },
+        "baseline_2": {
+            "method": "Hybrid (Tier 1 - Vector)",
+            "latency": 18.748947143554688,
+            "retrieved_urls": [
+                "https://camnang.iuh.edu.vn/huong-dan-nop-tien-hoc-phi-bang-hinh-thuc-truc-tuyen.php",
+                "https://camnang.iuh.edu.vn/huong-dan-nop-tien-hoc-phi-bang-hinh-thuc-truc-tuyen.php",
+                "https://iuh.edu.vn/upload/files/2026/05/TB_Dang%20ki%20hoc%20phan%20HK1-nam%20hoc%202026-2027.pdf"
+            ],
+            "chunks": [
+                "Nộp học phí online áp dụng cho tất cả ngân hàng theo đường link **https://sv.iuh.edu.vn/sinh-vien-dang-nhap.html***(gạch nợ trực tiếp)*. Phụ huynh, sinh viên nộp học phí cần hỗ trợ, vui lòng liên hệ: - Phòng Tài chính Kế toán, nhắn tin qua Zalo, Messenger trực tiếp trên website: [ https://ptckt.iuh.edu.vn](https://ptckt.iuh.edu.vn). *(Lưu ý: Chỉ chọn 1 trong 2 hình thức để nhắn tin - ngay góc cuối bên phải của website)* - Ngân hàng Agribank, điện thoại liên hệ 0909.917.456 (Chị Lưu) - Ngân hàng Vietinbank, điện thoại liên hệ 034.888.3748 (Ms.Ánh Diệp). - Ngân hàng Nam Á, điện thoại liên hệ 0765.447.773 (Chị Kha). - Ngân hàng Vietcombank, điện thoại liên hệ 0938.435.465 (Ms. Thiện Nhi). **Lưu ý:** - Sinh viên nộp tiền các khoản khác ngoài học phí (chứng chỉ ngắn hạn, ký túc xá...) liên hệ phòng Tài chính Kế toán tại Cơ sở chính và Phòng Kế toán tại các cơ sở để nộp tiền. - Sinh viên nộp học phí tại quầy giao dịch yêu cầu ngân hàng đóng dấu của ngân hàng để lưu giữ. Ngay sau khi nộp học phí sinh viên truy cập vào \"Tra cứu công nợ\" (https://sv.iuh.edu.vn/tra-cuu-thong-tin.html) trên trang website phòng Tài chính - Kế toán kiểm tra thông tin. Nếu vẫn chưa được cập nhật vào hệ thống, sinh viên liên hệ fanpage hoặc Zalo để đối soát, điện thoại liên hệ: 0283.8940390, gọi tiếp số nội bộ 124, 125.",
+                "- Nộp tiền tại các **quầy giao dịch** của **Ngân hàng Agribank, NamAbank, Vietcombank** *(tại các Chi nhánh và phòng giao dịch trên toàn quốc)* sinh viên cung cấp **MÃ SỐ SINH VIÊN** để thực hiện giao dịch nộp tiền học phí. - **Gạch nợ trực tiếp qua ứng dụng trên điện thoại từ Agribank, NamAbank, Vietcombank** bằng cách: vào ứng dụng app trên điện thoại/ thanh toán hoá đơn/ thanh toán học phí/ chọn Trường Đại học Công nghiệp Thành phố Hồ Chí Minh/ mã tra cứu (mã sinh viên)/ chọn môn cần đóng/ thực hiện thanh toán.",
+                "- Khuyến khích sinh viên học phí qua app Ngân Nông nghiệp &amp; Phát triển thôn; Ngân Nam Á hoặc nộp trực từ Ngân Vietinbank đóng hàng tuyến hàng Nông hàng - Lưu Ý: Trường hợp sinh viên học phí qua cần học trước thời gian quy định là 05 ngày và theo dõi nợ trên hệ thống. Nếu các môn đã phí nhưng chưa được cập nhật; sinh viên liên hệ Phòng Tài chính Kế toán được cập nhật và điều chỉnh. đóng đóng ngân hàng công phí đóng học - Nộp phí tại phòng Tài chính Kế toán trệt nhà E tại cơ sở chính, phòng Kế toán tại các phân hiệu và cơ sở./ .k tầng học <!-- image -->"
+            ]
+        }
+    },
+    {
+        "query_id": 6,
+        "query": "Để nhận học bổng doanh nghiệp, sinh viên cần đáp ứng những tiêu chí nào?",
+        "true_tier": 1,
+        "expected_urls": "https://camnang.iuh.edu.vn/hoc-bong-doanh-nghiep.php",
+        "baseline_1": {
+            "latency": 0.04300665855407715,
+            "retrieved_urls": [
+                "https://camnang.iuh.edu.vn/hoc-bong-doanh-nghiep.php",
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php"
+            ],
+            "chunks": [
+                "Nhiều suất học bổng có giá trị lên tới 15 triệu đồng dành cho sinh viên xuất sắc, sinh viên nghèo, vượt khó, hiếu học được tài trợ bởi các Quỹ học bổng của Tập đoàn Lotte, Nitori, Toyota, VP Bank, Sanden, LKIC, Lương Văn Can.",
+                "**Đối tượng xét:** Học bổng Tài trợ cấp cho người học thuộc Trường do cựu sinh viên, các tổ chức, doanh nghiệp và cá nhân (gọi chung là đơn vị tài trợ) trao tặng theo quy định, điều kiện riêng của đơn vị tài trợ *(nếu có)*. **Điều kiện xét:** Mức học bổng, tiêu chuẩn, số lượng xét, cấp học bổng tài trợ thực hiện theo thỏa thuận giữa đơn vị tài trợ với Nhà trường hoặc theo những điều kiện xét, cấp học bổng do tiêu chí của đơn vị tài trợ đặt ra. Mức học bổng lên tới 100% học phí hoặc cao hơn tùy theo mỗi chương trình cụ thể.",
+                "**Điều kiện xét:** Căn cứ vào Quỹ hỗ trợ sinh viên và số lượng sinh viên được nhận học bổng Tuyển sinh hằng năm, Nhà trường sẽ thông báo mức học bổng cho từng đối tượng được xét, cấp học bổng. Học bổng này được xét, cấp theo hình thức miễn giảm học phí cho từng học kỳ theo quy định. Mức học bổng lên tới 100% học phí, tùy mỗi trường hợp cụ thể."
+            ]
+        },
+        "baseline_2": {
+            "method": "Hybrid (Tier 1 - Vector)",
+            "latency": 15.831416130065918,
+            "retrieved_urls": [
+                "https://camnang.iuh.edu.vn/hoc-bong-doanh-nghiep.php",
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php"
+            ],
+            "chunks": [
+                "Nhiều suất học bổng có giá trị lên tới 15 triệu đồng dành cho sinh viên xuất sắc, sinh viên nghèo, vượt khó, hiếu học được tài trợ bởi các Quỹ học bổng của Tập đoàn Lotte, Nitori, Toyota, VP Bank, Sanden, LKIC, Lương Văn Can.",
+                "**Đối tượng xét:** Học bổng Tài trợ cấp cho người học thuộc Trường do cựu sinh viên, các tổ chức, doanh nghiệp và cá nhân (gọi chung là đơn vị tài trợ) trao tặng theo quy định, điều kiện riêng của đơn vị tài trợ *(nếu có)*. **Điều kiện xét:** Mức học bổng, tiêu chuẩn, số lượng xét, cấp học bổng tài trợ thực hiện theo thỏa thuận giữa đơn vị tài trợ với Nhà trường hoặc theo những điều kiện xét, cấp học bổng do tiêu chí của đơn vị tài trợ đặt ra. Mức học bổng lên tới 100% học phí hoặc cao hơn tùy theo mỗi chương trình cụ thể.",
+                "**Điều kiện xét:** Căn cứ vào Quỹ hỗ trợ sinh viên và số lượng sinh viên được nhận học bổng Tuyển sinh hằng năm, Nhà trường sẽ thông báo mức học bổng cho từng đối tượng được xét, cấp học bổng. Học bổng này được xét, cấp theo hình thức miễn giảm học phí cho từng học kỳ theo quy định. Mức học bổng lên tới 100% học phí, tùy mỗi trường hợp cụ thể."
+            ]
+        }
+    },
+    {
+        "query_id": 7,
+        "query": "Cơ sở chính của trường được đặt tại địa chỉ nào?",
+        "true_tier": 1,
+        "expected_urls": "https://camnang.iuh.edu.vn/co-so-va-phan-hieu.php",
+        "baseline_1": {
+            "latency": 0.0190737247467041,
+            "retrieved_urls": [
+                "https://iuh.edu.vn/upload/files/2026/03/tb-92-2026.pdf",
+                "https://iuh.edu.vn/upload/files/2026/05/TB-889-2026.pdf",
+                "https://camnang.iuh.edu.vn/buoc-thoi-hoc.php"
+            ],
+            "chunks": [
+                "- Ban Giám hiệu; - Các đơn vị thuộc Trường; - lên Website, E-Office; Đăng CÔNG NGHIEP - Luu: VT, ĐT. PGS:TS. Phan Hồng Hải hule",
+                "- Ban Giám hiệu; TAƯÒNG - Các đơn vị thuộc Trường; - lên Website, E-Office; Đăng - Luu: VT, ĐT. PGS.TS. Phan Hải Hồng",
+                "Lưu ý: Chậm nhất một tháng sau khi sinh viên có quyết định buộc thôi học, Phòng Công tác chính trị và Hỗ trợ sinh viên sẽ thông báo về địa phương, theo địa chỉ thường trú mà sinh viên đã đăng ký lúc nhập học."
+            ]
+        },
+        "baseline_2": {
+            "method": "Hybrid (Tier 1 - Vector)",
+            "latency": 7.218533992767334,
+            "retrieved_urls": [
+                "https://iuh.edu.vn/upload/files/2026/03/tb-92-2026.pdf",
+                "https://iuh.edu.vn/upload/files/2026/05/TB-889-2026.pdf",
+                "https://camnang.iuh.edu.vn/buoc-thoi-hoc.php"
+            ],
+            "chunks": [
+                "- Ban Giám hiệu; - Các đơn vị thuộc Trường; - lên Website, E-Office; Đăng CÔNG NGHIEP - Luu: VT, ĐT. PGS:TS. Phan Hồng Hải hule",
+                "- Ban Giám hiệu; TAƯÒNG - Các đơn vị thuộc Trường; - lên Website, E-Office; Đăng - Luu: VT, ĐT. PGS.TS. Phan Hải Hồng",
+                "Lưu ý: Chậm nhất một tháng sau khi sinh viên có quyết định buộc thôi học, Phòng Công tác chính trị và Hỗ trợ sinh viên sẽ thông báo về địa phương, theo địa chỉ thường trú mà sinh viên đã đăng ký lúc nhập học."
+            ]
+        }
+    },
+    {
+        "query_id": 8,
+        "query": "Phòng Công tác chính trị và Hỗ trợ sinh viên chịu trách nhiệm về chính sách gì?",
+        "true_tier": 1,
+        "expected_urls": "https://camnang.iuh.edu.vn/chinh-sach-mien-giam-hoc-phi-va-ho-tro-chi-phi-hoc-tap.php",
+        "baseline_1": {
+            "latency": 0.037598371505737305,
+            "retrieved_urls": [
+                "https://camnang.iuh.edu.vn/chinh-sach-mien-giam-hoc-phi-va-ho-tro-chi-phi-hoc-tap.php",
+                "https://camnang.iuh.edu.vn/lien-he-don-vi.php",
+                "https://camnang.iuh.edu.vn/ket-noi-doanh-nghiep-va-gioi-thieu-viec-lam.php"
+            ],
+            "chunks": [
+                "Phòng Công tác chính trị và Hỗ trợ sinh viên là đơn vị đầu mối triển khai thực hiện chính sách miễn, giảm học phí, hỗ trợ chi phí học tập căn cứ theo Nghị định 81/2021/NĐ-CP ngày 27 tháng 8 năm 2021 của Chính phủ Quy định về cơ chế thu, quản lý học phí đối với cơ sở giáo dục thuộc hệ thống giáo dục quốc dân và chính sách miễn, giảm học phí, hỗ trợ chi phí học tập; giá dịch vụ trong lĩnh vực giáo dục, đào tạo và Quyết định số 66/2013/QĐ-TTg ngày 11 tháng 11 năm 2013 của Chính phủ Quy định về chính sách hỗ trợ chi phí học tập đối với sinh viên là người dân tộc thiểu số học tại các cơ sở giáo dục đại học.",
+                "- **Địa điểm**: Tầng trệt - Nhà D - **Điện thoại**: 0283 8940 390 - 136, 138 - **Website**: ctsv.iuh.edu.vn",
+                "Phòng Công tác chính trị và Hỗ trợ sinh viên là đơn vị đầu mối xây dựng và phát triển mạng lưới doanh nghiệp, mạng lưới cựu sinh viên nhằm tìm kiếm cơ hội việc làm, thực tập, kiến tập và học bổng cho sinh viên. Với mạng lưới hàng ngàn doanh nghiệp liên kết hợp tác và tuyển dụng việc làm thường xuyên trên chuyên trang việc làm của IUH, sinh viên dễ dàng tiếp cận và tìm việc làm toàn thời gian, bán thời gian, thực tập phù hợp ngành nghề được đào tạo."
+            ]
+        },
+        "baseline_2": {
+            "method": "Hybrid (Tier 1 - Vector)",
+            "latency": 8.152168989181519,
+            "retrieved_urls": [
+                "https://camnang.iuh.edu.vn/chinh-sach-mien-giam-hoc-phi-va-ho-tro-chi-phi-hoc-tap.php",
+                "https://camnang.iuh.edu.vn/lien-he-don-vi.php",
+                "https://camnang.iuh.edu.vn/ket-noi-doanh-nghiep-va-gioi-thieu-viec-lam.php"
+            ],
+            "chunks": [
+                "Phòng Công tác chính trị và Hỗ trợ sinh viên là đơn vị đầu mối triển khai thực hiện chính sách miễn, giảm học phí, hỗ trợ chi phí học tập căn cứ theo Nghị định 81/2021/NĐ-CP ngày 27 tháng 8 năm 2021 của Chính phủ Quy định về cơ chế thu, quản lý học phí đối với cơ sở giáo dục thuộc hệ thống giáo dục quốc dân và chính sách miễn, giảm học phí, hỗ trợ chi phí học tập; giá dịch vụ trong lĩnh vực giáo dục, đào tạo và Quyết định số 66/2013/QĐ-TTg ngày 11 tháng 11 năm 2013 của Chính phủ Quy định về chính sách hỗ trợ chi phí học tập đối với sinh viên là người dân tộc thiểu số học tại các cơ sở giáo dục đại học.",
+                "- **Địa điểm**: Tầng trệt - Nhà D - **Điện thoại**: 0283 8940 390 - 136, 138 - **Website**: ctsv.iuh.edu.vn",
+                "Phòng Công tác chính trị và Hỗ trợ sinh viên là đơn vị đầu mối xây dựng và phát triển mạng lưới doanh nghiệp, mạng lưới cựu sinh viên nhằm tìm kiếm cơ hội việc làm, thực tập, kiến tập và học bổng cho sinh viên. Với mạng lưới hàng ngàn doanh nghiệp liên kết hợp tác và tuyển dụng việc làm thường xuyên trên chuyên trang việc làm của IUH, sinh viên dễ dàng tiếp cận và tìm việc làm toàn thời gian, bán thời gian, thực tập phù hợp ngành nghề được đào tạo."
+            ]
+        }
+    },
+    {
+        "query_id": 9,
+        "query": "Sinh viên sẽ bị xử lý như thế nào nếu nộp chứng chỉ ngoại ngữ giả lần 1 so với các lần vi phạm tiếp theo?",
+        "true_tier": 2,
+        "expected_urls": "https://camnang.iuh.edu.vn/canh-bao-lien-quan-den-chung-chi-xet-tot-nghiep.php",
+        "baseline_1": {
+            "latency": 0.030645370483398438,
+            "retrieved_urls": [
+                "https://camnang.iuh.edu.vn/canh-bao-lien-quan-den-chung-chi-xet-tot-nghiep.php",
+                "https://camnang.iuh.edu.vn/canh-bao-lien-quan-den-chung-chi-xet-tot-nghiep.php",
+                "https://camnang.iuh.edu.vn/dieu-kien-xet-tot-nghiep.php"
+            ],
+            "chunks": [
+                "Chứng chỉ Ngoại ngữ và chứng chỉ Tin học do sinh viên thi tại các tổ chức bên ngoài Trường đều phải gửi về Trung tâm Ngoại ngữ và Tin học của Trường để xác minh tính hợp lệ. Sinh viên có thể nộp các chứng chỉ phục vụ công tác xét tốt nghiệp vào mọi thời điểm trong năm.",
+                "Nhà trường nghiêm cấm việc sinh viên sử dụng chứng chỉ Ngoại ngữ và Tin học **KHÔNG HỢP LỆ**. Sinh viên sử dụng hồ sơ, văn bằng, chứng chỉ giả làm điều kiện trúng tuyển hoặc điều kiện xét tốt nghiệp sẽ bị **BUỘC THÔI HỌC** và bị **HỦY KẾT QUẢ XÉT TỐT NGHIỆP** theo quy định tại khoản 3 Điều 20 của Thông tư số 08/2021/TT-BGDĐT ngày 18 tháng 03 năm 2021 của Bộ trưởng Bộ Giáo dục và Đào tạo. Tùy vào mức độ vi phạm, Nhà trường sẽ gửi hồ sơ lên cơ quan công an để giải quyết theo thẩm quyền.",
+                "Có chứng chỉ Ngoại ngữ 2 đạt Bậc 3. Sinh viên có thể nộp một trong các loại chứng chỉ trong danh mục dưới đây: **DANH MỤC CHỨNG CHỈ NGOẠI NGỮ 2** | Bậc | Tiếng Trung | Tiếng Nhật | Tiếng Hàn | Tiếng Pháp | Tiếng Nga | Tiếng Đức | | Bậc 3 | HSK3 | JLPT N4 | TOPIK II cấp độ 3 (120 - 149, tổng điểm: 300) | DELF B1 hoặc TCF 300 | TRKI-1 | Goethe-Z B1 hoặc TestDaF Bậc 3 |"
+            ]
+        },
+        "baseline_2": {
+            "method": "Hybrid (Tier 2 - Tree Search)",
+            "latency": 6.991114377975464,
+            "retrieved_urls": [
+                "https://camnang.iuh.edu.vn/canh-bao-lien-quan-den-chung-chi-xet-tot-nghiep.php",
+                "https://camnang.iuh.edu.vn/canh-bao-lien-quan-den-chung-chi-xet-tot-nghiep.php",
+                "https://camnang.iuh.edu.vn/dieu-kien-xet-tot-nghiep.php",
+                "https://camnang.iuh.edu.vn/dieu-kien-xet-tot-nghiep.php",
+                "https://camnang.iuh.edu.vn/dieu-kien-xet-tot-nghiep.php"
+            ],
+            "chunks": [
+                "Chứng chỉ Ngoại ngữ và chứng chỉ Tin học do sinh viên thi tại các tổ chức bên ngoài Trường đều phải gửi về Trung tâm Ngoại ngữ và Tin học của Trường để xác minh tính hợp lệ. Sinh viên có thể nộp các chứng chỉ phục vụ công tác xét tốt nghiệp vào mọi thời điểm trong năm.",
+                "Nhà trường nghiêm cấm việc sinh viên sử dụng chứng chỉ Ngoại ngữ và Tin học **KHÔNG HỢP LỆ**. Sinh viên sử dụng hồ sơ, văn bằng, chứng chỉ giả làm điều kiện trúng tuyển hoặc điều kiện xét tốt nghiệp sẽ bị **BUỘC THÔI HỌC** và bị **HỦY KẾT QUẢ XÉT TỐT NGHIỆP** theo quy định tại khoản 3 Điều 20 của Thông tư số 08/2021/TT-BGDĐT ngày 18 tháng 03 năm 2021 của Bộ trưởng Bộ Giáo dục và Đào tạo. Tùy vào mức độ vi phạm, Nhà trường sẽ gửi hồ sơ lên cơ quan công an để giải quyết theo thẩm quyền.",
+                "Có chứng chỉ Ngoại ngữ 2 đạt Bậc 3. Sinh viên có thể nộp một trong các loại chứng chỉ trong danh mục dưới đây: **DANH MỤC CHỨNG CHỈ NGOẠI NGỮ 2** | Bậc | Tiếng Trung | Tiếng Nhật | Tiếng Hàn | Tiếng Pháp | Tiếng Nga | Tiếng Đức | | Bậc 3 | HSK3 | JLPT N4 | TOPIK II cấp độ 3 (120 - 149, tổng điểm: 300) | DELF B1 hoặc TCF 300 | TRKI-1 | Goethe-Z B1 hoặc TestDaF Bậc 3 |",
+                "có chứng chỉ ngoại ngữ 2 (tiếng Anh hoặc các Ngoại ngữ khác ngoài tiếng Trung) theo danh mục [ Bảng quy đổi điểm các chứng chỉ tiếng Anh để công nhận đủ điều kiện về trình độ tiếng Anh](bang-quy-doi-diem-chung-chi-tieng-anh.php) và bảng **Danh mục chứng chỉ Ngoại ngữ 2**bên trên",
+                "Sinh viên đã hết thời gian học tập tối đa theo Quy chế đào tạo hiện hành nhưng chưa đủ điều kiện tốt nghiệp do chưa hoàn thành những học phần Giáo dục quốc phòng - An ninh hoặc Giáo dục thể chất hoặc chưa đạt chuẩn đầu ra về ngoại ngữ, công nghệ thông tin, trong thời hạn 03 năm tính từ thời hạn kết thúc học tập tại Trường được hoàn thiện các điều kiện còn thiếu và làm hồ sơ xin xét tốt nghiệp quá hạn nộp cho đơn vị đào tạo để trình Hội đồng xét công nhận tốt nghiệp."
+            ]
+        }
+    },
+    {
+        "query_id": 10,
+        "query": "Để được xét tốt nghiệp, sinh viên cần tích lũy đủ các điều kiện gì về học phần và điểm trung bình chung?",
+        "true_tier": 2,
+        "expected_urls": "https://camnang.iuh.edu.vn/dieu-kien-xet-tot-nghiep.php",
+        "baseline_1": {
+            "latency": 0.03510880470275879,
+            "retrieved_urls": [
+                "https://camnang.iuh.edu.vn/dieu-kien-xet-tot-nghiep.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php"
+            ],
+            "chunks": [
+                "a) Tích lũy đủ học phần, số tín chỉ và hoàn thành các nội dung bắt buộc khác theo yêu cầu của chương trình đào tạo, đạt chuẩn đầu ra của chương trình đào tạo; b) Điểm trung bình tích lũy của toàn khóa học đạt từ 2.0 trở lên *(theo thang điểm 4);* c) Tại thời điểm xét tốt nghiệp không bị truy cứu trách nhiệm hình sự hoặc không đang trong thời gian bị kỷ luật ở mức đình chỉ học tập; d) Có các Chứng chỉ Giáo dục Quốc phòng và Giáo dục Thể chất *(trừ sinh viên đại học liên thông, vừa làm vừa học);* e) Có trình độ tiếng Anh và Chứng chỉ Công nghệ Thông tin theo yêu cầu như sau: *(chứng chỉ quốc gia, thuộc hệ thống giáo dục quốc dân)*hoặc tương đương trở lên; + Bậc đào tạo đại học vừa làm vừa học, đại học liên thông: chứng chỉ tiếng Anh cấp độ A2 hoặc tương đương trở lên; + Có Chứng chỉ Ứng dụng Công nghệ Thông tin cơ bản. + Bậc đào tạo đại học vừa làm vừa học, đại học liên thông: điểm TOEIC đạt tối thiểu 350; + Bậc cao đẳng: điểm TOEIC đạt tối thiểu 350; + Có Chứng chỉ Ứng dụng Công nghệ Thông tin cơ bản.",
+                " 1. Sinh viên được xét và công nhận tốt nghiệp khi có đủ các điều kiện sau: a) Tích lũy đủ học phần, số tín chỉ và hoàn thành các nội dung bắt buộc khác theo yêu cầu của chương trình đào tạo, đạt chuẩn đầu ra của chương trình đào tạo; b) Điểm trung bình tích lũy của toàn khóa học đạt từ 2.0 trở lên(theo thang điểm 4); c) Tại thời điểm xét tốt nghiệp không bị truy cứu trách nhiệm hình sự hoặc không đang trong thời gian bị kỷ luật ở mức đình chỉ học tập; d) Có các Chứng chỉ Giáo dục Quốc phòng và Giáo dục Thể chất(trừ sinh viên đại học liên thông, vừa làm vừa học); e) Có trình độ tiếng Anh và Chứng chỉ Công nghệ Thông tin theo yêu cầu như sau: – Các khóa tuyển sinh từ năm 2021 trở về sau: + Bậc đào tạo đại học chính quy và chất lượng cao: chứng chỉ tiếng Anh cấp độ B1 hoặc tương đương trở lên; + Bậc đào tạo đại học vừa làm vừa học, đại học liên thông: chứng chỉ tiếng Anh cấp độ A2 hoặc tương đương trở lên; + Có Chứng chỉ Ứng dụng Công nghệ Thông tin cơ bản.",
+                "1. Thí sinh dự tuyển chương trình đào tạo liên thông bậc đại học phải có bằng trung cấp, trung cấp nghề đối với liên thông từ trung cấp lên đại học; bằng cao đẳng, cao đẳng nghề đối với liên thông từ cao đẳng lên đại học. Ngành hoặc chuyên ngành đã tốt nghiệp của người dự tuyển liên thông phải phù hợp với ngành hoặc chuyên ngành đăng ký xét tuyển. Phương thức tuyển sinh trình độ liên thông căn cứ theo Đề án tuyển sinh của Nhà trường. 2. Người đã tốt nghiệp đại học được dự tuyển và học liên thông để nhận thêm một bằng tốt nghiệp đại học tại Trường Đại học Công nghiệp Thành phố Hồ Chí Minh của một ngành đào tạo khác(liên thông đại học – đại học). Điều kiện để mở hình thức đào tạo liên thông là Nhà trường đã tuyển sinh được tối thiểu 03 khóa theo ngành đào tạo và hình thức đào tạo mà người học lựa chọn. 3. Sinh viên học chương trình đào tạo liên thông được công nhận kết quả học tập và chuyển đổi tín chỉ những học phần có nội dung, khối lượng kiến thức đã tích lũy của những chương trình đào tạo khác theo quy định tại Điều 31 của Quy chế này."
+            ]
+        },
+        "baseline_2": {
+            "method": "Hybrid (Tier 1 - Vector)",
+            "latency": 10.892248392105103,
+            "retrieved_urls": [
+                "https://camnang.iuh.edu.vn/dieu-kien-xet-tot-nghiep.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php"
+            ],
+            "chunks": [
+                "a) Tích lũy đủ học phần, số tín chỉ và hoàn thành các nội dung bắt buộc khác theo yêu cầu của chương trình đào tạo, đạt chuẩn đầu ra của chương trình đào tạo; b) Điểm trung bình tích lũy của toàn khóa học đạt từ 2.0 trở lên *(theo thang điểm 4);* c) Tại thời điểm xét tốt nghiệp không bị truy cứu trách nhiệm hình sự hoặc không đang trong thời gian bị kỷ luật ở mức đình chỉ học tập; d) Có các Chứng chỉ Giáo dục Quốc phòng và Giáo dục Thể chất *(trừ sinh viên đại học liên thông, vừa làm vừa học);* e) Có trình độ tiếng Anh và Chứng chỉ Công nghệ Thông tin theo yêu cầu như sau: *(chứng chỉ quốc gia, thuộc hệ thống giáo dục quốc dân)*hoặc tương đương trở lên; + Bậc đào tạo đại học vừa làm vừa học, đại học liên thông: chứng chỉ tiếng Anh cấp độ A2 hoặc tương đương trở lên; + Có Chứng chỉ Ứng dụng Công nghệ Thông tin cơ bản. + Bậc đào tạo đại học vừa làm vừa học, đại học liên thông: điểm TOEIC đạt tối thiểu 350; + Bậc cao đẳng: điểm TOEIC đạt tối thiểu 350; + Có Chứng chỉ Ứng dụng Công nghệ Thông tin cơ bản.",
+                " 1. Sinh viên được xét và công nhận tốt nghiệp khi có đủ các điều kiện sau: a) Tích lũy đủ học phần, số tín chỉ và hoàn thành các nội dung bắt buộc khác theo yêu cầu của chương trình đào tạo, đạt chuẩn đầu ra của chương trình đào tạo; b) Điểm trung bình tích lũy của toàn khóa học đạt từ 2.0 trở lên(theo thang điểm 4); c) Tại thời điểm xét tốt nghiệp không bị truy cứu trách nhiệm hình sự hoặc không đang trong thời gian bị kỷ luật ở mức đình chỉ học tập; d) Có các Chứng chỉ Giáo dục Quốc phòng và Giáo dục Thể chất(trừ sinh viên đại học liên thông, vừa làm vừa học); e) Có trình độ tiếng Anh và Chứng chỉ Công nghệ Thông tin theo yêu cầu như sau: – Các khóa tuyển sinh từ năm 2021 trở về sau: + Bậc đào tạo đại học chính quy và chất lượng cao: chứng chỉ tiếng Anh cấp độ B1 hoặc tương đương trở lên; + Bậc đào tạo đại học vừa làm vừa học, đại học liên thông: chứng chỉ tiếng Anh cấp độ A2 hoặc tương đương trở lên; + Có Chứng chỉ Ứng dụng Công nghệ Thông tin cơ bản.",
+                "1. Thí sinh dự tuyển chương trình đào tạo liên thông bậc đại học phải có bằng trung cấp, trung cấp nghề đối với liên thông từ trung cấp lên đại học; bằng cao đẳng, cao đẳng nghề đối với liên thông từ cao đẳng lên đại học. Ngành hoặc chuyên ngành đã tốt nghiệp của người dự tuyển liên thông phải phù hợp với ngành hoặc chuyên ngành đăng ký xét tuyển. Phương thức tuyển sinh trình độ liên thông căn cứ theo Đề án tuyển sinh của Nhà trường. 2. Người đã tốt nghiệp đại học được dự tuyển và học liên thông để nhận thêm một bằng tốt nghiệp đại học tại Trường Đại học Công nghiệp Thành phố Hồ Chí Minh của một ngành đào tạo khác(liên thông đại học – đại học). Điều kiện để mở hình thức đào tạo liên thông là Nhà trường đã tuyển sinh được tối thiểu 03 khóa theo ngành đào tạo và hình thức đào tạo mà người học lựa chọn. 3. Sinh viên học chương trình đào tạo liên thông được công nhận kết quả học tập và chuyển đổi tín chỉ những học phần có nội dung, khối lượng kiến thức đã tích lũy của những chương trình đào tạo khác theo quy định tại Điều 31 của Quy chế này."
+            ]
+        }
+    },
+    {
+        "query_id": 11,
+        "query": "Sự khác biệt giữa mức học bổng của sinh viên đạt loại xuất sắc và loại giỏi theo chính sách của trường là gì?",
+        "true_tier": 2,
+        "expected_urls": "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
+        "baseline_1": {
+            "latency": 0.058298587799072266,
+            "retrieved_urls": [
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php"
+            ],
+            "chunks": [
+                " Mỗi năm, Nhà trường ban hành chính sách trao học bổng cho sinh viên, học viên học tập, nghiên cứu tại Trường. Đặc biệt kể từ năm học 2024 - 2025, khóa tuyển sinh năm 2024, Nhà trường ban hành các chính sách học bổng, khuyến học mới rất có lợi cho người học. Cụ thể như sau: **Đối tượng xét:** Sinh viên mới trúng tuyển nhập học vào Trường đáp ứng một trong các điều kiện sau: - Đạt giải trong các kỳ thi học sinh giỏi cấp tỉnh/thành phố trở lên; đạt giải Khoa học kỹ thuật cấp tỉnh/thành phố trở lên trong thời gian học tập tại các trường THPT và có môn thi phù hợp với ngành xét tuyển; tốt nghiệp các trường THPT chuyên có hạnh kiểm tốt *(danh sách các trường THPT chuyên theo quy định hiện hành của Bộ Giáo dục và Đào tạo)*. - Là con của giáo viên các trường THPT có ký kết hợp tác với Trường; là con của cán bộ viên chức, người lao động của Trường *(đã ký hợp đồng làm việc chính thức)*; sinh viên có anh/chị/em đang cùng học tập tại Trường trong thời gian học tập chính khóa. - Các ngành có tỷ lệ sinh viên nữ dưới 2% tính tại thời điểm trúng tuyển nhập học. - Sinh viên thuộc lớp cử nhân, kỹ sư tài năng.",
+                "**Điều kiện xét:** Căn cứ vào Quỹ hỗ trợ sinh viên và số lượng sinh viên được nhận học bổng Tuyển sinh hằng năm, Nhà trường sẽ thông báo mức học bổng cho từng đối tượng được xét, cấp học bổng. Học bổng này được xét, cấp theo hình thức miễn giảm học phí cho từng học kỳ theo quy định. Mức học bổng lên tới 100% học phí, tùy mỗi trường hợp cụ thể.",
+                "**Đối tượng xét:** Sinh viên bậc đại học hệ chính quy đang trong thời gian học tập chính khóa. Mức học bổng sinh viên nhận được lên tới 130% học phí. Nội dung chi tiết được ban hành trong Quyết định số 2728/QĐ-ĐHCN ngày 23 tháng 11 năm 2023 về việc xét, cấp học bổng cho sinh viên đại học chính quy, học viên đang học tập, nghiên cứu tại Trường Đại học Công nghiệp Thành phố Hồ Chí Minh. **Điều kiện xét:** - Sinh viên đang trong thời gian học tập chính thức của khóa học - Học kỳ xét, cấp học bổng không bao gồm học kỳ đầu và cuối của khóa học. - Kết quả học tập *(theo thang điểm 4)* và rèn luyện đạt loại khá trở lên. - Không có môn bị điểm F trong học kỳ *(kể cả các học phần Giáo dục thể chất, Giáo dục quốc phòng, tiếng Anh)*. - Số tín chỉ sinh viên tích lũy trong học kỳ xét, cấp học bổng tối thiểu là 15 tín chỉ *(không tính các học phần Giáo dục thể chất, Giáo dục quốc phòng, tiếng Anh)*. Trường hợp sinh viên không đăng ký đủ 15 tín chỉ thì Nhà trường căn cứ vào số tín chỉ trong niên giám của học kỳ đó để xét, cấp học bổng. - Không bị kỷ luật trong học kỳ xét, cấp học bổng."
+            ]
+        },
+        "baseline_2": {
+            "method": "Hybrid (Tier 2 - Tree Search)",
+            "latency": 11.494201898574829,
+            "retrieved_urls": [
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
+                "https://camnang.iuh.edu.vn/hoat-dong-phong-trao.php"
+            ],
+            "chunks": [
+                " Mỗi năm, Nhà trường ban hành chính sách trao học bổng cho sinh viên, học viên học tập, nghiên cứu tại Trường. Đặc biệt kể từ năm học 2024 - 2025, khóa tuyển sinh năm 2024, Nhà trường ban hành các chính sách học bổng, khuyến học mới rất có lợi cho người học. Cụ thể như sau: **Đối tượng xét:** Sinh viên mới trúng tuyển nhập học vào Trường đáp ứng một trong các điều kiện sau: - Đạt giải trong các kỳ thi học sinh giỏi cấp tỉnh/thành phố trở lên; đạt giải Khoa học kỹ thuật cấp tỉnh/thành phố trở lên trong thời gian học tập tại các trường THPT và có môn thi phù hợp với ngành xét tuyển; tốt nghiệp các trường THPT chuyên có hạnh kiểm tốt *(danh sách các trường THPT chuyên theo quy định hiện hành của Bộ Giáo dục và Đào tạo)*. - Là con của giáo viên các trường THPT có ký kết hợp tác với Trường; là con của cán bộ viên chức, người lao động của Trường *(đã ký hợp đồng làm việc chính thức)*; sinh viên có anh/chị/em đang cùng học tập tại Trường trong thời gian học tập chính khóa. - Các ngành có tỷ lệ sinh viên nữ dưới 2% tính tại thời điểm trúng tuyển nhập học. - Sinh viên thuộc lớp cử nhân, kỹ sư tài năng.",
+                "**Điều kiện xét:** Căn cứ vào Quỹ hỗ trợ sinh viên và số lượng sinh viên được nhận học bổng Tuyển sinh hằng năm, Nhà trường sẽ thông báo mức học bổng cho từng đối tượng được xét, cấp học bổng. Học bổng này được xét, cấp theo hình thức miễn giảm học phí cho từng học kỳ theo quy định. Mức học bổng lên tới 100% học phí, tùy mỗi trường hợp cụ thể.",
+                "**Đối tượng xét:** Sinh viên bậc đại học hệ chính quy đang trong thời gian học tập chính khóa. Mức học bổng sinh viên nhận được lên tới 130% học phí. Nội dung chi tiết được ban hành trong Quyết định số 2728/QĐ-ĐHCN ngày 23 tháng 11 năm 2023 về việc xét, cấp học bổng cho sinh viên đại học chính quy, học viên đang học tập, nghiên cứu tại Trường Đại học Công nghiệp Thành phố Hồ Chí Minh. **Điều kiện xét:** - Sinh viên đang trong thời gian học tập chính thức của khóa học - Học kỳ xét, cấp học bổng không bao gồm học kỳ đầu và cuối của khóa học. - Kết quả học tập *(theo thang điểm 4)* và rèn luyện đạt loại khá trở lên. - Không có môn bị điểm F trong học kỳ *(kể cả các học phần Giáo dục thể chất, Giáo dục quốc phòng, tiếng Anh)*. - Số tín chỉ sinh viên tích lũy trong học kỳ xét, cấp học bổng tối thiểu là 15 tín chỉ *(không tính các học phần Giáo dục thể chất, Giáo dục quốc phòng, tiếng Anh)*. Trường hợp sinh viên không đăng ký đủ 15 tín chỉ thì Nhà trường căn cứ vào số tín chỉ trong niên giám của học kỳ đó để xét, cấp học bổng. - Không bị kỷ luật trong học kỳ xét, cấp học bổng.",
+                "**Đối tượng xét:** Học bổng Tài trợ cấp cho người học thuộc Trường do cựu sinh viên, các tổ chức, doanh nghiệp và cá nhân (gọi chung là đơn vị tài trợ) trao tặng theo quy định, điều kiện riêng của đơn vị tài trợ *(nếu có)*. **Điều kiện xét:** Mức học bổng, tiêu chuẩn, số lượng xét, cấp học bổng tài trợ thực hiện theo thỏa thuận giữa đơn vị tài trợ với Nhà trường hoặc theo những điều kiện xét, cấp học bổng do tiêu chí của đơn vị tài trợ đặt ra. Mức học bổng lên tới 100% học phí hoặc cao hơn tùy theo mỗi chương trình cụ thể.",
+                "Ngoài việc bồi dưỡng kiến thức, nhà trường còn luôn chú trọng trong việc tạo môi trường cho sinh viên rèn luyện, trau dồi kỹ năng mềm và phát huy khả năng sáng tạo. Thông qua các hoạt động ngoại khóa, giao lưu văn hóa nghệ thuật, các hoạt động tình nguyện sinh viên rèn luyện được thái độ sống tích cực, trau dồi kỹ năng mềm, sống có trách nhiệm với cộng đồng. Đoàn TNCS Hồ Chí Minh - Hội Sinh viên Việt Nam Trường Đại học Công nghiệp Thành phố Hồ Chí Minh là tổ chức chính trị - xã hội, nơi tập hợp đoàn viên - thanh niên trong toàn trường phát động các phong trào rèn luyện, phấn đấu trong sinh viên. Với các hoạt động da dạng, phong phú, phù hợp với nhu cầu, sở thích của các bạn trẻ, đầy nhiệt huyết, đây là địa chỉ uy tín tạo ra sân chơi bổ ích, lành mạnh cho các bạn sinh viên ngoài giờ học căng thẳng trên lớp. [youth.iuh.edu.vn](https://youth.iuh.edu.vn) youth@iuh.edu.vn - vanphong@tuoitreiuh.com"
+            ]
+        }
+    },
+    {
+        "query_id": 12,
+        "query": "Sinh viên bị cảnh báo kết quả học tập trong những trường hợp nào ở học kỳ đầu so với các học kỳ sau?",
+        "true_tier": 2,
+        "expected_urls": "https://camnang.iuh.edu.vn/canh-bao-ket-qua-hoc-tap.php",
+        "baseline_1": {
+            "latency": 0.032412052154541016,
+            "retrieved_urls": [
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/canh-bao-ket-qua-hoc-tap.php"
+            ],
+            "chunks": [
+                " 1. Cảnh báo kết quả học tập được thực hiện theo từng học kỳ, nhằm giúp cho sinh viên có kết quả học tập kém biết và lập phương án học tập thích hợp để có thể tốt nghiệp trong thời hạn học tập cho phép của CTĐT. Việc cảnh báo kết quả học tập của sinh viên dựa trên một trong các điều kiện sau: a) Tổng số tín chỉ không đạt trong học kỳ vượt quá 50% khối lượng đã đăng kí học trong học kỳ, hoặc tổng số tín chỉ nợ đọng từ đầu khóa học vượt quá 24 tín chỉ; b) ĐTBCHK đạt dưới 0.80 đối với học kỳ đầu của khóa học, dưới 1.00 đối với các học kỳ tiếp theo; c) ĐTBCTL đạt dưới 1.20 đối với sinh viên trình độ năm thứ nhất, dưới 1.40 đối với sinh viên trình độ năm thứ hai, dưới 1.60 đối với sinh viên trình độ năm thứ ba, hoặc dưới 1.80 đối với sinh viên trình độ các năm tiếp theo và cuối khóa. 2.",
+                "Sau mỗi học kỳ, Nhà trường sẽ xem xét và thông báo cho sinh viên bị buộc thôi học nếu thuộc một trong các trường hợp sau: a) Có số lần cảnh báo kết quả học tập vượt quá 2 lần liên tiếp; b) Vượt quá thời gian tối đa được phép học tập tại Trường theo quy định tại Điều 4 của Quy chế này; c) Bị kỷ luật lần thứ hai vì lý do thi hộ hoặc nhờ người thi hộ trong các kỳ thi hoặc bị kỷ luật ở mức xoá tên khỏi danh sách sinh viên của Trường; d) Tự ý bỏ học 2 học kỳ liên tiếp. 3. Chậm nhất một tháng sau khi sinh viên có quyết định buộc thôi học, Phòng Công tác sinh viên phải thông báo về địa phương, nơi sinh viên có hộ khẩu thường trú. Trường hợp sinh viên bị thôi học theo quy định nếu có nhu cầu học chương trình thấp hơn thì tùy theo từng trường hợp và mức độ vi phạm sẽ được xem xét cho học và được bảo lưu các học phần đã đạt. Hiệu trưởng xem xét, quyết định cho bảo lưu kết quả học tập đối với từng trường hợp cụ thể.",
+                "Cảnh báo kết quả học tập được thực hiện theo từng học kỳ, nhằm giúp cho sinh viên có kết quả học tập kém biết và lập phương án học tập thích hợp để có thể tốt nghiệp trong thời hạn học tập cho phép của chương trình đào tạo. Việc cảnh báo dựa trên một trong các điều kiện sau:"
+            ]
+        },
+        "baseline_2": {
+            "method": "Hybrid (Tier 2 - Tree Search)",
+            "latency": 8.163053512573242,
+            "retrieved_urls": [
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/canh-bao-ket-qua-hoc-tap.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/canh-bao-ket-qua-hoc-tap.php"
+            ],
+            "chunks": [
+                " 1. Cảnh báo kết quả học tập được thực hiện theo từng học kỳ, nhằm giúp cho sinh viên có kết quả học tập kém biết và lập phương án học tập thích hợp để có thể tốt nghiệp trong thời hạn học tập cho phép của CTĐT. Việc cảnh báo kết quả học tập của sinh viên dựa trên một trong các điều kiện sau: a) Tổng số tín chỉ không đạt trong học kỳ vượt quá 50% khối lượng đã đăng kí học trong học kỳ, hoặc tổng số tín chỉ nợ đọng từ đầu khóa học vượt quá 24 tín chỉ; b) ĐTBCHK đạt dưới 0.80 đối với học kỳ đầu của khóa học, dưới 1.00 đối với các học kỳ tiếp theo; c) ĐTBCTL đạt dưới 1.20 đối với sinh viên trình độ năm thứ nhất, dưới 1.40 đối với sinh viên trình độ năm thứ hai, dưới 1.60 đối với sinh viên trình độ năm thứ ba, hoặc dưới 1.80 đối với sinh viên trình độ các năm tiếp theo và cuối khóa. 2.",
+                "Sau mỗi học kỳ, Nhà trường sẽ xem xét và thông báo cho sinh viên bị buộc thôi học nếu thuộc một trong các trường hợp sau: a) Có số lần cảnh báo kết quả học tập vượt quá 2 lần liên tiếp; b) Vượt quá thời gian tối đa được phép học tập tại Trường theo quy định tại Điều 4 của Quy chế này; c) Bị kỷ luật lần thứ hai vì lý do thi hộ hoặc nhờ người thi hộ trong các kỳ thi hoặc bị kỷ luật ở mức xoá tên khỏi danh sách sinh viên của Trường; d) Tự ý bỏ học 2 học kỳ liên tiếp. 3. Chậm nhất một tháng sau khi sinh viên có quyết định buộc thôi học, Phòng Công tác sinh viên phải thông báo về địa phương, nơi sinh viên có hộ khẩu thường trú. Trường hợp sinh viên bị thôi học theo quy định nếu có nhu cầu học chương trình thấp hơn thì tùy theo từng trường hợp và mức độ vi phạm sẽ được xem xét cho học và được bảo lưu các học phần đã đạt. Hiệu trưởng xem xét, quyết định cho bảo lưu kết quả học tập đối với từng trường hợp cụ thể.",
+                "Cảnh báo kết quả học tập được thực hiện theo từng học kỳ, nhằm giúp cho sinh viên có kết quả học tập kém biết và lập phương án học tập thích hợp để có thể tốt nghiệp trong thời hạn học tập cho phép của chương trình đào tạo. Việc cảnh báo dựa trên một trong các điều kiện sau:",
+                "1. Kết quả học tập của sinh viên đã tích lũy từ một trình độ đào tạo khác, một ngành đào tạo hoặc một chương trình đào tạo khác, một khóa học khác hoặc từ một cơ sở đào tạo khác được Nhà trường xem xét công nhận, chuyển đổi sang tín chỉ của những học phần trong chương trình đào tạo theo học. 2. Hội đồng chuyên môn của Nhà trường sẽ xem xét công nhận, chuyển đổi tín chỉ trên cơ sở đối sánh chuẩn đầu ra, nội dung và khối lượng học tập, cách thức đánh giá học phần và các điều kiện bảo đảm chất lượng thực hiện chương trình theo các cấp độ: a) Công nhận, chuyển đổi theo từng học phần; b) Công nhận, chuyển đổi theo từng nhóm học phần; c) Công nhận, chuyển đổi theo cả chương trình đào tạo. 3. Khối lượng tối đa được công nhận, chuyển đổi không vượt quá 50% khối lượng học tập tối thiểu của chương trình đào tạo.",
+                "a) Tổng số tín chỉ không đạt trong học kỳ vượt quá 50% khối lượng đã đăng ký học trong học kỳ, hoặc tổng số tín chỉ nợ đọng từ đầu khóa học vượt quá 24 tín chỉ;"
+            ]
+        }
+    },
+    {
+        "query_id": 13,
+        "query": "Những nguyên nhân nào dẫn đến việc sinh viên bị buộc thôi học sau mỗi học kỳ?",
+        "true_tier": 2,
+        "expected_urls": "https://camnang.iuh.edu.vn/buoc-thoi-hoc.php",
+        "baseline_1": {
+            "latency": 0.028700828552246094,
+            "retrieved_urls": [
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/quy-che-cong-tac-sinh-vien.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php"
+            ],
+            "chunks": [
+                "Sau mỗi học kỳ, Nhà trường sẽ xem xét và thông báo cho sinh viên bị buộc thôi học nếu thuộc một trong các trường hợp sau: a) Có số lần cảnh báo kết quả học tập vượt quá 2 lần liên tiếp; b) Vượt quá thời gian tối đa được phép học tập tại Trường theo quy định tại Điều 4 của Quy chế này; c) Bị kỷ luật lần thứ hai vì lý do thi hộ hoặc nhờ người thi hộ trong các kỳ thi hoặc bị kỷ luật ở mức xoá tên khỏi danh sách sinh viên của Trường; d) Tự ý bỏ học 2 học kỳ liên tiếp. 3. Chậm nhất một tháng sau khi sinh viên có quyết định buộc thôi học, Phòng Công tác sinh viên phải thông báo về địa phương, nơi sinh viên có hộ khẩu thường trú. Trường hợp sinh viên bị thôi học theo quy định nếu có nhu cầu học chương trình thấp hơn thì tùy theo từng trường hợp và mức độ vi phạm sẽ được xem xét cho học và được bảo lưu các học phần đã đạt. Hiệu trưởng xem xét, quyết định cho bảo lưu kết quả học tập đối với từng trường hợp cụ thể.",
+                "**Lưu ý:** Trường hợp sinh viên bị kỷ luật mức đình chỉ học tập có thời hạn hoặc buộc thôi học Nhà trường gửi thông báo cho địa phương và gia đình sinh viên biết để phối hợp quản lý, giáo dục.",
+                "1. Sinh viên được xin thôi học vì lý do cá nhân, trừ trường hợp sinh viên đang bị Nhà trường xem xét buộc thôi học hoặc xem xét kỷ luật. 2. Thủ tục xin thôi học như sau: sinh viên làm đơn gửi đơn vị đào tạo xác nhận sau khi giảng viên chủ nhiệm có ý kiến về lý do xin thôi học, sau đó sinh viên nộp đơn và các hồ sơ có liên quan về Phòng Đào tạo để trình Ban Giám hiệu phê duyệt và ra quyết định cho thôi học. 3. Sinh viên đã có quyết định thôi học nếu muốn quay trở lại Trường học thì phải dự tuyển đầu vào theo các quy định tuyển sinh của Nhà trường và Bộ Giáo dục và Đào tạo."
+            ]
+        },
+        "baseline_2": {
+            "method": "Hybrid (Tier 1 - Vector)",
+            "latency": 13.417069673538208,
+            "retrieved_urls": [
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/quy-che-cong-tac-sinh-vien.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php"
+            ],
+            "chunks": [
+                "Sau mỗi học kỳ, Nhà trường sẽ xem xét và thông báo cho sinh viên bị buộc thôi học nếu thuộc một trong các trường hợp sau: a) Có số lần cảnh báo kết quả học tập vượt quá 2 lần liên tiếp; b) Vượt quá thời gian tối đa được phép học tập tại Trường theo quy định tại Điều 4 của Quy chế này; c) Bị kỷ luật lần thứ hai vì lý do thi hộ hoặc nhờ người thi hộ trong các kỳ thi hoặc bị kỷ luật ở mức xoá tên khỏi danh sách sinh viên của Trường; d) Tự ý bỏ học 2 học kỳ liên tiếp. 3. Chậm nhất một tháng sau khi sinh viên có quyết định buộc thôi học, Phòng Công tác sinh viên phải thông báo về địa phương, nơi sinh viên có hộ khẩu thường trú. Trường hợp sinh viên bị thôi học theo quy định nếu có nhu cầu học chương trình thấp hơn thì tùy theo từng trường hợp và mức độ vi phạm sẽ được xem xét cho học và được bảo lưu các học phần đã đạt. Hiệu trưởng xem xét, quyết định cho bảo lưu kết quả học tập đối với từng trường hợp cụ thể.",
+                "**Lưu ý:** Trường hợp sinh viên bị kỷ luật mức đình chỉ học tập có thời hạn hoặc buộc thôi học Nhà trường gửi thông báo cho địa phương và gia đình sinh viên biết để phối hợp quản lý, giáo dục.",
+                "1. Sinh viên được xin thôi học vì lý do cá nhân, trừ trường hợp sinh viên đang bị Nhà trường xem xét buộc thôi học hoặc xem xét kỷ luật. 2. Thủ tục xin thôi học như sau: sinh viên làm đơn gửi đơn vị đào tạo xác nhận sau khi giảng viên chủ nhiệm có ý kiến về lý do xin thôi học, sau đó sinh viên nộp đơn và các hồ sơ có liên quan về Phòng Đào tạo để trình Ban Giám hiệu phê duyệt và ra quyết định cho thôi học. 3. Sinh viên đã có quyết định thôi học nếu muốn quay trở lại Trường học thì phải dự tuyển đầu vào theo các quy định tuyển sinh của Nhà trường và Bộ Giáo dục và Đào tạo."
+            ]
+        }
+    },
+    {
+        "query_id": 14,
+        "query": "Chương trình đào tạo yêu cầu tổng số tín chỉ khác nhau như thế nào giữa khối Kỹ thuật - Công nghệ và Khối Kinh tế - Luật?",
+        "true_tier": 2,
+        "expected_urls": "https://camnang.iuh.edu.vn/chuong-trinh-dao-tao.php",
+        "baseline_1": {
+            "latency": 0.03826737403869629,
+            "retrieved_urls": [
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/chinh-sach-chat-luong.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php"
+            ],
+            "chunks": [
+                "Các học phần tương đương hay nhóm học phần tương đương hoặc thay thế do đơn vị đào tạo quản lý chuyên môn đề xuất; f) Học phần điều kiện: học phần mà sinh viên phải hoàn thành nhưng kết quả học không dùng để tính điểm trung bình chung tích lũy(ĐTBCTL), bao gồm các học phần sau: Giáo dục Quốc phòng – An ninh, Giáo dục Thể chất và các học phần khác được quy định trong chương trình đào tạo; g) Học phần tích lũy: học phần đã được đánh giá theo thang điểm chữ A+, A, B+, B, C+, C, D+, D. Tổng số tín chỉ của các học phần này tính từ lúc bắt đầu khoá học đến thời điểm xét, được gọi là Khối lượng kiến thức tích lũy. 4. Tín chỉ là đơn vị dùng để đo khối lượng kiến thức trong chương trình đào tạo, đồng thời là đơn vị dùng để đánh giá khối lượng học tập của sinh viên dựa trên số lượng tín chỉ đã tích lũy được. a) Một tín chỉ được quy định bằng 15 tiết học lý thuyết hoặc thực hành, thảo luận trên lớp lý tuyết; 30 tiết thực hành, thí nghiệm hoặc thảo luận thực hiện tại các phòng thực hành – thí nghiệm hoặc phòng chuyên đề; 45 tiết làm chuyên đề, đồ án, khóa luận tốt nghiệp hoặc 60 giờ thực tập tại doanh nghiệp.",
+                "Áp dụng cách tiếp cận tổng thể đối với hoạt động đảm bảo chất lượng thông qua việc lập kế hoạch theo định hướng thị trường và xây dựng chương trình đào tạo dựa trên xu hướng phát triển của nền kinh tế và các ngành nghề, nhu cầu của các bên liên quan và mối liên kết giữa thực tiễn ngành nghề và học thuật với Nhà trường; Liên tục cải thiện hoạt động đảm bảo chất lượng bằng cách tích cực thu hút sự tham gia của các bên liên quan và nắm bắt các công nghệ mới nhất cũng như các phương pháp giáo dục và nghiên cứu tốt nhất; Phát triển tập thể viên chức, người lao động có năng lực và tận tâm; kết hợp với hệ thống dạy và học hiệu quả nhằm tạo ra người học có đầy đủ các phẩm chất CARE để có thể đáp ứng được thách thực của việc làm trong tương lai; Triển khai hệ thống quản lý chất lượng đáp ứng các yêu cầu của tiêu chuẩn quốc gia, khu vực và quốc tế để hỗ trợ nỗ lực không ngừng nhằm duy trì chất lượng và thúc đẩy văn hóa chất lượng trong toàn trường.",
+                " 1. Các hệ đào tạo Trường Đại học Công nghiệp Thành phố Hồ Chí Minh đào tạo đa bậc, đa hệ, đa hình thức, đa ngành với đầu vào của các bậc, các hệ, các hình thức đào tạo, các ngành khác nhau và thời gian đào tạo của các bậc, các hệ, các hình thức, các ngành cũng khác nhau, cụ thể như sau: – Đào tạo trình độ đại học chính quy: thực hiện 3,5 – 4,5 năm; – Đào tạo trình độ đại học liên thông từ trung cấp: thực hiện 2,5 – 3,5 năm; – Đào tạo trình độ đại học liên thông từ cao đẳng: thực hiện 1,5 – 2 năm; – Đào tạo trình độ đại học vừa làm vừa học: thực hiện 4 – 5 năm; – Đào tạo trình độ đại học liên thông đại học – đại học: thực hiện 2,5 – 3 năm; – Đào tạo trình độ cao đẳng: thực hiện 2,5 năm. 2. Thời gian của khóa đào tạo a) Thời Thời gian kế hoạch của một khóa đào tạo là thời gian cần thiết để sinh viên hoàn thành một chương trình học tập cụ thể."
+            ]
+        },
+        "baseline_2": {
+            "method": "Hybrid (Tier 2 - Tree Search)",
+            "latency": 23.54047179222107,
+            "retrieved_urls": [
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/chinh-sach-chat-luong.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php"
+            ],
+            "chunks": [
+                "Các học phần tương đương hay nhóm học phần tương đương hoặc thay thế do đơn vị đào tạo quản lý chuyên môn đề xuất; f) Học phần điều kiện: học phần mà sinh viên phải hoàn thành nhưng kết quả học không dùng để tính điểm trung bình chung tích lũy(ĐTBCTL), bao gồm các học phần sau: Giáo dục Quốc phòng – An ninh, Giáo dục Thể chất và các học phần khác được quy định trong chương trình đào tạo; g) Học phần tích lũy: học phần đã được đánh giá theo thang điểm chữ A+, A, B+, B, C+, C, D+, D. Tổng số tín chỉ của các học phần này tính từ lúc bắt đầu khoá học đến thời điểm xét, được gọi là Khối lượng kiến thức tích lũy. 4. Tín chỉ là đơn vị dùng để đo khối lượng kiến thức trong chương trình đào tạo, đồng thời là đơn vị dùng để đánh giá khối lượng học tập của sinh viên dựa trên số lượng tín chỉ đã tích lũy được. a) Một tín chỉ được quy định bằng 15 tiết học lý thuyết hoặc thực hành, thảo luận trên lớp lý tuyết; 30 tiết thực hành, thí nghiệm hoặc thảo luận thực hiện tại các phòng thực hành – thí nghiệm hoặc phòng chuyên đề; 45 tiết làm chuyên đề, đồ án, khóa luận tốt nghiệp hoặc 60 giờ thực tập tại doanh nghiệp.",
+                "Áp dụng cách tiếp cận tổng thể đối với hoạt động đảm bảo chất lượng thông qua việc lập kế hoạch theo định hướng thị trường và xây dựng chương trình đào tạo dựa trên xu hướng phát triển của nền kinh tế và các ngành nghề, nhu cầu của các bên liên quan và mối liên kết giữa thực tiễn ngành nghề và học thuật với Nhà trường; Liên tục cải thiện hoạt động đảm bảo chất lượng bằng cách tích cực thu hút sự tham gia của các bên liên quan và nắm bắt các công nghệ mới nhất cũng như các phương pháp giáo dục và nghiên cứu tốt nhất; Phát triển tập thể viên chức, người lao động có năng lực và tận tâm; kết hợp với hệ thống dạy và học hiệu quả nhằm tạo ra người học có đầy đủ các phẩm chất CARE để có thể đáp ứng được thách thực của việc làm trong tương lai; Triển khai hệ thống quản lý chất lượng đáp ứng các yêu cầu của tiêu chuẩn quốc gia, khu vực và quốc tế để hỗ trợ nỗ lực không ngừng nhằm duy trì chất lượng và thúc đẩy văn hóa chất lượng trong toàn trường.",
+                " 1. Các hệ đào tạo Trường Đại học Công nghiệp Thành phố Hồ Chí Minh đào tạo đa bậc, đa hệ, đa hình thức, đa ngành với đầu vào của các bậc, các hệ, các hình thức đào tạo, các ngành khác nhau và thời gian đào tạo của các bậc, các hệ, các hình thức, các ngành cũng khác nhau, cụ thể như sau: – Đào tạo trình độ đại học chính quy: thực hiện 3,5 – 4,5 năm; – Đào tạo trình độ đại học liên thông từ trung cấp: thực hiện 2,5 – 3,5 năm; – Đào tạo trình độ đại học liên thông từ cao đẳng: thực hiện 1,5 – 2 năm; – Đào tạo trình độ đại học vừa làm vừa học: thực hiện 4 – 5 năm; – Đào tạo trình độ đại học liên thông đại học – đại học: thực hiện 2,5 – 3 năm; – Đào tạo trình độ cao đẳng: thực hiện 2,5 năm. 2. Thời gian của khóa đào tạo a) Thời Thời gian kế hoạch của một khóa đào tạo là thời gian cần thiết để sinh viên hoàn thành một chương trình học tập cụ thể.",
+                "1. Thí sinh dự tuyển chương trình đào tạo liên thông bậc đại học phải có bằng trung cấp, trung cấp nghề đối với liên thông từ trung cấp lên đại học; bằng cao đẳng, cao đẳng nghề đối với liên thông từ cao đẳng lên đại học. Ngành hoặc chuyên ngành đã tốt nghiệp của người dự tuyển liên thông phải phù hợp với ngành hoặc chuyên ngành đăng ký xét tuyển. Phương thức tuyển sinh trình độ liên thông căn cứ theo Đề án tuyển sinh của Nhà trường. 2. Người đã tốt nghiệp đại học được dự tuyển và học liên thông để nhận thêm một bằng tốt nghiệp đại học tại Trường Đại học Công nghiệp Thành phố Hồ Chí Minh của một ngành đào tạo khác(liên thông đại học – đại học). Điều kiện để mở hình thức đào tạo liên thông là Nhà trường đã tuyển sinh được tối thiểu 03 khóa theo ngành đào tạo và hình thức đào tạo mà người học lựa chọn. 3. Sinh viên học chương trình đào tạo liên thông được công nhận kết quả học tập và chuyển đổi tín chỉ những học phần có nội dung, khối lượng kiến thức đã tích lũy của những chương trình đào tạo khác theo quy định tại Điều 31 của Quy chế này.",
+                "1. Kết quả học tập của sinh viên đã tích lũy từ một trình độ đào tạo khác, một ngành đào tạo hoặc một chương trình đào tạo khác, một khóa học khác hoặc từ một cơ sở đào tạo khác được Nhà trường xem xét công nhận, chuyển đổi sang tín chỉ của những học phần trong chương trình đào tạo theo học. 2. Hội đồng chuyên môn của Nhà trường sẽ xem xét công nhận, chuyển đổi tín chỉ trên cơ sở đối sánh chuẩn đầu ra, nội dung và khối lượng học tập, cách thức đánh giá học phần và các điều kiện bảo đảm chất lượng thực hiện chương trình theo các cấp độ: a) Công nhận, chuyển đổi theo từng học phần; b) Công nhận, chuyển đổi theo từng nhóm học phần; c) Công nhận, chuyển đổi theo cả chương trình đào tạo. 3. Khối lượng tối đa được công nhận, chuyển đổi không vượt quá 50% khối lượng học tập tối thiểu của chương trình đào tạo."
+            ]
+        }
+    },
+    {
+        "query_id": 15,
+        "query": "Sinh viên được đánh giá kết quả rèn luyện dựa trên những tiêu chuẩn khung nào?",
+        "true_tier": 2,
+        "expected_urls": "https://camnang.iuh.edu.vn/danh-gia-ket-qua-ren-luyen.php",
+        "baseline_1": {
+            "latency": 0.027593612670898438,
+            "retrieved_urls": [
+                "https://camnang.iuh.edu.vn/danh-gia-ket-qua-ren-luyen.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/dieu-kien-xet-tot-nghiep.php"
+            ],
+            "chunks": [
+                "- Kết quả đánh giá rèn luyện được sử dụng làm căn cứ để xét tốt nghiệp, làm khóa luận tốt nghiệp, xét học bổng, xét khen thưởng - kỷ luật, xét lưu trú ở ký túc xá, xét giới thiệu việc làm thêm và các ưu tiên khác tùy theo quy định của Nhà trường. - Sinh viên bị xếp loại rèn luyện Yếu, Kém trong hai học kỳ liên tiếp thì phải tạm ngừng học ít nhất một học kỳ ở học kỳ tiếp theo và nếu bị xếp loại rèn luyện Yếu, Kém hai học kỳ liên tiếp lần thứ hai thì sẽ bị buộc thôi học.",
+                " 1. Đánh giá kết quả học tập của sinh viên cho mỗi học phần theo học chế tín chỉ là đánh giá toàn bộ quá trình học tập, được cụ thể hóa qua các điểm thành phần của học phần. 2. Mỗi học phần lý thuyết được đánh giá bao gồm 3 thành phần sau: a) Điểm kiểm tra thường kỳ/Điểm quá trình tham gia học tập(viết tắt là ĐTBKTTK)do giảng viên phụ trách học phần ghi nhận; tính theo thời gian sinh viên tham gia lớp học trực tiếp(hoặc trực tuyến)và các hoạt động khác được quy định trong đề cương chi tiết học phần; Điểm kiểm tra thường kỳ phải có 2 cột điểm đối với các học phần có từ 1 đến 2 tín chỉ và có 3 cột điểm đối với các học phần có từ 3 tín chỉ trở lên. Điểm trung bình kiểm tra thường kỳ bằng trung bình cộng của các cột điểm; b) Điểm kiểm tra giữa học phần(gọi là Điểm giữa kỳ – viết tắt là ĐGK)do giảng viên phụ trách học phần ghi nhận căn cứ theo quy định trong đề cương chi tiết học phần; Đơn vị đào tạo có trách nhiệm tổ chức thực hiện đánh giá hai thành phần ĐTBKTTK và ĐGK theo thang điểm 10 và lẻ một chữ số thập phân.",
+                "a) Tích lũy đủ học phần, số tín chỉ và hoàn thành các nội dung bắt buộc khác theo yêu cầu của chương trình đào tạo, đạt chuẩn đầu ra của chương trình đào tạo; b) Điểm trung bình tích lũy của toàn khóa học đạt từ 2.0 trở lên *(theo thang điểm 4);* c) Tại thời điểm xét tốt nghiệp không bị truy cứu trách nhiệm hình sự hoặc không đang trong thời gian bị kỷ luật ở mức đình chỉ học tập; d) Có các Chứng chỉ Giáo dục Quốc phòng và Giáo dục Thể chất *(trừ sinh viên đại học liên thông, vừa làm vừa học);* e) Có trình độ tiếng Anh và Chứng chỉ Công nghệ Thông tin theo yêu cầu như sau: *(chứng chỉ quốc gia, thuộc hệ thống giáo dục quốc dân)*hoặc tương đương trở lên; + Bậc đào tạo đại học vừa làm vừa học, đại học liên thông: chứng chỉ tiếng Anh cấp độ A2 hoặc tương đương trở lên; + Có Chứng chỉ Ứng dụng Công nghệ Thông tin cơ bản. + Bậc đào tạo đại học vừa làm vừa học, đại học liên thông: điểm TOEIC đạt tối thiểu 350; + Bậc cao đẳng: điểm TOEIC đạt tối thiểu 350; + Có Chứng chỉ Ứng dụng Công nghệ Thông tin cơ bản."
+            ]
+        },
+        "baseline_2": {
+            "method": "Hybrid (Tier 1 - Vector)",
+            "latency": 15.885753154754639,
+            "retrieved_urls": [
+                "https://camnang.iuh.edu.vn/danh-gia-ket-qua-ren-luyen.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/dieu-kien-xet-tot-nghiep.php"
+            ],
+            "chunks": [
+                "- Kết quả đánh giá rèn luyện được sử dụng làm căn cứ để xét tốt nghiệp, làm khóa luận tốt nghiệp, xét học bổng, xét khen thưởng - kỷ luật, xét lưu trú ở ký túc xá, xét giới thiệu việc làm thêm và các ưu tiên khác tùy theo quy định của Nhà trường. - Sinh viên bị xếp loại rèn luyện Yếu, Kém trong hai học kỳ liên tiếp thì phải tạm ngừng học ít nhất một học kỳ ở học kỳ tiếp theo và nếu bị xếp loại rèn luyện Yếu, Kém hai học kỳ liên tiếp lần thứ hai thì sẽ bị buộc thôi học.",
+                " 1. Đánh giá kết quả học tập của sinh viên cho mỗi học phần theo học chế tín chỉ là đánh giá toàn bộ quá trình học tập, được cụ thể hóa qua các điểm thành phần của học phần. 2. Mỗi học phần lý thuyết được đánh giá bao gồm 3 thành phần sau: a) Điểm kiểm tra thường kỳ/Điểm quá trình tham gia học tập(viết tắt là ĐTBKTTK)do giảng viên phụ trách học phần ghi nhận; tính theo thời gian sinh viên tham gia lớp học trực tiếp(hoặc trực tuyến)và các hoạt động khác được quy định trong đề cương chi tiết học phần; Điểm kiểm tra thường kỳ phải có 2 cột điểm đối với các học phần có từ 1 đến 2 tín chỉ và có 3 cột điểm đối với các học phần có từ 3 tín chỉ trở lên. Điểm trung bình kiểm tra thường kỳ bằng trung bình cộng của các cột điểm; b) Điểm kiểm tra giữa học phần(gọi là Điểm giữa kỳ – viết tắt là ĐGK)do giảng viên phụ trách học phần ghi nhận căn cứ theo quy định trong đề cương chi tiết học phần; Đơn vị đào tạo có trách nhiệm tổ chức thực hiện đánh giá hai thành phần ĐTBKTTK và ĐGK theo thang điểm 10 và lẻ một chữ số thập phân.",
+                "a) Tích lũy đủ học phần, số tín chỉ và hoàn thành các nội dung bắt buộc khác theo yêu cầu của chương trình đào tạo, đạt chuẩn đầu ra của chương trình đào tạo; b) Điểm trung bình tích lũy của toàn khóa học đạt từ 2.0 trở lên *(theo thang điểm 4);* c) Tại thời điểm xét tốt nghiệp không bị truy cứu trách nhiệm hình sự hoặc không đang trong thời gian bị kỷ luật ở mức đình chỉ học tập; d) Có các Chứng chỉ Giáo dục Quốc phòng và Giáo dục Thể chất *(trừ sinh viên đại học liên thông, vừa làm vừa học);* e) Có trình độ tiếng Anh và Chứng chỉ Công nghệ Thông tin theo yêu cầu như sau: *(chứng chỉ quốc gia, thuộc hệ thống giáo dục quốc dân)*hoặc tương đương trở lên; + Bậc đào tạo đại học vừa làm vừa học, đại học liên thông: chứng chỉ tiếng Anh cấp độ A2 hoặc tương đương trở lên; + Có Chứng chỉ Ứng dụng Công nghệ Thông tin cơ bản. + Bậc đào tạo đại học vừa làm vừa học, đại học liên thông: điểm TOEIC đạt tối thiểu 350; + Bậc cao đẳng: điểm TOEIC đạt tối thiểu 350; + Có Chứng chỉ Ứng dụng Công nghệ Thông tin cơ bản."
+            ]
+        }
+    },
+    {
+        "query_id": 16,
+        "query": "Hoạt động học thuật của Đoàn thanh niên bao gồm những cuộc thi và giải thưởng tiêu biểu nào?",
+        "true_tier": 2,
+        "expected_urls": "https://camnang.iuh.edu.vn/hoat-dong-hoc-thuat.php",
+        "baseline_1": {
+            "latency": 0.030796527862548828,
+            "retrieved_urls": [
+                "https://iuh.edu.vn/upload/files/2026/04/Ke-hoach-99-ke-hoach-to-chuc-cuoc-thi-chinh-luan.pdf",
+                "https://camnang.iuh.edu.vn/hoat-dong-vhvn-tdtt.php",
+                "https://iuh.edu.vn/upload/files/2026/04/867_Thongbao_tuyensinh_2026.pdf"
+            ],
+            "chunks": [
+                "Ban Chỉ đạo Cuộc thi tặng 15 giải Tập thể xuất sắc cho các cơ quan, đơn vị; dịa phương tổ chức Cuộc thi tại cơ quan; đơn vị, địa phương mình với cách thức triển khai sâu rộng, sáng tạo; có nhiều tác dự thi cấp Trung ương đạt chất đạt giải C trở lên. phẩm phẩm",
+                "Trong lĩnh vực văn hóa văn nghệ, Đoàn Thanh niên - Hội Sinh viên luôn duy trì thường xuyên hoạt động của các đơn vị như CLB guitar, CLB Âm nhạc, Đội văn nghệ,... là nơi để cho sinh viên phát huy năng khiếu, kết nối đam mê và phát triển kỹ năng mềm. “Hội diễn văn nghệ sinh viên” hàng năm là một trong những hoạt động lớn luôn nhận được sự quan tâm của sinh viên trong và ngoài nhà trường. Những hoạt động này không chỉ tạo sân chơi giải trí bổ ích mà còn giúp sinh viên thể hiện tài năng, phát huy tinh thần yêu nước, tự hào dân tộc và sống đẹp, sống có lý tưởng.",
+                "- Điểm thưởng, dành cho các đối tượng thí sinh được xét thẳng nhưng không sử dụng xét theo quy định tại khoản 2, Điều 8, Quy chế sinh của Bộ Giáo dục và Đào tao; tuyển tuyển quyền thẳng tuyển - Điếm xét thưởng, dành cho các đối tượng thí sinh có thành tích nổi bật hoặc có khiếu đặc biệt (chi tiết đối tượng và mức điểm xét thưởng được quy định tại Phụ lục 1 của Thông báo này); năng - Điếm khuyến khích, dành cho các đối tượng thí sinh có chứng chỉ ngữ (chi tiết chứng chỉ và mức điểm khuyến khích được quy định tại Phụ lục 2 của Thông báo này); ngoai - Thí sinh ký xét vào các ngành/nhóm ngành có môn Anh là môn bắt buộc trong tổ xét tuyển; nếu có chứng chỉ ngoại ngữ theo quy định nhưng không tham dự môn Anh trong kỳ thi tốt nghiệp THPT, Nhà trường sẽ quy đổi điểm từ chứng chỉ cho môn Anh để tính điểm xét Trường này, thí sinh không được cộng điểm khuyến khích. tiếng tuyển đăng hợp tiếng tuyển. tiếng thay hợp"
+            ]
+        },
+        "baseline_2": {
+            "method": "Hybrid (Tier 3 - Tree Search)",
+            "latency": 21.81158137321472,
+            "retrieved_urls": [
+                "https://iuh.edu.vn/upload/files/2026/04/Ke-hoach-99-ke-hoach-to-chuc-cuoc-thi-chinh-luan.pdf",
+                "https://camnang.iuh.edu.vn/hoat-dong-vhvn-tdtt.php",
+                "https://iuh.edu.vn/upload/files/2026/04/867_Thongbao_tuyensinh_2026.pdf",
+                "https://camnang.iuh.edu.vn/hoat-dong-vhvn-tdtt.php",
+                "https://camnang.iuh.edu.vn/hoat-dong-phong-trao.php"
+            ],
+            "chunks": [
+                "Ban Chỉ đạo Cuộc thi tặng 15 giải Tập thể xuất sắc cho các cơ quan, đơn vị; dịa phương tổ chức Cuộc thi tại cơ quan; đơn vị, địa phương mình với cách thức triển khai sâu rộng, sáng tạo; có nhiều tác dự thi cấp Trung ương đạt chất đạt giải C trở lên. phẩm phẩm",
+                "Trong lĩnh vực văn hóa văn nghệ, Đoàn Thanh niên - Hội Sinh viên luôn duy trì thường xuyên hoạt động của các đơn vị như CLB guitar, CLB Âm nhạc, Đội văn nghệ,... là nơi để cho sinh viên phát huy năng khiếu, kết nối đam mê và phát triển kỹ năng mềm. “Hội diễn văn nghệ sinh viên” hàng năm là một trong những hoạt động lớn luôn nhận được sự quan tâm của sinh viên trong và ngoài nhà trường. Những hoạt động này không chỉ tạo sân chơi giải trí bổ ích mà còn giúp sinh viên thể hiện tài năng, phát huy tinh thần yêu nước, tự hào dân tộc và sống đẹp, sống có lý tưởng.",
+                "- Điểm thưởng, dành cho các đối tượng thí sinh được xét thẳng nhưng không sử dụng xét theo quy định tại khoản 2, Điều 8, Quy chế sinh của Bộ Giáo dục và Đào tao; tuyển tuyển quyền thẳng tuyển - Điếm xét thưởng, dành cho các đối tượng thí sinh có thành tích nổi bật hoặc có khiếu đặc biệt (chi tiết đối tượng và mức điểm xét thưởng được quy định tại Phụ lục 1 của Thông báo này); năng - Điếm khuyến khích, dành cho các đối tượng thí sinh có chứng chỉ ngữ (chi tiết chứng chỉ và mức điểm khuyến khích được quy định tại Phụ lục 2 của Thông báo này); ngoai - Thí sinh ký xét vào các ngành/nhóm ngành có môn Anh là môn bắt buộc trong tổ xét tuyển; nếu có chứng chỉ ngoại ngữ theo quy định nhưng không tham dự môn Anh trong kỳ thi tốt nghiệp THPT, Nhà trường sẽ quy đổi điểm từ chứng chỉ cho môn Anh để tính điểm xét Trường này, thí sinh không được cộng điểm khuyến khích. tiếng tuyển đăng hợp tiếng tuyển. tiếng thay hợp",
+                "Thông qua các hoạt động văn nghệ - thể thao, Đoàn Thanh niên - Hội Sinh viên trường đã tạo nên môi trường rèn luyện toàn diện cả về trí – đức – thể – mỹ, góp phần bồi dưỡng lớp thanh niên khỏe về thể chất, đẹp về tinh thần, giàu bản sắc văn hóa và sẵn sàng cống hiến cho tập thể, cộng đồng và đất nước.",
+                "Giải thưởng “Cán bộ Đoàn tiêu biểu” là giải thưởng của Ban Chấp hành Đoàn TNCS Hồ Chí Minh Trường Đại học Công nghiệp Thành phố Hồ Chí Minh dành cho cán bộ Đoàn các cấp có thành tích tiêu biểu, là gương điển hình trong việc xây dựng giá trị mẫu hình thanh niên Trường Đại học Công nghiệp Thành phố Hồ Chí Minh."
+            ]
+        }
+    },
+    {
+        "query_id": 17,
+        "query": "Biểu mẫu đơn đề nghị miễn giảm học phí có thể tải ở đâu và cần những giấy tờ đính kèm nào?",
+        "true_tier": 3,
+        "expected_urls": "https://camnang.iuh.edu.vn/chinh-sach-mien-giam-hoc-phi-va-ho-tro-chi-phi-hoc-tap.php",
+        "baseline_1": {
+            "latency": 0.0322110652923584,
+            "retrieved_urls": [
+                "https://iuh.edu.vn/upload/files/2026/04/867_Thongbao_tuyensinh_2026.pdf",
+                "https://iuh.edu.vn/upload/files/2026/04/Ke-hoach-99-ke-hoach-to-chuc-cuoc-thi-chinh-luan.pdf",
+                "https://iuh.edu.vn/upload/files/2026/04/Ke-hoach-99-ke-hoach-to-chuc-cuoc-thi-chinh-luan.pdf"
+            ],
+            "chunks": [
+                "- Phiếu ký sơ (thí sinh bắt buộc khai báo trên trang sinh tuyển tuyển đăng - theo địa chỉ: www.tuyensinh.iuh.edu.vn, sau đó thực hiện theo hướng dẫn để in ký sơ tuyến); phiếu đăng - 01 Bản photocopy thẻ căn cước; - -Lệ phí sơ 50.000 đồng/thí sinh; tuyển: - Giấy tờ minh chứng cho diện cộng điểm xét tuyển (bản photocopy có chứng) công",
+                "- Ban Tổ chức Cuộc thi cấp Trung ương căn cứ Thể lệ ban hành kèm theo Kế hoạch này để tiếp tục dánh giá và - lọc các tác gửi về Ban Tổ chức Cuộc thi. Các tác đáp cầu về thể loại chủ đề kết cấu và hình thức sẽ được đưa vào chấm Sơ khảo. phẩm sàng phẩm yêu ứng - Hội chấm sơ khảo, có chất lượng tốt nhất (lấy điểm từ cao quả phẩm - Với các tác viết, Ban Tổ chức tiến hành rà mềm nghệ để xác định mức độ lặp. Chỉ những bài viết có tỷ lệ lặp không 20% (với thể loại Tạp chí) hoặc không 25% (với thể loại Báo) mới đủ điều kiện đưa vào chấm Chung khảo. phẩm bằng phần dạng quét công trùng trùng quá quá vòng - Sơ khảo tiến hành chấm thi. Căn cứ vào kết Ban Tổ chức sẽ lựa chọn những tác xuống thấp) để xem xét dưa vào chấm Chung khẩo. đồng",
+                "- Báo cáo kết trình triển khai Cuộc thi tại cơ quan; đơn vị, địa phương (nêu rõ hình thức triển khai, số tác phẩm dự thi thu được và số tác dự thi theo thể loại; số lượng tác phẩm gửi dự thi cấp Trung ương). tổng quá tổng phẩm từng - Danh sách số tác dự thi đã thu nhận được tại cơ quan, đơn vị, dịa phương (theo mẫu của Ban Tổ chức Cuộc thi kèm theo Kế hoạch này bản in khổ A4 và file mềm định Microsoft Excel). tổng phẩm gửi dạng - Danh sách các tác về dự thi cấp Trung ương (theo mẫu của Ban Tổ chức Cuộc thi kèm theo Kế hoạch này bản in khổ A4 và file mềm định Microsoft Excel). phẩm gửi gửi dạng - Nội dung các tác các tác trình triển khai Cuộc thi. phẩm phẩm quá - dự thi cấp Trung ương và minh chứng kèm theo với đã được tải trong đăng - Nơi nhận hồ sơ dự thi: Văn phòng Ban Chỉ dạo 35 Học viện Chính trị quốc - gia Hồ Chí Minh; số 135 Nguyễn Phong Sắc (hoặc số 419 Hoàng Quốc Việt), Phường Nghĩa Đô, Thành Hà Nội. Điện thoại: 080.41053 hoặc 090.958.1987 phố (đồng chí Đào Đình Thạo) email: thichinhluan35@gmailcom"
+            ]
+        },
+        "baseline_2": {
+            "method": "Hybrid (Tier 3 - Tree Search)",
+            "latency": 35.29829716682434,
+            "retrieved_urls": [
+                "https://iuh.edu.vn/upload/files/2026/04/867_Thongbao_tuyensinh_2026.pdf",
+                "https://iuh.edu.vn/upload/files/2026/04/Ke-hoach-99-ke-hoach-to-chuc-cuoc-thi-chinh-luan.pdf",
+                "https://iuh.edu.vn/upload/files/2026/04/Ke-hoach-99-ke-hoach-to-chuc-cuoc-thi-chinh-luan.pdf",
+                "https://iuh.edu.vn/upload/files/2026/04/Ke-hoach-99-ke-hoach-to-chuc-cuoc-thi-chinh-luan.pdf",
+                "https://iuh.edu.vn/upload/files/2026/04/Ke-hoach-99-ke-hoach-to-chuc-cuoc-thi-chinh-luan.pdf"
+            ],
+            "chunks": [
+                "- Phiếu ký sơ (thí sinh bắt buộc khai báo trên trang sinh tuyển tuyển đăng - theo địa chỉ: www.tuyensinh.iuh.edu.vn, sau đó thực hiện theo hướng dẫn để in ký sơ tuyến); phiếu đăng - 01 Bản photocopy thẻ căn cước; - -Lệ phí sơ 50.000 đồng/thí sinh; tuyển: - Giấy tờ minh chứng cho diện cộng điểm xét tuyển (bản photocopy có chứng) công",
+                "- Ban Tổ chức Cuộc thi cấp Trung ương căn cứ Thể lệ ban hành kèm theo Kế hoạch này để tiếp tục dánh giá và - lọc các tác gửi về Ban Tổ chức Cuộc thi. Các tác đáp cầu về thể loại chủ đề kết cấu và hình thức sẽ được đưa vào chấm Sơ khảo. phẩm sàng phẩm yêu ứng - Hội chấm sơ khảo, có chất lượng tốt nhất (lấy điểm từ cao quả phẩm - Với các tác viết, Ban Tổ chức tiến hành rà mềm nghệ để xác định mức độ lặp. Chỉ những bài viết có tỷ lệ lặp không 20% (với thể loại Tạp chí) hoặc không 25% (với thể loại Báo) mới đủ điều kiện đưa vào chấm Chung khảo. phẩm bằng phần dạng quét công trùng trùng quá quá vòng - Sơ khảo tiến hành chấm thi. Căn cứ vào kết Ban Tổ chức sẽ lựa chọn những tác xuống thấp) để xem xét dưa vào chấm Chung khẩo. đồng",
+                "- Báo cáo kết trình triển khai Cuộc thi tại cơ quan; đơn vị, địa phương (nêu rõ hình thức triển khai, số tác phẩm dự thi thu được và số tác dự thi theo thể loại; số lượng tác phẩm gửi dự thi cấp Trung ương). tổng quá tổng phẩm từng - Danh sách số tác dự thi đã thu nhận được tại cơ quan, đơn vị, dịa phương (theo mẫu của Ban Tổ chức Cuộc thi kèm theo Kế hoạch này bản in khổ A4 và file mềm định Microsoft Excel). tổng phẩm gửi dạng - Danh sách các tác về dự thi cấp Trung ương (theo mẫu của Ban Tổ chức Cuộc thi kèm theo Kế hoạch này bản in khổ A4 và file mềm định Microsoft Excel). phẩm gửi gửi dạng - Nội dung các tác các tác trình triển khai Cuộc thi. phẩm phẩm quá - dự thi cấp Trung ương và minh chứng kèm theo với đã được tải trong đăng - Nơi nhận hồ sơ dự thi: Văn phòng Ban Chỉ dạo 35 Học viện Chính trị quốc - gia Hồ Chí Minh; số 135 Nguyễn Phong Sắc (hoặc số 419 Hoàng Quốc Việt), Phường Nghĩa Đô, Thành Hà Nội. Điện thoại: 080.41053 hoặc 090.958.1987 phố (đồng chí Đào Đình Thạo) email: thichinhluan35@gmailcom",
+                "Nếu sử tài liệu chưa được bố trên sách báo hoặc chỉ được phép dùng hạn chế thì phải ghi rõ tên cơ quan lý tài liệu, ký hiệu tài liệu. tiếng ghi tiếng bằng ngoài dụng tiếng ngoài tiếng bằng người ngoài chuyển phiên Trung nguồn công dụng quản - Tài liệu tham khảo: xểp tên tác (nếu không xác định được tác thì xếp theo tên cơ quan hoặc tên tài liệu) theo A,B,C với gồm: Tên tác (năm), tên sách, nhà xuất bản; nơi xuất bản; tập số. giả giả giả - Lưu ý: Tác dự thi su trí tuệ nhân tạo (AI) trong xây nội tác phẩm: dựng phẩm không dung",
+                "Mỗi tác dạng Phát thanh, hình, Video clip gửi file tác (dạng mp3/mp4) và kịch bản tác phẩm bản in khổ A4 và file mềm định Microsoft Word), kèm tin cá nhân; minh chứng về việc công bốlđăng tải tác trong trình triển khai Cuộc thi có). Truyền phẩm phẩm (gồm dạng thông (nếu phẩm quá Tất cả các tác dự thi của cơ quan; đơn vị, địa phương lwu trong 01 USB kèm hồ sơ dự thi. phẩm gửi"
+            ]
+        }
+    },
+    {
+        "query_id": 18,
+        "query": "Để biết các mốc thời gian đăng ký học phần trong năm, sinh viên xem thông báo lịch ở đâu và đăng nhập vào đâu?",
+        "true_tier": 3,
+        "expected_urls": "https://camnang.iuh.edu.vn/huong-dan-dang-ky-hoc-phan.php",
+        "baseline_1": {
+            "latency": 0.033692359924316406,
+            "retrieved_urls": [
+                "https://camnang.iuh.edu.vn/huong-dan-lam-thi-sat-hach-tieng-anh-k20-k21.php",
+                "https://iuh.edu.vn/upload/files/2026/03/TB-100-2026.pdf",
+                "https://camnang.iuh.edu.vn/lich-kham-suc-khoe-k19-va-k20.php"
+            ],
+            "chunks": [
+                "Nếu sinh viên có lịch học **TRÙNG** ca thi được sắp xếp thì sinh viên phải thi thử vào một trong những ca thi khác trong ngày và phải vào đúng lớp có lịch thi thử đã được sắp xếp. Ví dụ: sinh viên được xếp lịch thi thử vào ca 1 *(tiết 1-2)* nhưng bận lịch học thì phải thi thử vào ca 2 *(tiết 3-4)*, ca 3 *(tiết 5-6)*, hoặc ca 4 *(tiết 7-8)* hoặc các ca còn lại trong ngày. Lưu ý: SV vẫn phải vào lớp \"Tiết 1-2\" để làm bài thi thử.",
+                "- phần, xếp thời khóa biểu: học - Thời gian ký học từ ngày 18/4/2026 đến ngày 10/5/2026. phần: đăng - Thời gian hủy lần 1 đối với các học sinh viên đã ký nhưng đủ số chấp nhận mở lớp theo Quy chế đào tạo: từ ngày 14/5/2026 đến ngày 15/5/2026. phần lớp đăng không lượng - Thời gian đóng học phí: từ ngày 11/5/2026 đến 16h30 ngày 31/5/2026. - Thời gian hủy lần 2 đối với các sinh viên đã học phí nhưng đủ số lượng khóa lớp học theo Quy chế đào tạo: từ ngày 01/6/2026 đến ngày 03/6/2026. phần đóng học phần không - Thời gian Phòng Đào tạo kết các đơn vị rà soát lại các lớp học từ ngày 03/6/2026 đến ngày 05/6/2026. phần: hợp - Các lớp chính thức học: từ ngày 08/6/2026. Lưu Ý: Các đơn vị đào tạo có thể mở các lớp ghép, các lớp bổ sung cho các khóa chuẩn bị tốt nghiệp và các khác (có lý do cần thiết mở) trong khoảng thời gian học kỳ III. Đào tạo sẽ hỗ mở nếu có đề nghị từ các đơn vị đào tao. lớp phải Jớp Phòng trợ",
+                "Sinh viên đi theo sự phân chia của các Khoa/Viện; nếu trùng lịch học, bận việc có lý do, sinh viên có thể khám ở các ngày còn lại trong tuần và xếp hàng theo hướng dẫn của đội sinh viên tình nguyện."
+            ]
+        },
+        "baseline_2": {
+            "method": "Hybrid (Tier 3 - Tree Search)",
+            "latency": 19.205689430236816,
+            "retrieved_urls": [
+                "https://camnang.iuh.edu.vn/huong-dan-lam-thi-sat-hach-tieng-anh-k20-k21.php",
+                "https://iuh.edu.vn/upload/files/2026/03/TB-100-2026.pdf",
+                "https://camnang.iuh.edu.vn/lich-kham-suc-khoe-k19-va-k20.php",
+                "https://camnang.iuh.edu.vn/huong-dan-dang-ky-email-iuh.php",
+                "https://camnang.iuh.edu.vn/lich-kham-suc-khoe-k19-va-k20.php"
+            ],
+            "chunks": [
+                "Nếu sinh viên có lịch học **TRÙNG** ca thi được sắp xếp thì sinh viên phải thi thử vào một trong những ca thi khác trong ngày và phải vào đúng lớp có lịch thi thử đã được sắp xếp. Ví dụ: sinh viên được xếp lịch thi thử vào ca 1 *(tiết 1-2)* nhưng bận lịch học thì phải thi thử vào ca 2 *(tiết 3-4)*, ca 3 *(tiết 5-6)*, hoặc ca 4 *(tiết 7-8)* hoặc các ca còn lại trong ngày. Lưu ý: SV vẫn phải vào lớp \"Tiết 1-2\" để làm bài thi thử.",
+                "- phần, xếp thời khóa biểu: học - Thời gian ký học từ ngày 18/4/2026 đến ngày 10/5/2026. phần: đăng - Thời gian hủy lần 1 đối với các học sinh viên đã ký nhưng đủ số chấp nhận mở lớp theo Quy chế đào tạo: từ ngày 14/5/2026 đến ngày 15/5/2026. phần lớp đăng không lượng - Thời gian đóng học phí: từ ngày 11/5/2026 đến 16h30 ngày 31/5/2026. - Thời gian hủy lần 2 đối với các sinh viên đã học phí nhưng đủ số lượng khóa lớp học theo Quy chế đào tạo: từ ngày 01/6/2026 đến ngày 03/6/2026. phần đóng học phần không - Thời gian Phòng Đào tạo kết các đơn vị rà soát lại các lớp học từ ngày 03/6/2026 đến ngày 05/6/2026. phần: hợp - Các lớp chính thức học: từ ngày 08/6/2026. Lưu Ý: Các đơn vị đào tạo có thể mở các lớp ghép, các lớp bổ sung cho các khóa chuẩn bị tốt nghiệp và các khác (có lý do cần thiết mở) trong khoảng thời gian học kỳ III. Đào tạo sẽ hỗ mở nếu có đề nghị từ các đơn vị đào tao. lớp phải Jớp Phòng trợ",
+                "Sinh viên đi theo sự phân chia của các Khoa/Viện; nếu trùng lịch học, bận việc có lý do, sinh viên có thể khám ở các ngày còn lại trong tuần và xếp hàng theo hướng dẫn của đội sinh viên tình nguyện.",
+                "Sau khi đăng nhập thành công, sinh viên chọn chức năng **ĐĂNG KÝ EMAIL** Hệ thống sẽ tự động điền thông tin cá nhân của sinh viên, sinh viên cần bổ sung hoặc cập nhật lại số điện thoại và email cá nhân vào biểu mẫu đăng ký. Lưu ý: Số điện thoại và Email này dùng để hỗ trợ người dùng kích hoạt tài khoản trong lần đăng nhập đầu tiên cũng như lấy lại mật khẩu khi bị quên vì vậy cần điền chính xác thông tin Sau khi điền đầy đủ thông tin, sinh viên cần xem điều khoản và tích vào mục **“Tôi đã đọc hiểu và chấp nhận các điều khoản sử dụng email”** và nhấn nút **Đăng ký**",
+                "**Lưu ý:** - Thời gian: Buổi sáng từ 07g30 - 11g30, buổi chiều từ 13g00 - 16g30. - Địa điểm: Phòng Sinh hoạt đa năng (Tầng trệt nhà A, cạnh ngân hàng Agribank đặt tại trường)."
+            ]
+        }
+    },
+    {
+        "query_id": 19,
+        "query": "Sinh viên năm nhất muốn tham gia phong trào tình nguyện thì xem thông tin liên hệ các câu lạc bộ đội nhóm ở trang nào?",
+        "true_tier": 3,
+        "expected_urls": "https://camnang.iuh.edu.vn/hoat-dong-tinh-nguyen.php,\n https://camnang.iuh.edu.vn/hoat-dong-phong-trao.php,\nhttps://camnang.iuh.edu.vn/lien-he-don-vi.php",
+        "baseline_1": {
+            "latency": 0.030680179595947266,
+            "retrieved_urls": [
+                "https://camnang.iuh.edu.vn/hoat-dong-tinh-nguyen.php",
+                "https://camnang.iuh.edu.vn/hoat-dong-tinh-nguyen.php",
+                "https://camnang.iuh.edu.vn/hoat-dong-hoc-thuat.php"
+            ],
+            "chunks": [
+                "Hằng năm, Đoàn Thanh niên - Hội Sinh viên tổ chức nhiều chiến dịch tình nguyện lớn như: \"Xuân tình nguyện” , “Mùa hè xanh\", \"Tiếp sức mùa thi\", \"Trăng vàng sẻ chia\", thu hút đông đảo đoàn viên tham gia. Các hoạt động bao gồm: hỗ trợ sĩ tử trong kỳ thi THPT, giúp dân sửa chữa nhà cửa, làm đường giao thông nông thôn, trồng cây xanh, xây dựng công trình thanh niên, thăm hỏi mẹ Việt Nam anh hùng và các gia đình chính sách...",
+                "Hoạt động tình nguyện là một trong những điểm sáng trong công tác Đoàn và phong trào thanh niên, thể hiện tinh thần xung kích, trách nhiệm và lòng nhân ái của tuổi trẻ đối với cộng đồng và xã hội.",
+                "Trong năm học, Đoàn trường thường xuyên tổ chức phát động các phong trào giúp năng cao khả năng học tập, nghiên cứu khoa học cho đoàn viên, thanh niên, thành lập câu lạc bộ học thuật và nhóm học tập. Đồng thời, đoàn viên cũng được khuyến khích tham gia nghiên cứu khoa học thông qua các hoạt động như “Hội nghị khoa học trẻ”, “Giải thưởng Sinh viên nghiên cứu khoa học Euréka”, “Cuộc thi Ý tưởng khởi nghiệp sáng tạo”..."
+            ]
+        },
+        "baseline_2": {
+            "method": "Hybrid (Tier 3 - Tree Search)",
+            "latency": 6.092218399047852,
+            "retrieved_urls": [
+                "https://camnang.iuh.edu.vn/hoat-dong-tinh-nguyen.php",
+                "https://camnang.iuh.edu.vn/hoat-dong-tinh-nguyen.php",
+                "https://camnang.iuh.edu.vn/hoat-dong-hoc-thuat.php",
+                "https://camnang.iuh.edu.vn/hoat-dong-tinh-nguyen.php",
+                "https://camnang.iuh.edu.vn/hoat-dong-tinh-nguyen.php"
+            ],
+            "chunks": [
+                "Hằng năm, Đoàn Thanh niên - Hội Sinh viên tổ chức nhiều chiến dịch tình nguyện lớn như: \"Xuân tình nguyện” , “Mùa hè xanh\", \"Tiếp sức mùa thi\", \"Trăng vàng sẻ chia\", thu hút đông đảo đoàn viên tham gia. Các hoạt động bao gồm: hỗ trợ sĩ tử trong kỳ thi THPT, giúp dân sửa chữa nhà cửa, làm đường giao thông nông thôn, trồng cây xanh, xây dựng công trình thanh niên, thăm hỏi mẹ Việt Nam anh hùng và các gia đình chính sách...",
+                "Hoạt động tình nguyện là một trong những điểm sáng trong công tác Đoàn và phong trào thanh niên, thể hiện tinh thần xung kích, trách nhiệm và lòng nhân ái của tuổi trẻ đối với cộng đồng và xã hội.",
+                "Trong năm học, Đoàn trường thường xuyên tổ chức phát động các phong trào giúp năng cao khả năng học tập, nghiên cứu khoa học cho đoàn viên, thanh niên, thành lập câu lạc bộ học thuật và nhóm học tập. Đồng thời, đoàn viên cũng được khuyến khích tham gia nghiên cứu khoa học thông qua các hoạt động như “Hội nghị khoa học trẻ”, “Giải thưởng Sinh viên nghiên cứu khoa học Euréka”, “Cuộc thi Ý tưởng khởi nghiệp sáng tạo”...",
+                "Thông qua các hoạt động tình nguyện, đoàn viên không chỉ rèn luyện kỹ năng sống, nâng cao tinh thần trách nhiệm với xã hội mà còn góp phần xây dựng hình ảnh đẹp về tuổi trẻ IUH sống đẹp, sống có ích và sẵn sàng cống hiến vì cộng đồng.",
+                "Ngoài ra, các chương trình như “Hiến máu tình nguyện, “Thứ bảy tình nguyện”, “Chủ nhật xanh”, các hoạt động phòng, chống dịch bệnh, cứu trợ đồng bào vùng thiên tai... cũng được triển khai rộng rãi và hiệu quả."
+            ]
+        }
+    },
+    {
+        "query_id": 20,
+        "query": "Hướng dẫn cài đặt Microsoft Authenticator có dẫn link tải ứng dụng cho iOS và Android ở địa chỉ nào?",
+        "true_tier": 3,
+        "expected_urls": "https://camnang.iuh.edu.vn/cai-dat-tinh-nang-xac-thuc-microsoft-authenticator.php",
+        "baseline_1": {
+            "latency": 0.033466339111328125,
+            "retrieved_urls": [
+                "https://camnang.iuh.edu.vn/cai-dat-tinh-nang-xac-thuc-microsoft-authenticator.php",
+                "https://camnang.iuh.edu.vn/cai-dat-tinh-nang-xac-thuc-microsoft-authenticator.php",
+                "https://camnang.iuh.edu.vn/cai-dat-tinh-nang-xac-thuc-microsoft-authenticator.php"
+            ],
+            "chunks": [
+                "Hiện nay một số tài khoản đã được Microsoft yêu cầu bổ sung tính năng xác thực bằng App. Sau đây Trung tâm Quản trị Hệ thống xin hướng dẫn các bước cài App và xác thực như sau: Khi đăng nhập sử dụng các dịch vụ của Microsoft, thấy xuất hiện thông tin ở dưới, bạn vui lòng ấn Next để tiếp tục. Sau đó sẽ thấy màn hình bắt đầu cài App. Bạn dùng thiết bị di động lên cửa hàng và tìm cài app Microsoft Authenticator *(lưu ý tìm và cài đúng ứng dụng như hình bên dưới)* - Đối với điện thoại dùng hệ điều hành Android: bạn vào CH Play. - Đối với hệ điều hành IOS: bạn vào App Store Sau khi cài đặt xong ứng dụng, đồng thời bạn ấn **Next** ở màn hình chờ *(như hình dưới)*",
+                "Phê duyệt đăng nhập lần đầu, hệ thống gửi mã code là số tới ứng dụng Authenticator của bạn. Bạn mở ứng dụng lên, sau đó nhập đúng số giống với trên màn hình hiển thị của bạn và ấn **Có**. Hệ thống sẽ tự động dùng phương pháp xác thực là Faceid hoặc mã pin mở máy của bạn (yêu cầu bạn nhập) để xác thực lần nữa, nếu đúng thì tài khoản sẽ chấp thuận đăng nhập. Tương tự bạn làm như vậy cho các lần đăng nhập của tài khoản.",
+                "Trên ứng dụng điện thoại bạn chọn **Thêm tài khoản**, chọn loại tài khoản là **“Tài khoản Cơ quan hoặc trường học”**, chọn **Quét mã QR**. Đồng thời ấn **Next** ở trên màn hình máy tính, để hệ thống hiển thị mã QR đăng nhập tài khoản của bạn như hình dưới."
+            ]
+        },
+        "baseline_2": {
+            "method": "Hybrid (Tier 3 - Tree Search)",
+            "latency": 6.116197824478149,
+            "retrieved_urls": [
+                "https://camnang.iuh.edu.vn/cai-dat-tinh-nang-xac-thuc-microsoft-authenticator.php",
+                "https://camnang.iuh.edu.vn/cai-dat-tinh-nang-xac-thuc-microsoft-authenticator.php",
+                "https://camnang.iuh.edu.vn/cai-dat-tinh-nang-xac-thuc-microsoft-authenticator.php",
+                "https://camnang.iuh.edu.vn/cai-dat-tinh-nang-xac-thuc-microsoft-authenticator.php",
+                "https://camnang.iuh.edu.vn/huong-dan-dang-ky-email-iuh.php"
+            ],
+            "chunks": [
+                "Hiện nay một số tài khoản đã được Microsoft yêu cầu bổ sung tính năng xác thực bằng App. Sau đây Trung tâm Quản trị Hệ thống xin hướng dẫn các bước cài App và xác thực như sau: Khi đăng nhập sử dụng các dịch vụ của Microsoft, thấy xuất hiện thông tin ở dưới, bạn vui lòng ấn Next để tiếp tục. Sau đó sẽ thấy màn hình bắt đầu cài App. Bạn dùng thiết bị di động lên cửa hàng và tìm cài app Microsoft Authenticator *(lưu ý tìm và cài đúng ứng dụng như hình bên dưới)* - Đối với điện thoại dùng hệ điều hành Android: bạn vào CH Play. - Đối với hệ điều hành IOS: bạn vào App Store Sau khi cài đặt xong ứng dụng, đồng thời bạn ấn **Next** ở màn hình chờ *(như hình dưới)*",
+                "Phê duyệt đăng nhập lần đầu, hệ thống gửi mã code là số tới ứng dụng Authenticator của bạn. Bạn mở ứng dụng lên, sau đó nhập đúng số giống với trên màn hình hiển thị của bạn và ấn **Có**. Hệ thống sẽ tự động dùng phương pháp xác thực là Faceid hoặc mã pin mở máy của bạn (yêu cầu bạn nhập) để xác thực lần nữa, nếu đúng thì tài khoản sẽ chấp thuận đăng nhập. Tương tự bạn làm như vậy cho các lần đăng nhập của tài khoản.",
+                "Trên ứng dụng điện thoại bạn chọn **Thêm tài khoản**, chọn loại tài khoản là **“Tài khoản Cơ quan hoặc trường học”**, chọn **Quét mã QR**. Đồng thời ấn **Next** ở trên màn hình máy tính, để hệ thống hiển thị mã QR đăng nhập tài khoản của bạn như hình dưới.",
+                "Bạn dùng điện thoại quét mã QR của trên màn hình của bạn, sau đó hệ thống sẽ thêm tài khoản vào App trên điện thoại, bạn tiếp tục ấn **Next**.",
+                "Sau khi đăng ký thành công, sinh viên truy cập đường dẫn [ https://outlook.office365.com](https://outlook.office365.com), hệ thống sẽ tự chuyển hướng sinh viên qua trang đăng nhập. Sinh viên tiến hành nhập email và mật khẩu đã được cung cấp ở **Bước 3**. Sau khi đăng nhập thành công lần đầu tiên, hệ thống yêu cầu sinh viên đổi mật khẩu, trong đó mật khẩu hiện tại chính là mật khẩu sau khi đăng nhập thành công *(mật khẩu được cung cấp ở Bước 3)*. Sinh viên tiến hành cập nhật mật khẩu mới bao gồm ký tự hoa, thường, số và ký tự đặc biệt sau đó nhấn nút **Sign in**. Hệ thống sẽ yêu cầu sinh viên xác thực số điện thoại hoặc email *(Hình 7)* để tăng cường bảo mật cho tài khoản. Khuyến khích sinh viên xác thực đầy đủ email và số điện thoại. **Xác thực số điện thoại:** Sinh viên tiến hành cập nhật mã vùng là Việt Nam (Vietnam + 84) và nhập số điện thoại di động của mình. Nhấn nút Text me để nhận mã xác thực về điện thoại *(Xem hình 8)*. Hệ thống sẽ gửi mã xác thực và sinh viên tiến hành nhập mã, sau đó nhấn nút **Verify** *(Xem hình 9)* **Xác thực email:** Thực hiện tương tự như bước xác thực số điện thoại, sinh viên tiến hành nhập địa chỉ email cá nhân và yêu cầu mã xác nhận để xác thực email *(Xem hình 10)*"
+            ]
+        }
+    },
+    {
+        "query_id": 21,
+        "query": "Sinh viên muốn xem chi tiết thông báo về việc đăng ký thi Tiếng Anh đầu vào khóa mới ở chuyên mục nào trên cẩm nang?",
+        "true_tier": 3,
+        "expected_urls": "https://camnang.iuh.edu.vn/huong-dan-lam-thi-sat-hach-tieng-anh-k20-k21.php",
+        "baseline_1": {
+            "latency": 0.029117822647094727,
+            "retrieved_urls": [
+                "https://camnang.iuh.edu.vn/quy-dinh-chuan-tieng-anh.php",
+                "https://camnang.iuh.edu.vn/quy-dinh-chuan-tieng-anh.php",
+                "https://camnang.iuh.edu.vn/huong-dan-dang-ky-hoc-phan.php"
+            ],
+            "chunks": [
+                "Chuẩn đầu ra Tiếng Anh cho các khóa tuyển sinh được quy định chi tiết trong Quy chế đào tạo theo hệ thống tín chỉ hiện hành. **Lưu ý:** - Các loại chứng chỉ tiếng Anh đầu vào và đầu ra được chấp nhận: Xem chi tiết tại mục \"Điều kiện xét tốt nghiệp”. - Sinh viên nên đăng ký học các lớp tiếng Anh theo lộ trình của chương trình đào tạo để đủ điều kiện được công nhận tốt nghiệp về trình độ tiếng Anh. - Quy định về môn tiên quyết: Sinh viên chương trình đại trà phải hoàn thành hai học phần tiếng Anh gồm: Tiếng Anh 1 và Tiếng Anh 2, sinh viên bắt buộc phải “Đạt” học phần Tiếng Anh 1 mới được đăng ký học phần Tiếng Anh 2; Sinh viên chương trình tăng cường tiếng Anh phải hoàn thành bốn học phần tiếng Anh (gồm: Anh văn 1, Anh văn 2, Anh văn 3 và Anh văn 4), sinh viên bắt buộc phải “Đạt” học phần trước thì mới được đăng ký học phần tiếp theo (Ví dụ: sinh viên phải đăng ký học và đạt học phần Anh văn 1 thì mới được đăng ký học phần Anh văn 2).",
+                "Ngoại trừ sinh viên ngành Ngôn ngữ Anh, tất cả sinh viên bậc Đại học khóa 21 phải tham gia kỳ thi sát hạch tiếng Anh để được xếp lớp phù hợp với trình độ. Sinh viên đã có chứng chỉ tiếng Anh quốc tế đạt từ trình độ B1 *(theo Khung tham chiếu ngôn ngữ chung Châu Âu CEFR)* hoặc chứng chỉ tiếng Anh quốc gia đạt từ Bậc 3 *(theo Khung năng lực ngoại ngữ 6 bậc dùng cho Việt Nam)* trở lên cần liên hệ với Khoa Ngoại ngữ của Trường trước thời gian tổ chức thi sát hạch để được hỗ trợ giải quyết theo quy định.",
+                " Học kỳ đầu tiên, Nhà trường sẽ đăng ký áp cứng các môn học tương ứng trong niên giám khóa học. Từ học kỳ thứ 2 trở đi, Nhà trường đăng ký áp cứng cho sinh viên đối với các lớp học phần bắt buộc theo niên giám, không bao gồm học phần Thực tập doanh nghiệp và Khóa luận tốt nghiệp. Khi Nhà trường mở cổng đăng ký học phần, Sinh viên đăng nhập vào cổng thông tin sinh viên để xem thời khóa biểu của các học phần đã được áp cứng và tiến hành đăng ký các học phần tự chọn. Lưu ý: Sinh viên có thể hủy học phần bắt buộc (đã áp cứng) và đăng ký bổ sung các học phần khác (nếu có nhu cầu). Sinh viên đăng ký các học phần qua Website của Trường **https://dkhp.iuh.edu.vn/** Trong quá trình thực hiện, nếu gặp khó khăn sinh viên liên hệ với giáo vụ của đơn vị đào tạo, giáo viên chủ nhiệm lớp sinh viên, cố vấn học tập hoặc Phòng Công tác chính trị và Hỗ trợ sinh viên để được hướng. Sinh viên có thể xem hướng dẫn chi tiết cách đăng ký học phần tại Cổng thông tin sinh viên bằng video bên dưới: [youtube](https://www.youtube.com/watch?v=Iieipc3W__4) - Xem kỹ đào tạo chương trình khung đang tham gia học."
+            ]
+        },
+        "baseline_2": {
+            "method": "Hybrid (Tier 3 - Tree Search)",
+            "latency": 6.1945648193359375,
+            "retrieved_urls": [
+                "https://camnang.iuh.edu.vn/quy-dinh-chuan-tieng-anh.php",
+                "https://camnang.iuh.edu.vn/quy-dinh-chuan-tieng-anh.php",
+                "https://camnang.iuh.edu.vn/huong-dan-dang-ky-hoc-phan.php",
+                "https://camnang.iuh.edu.vn/huong-dan-dang-ky-hoc-phan.php",
+                "https://camnang.iuh.edu.vn/hoat-dong-phong-trao.php"
+            ],
+            "chunks": [
+                "Chuẩn đầu ra Tiếng Anh cho các khóa tuyển sinh được quy định chi tiết trong Quy chế đào tạo theo hệ thống tín chỉ hiện hành. **Lưu ý:** - Các loại chứng chỉ tiếng Anh đầu vào và đầu ra được chấp nhận: Xem chi tiết tại mục \"Điều kiện xét tốt nghiệp”. - Sinh viên nên đăng ký học các lớp tiếng Anh theo lộ trình của chương trình đào tạo để đủ điều kiện được công nhận tốt nghiệp về trình độ tiếng Anh. - Quy định về môn tiên quyết: Sinh viên chương trình đại trà phải hoàn thành hai học phần tiếng Anh gồm: Tiếng Anh 1 và Tiếng Anh 2, sinh viên bắt buộc phải “Đạt” học phần Tiếng Anh 1 mới được đăng ký học phần Tiếng Anh 2; Sinh viên chương trình tăng cường tiếng Anh phải hoàn thành bốn học phần tiếng Anh (gồm: Anh văn 1, Anh văn 2, Anh văn 3 và Anh văn 4), sinh viên bắt buộc phải “Đạt” học phần trước thì mới được đăng ký học phần tiếp theo (Ví dụ: sinh viên phải đăng ký học và đạt học phần Anh văn 1 thì mới được đăng ký học phần Anh văn 2).",
+                "Ngoại trừ sinh viên ngành Ngôn ngữ Anh, tất cả sinh viên bậc Đại học khóa 21 phải tham gia kỳ thi sát hạch tiếng Anh để được xếp lớp phù hợp với trình độ. Sinh viên đã có chứng chỉ tiếng Anh quốc tế đạt từ trình độ B1 *(theo Khung tham chiếu ngôn ngữ chung Châu Âu CEFR)* hoặc chứng chỉ tiếng Anh quốc gia đạt từ Bậc 3 *(theo Khung năng lực ngoại ngữ 6 bậc dùng cho Việt Nam)* trở lên cần liên hệ với Khoa Ngoại ngữ của Trường trước thời gian tổ chức thi sát hạch để được hỗ trợ giải quyết theo quy định.",
+                " Học kỳ đầu tiên, Nhà trường sẽ đăng ký áp cứng các môn học tương ứng trong niên giám khóa học. Từ học kỳ thứ 2 trở đi, Nhà trường đăng ký áp cứng cho sinh viên đối với các lớp học phần bắt buộc theo niên giám, không bao gồm học phần Thực tập doanh nghiệp và Khóa luận tốt nghiệp. Khi Nhà trường mở cổng đăng ký học phần, Sinh viên đăng nhập vào cổng thông tin sinh viên để xem thời khóa biểu của các học phần đã được áp cứng và tiến hành đăng ký các học phần tự chọn. Lưu ý: Sinh viên có thể hủy học phần bắt buộc (đã áp cứng) và đăng ký bổ sung các học phần khác (nếu có nhu cầu). Sinh viên đăng ký các học phần qua Website của Trường **https://dkhp.iuh.edu.vn/** Trong quá trình thực hiện, nếu gặp khó khăn sinh viên liên hệ với giáo vụ của đơn vị đào tạo, giáo viên chủ nhiệm lớp sinh viên, cố vấn học tập hoặc Phòng Công tác chính trị và Hỗ trợ sinh viên để được hướng. Sinh viên có thể xem hướng dẫn chi tiết cách đăng ký học phần tại Cổng thông tin sinh viên bằng video bên dưới: [youtube](https://www.youtube.com/watch?v=Iieipc3W__4) - Xem kỹ đào tạo chương trình khung đang tham gia học.",
+                "Để xem chương trình khung, sinh viên truy cập vào cổng thông tin sinh viên (phải đăng nhập), sau đó chọn “Đăng ký học phần” → chọn “Chương trình khung\". - Đăng ký đúng các môn học trong chương trình khung. - Xem các điều kiện ràng buộc trong các môn học trước khi đăng ký môn học. - Phải đăng ký đúng mã số lớp học phần, tên môn học và đúng số tín chỉ trong chương trình đào tạo như trong chương trình khung. - Theo dõi đăng ký bổ sung, chuyển, thay đổi lớp học phần theo thông báo của phòng đào tạo và đơn vị đào tạo. - Sinh viên có thể đăng ký học vượt với tổng số lượng tín chỉ theo quy chế đào tạo.",
+                "Ngoài việc bồi dưỡng kiến thức, nhà trường còn luôn chú trọng trong việc tạo môi trường cho sinh viên rèn luyện, trau dồi kỹ năng mềm và phát huy khả năng sáng tạo. Thông qua các hoạt động ngoại khóa, giao lưu văn hóa nghệ thuật, các hoạt động tình nguyện sinh viên rèn luyện được thái độ sống tích cực, trau dồi kỹ năng mềm, sống có trách nhiệm với cộng đồng. Đoàn TNCS Hồ Chí Minh - Hội Sinh viên Việt Nam Trường Đại học Công nghiệp Thành phố Hồ Chí Minh là tổ chức chính trị - xã hội, nơi tập hợp đoàn viên - thanh niên trong toàn trường phát động các phong trào rèn luyện, phấn đấu trong sinh viên. Với các hoạt động da dạng, phong phú, phù hợp với nhu cầu, sở thích của các bạn trẻ, đầy nhiệt huyết, đây là địa chỉ uy tín tạo ra sân chơi bổ ích, lành mạnh cho các bạn sinh viên ngoài giờ học căng thẳng trên lớp. [youth.iuh.edu.vn](https://youth.iuh.edu.vn) youth@iuh.edu.vn - vanphong@tuoitreiuh.com"
+            ]
+        }
+    },
+    {
+        "query_id": 22,
+        "query": "Hãy tóm tắt các quy định hiện hành về chuẩn đầu ra ngoại ngữ (quy đổi điểm) và cảnh báo kỷ luật nếu nộp chứng chỉ giả để sinh viên nắm rõ.",
+        "true_tier": 4,
+        "expected_urls": "https://camnang.iuh.edu.vn/bang-quy-doi-diem-chung-chi-tieng-anh.php, https://camnang.iuh.edu.vn/canh-bao-lien-quan-den-chung-chi-xet-tot-nghiep.php",
+        "baseline_1": {
+            "latency": 0.03431081771850586,
+            "retrieved_urls": [
+                "https://camnang.iuh.edu.vn/quy-dinh-chuan-tieng-anh.php",
+                "https://camnang.iuh.edu.vn/canh-bao-lien-quan-den-chung-chi-xet-tot-nghiep.php",
+                "https://camnang.iuh.edu.vn/dieu-kien-xet-tot-nghiep.php"
+            ],
+            "chunks": [
+                "Chuẩn đầu ra Tiếng Anh cho các khóa tuyển sinh được quy định chi tiết trong Quy chế đào tạo theo hệ thống tín chỉ hiện hành. **Lưu ý:** - Các loại chứng chỉ tiếng Anh đầu vào và đầu ra được chấp nhận: Xem chi tiết tại mục \"Điều kiện xét tốt nghiệp”. - Sinh viên nên đăng ký học các lớp tiếng Anh theo lộ trình của chương trình đào tạo để đủ điều kiện được công nhận tốt nghiệp về trình độ tiếng Anh. - Quy định về môn tiên quyết: Sinh viên chương trình đại trà phải hoàn thành hai học phần tiếng Anh gồm: Tiếng Anh 1 và Tiếng Anh 2, sinh viên bắt buộc phải “Đạt” học phần Tiếng Anh 1 mới được đăng ký học phần Tiếng Anh 2; Sinh viên chương trình tăng cường tiếng Anh phải hoàn thành bốn học phần tiếng Anh (gồm: Anh văn 1, Anh văn 2, Anh văn 3 và Anh văn 4), sinh viên bắt buộc phải “Đạt” học phần trước thì mới được đăng ký học phần tiếp theo (Ví dụ: sinh viên phải đăng ký học và đạt học phần Anh văn 1 thì mới được đăng ký học phần Anh văn 2).",
+                "Chứng chỉ Ngoại ngữ và chứng chỉ Tin học do sinh viên thi tại các tổ chức bên ngoài Trường đều phải gửi về Trung tâm Ngoại ngữ và Tin học của Trường để xác minh tính hợp lệ. Sinh viên có thể nộp các chứng chỉ phục vụ công tác xét tốt nghiệp vào mọi thời điểm trong năm.",
+                "Có chứng chỉ Ngoại ngữ 2 đạt Bậc 3. Sinh viên có thể nộp một trong các loại chứng chỉ trong danh mục dưới đây: **DANH MỤC CHỨNG CHỈ NGOẠI NGỮ 2** | Bậc | Tiếng Trung | Tiếng Nhật | Tiếng Hàn | Tiếng Pháp | Tiếng Nga | Tiếng Đức | | Bậc 3 | HSK3 | JLPT N4 | TOPIK II cấp độ 3 (120 - 149, tổng điểm: 300) | DELF B1 hoặc TCF 300 | TRKI-1 | Goethe-Z B1 hoặc TestDaF Bậc 3 |"
+            ]
+        },
+        "baseline_2": {
+            "method": "Hybrid (Tier 3 - Tree Search)",
+            "latency": 29.30694818496704,
+            "retrieved_urls": [
+                "https://camnang.iuh.edu.vn/quy-dinh-chuan-tieng-anh.php",
+                "https://camnang.iuh.edu.vn/canh-bao-lien-quan-den-chung-chi-xet-tot-nghiep.php",
+                "https://camnang.iuh.edu.vn/dieu-kien-xet-tot-nghiep.php",
+                "https://camnang.iuh.edu.vn/canh-bao-lien-quan-den-chung-chi-xet-tot-nghiep.php",
+                "https://camnang.iuh.edu.vn/quy-dinh-chuan-tieng-anh.php"
+            ],
+            "chunks": [
+                "Chuẩn đầu ra Tiếng Anh cho các khóa tuyển sinh được quy định chi tiết trong Quy chế đào tạo theo hệ thống tín chỉ hiện hành. **Lưu ý:** - Các loại chứng chỉ tiếng Anh đầu vào và đầu ra được chấp nhận: Xem chi tiết tại mục \"Điều kiện xét tốt nghiệp”. - Sinh viên nên đăng ký học các lớp tiếng Anh theo lộ trình của chương trình đào tạo để đủ điều kiện được công nhận tốt nghiệp về trình độ tiếng Anh. - Quy định về môn tiên quyết: Sinh viên chương trình đại trà phải hoàn thành hai học phần tiếng Anh gồm: Tiếng Anh 1 và Tiếng Anh 2, sinh viên bắt buộc phải “Đạt” học phần Tiếng Anh 1 mới được đăng ký học phần Tiếng Anh 2; Sinh viên chương trình tăng cường tiếng Anh phải hoàn thành bốn học phần tiếng Anh (gồm: Anh văn 1, Anh văn 2, Anh văn 3 và Anh văn 4), sinh viên bắt buộc phải “Đạt” học phần trước thì mới được đăng ký học phần tiếp theo (Ví dụ: sinh viên phải đăng ký học và đạt học phần Anh văn 1 thì mới được đăng ký học phần Anh văn 2).",
+                "Chứng chỉ Ngoại ngữ và chứng chỉ Tin học do sinh viên thi tại các tổ chức bên ngoài Trường đều phải gửi về Trung tâm Ngoại ngữ và Tin học của Trường để xác minh tính hợp lệ. Sinh viên có thể nộp các chứng chỉ phục vụ công tác xét tốt nghiệp vào mọi thời điểm trong năm.",
+                "Có chứng chỉ Ngoại ngữ 2 đạt Bậc 3. Sinh viên có thể nộp một trong các loại chứng chỉ trong danh mục dưới đây: **DANH MỤC CHỨNG CHỈ NGOẠI NGỮ 2** | Bậc | Tiếng Trung | Tiếng Nhật | Tiếng Hàn | Tiếng Pháp | Tiếng Nga | Tiếng Đức | | Bậc 3 | HSK3 | JLPT N4 | TOPIK II cấp độ 3 (120 - 149, tổng điểm: 300) | DELF B1 hoặc TCF 300 | TRKI-1 | Goethe-Z B1 hoặc TestDaF Bậc 3 |",
+                "Nhà trường nghiêm cấm việc sinh viên sử dụng chứng chỉ Ngoại ngữ và Tin học **KHÔNG HỢP LỆ**. Sinh viên sử dụng hồ sơ, văn bằng, chứng chỉ giả làm điều kiện trúng tuyển hoặc điều kiện xét tốt nghiệp sẽ bị **BUỘC THÔI HỌC** và bị **HỦY KẾT QUẢ XÉT TỐT NGHIỆP** theo quy định tại khoản 3 Điều 20 của Thông tư số 08/2021/TT-BGDĐT ngày 18 tháng 03 năm 2021 của Bộ trưởng Bộ Giáo dục và Đào tạo. Tùy vào mức độ vi phạm, Nhà trường sẽ gửi hồ sơ lên cơ quan công an để giải quyết theo thẩm quyền.",
+                "Ngoại trừ sinh viên ngành Ngôn ngữ Anh, tất cả sinh viên bậc Đại học khóa 21 phải tham gia kỳ thi sát hạch tiếng Anh để được xếp lớp phù hợp với trình độ. Sinh viên đã có chứng chỉ tiếng Anh quốc tế đạt từ trình độ B1 *(theo Khung tham chiếu ngôn ngữ chung Châu Âu CEFR)* hoặc chứng chỉ tiếng Anh quốc gia đạt từ Bậc 3 *(theo Khung năng lực ngoại ngữ 6 bậc dùng cho Việt Nam)* trở lên cần liên hệ với Khoa Ngoại ngữ của Trường trước thời gian tổ chức thi sát hạch để được hỗ trợ giải quyết theo quy định."
+            ]
+        }
+    },
+    {
+        "query_id": 23,
+        "query": "Sinh viên thuộc diện hộ nghèo có thể nhận được những khoản hỗ trợ nào về học phí, học bổng doanh nghiệp và đời sống?",
+        "true_tier": 4,
+        "expected_urls": "https://camnang.iuh.edu.vn/hoc-bong-doanh-nghiep.php,\n https://camnang.iuh.edu.vn/ho-tro-ve-doi-song.php",
+        "baseline_1": {
+            "latency": 0.029860973358154297,
+            "retrieved_urls": [
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
+                "https://camnang.iuh.edu.vn/hoc-bong-doanh-nghiep.php"
+            ],
+            "chunks": [
+                "**Điều kiện xét:** Căn cứ vào Quỹ hỗ trợ sinh viên và số lượng sinh viên được nhận học bổng Tuyển sinh hằng năm, Nhà trường sẽ thông báo mức học bổng cho từng đối tượng được xét, cấp học bổng. Học bổng này được xét, cấp theo hình thức miễn giảm học phí cho từng học kỳ theo quy định. Mức học bổng lên tới 100% học phí, tùy mỗi trường hợp cụ thể.",
+                "**Đối tượng xét:** Học bổng Tài trợ cấp cho người học thuộc Trường do cựu sinh viên, các tổ chức, doanh nghiệp và cá nhân (gọi chung là đơn vị tài trợ) trao tặng theo quy định, điều kiện riêng của đơn vị tài trợ *(nếu có)*. **Điều kiện xét:** Mức học bổng, tiêu chuẩn, số lượng xét, cấp học bổng tài trợ thực hiện theo thỏa thuận giữa đơn vị tài trợ với Nhà trường hoặc theo những điều kiện xét, cấp học bổng do tiêu chí của đơn vị tài trợ đặt ra. Mức học bổng lên tới 100% học phí hoặc cao hơn tùy theo mỗi chương trình cụ thể.",
+                "Nhiều suất học bổng có giá trị lên tới 15 triệu đồng dành cho sinh viên xuất sắc, sinh viên nghèo, vượt khó, hiếu học được tài trợ bởi các Quỹ học bổng của Tập đoàn Lotte, Nitori, Toyota, VP Bank, Sanden, LKIC, Lương Văn Can."
+            ]
+        },
+        "baseline_2": {
+            "method": "Hybrid (Tier 3 - Tree Search)",
+            "latency": 29.19187021255493,
+            "retrieved_urls": [
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
+                "https://camnang.iuh.edu.vn/hoc-bong-doanh-nghiep.php",
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php"
+            ],
+            "chunks": [
+                "**Điều kiện xét:** Căn cứ vào Quỹ hỗ trợ sinh viên và số lượng sinh viên được nhận học bổng Tuyển sinh hằng năm, Nhà trường sẽ thông báo mức học bổng cho từng đối tượng được xét, cấp học bổng. Học bổng này được xét, cấp theo hình thức miễn giảm học phí cho từng học kỳ theo quy định. Mức học bổng lên tới 100% học phí, tùy mỗi trường hợp cụ thể.",
+                "**Đối tượng xét:** Học bổng Tài trợ cấp cho người học thuộc Trường do cựu sinh viên, các tổ chức, doanh nghiệp và cá nhân (gọi chung là đơn vị tài trợ) trao tặng theo quy định, điều kiện riêng của đơn vị tài trợ *(nếu có)*. **Điều kiện xét:** Mức học bổng, tiêu chuẩn, số lượng xét, cấp học bổng tài trợ thực hiện theo thỏa thuận giữa đơn vị tài trợ với Nhà trường hoặc theo những điều kiện xét, cấp học bổng do tiêu chí của đơn vị tài trợ đặt ra. Mức học bổng lên tới 100% học phí hoặc cao hơn tùy theo mỗi chương trình cụ thể.",
+                "Nhiều suất học bổng có giá trị lên tới 15 triệu đồng dành cho sinh viên xuất sắc, sinh viên nghèo, vượt khó, hiếu học được tài trợ bởi các Quỹ học bổng của Tập đoàn Lotte, Nitori, Toyota, VP Bank, Sanden, LKIC, Lương Văn Can.",
+                "**Đối tượng xét:** Sinh viên bậc đại học hệ chính quy đang trong thời gian học tập chính khóa. Mức học bổng sinh viên nhận được lên tới 130% học phí. Nội dung chi tiết được ban hành trong Quyết định số 2728/QĐ-ĐHCN ngày 23 tháng 11 năm 2023 về việc xét, cấp học bổng cho sinh viên đại học chính quy, học viên đang học tập, nghiên cứu tại Trường Đại học Công nghiệp Thành phố Hồ Chí Minh. **Điều kiện xét:** - Sinh viên đang trong thời gian học tập chính thức của khóa học - Học kỳ xét, cấp học bổng không bao gồm học kỳ đầu và cuối của khóa học. - Kết quả học tập *(theo thang điểm 4)* và rèn luyện đạt loại khá trở lên. - Không có môn bị điểm F trong học kỳ *(kể cả các học phần Giáo dục thể chất, Giáo dục quốc phòng, tiếng Anh)*. - Số tín chỉ sinh viên tích lũy trong học kỳ xét, cấp học bổng tối thiểu là 15 tín chỉ *(không tính các học phần Giáo dục thể chất, Giáo dục quốc phòng, tiếng Anh)*. Trường hợp sinh viên không đăng ký đủ 15 tín chỉ thì Nhà trường căn cứ vào số tín chỉ trong niên giám của học kỳ đó để xét, cấp học bổng. - Không bị kỷ luật trong học kỳ xét, cấp học bổng.",
+                " Mỗi năm, Nhà trường ban hành chính sách trao học bổng cho sinh viên, học viên học tập, nghiên cứu tại Trường. Đặc biệt kể từ năm học 2024 - 2025, khóa tuyển sinh năm 2024, Nhà trường ban hành các chính sách học bổng, khuyến học mới rất có lợi cho người học. Cụ thể như sau: **Đối tượng xét:** Sinh viên mới trúng tuyển nhập học vào Trường đáp ứng một trong các điều kiện sau: - Đạt giải trong các kỳ thi học sinh giỏi cấp tỉnh/thành phố trở lên; đạt giải Khoa học kỹ thuật cấp tỉnh/thành phố trở lên trong thời gian học tập tại các trường THPT và có môn thi phù hợp với ngành xét tuyển; tốt nghiệp các trường THPT chuyên có hạnh kiểm tốt *(danh sách các trường THPT chuyên theo quy định hiện hành của Bộ Giáo dục và Đào tạo)*. - Là con của giáo viên các trường THPT có ký kết hợp tác với Trường; là con của cán bộ viên chức, người lao động của Trường *(đã ký hợp đồng làm việc chính thức)*; sinh viên có anh/chị/em đang cùng học tập tại Trường trong thời gian học tập chính khóa. - Các ngành có tỷ lệ sinh viên nữ dưới 2% tính tại thời điểm trúng tuyển nhập học. - Sinh viên thuộc lớp cử nhân, kỹ sư tài năng."
+            ]
+        }
+    },
+    {
+        "query_id": 24,
+        "query": "Để tốt nghiệp đúng hạn, sinh viên cần tuân thủ những quy định nào về số tín chỉ tích lũy tối thiểu và thời gian học tập tối đa cho phép?",
+        "true_tier": 4,
+        "expected_urls": "dieu-kien-xet-tot-nghiep-php.md, thoi-gian-toi-da-de-hoan-thanh-chuong-trinh-php.md",
+        "baseline_1": {
+            "latency": 0.033019304275512695,
+            "retrieved_urls": [
+                "https://camnang.iuh.edu.vn/dieu-kien-xet-tot-nghiep.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/quy-dinh-ve-nghi-hoc-tam-thoi-va-bao-luu-ket-qua-hoc-tap.php"
+            ],
+            "chunks": [
+                "a) Tích lũy đủ học phần, số tín chỉ và hoàn thành các nội dung bắt buộc khác theo yêu cầu của chương trình đào tạo, đạt chuẩn đầu ra của chương trình đào tạo; b) Điểm trung bình tích lũy của toàn khóa học đạt từ 2.0 trở lên *(theo thang điểm 4);* c) Tại thời điểm xét tốt nghiệp không bị truy cứu trách nhiệm hình sự hoặc không đang trong thời gian bị kỷ luật ở mức đình chỉ học tập; d) Có các Chứng chỉ Giáo dục Quốc phòng và Giáo dục Thể chất *(trừ sinh viên đại học liên thông, vừa làm vừa học);* e) Có trình độ tiếng Anh và Chứng chỉ Công nghệ Thông tin theo yêu cầu như sau: *(chứng chỉ quốc gia, thuộc hệ thống giáo dục quốc dân)*hoặc tương đương trở lên; + Bậc đào tạo đại học vừa làm vừa học, đại học liên thông: chứng chỉ tiếng Anh cấp độ A2 hoặc tương đương trở lên; + Có Chứng chỉ Ứng dụng Công nghệ Thông tin cơ bản. + Bậc đào tạo đại học vừa làm vừa học, đại học liên thông: điểm TOEIC đạt tối thiểu 350; + Bậc cao đẳng: điểm TOEIC đạt tối thiểu 350; + Có Chứng chỉ Ứng dụng Công nghệ Thông tin cơ bản.",
+                "Sinh viên đã hết thời gian học tập tối đa theo quy định tại khoản 2 Điều 4 của Quy chế này nhưng chưa đủ điều kiện tốt nghiệp do chưa hoàn thành những học phần Giáo dục quốc phòng – An ninh hoặc Giáo dục thể chất hoặc chưa đạt chuẩn đầu ra về ngoại ngữ, công nghệ thông tin, trong thời hạn 03 năm tính từ thời hạn kết thúc học tập tại Trường được hoàn thiện các điều kiện còn thiếu và làm hồ sơ xin xét tốt nghiệp quá hạn nộp cho đơn vị đào tạo để trình Hội đồng xét công nhận tốt nghiệp.",
+                "d) Vì nhu cầu cá nhân. Các quy định đối với trường hợp này như sau: Sinh viên đã học ít nhất một học kỳ ở Trường, phải đạt ĐTBCTL không dưới 2.00 *(tính theo thang điểm 4)* và không rơi vào các trường hợp bị buộc thôi học hoặc bị xem xét kỷ luật; Nhà trường chỉ giải quyết cho sinh viên được nghỉ học tạm thời đối với 2 học kỳ chính và không áp dụng đối với học kỳ hè; Thời gian duyệt cho sinh viên nghỉ học tạm thời tính theo học kỳ chính thức, mỗi lần không vượt quá 6 tháng và không quá 2 lần cho 1 chương trình học; Sinh viên phải nộp đơn xin nghỉ tạm thời về Phòng Đào tạo trước khi học kỳ đó bắt đầu, nếu sinh viên làm hồ sơ sau khi học kỳ xin nghỉ tạm đã diễn ra quá 1 tháng thì Nhà trường sẽ không giải quyết cho hoàn phí, rút phí; Để đảm bảo sinh viên hoàn thành đúng tiến độ học tập, Nhà trường chỉ giải quyết cho sinh viên được xin nghỉ học tạm thời và bảo lưu kết quả học tập trong thời gian học tập chính thức."
+            ]
+        },
+        "baseline_2": {
+            "method": "Hybrid (Tier 1 - Vector)",
+            "latency": 11.354777097702026,
+            "retrieved_urls": [
+                "https://camnang.iuh.edu.vn/dieu-kien-xet-tot-nghiep.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/quy-dinh-ve-nghi-hoc-tam-thoi-va-bao-luu-ket-qua-hoc-tap.php"
+            ],
+            "chunks": [
+                "a) Tích lũy đủ học phần, số tín chỉ và hoàn thành các nội dung bắt buộc khác theo yêu cầu của chương trình đào tạo, đạt chuẩn đầu ra của chương trình đào tạo; b) Điểm trung bình tích lũy của toàn khóa học đạt từ 2.0 trở lên *(theo thang điểm 4);* c) Tại thời điểm xét tốt nghiệp không bị truy cứu trách nhiệm hình sự hoặc không đang trong thời gian bị kỷ luật ở mức đình chỉ học tập; d) Có các Chứng chỉ Giáo dục Quốc phòng và Giáo dục Thể chất *(trừ sinh viên đại học liên thông, vừa làm vừa học);* e) Có trình độ tiếng Anh và Chứng chỉ Công nghệ Thông tin theo yêu cầu như sau: *(chứng chỉ quốc gia, thuộc hệ thống giáo dục quốc dân)*hoặc tương đương trở lên; + Bậc đào tạo đại học vừa làm vừa học, đại học liên thông: chứng chỉ tiếng Anh cấp độ A2 hoặc tương đương trở lên; + Có Chứng chỉ Ứng dụng Công nghệ Thông tin cơ bản. + Bậc đào tạo đại học vừa làm vừa học, đại học liên thông: điểm TOEIC đạt tối thiểu 350; + Bậc cao đẳng: điểm TOEIC đạt tối thiểu 350; + Có Chứng chỉ Ứng dụng Công nghệ Thông tin cơ bản.",
+                "Sinh viên đã hết thời gian học tập tối đa theo quy định tại khoản 2 Điều 4 của Quy chế này nhưng chưa đủ điều kiện tốt nghiệp do chưa hoàn thành những học phần Giáo dục quốc phòng – An ninh hoặc Giáo dục thể chất hoặc chưa đạt chuẩn đầu ra về ngoại ngữ, công nghệ thông tin, trong thời hạn 03 năm tính từ thời hạn kết thúc học tập tại Trường được hoàn thiện các điều kiện còn thiếu và làm hồ sơ xin xét tốt nghiệp quá hạn nộp cho đơn vị đào tạo để trình Hội đồng xét công nhận tốt nghiệp.",
+                "d) Vì nhu cầu cá nhân. Các quy định đối với trường hợp này như sau: Sinh viên đã học ít nhất một học kỳ ở Trường, phải đạt ĐTBCTL không dưới 2.00 *(tính theo thang điểm 4)* và không rơi vào các trường hợp bị buộc thôi học hoặc bị xem xét kỷ luật; Nhà trường chỉ giải quyết cho sinh viên được nghỉ học tạm thời đối với 2 học kỳ chính và không áp dụng đối với học kỳ hè; Thời gian duyệt cho sinh viên nghỉ học tạm thời tính theo học kỳ chính thức, mỗi lần không vượt quá 6 tháng và không quá 2 lần cho 1 chương trình học; Sinh viên phải nộp đơn xin nghỉ tạm thời về Phòng Đào tạo trước khi học kỳ đó bắt đầu, nếu sinh viên làm hồ sơ sau khi học kỳ xin nghỉ tạm đã diễn ra quá 1 tháng thì Nhà trường sẽ không giải quyết cho hoàn phí, rút phí; Để đảm bảo sinh viên hoàn thành đúng tiến độ học tập, Nhà trường chỉ giải quyết cho sinh viên được xin nghỉ học tạm thời và bảo lưu kết quả học tập trong thời gian học tập chính thức."
+            ]
+        }
+    },
+    {
+        "query_id": 25,
+        "query": "Sự khác biệt trong việc cấp tài khoản email sinh viên (IUH) và quy định sử dụng hệ thống học tập trực tuyến (LMS) là gì?",
+        "true_tier": 4,
+        "expected_urls": "https://camnang.iuh.edu.vn/huong-dan-dang-ky-email-iuh.php, \nhttps://camnang.iuh.edu.vn/huong-dan-su-dung-lms.php",
+        "baseline_1": {
+            "latency": 0.03422689437866211,
+            "retrieved_urls": [
+                "https://camnang.iuh.edu.vn/huong-dan-su-dung-lms.php",
+                "https://camnang.iuh.edu.vn/huong-dan-su-dung-lms.php",
+                "https://camnang.iuh.edu.vn/huong-dan-su-dung-lms.php"
+            ],
+            "chunks": [
+                "Tài khoản sẽ được khởi tạo lần đầu tiên khi sinh viên có tên trong lớp học phần được tổ chức dạy trực tuyến. Từ đó, tài khoản sẽ được sử dụng trong suốt thời gian học tập tại trường.",
+                "Thông tin đăng nhập: Tài khoản: Mã số sinh viên, **mật khẩu mặc định: 1111** cho lần đăng nhập đầu tiên. Sau đó sinh viên phải thay đổi mật khẩu và cập nhật email cho tài khoản của mình. Lưu ý email này dùng để kích hoạt tài khoản cũng như lấy lại mật khẩu nếu sinh viên quên mật khẩu.",
+                "Hiện nay song song với việc tổ chức giảng dạy trên lớp, Nhà trường còn sử dụng thêm hệ thống học tập trực tuyến (LMS) nhằm cung cấp cho sinh viên những khóa học trực tuyến. Các lớp học phần được giảng viên sử dụng để cung cấp tài liệu, bài giảng, bài kiểm tra trực tuyến song song với các lớp học phần được tổ chức tại trường mà sinh viên đang theo học."
+            ]
+        },
+        "baseline_2": {
+            "method": "Hybrid (Tier 2 - Tree Search)",
+            "latency": 22.910477876663208,
+            "retrieved_urls": [
+                "https://camnang.iuh.edu.vn/huong-dan-su-dung-lms.php",
+                "https://camnang.iuh.edu.vn/huong-dan-su-dung-lms.php",
+                "https://camnang.iuh.edu.vn/huong-dan-su-dung-lms.php",
+                "https://camnang.iuh.edu.vn/huong-dan-su-dung-lms.php",
+                "https://camnang.iuh.edu.vn/huong-dan-dang-ky-email-iuh.php"
+            ],
+            "chunks": [
+                "Tài khoản sẽ được khởi tạo lần đầu tiên khi sinh viên có tên trong lớp học phần được tổ chức dạy trực tuyến. Từ đó, tài khoản sẽ được sử dụng trong suốt thời gian học tập tại trường.",
+                "Thông tin đăng nhập: Tài khoản: Mã số sinh viên, **mật khẩu mặc định: 1111** cho lần đăng nhập đầu tiên. Sau đó sinh viên phải thay đổi mật khẩu và cập nhật email cho tài khoản của mình. Lưu ý email này dùng để kích hoạt tài khoản cũng như lấy lại mật khẩu nếu sinh viên quên mật khẩu.",
+                "Hiện nay song song với việc tổ chức giảng dạy trên lớp, Nhà trường còn sử dụng thêm hệ thống học tập trực tuyến (LMS) nhằm cung cấp cho sinh viên những khóa học trực tuyến. Các lớp học phần được giảng viên sử dụng để cung cấp tài liệu, bài giảng, bài kiểm tra trực tuyến song song với các lớp học phần được tổ chức tại trường mà sinh viên đang theo học.",
+                "Để sử dụng hệ thống, sinh viên truy cập địa chỉ [ https://lms.iuh.edu.vn](https://lms.iuh.edu.vn) để được hướng dẫn chi tiết",
+                "Sau khi đăng nhập thành công, sinh viên chọn chức năng **ĐĂNG KÝ EMAIL** Hệ thống sẽ tự động điền thông tin cá nhân của sinh viên, sinh viên cần bổ sung hoặc cập nhật lại số điện thoại và email cá nhân vào biểu mẫu đăng ký. Lưu ý: Số điện thoại và Email này dùng để hỗ trợ người dùng kích hoạt tài khoản trong lần đăng nhập đầu tiên cũng như lấy lại mật khẩu khi bị quên vì vậy cần điền chính xác thông tin Sau khi điền đầy đủ thông tin, sinh viên cần xem điều khoản và tích vào mục **“Tôi đã đọc hiểu và chấp nhận các điều khoản sử dụng email”** và nhấn nút **Đăng ký**"
+            ]
+        }
+    },
+    {
+        "query_id": 26,
+        "query": "Đoàn thanh niên hỗ trợ sinh viên như thế nào trong cả hoạt động phong trào tình nguyện, văn thể mỹ và công tác học thuật?",
+        "true_tier": 4,
+        "expected_urls": "hoat-dong-tinh-nguyen-php.mdhttps://camnang.iuh.edu.vn/hoat-dong-tinh-nguyen.php, \nhttps://camnang.iuh.edu.vn/hoat-dong-vhvn-tdtt.php, \nhttps://camnang.iuh.edu.vn/hoat-dong-hoc-thuat.php",
+        "baseline_1": {
+            "latency": 0.030057191848754883,
+            "retrieved_urls": [
+                "https://camnang.iuh.edu.vn/hoat-dong-tinh-nguyen.php",
+                "https://camnang.iuh.edu.vn/hoat-dong-tinh-nguyen.php",
+                "https://camnang.iuh.edu.vn/hoat-dong-tinh-nguyen.php"
+            ],
+            "chunks": [
+                "Hoạt động tình nguyện là một trong những điểm sáng trong công tác Đoàn và phong trào thanh niên, thể hiện tinh thần xung kích, trách nhiệm và lòng nhân ái của tuổi trẻ đối với cộng đồng và xã hội.",
+                "Hằng năm, Đoàn Thanh niên - Hội Sinh viên tổ chức nhiều chiến dịch tình nguyện lớn như: \"Xuân tình nguyện” , “Mùa hè xanh\", \"Tiếp sức mùa thi\", \"Trăng vàng sẻ chia\", thu hút đông đảo đoàn viên tham gia. Các hoạt động bao gồm: hỗ trợ sĩ tử trong kỳ thi THPT, giúp dân sửa chữa nhà cửa, làm đường giao thông nông thôn, trồng cây xanh, xây dựng công trình thanh niên, thăm hỏi mẹ Việt Nam anh hùng và các gia đình chính sách...",
+                "Thông qua các hoạt động tình nguyện, đoàn viên không chỉ rèn luyện kỹ năng sống, nâng cao tinh thần trách nhiệm với xã hội mà còn góp phần xây dựng hình ảnh đẹp về tuổi trẻ IUH sống đẹp, sống có ích và sẵn sàng cống hiến vì cộng đồng."
+            ]
+        },
+        "baseline_2": {
+            "method": "Hybrid (Tier 3 - Tree Search)",
+            "latency": 19.467482089996338,
+            "retrieved_urls": [
+                "https://camnang.iuh.edu.vn/hoat-dong-tinh-nguyen.php",
+                "https://camnang.iuh.edu.vn/hoat-dong-tinh-nguyen.php",
+                "https://camnang.iuh.edu.vn/hoat-dong-tinh-nguyen.php",
+                "https://camnang.iuh.edu.vn/hoat-dong-tinh-nguyen.php",
+                "https://camnang.iuh.edu.vn/hoat-dong-phong-trao.php"
+            ],
+            "chunks": [
+                "Hoạt động tình nguyện là một trong những điểm sáng trong công tác Đoàn và phong trào thanh niên, thể hiện tinh thần xung kích, trách nhiệm và lòng nhân ái của tuổi trẻ đối với cộng đồng và xã hội.",
+                "Hằng năm, Đoàn Thanh niên - Hội Sinh viên tổ chức nhiều chiến dịch tình nguyện lớn như: \"Xuân tình nguyện” , “Mùa hè xanh\", \"Tiếp sức mùa thi\", \"Trăng vàng sẻ chia\", thu hút đông đảo đoàn viên tham gia. Các hoạt động bao gồm: hỗ trợ sĩ tử trong kỳ thi THPT, giúp dân sửa chữa nhà cửa, làm đường giao thông nông thôn, trồng cây xanh, xây dựng công trình thanh niên, thăm hỏi mẹ Việt Nam anh hùng và các gia đình chính sách...",
+                "Thông qua các hoạt động tình nguyện, đoàn viên không chỉ rèn luyện kỹ năng sống, nâng cao tinh thần trách nhiệm với xã hội mà còn góp phần xây dựng hình ảnh đẹp về tuổi trẻ IUH sống đẹp, sống có ích và sẵn sàng cống hiến vì cộng đồng.",
+                "Ngoài ra, các chương trình như “Hiến máu tình nguyện, “Thứ bảy tình nguyện”, “Chủ nhật xanh”, các hoạt động phòng, chống dịch bệnh, cứu trợ đồng bào vùng thiên tai... cũng được triển khai rộng rãi và hiệu quả.",
+                "Ngoài việc bồi dưỡng kiến thức, nhà trường còn luôn chú trọng trong việc tạo môi trường cho sinh viên rèn luyện, trau dồi kỹ năng mềm và phát huy khả năng sáng tạo. Thông qua các hoạt động ngoại khóa, giao lưu văn hóa nghệ thuật, các hoạt động tình nguyện sinh viên rèn luyện được thái độ sống tích cực, trau dồi kỹ năng mềm, sống có trách nhiệm với cộng đồng. Đoàn TNCS Hồ Chí Minh - Hội Sinh viên Việt Nam Trường Đại học Công nghiệp Thành phố Hồ Chí Minh là tổ chức chính trị - xã hội, nơi tập hợp đoàn viên - thanh niên trong toàn trường phát động các phong trào rèn luyện, phấn đấu trong sinh viên. Với các hoạt động da dạng, phong phú, phù hợp với nhu cầu, sở thích của các bạn trẻ, đầy nhiệt huyết, đây là địa chỉ uy tín tạo ra sân chơi bổ ích, lành mạnh cho các bạn sinh viên ngoài giờ học căng thẳng trên lớp. [youth.iuh.edu.vn](https://youth.iuh.edu.vn) youth@iuh.edu.vn - vanphong@tuoitreiuh.com"
+            ]
+        }
+    },
+    {
+        "query_id": 27,
+        "query": "Sinh viên muốn vừa làm thủ tục chuyển sinh hoạt Đảng vừa muốn tìm hiểu chính sách hỗ trợ chi phí học tập thì cần tham khảo những quy định nào?",
+        "true_tier": 4,
+        "expected_urls": "https://camnang.iuh.edu.vn/huong-dan-chuyen-sinh-hoat-dang.php, https://camnang.iuh.edu.vn/chinh-sach-mien-giam-hoc-phi-va-ho-tro-chi-phi-hoc-tap.php",
+        "baseline_1": {
+            "latency": 0.02993154525756836,
+            "retrieved_urls": [
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/quy-dinh-ve-chuyen-nganh-dao-tao-chuyen-chuong-trinh-hinh-thuc-dao-tao-va-co-so-hoc-tap.php"
+            ],
+            "chunks": [
+                " 1. Chuyển trường a) Sinh viên được xem xét chuyển trường nếu có đủ các điều kiện sau: – Không đang là sinh viên trình độ năm thứ nhất hoặc năm cuối khóa, không thuộc diện bị xem xét buộc thôi học và còn đủ thời gian học tập theo quy định tại Điều 4 của Quy chế này; – Sinh viên đạt điều kiện trúng tuyển của chương trình, ngành đào tạo cùng khóa tuyển sinh tại trường chuyển đến; – Trường chuyển đến có đủ các điều kiện bảo đảm chất lượng đào tạo, chưa vượt quá năng lực đào tạo đối với chương trình, ngành đào tạo đó theo quy định hiện hành của Bộ Giáo dục và Đào tạo; – Được sự đồng ý của trường xin chuyển đi và trường xin chuyển đến. b) Thủ tục chuyển trường: – Sinh viên xin chuyển trường phải làm hồ sơ xin chuyển trường theo quy định của Nhà trường; – Hiệu trưởng sẽ quyết định tiếp nhận hoặc không tiếp nhận đối với sinh viên xin chuyển đến. Đối với các trường hợp sinh viên được chấp nhận chuyển đến, Hiệu trưởng sẽ quyết định việc tiếp tục học tập của sinh viên, công nhận điểm các học phần của sinh viên chuyển đến, quy định việc chuyển đổi kết quả và số học phần phải học bổ sung trên cơ sở so sánh CTĐT ở trường sinh viên xin chuyển đi và trường xin chuyển đến.",
+                "Sinh viên muốn xin chuyển chương trình đào tạo phải làm đơn gửi Ban Giám hiệu xem xét, phê duyệt(thông qua Phòng Đào tạo)sau học kỳ đầu tiên; c) Sinh viên được xem xét chuyển từ đào tạo theo hình thức chính quy sang hình thức vừa làm vừa học hoặc đào tạo từ xa nếu còn đủ thời gian học tập theo quy định tại Điều 4 của Quy chế này đối với hình thức chuyển đến. 4. Chuyển cơ sở học tập a) Sinh viên trúng tuyển đầu vào tại Phân hiệu của Trường theo chương trình 1+3 hoặc 2+2, sau khi kết thúc năm học thứ nhất (đối với chương trình 1+3) hoặc kết thúc năm học thứ hai(đối với chương trình 2+2)sẽ được Phòng Đào tạo và Phân hiệu làm các thủ tục chuyển từ Phân hiệu về Cơ sở chính tại Thành phố Hồ Chí Minh.",
+                " a) Căn cứ vào nhu cầu chuyển ngành của sinh viên và điều kiện thực tế của Trường, Nhà trường cho phép sinh viên được xét chuyển ngành học nếu đáp ứng đủ cả 2 điều kiện sau: - Có kết quả xét tuyển đầu vào của ngành đang học không thấp hơn điểm trúng tuyển của ngành xin chuyển đến và cùng năm tuyển sinh của bậc, hệ đào tạo tương ứng; - Không thuộc diện buộc thôi học hoặc bị kỷ luật từ cảnh cáo trở lên. b) Thời gian được phép xin chuyển ngành: - Chuyển ngành theo nhu cầu cá nhân: sinh viên chỉ được xin chuyển ngành đào tạo từ năm học thứ hai trở đi *(trừ năm học cuối, tính theo thời gian học tập chính thức)*. Sinh viên trực tiếp liên hệ Phòng Đào tạo để làm hồ sơ chuyển ngành theo quy định của Nhà trường; - Đối với trường hợp tách ngành, chuyển ngành trong cùng nhóm ngành, ngành *(chuyển ngành tập thể)* trong đợt tuyển sinh chung thì thời điểm tách ngành, chuyên ngành do đơn vị đào tạo đề xuất Phòng Đào tạo trình Ban Giám hiệu phê duyệt. c) Sinh viên chỉ được xét chuyển ngành học một lần trong suốt khóa học. Khi được chấp thuận chuyển sang ngành mới thì sinh viên được xét chuyển điểm các học phần có nội dung, khối lượng kiến thức tương đương."
+            ]
+        },
+        "baseline_2": {
+            "method": "Hybrid (Tier 3 - Tree Search)",
+            "latency": 10.832738399505615,
+            "retrieved_urls": [
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/quy-dinh-ve-chuyen-nganh-dao-tao-chuyen-chuong-trinh-hinh-thuc-dao-tao-va-co-so-hoc-tap.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php"
+            ],
+            "chunks": [
+                " 1. Chuyển trường a) Sinh viên được xem xét chuyển trường nếu có đủ các điều kiện sau: – Không đang là sinh viên trình độ năm thứ nhất hoặc năm cuối khóa, không thuộc diện bị xem xét buộc thôi học và còn đủ thời gian học tập theo quy định tại Điều 4 của Quy chế này; – Sinh viên đạt điều kiện trúng tuyển của chương trình, ngành đào tạo cùng khóa tuyển sinh tại trường chuyển đến; – Trường chuyển đến có đủ các điều kiện bảo đảm chất lượng đào tạo, chưa vượt quá năng lực đào tạo đối với chương trình, ngành đào tạo đó theo quy định hiện hành của Bộ Giáo dục và Đào tạo; – Được sự đồng ý của trường xin chuyển đi và trường xin chuyển đến. b) Thủ tục chuyển trường: – Sinh viên xin chuyển trường phải làm hồ sơ xin chuyển trường theo quy định của Nhà trường; – Hiệu trưởng sẽ quyết định tiếp nhận hoặc không tiếp nhận đối với sinh viên xin chuyển đến. Đối với các trường hợp sinh viên được chấp nhận chuyển đến, Hiệu trưởng sẽ quyết định việc tiếp tục học tập của sinh viên, công nhận điểm các học phần của sinh viên chuyển đến, quy định việc chuyển đổi kết quả và số học phần phải học bổ sung trên cơ sở so sánh CTĐT ở trường sinh viên xin chuyển đi và trường xin chuyển đến.",
+                "Sinh viên muốn xin chuyển chương trình đào tạo phải làm đơn gửi Ban Giám hiệu xem xét, phê duyệt(thông qua Phòng Đào tạo)sau học kỳ đầu tiên; c) Sinh viên được xem xét chuyển từ đào tạo theo hình thức chính quy sang hình thức vừa làm vừa học hoặc đào tạo từ xa nếu còn đủ thời gian học tập theo quy định tại Điều 4 của Quy chế này đối với hình thức chuyển đến. 4. Chuyển cơ sở học tập a) Sinh viên trúng tuyển đầu vào tại Phân hiệu của Trường theo chương trình 1+3 hoặc 2+2, sau khi kết thúc năm học thứ nhất (đối với chương trình 1+3) hoặc kết thúc năm học thứ hai(đối với chương trình 2+2)sẽ được Phòng Đào tạo và Phân hiệu làm các thủ tục chuyển từ Phân hiệu về Cơ sở chính tại Thành phố Hồ Chí Minh.",
+                " a) Căn cứ vào nhu cầu chuyển ngành của sinh viên và điều kiện thực tế của Trường, Nhà trường cho phép sinh viên được xét chuyển ngành học nếu đáp ứng đủ cả 2 điều kiện sau: - Có kết quả xét tuyển đầu vào của ngành đang học không thấp hơn điểm trúng tuyển của ngành xin chuyển đến và cùng năm tuyển sinh của bậc, hệ đào tạo tương ứng; - Không thuộc diện buộc thôi học hoặc bị kỷ luật từ cảnh cáo trở lên. b) Thời gian được phép xin chuyển ngành: - Chuyển ngành theo nhu cầu cá nhân: sinh viên chỉ được xin chuyển ngành đào tạo từ năm học thứ hai trở đi *(trừ năm học cuối, tính theo thời gian học tập chính thức)*. Sinh viên trực tiếp liên hệ Phòng Đào tạo để làm hồ sơ chuyển ngành theo quy định của Nhà trường; - Đối với trường hợp tách ngành, chuyển ngành trong cùng nhóm ngành, ngành *(chuyển ngành tập thể)* trong đợt tuyển sinh chung thì thời điểm tách ngành, chuyên ngành do đơn vị đào tạo đề xuất Phòng Đào tạo trình Ban Giám hiệu phê duyệt. c) Sinh viên chỉ được xét chuyển ngành học một lần trong suốt khóa học. Khi được chấp thuận chuyển sang ngành mới thì sinh viên được xét chuyển điểm các học phần có nội dung, khối lượng kiến thức tương đương.",
+                "2. Chuyển ngành đào tạo a) Căn cứ vào nhu cầu chuyển ngành của sinh viên và điều kiện thực tế của Trường, Nhà trường cho phép sinh viên được xét chuyển ngành học nếu đáp ứng đủ cả 2 điều kiện sau: – Có kết quả xét tuyển đầu vào của ngành đang học không thấp hơn điểm trúng tuyển của ngành xin chuyển đến và cùng năm tuyển sinh của bậc, hệ đào tạo tương ứng; – Không thuộc diện buộc thôi học hoặc bị kỷ luật từ cảnh cáo trở lên. b) Thời gian được phép xin chuyển ngành: – Chuyển ngành theo nhu cầu cá nhân: sinh viên chỉ được xin chuyển ngành đào tạo từ năm học thứ hai trở đi(trừ năm học cuối, tính theo thời gian học tập chính thức được quy định tại Điều 4 của Quy chế này). Sinh viên trực tiếp liên hệ Phòng Đào tạo để làm hồ sơ chuyển ngành theo quy định của Nhà trường; – Đối với trường hợp tách ngành, chuyên ngành trong cùng nhóm ngành, ngành (chuyển ngành tập thể) trong đợt tuyển sinh chung thì thời điểm tách ngành, chuyên ngành do đơn vị đào tạo đề xuất Phòng Đào tạo trình Ban Giám hiệu phê duyệt. c) Sinh viên chỉ được xét chuyển ngành học một lần trong suốt khóa học.",
+                "Khi được chấp thuận chuyển sang ngành mới thì sinh viên được xét chuyển điểm các học phần có nội dung, khối lượng kiến thức tương đương. Thời hạn học tập tối đa của sinh viên được tính theo thời hạn học tập của ngành ban đầu; d) Khi sinh viên chuyển ngành học thì những học phần đã được tích lũy sẽ không phải học lại nếu ngành mới có học phần này. Đối với sinh viên từ trường khác chuyển đến, Nhà trường dựa vào kết quả học tập của sinh viên để xem xét miễn hoặc chuyển điểm cho các học phần tương ứng trong chương trình đào tạo theo quy định tại Điều 31 của Quy chế này. Thời gian có giá trị của các học phần không quá thời gian tối đa được phép học tại Trường theo quy định. 3. Chuyển bậc, chương trình và hình thức đào tạo a) Sinh viên bậc đại học xin chuyển xuống bậc thấp hơn thì tùy trường hợp, Nhà trường sẽ xem xét giải quyết(nếu Trường đang còn đào tạo các bậc này); b) Sinh viên bậc đại học chương trình đại trà có thể xin chuyển sang bậc đại học chương trình chất lượng cao của Trường nếu thỏa mãn các điều kiện quy định tại điểm a, khoản 2 Điều này. Sinh viên bậc đại học chương trình chất lượng cao không được xin chuyển sang bậc đại học chương trình đại trà của Trường."
+            ]
+        }
+    },
+    {
+        "query_id": 28,
+        "query": "So sánh chính sách học bổng khuyến khích học tập của nhà trường với các suất học bổng từ các hội thảo doanh nghiệp bên ngoài.",
+        "true_tier": 4,
+        "expected_urls": "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php, https://camnang.iuh.edu.vn/hoc-bong-doanh-nghiep.php, https://camnang.iuh.edu.vn/hoi-thao-doanh-nghiep.php",
+        "baseline_1": {
+            "latency": 0.035338640213012695,
+            "retrieved_urls": [
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php"
+            ],
+            "chunks": [
+                " Mỗi năm, Nhà trường ban hành chính sách trao học bổng cho sinh viên, học viên học tập, nghiên cứu tại Trường. Đặc biệt kể từ năm học 2024 - 2025, khóa tuyển sinh năm 2024, Nhà trường ban hành các chính sách học bổng, khuyến học mới rất có lợi cho người học. Cụ thể như sau: **Đối tượng xét:** Sinh viên mới trúng tuyển nhập học vào Trường đáp ứng một trong các điều kiện sau: - Đạt giải trong các kỳ thi học sinh giỏi cấp tỉnh/thành phố trở lên; đạt giải Khoa học kỹ thuật cấp tỉnh/thành phố trở lên trong thời gian học tập tại các trường THPT và có môn thi phù hợp với ngành xét tuyển; tốt nghiệp các trường THPT chuyên có hạnh kiểm tốt *(danh sách các trường THPT chuyên theo quy định hiện hành của Bộ Giáo dục và Đào tạo)*. - Là con của giáo viên các trường THPT có ký kết hợp tác với Trường; là con của cán bộ viên chức, người lao động của Trường *(đã ký hợp đồng làm việc chính thức)*; sinh viên có anh/chị/em đang cùng học tập tại Trường trong thời gian học tập chính khóa. - Các ngành có tỷ lệ sinh viên nữ dưới 2% tính tại thời điểm trúng tuyển nhập học. - Sinh viên thuộc lớp cử nhân, kỹ sư tài năng.",
+                "**Điều kiện xét:** Căn cứ vào Quỹ hỗ trợ sinh viên và số lượng sinh viên được nhận học bổng Tuyển sinh hằng năm, Nhà trường sẽ thông báo mức học bổng cho từng đối tượng được xét, cấp học bổng. Học bổng này được xét, cấp theo hình thức miễn giảm học phí cho từng học kỳ theo quy định. Mức học bổng lên tới 100% học phí, tùy mỗi trường hợp cụ thể.",
+                "**Đối tượng xét:** Học bổng Tài trợ cấp cho người học thuộc Trường do cựu sinh viên, các tổ chức, doanh nghiệp và cá nhân (gọi chung là đơn vị tài trợ) trao tặng theo quy định, điều kiện riêng của đơn vị tài trợ *(nếu có)*. **Điều kiện xét:** Mức học bổng, tiêu chuẩn, số lượng xét, cấp học bổng tài trợ thực hiện theo thỏa thuận giữa đơn vị tài trợ với Nhà trường hoặc theo những điều kiện xét, cấp học bổng do tiêu chí của đơn vị tài trợ đặt ra. Mức học bổng lên tới 100% học phí hoặc cao hơn tùy theo mỗi chương trình cụ thể."
+            ]
+        },
+        "baseline_2": {
+            "method": "Hybrid (Tier 4 - Tree Search)",
+            "latency": 12.963528633117676,
+            "retrieved_urls": [
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
+                "https://camnang.iuh.edu.vn/hoat-dong-phong-trao.php"
+            ],
+            "chunks": [
+                " Mỗi năm, Nhà trường ban hành chính sách trao học bổng cho sinh viên, học viên học tập, nghiên cứu tại Trường. Đặc biệt kể từ năm học 2024 - 2025, khóa tuyển sinh năm 2024, Nhà trường ban hành các chính sách học bổng, khuyến học mới rất có lợi cho người học. Cụ thể như sau: **Đối tượng xét:** Sinh viên mới trúng tuyển nhập học vào Trường đáp ứng một trong các điều kiện sau: - Đạt giải trong các kỳ thi học sinh giỏi cấp tỉnh/thành phố trở lên; đạt giải Khoa học kỹ thuật cấp tỉnh/thành phố trở lên trong thời gian học tập tại các trường THPT và có môn thi phù hợp với ngành xét tuyển; tốt nghiệp các trường THPT chuyên có hạnh kiểm tốt *(danh sách các trường THPT chuyên theo quy định hiện hành của Bộ Giáo dục và Đào tạo)*. - Là con của giáo viên các trường THPT có ký kết hợp tác với Trường; là con của cán bộ viên chức, người lao động của Trường *(đã ký hợp đồng làm việc chính thức)*; sinh viên có anh/chị/em đang cùng học tập tại Trường trong thời gian học tập chính khóa. - Các ngành có tỷ lệ sinh viên nữ dưới 2% tính tại thời điểm trúng tuyển nhập học. - Sinh viên thuộc lớp cử nhân, kỹ sư tài năng.",
+                "**Điều kiện xét:** Căn cứ vào Quỹ hỗ trợ sinh viên và số lượng sinh viên được nhận học bổng Tuyển sinh hằng năm, Nhà trường sẽ thông báo mức học bổng cho từng đối tượng được xét, cấp học bổng. Học bổng này được xét, cấp theo hình thức miễn giảm học phí cho từng học kỳ theo quy định. Mức học bổng lên tới 100% học phí, tùy mỗi trường hợp cụ thể.",
+                "**Đối tượng xét:** Học bổng Tài trợ cấp cho người học thuộc Trường do cựu sinh viên, các tổ chức, doanh nghiệp và cá nhân (gọi chung là đơn vị tài trợ) trao tặng theo quy định, điều kiện riêng của đơn vị tài trợ *(nếu có)*. **Điều kiện xét:** Mức học bổng, tiêu chuẩn, số lượng xét, cấp học bổng tài trợ thực hiện theo thỏa thuận giữa đơn vị tài trợ với Nhà trường hoặc theo những điều kiện xét, cấp học bổng do tiêu chí của đơn vị tài trợ đặt ra. Mức học bổng lên tới 100% học phí hoặc cao hơn tùy theo mỗi chương trình cụ thể.",
+                "**Đối tượng xét:** Sinh viên bậc đại học hệ chính quy đang trong thời gian học tập chính khóa. Mức học bổng sinh viên nhận được lên tới 130% học phí. Nội dung chi tiết được ban hành trong Quyết định số 2728/QĐ-ĐHCN ngày 23 tháng 11 năm 2023 về việc xét, cấp học bổng cho sinh viên đại học chính quy, học viên đang học tập, nghiên cứu tại Trường Đại học Công nghiệp Thành phố Hồ Chí Minh. **Điều kiện xét:** - Sinh viên đang trong thời gian học tập chính thức của khóa học - Học kỳ xét, cấp học bổng không bao gồm học kỳ đầu và cuối của khóa học. - Kết quả học tập *(theo thang điểm 4)* và rèn luyện đạt loại khá trở lên. - Không có môn bị điểm F trong học kỳ *(kể cả các học phần Giáo dục thể chất, Giáo dục quốc phòng, tiếng Anh)*. - Số tín chỉ sinh viên tích lũy trong học kỳ xét, cấp học bổng tối thiểu là 15 tín chỉ *(không tính các học phần Giáo dục thể chất, Giáo dục quốc phòng, tiếng Anh)*. Trường hợp sinh viên không đăng ký đủ 15 tín chỉ thì Nhà trường căn cứ vào số tín chỉ trong niên giám của học kỳ đó để xét, cấp học bổng. - Không bị kỷ luật trong học kỳ xét, cấp học bổng.",
+                "Ngoài việc bồi dưỡng kiến thức, nhà trường còn luôn chú trọng trong việc tạo môi trường cho sinh viên rèn luyện, trau dồi kỹ năng mềm và phát huy khả năng sáng tạo. Thông qua các hoạt động ngoại khóa, giao lưu văn hóa nghệ thuật, các hoạt động tình nguyện sinh viên rèn luyện được thái độ sống tích cực, trau dồi kỹ năng mềm, sống có trách nhiệm với cộng đồng. Đoàn TNCS Hồ Chí Minh - Hội Sinh viên Việt Nam Trường Đại học Công nghiệp Thành phố Hồ Chí Minh là tổ chức chính trị - xã hội, nơi tập hợp đoàn viên - thanh niên trong toàn trường phát động các phong trào rèn luyện, phấn đấu trong sinh viên. Với các hoạt động da dạng, phong phú, phù hợp với nhu cầu, sở thích của các bạn trẻ, đầy nhiệt huyết, đây là địa chỉ uy tín tạo ra sân chơi bổ ích, lành mạnh cho các bạn sinh viên ngoài giờ học căng thẳng trên lớp. [youth.iuh.edu.vn](https://youth.iuh.edu.vn) youth@iuh.edu.vn - vanphong@tuoitreiuh.com"
+            ]
+        }
+    }
+]
