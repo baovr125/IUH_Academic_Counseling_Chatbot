@@ -5,7 +5,7 @@
         "true_tier": 1,
         "expected_urls": "https://camnang.iuh.edu.vn/gia-tri-cot-loi.php",
         "baseline_1": {
-            "latency": 0.01599860191345215,
+            "latency": 0.025850296020507812,
             "retrieved_urls": [
                 "https://camnang.iuh.edu.vn/gia-tri-cot-loi.php",
                 "https://iuh.edu.vn/Resource/Upload2/files/2021/07/qd966_2021.pdf",
@@ -18,8 +18,8 @@
             ]
         },
         "baseline_2": {
-            "method": "Hybrid (Tier 4 - Tree Search + Cohere)",
-            "latency": 8.908538579940796,
+            "method": "Hybrid (Tier 3 - Tree Search + Cohere)",
+            "latency": 12.046011209487915,
             "retrieved_urls": [
                 "https://camnang.iuh.edu.vn/gia-tri-cot-loi.php",
                 "https://iuh.edu.vn/Resource/Upload2/files/2021/07/qd966_2021.pdf",
@@ -38,7 +38,7 @@
         "true_tier": 1,
         "expected_urls": "https://camnang.iuh.edu.vn/bang-quy-doi-diem-chung-chi-tieng-anh.php",
         "baseline_1": {
-            "latency": 0.018006324768066406,
+            "latency": 0.020039796829223633,
             "retrieved_urls": [
                 "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
                 "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
@@ -51,8 +51,8 @@
             ]
         },
         "baseline_2": {
-            "method": "Hybrid (Tier 2 - Tree Search + Cohere)",
-            "latency": 5.856979131698608,
+            "method": "Hybrid (Tier 3 - Tree Search + Cohere)",
+            "latency": 7.637376308441162,
             "retrieved_urls": [
                 "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
                 "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
@@ -71,7 +71,7 @@
         "true_tier": 1,
         "expected_urls": "https://camnang.iuh.edu.vn/cai-dat-tinh-nang-xac-thuc-microsoft-authenticator.php",
         "baseline_1": {
-            "latency": 0.010998249053955078,
+            "latency": 0.01954197883605957,
             "retrieved_urls": [
                 "https://camnang.iuh.edu.vn/cai-dat-tinh-nang-xac-thuc-microsoft-authenticator.php",
                 "https://camnang.iuh.edu.vn/huong-dan-dang-ky-email-iuh.php",
@@ -84,17 +84,17 @@
             ]
         },
         "baseline_2": {
-            "method": "Hybrid (Tier 1 - Vector)",
-            "latency": 0.4216761589050293,
+            "method": "Hybrid (Tier 2 - Tree Search + Cohere)",
+            "latency": 8.242416620254517,
             "retrieved_urls": [
                 "https://camnang.iuh.edu.vn/cai-dat-tinh-nang-xac-thuc-microsoft-authenticator.php",
                 "https://camnang.iuh.edu.vn/huong-dan-dang-ky-email-iuh.php",
-                "https://camnang.iuh.edu.vn/huong-dan-dang-ky-email-iuh.php"
+                "https://camnang.iuh.edu.vn/cai-dat-tinh-nang-xac-thuc-microsoft-authenticator.php"
             ],
             "chunks": [
                 "Hiện nay một số tài khoản đã được Microsoft yêu cầu bổ sung tính năng xác thực bằng App. Sau đây Trung tâm Quản trị Hệ thống xin hướng dẫn các bước cài App và xác thực như sau: Khi đăng nhập sử dụng các dịch vụ của Microsoft, thấy xuất hiện thông tin ở dưới, bạn vui lòng ấn Next để tiếp tục. Sau đó sẽ thấy màn hình bắt đầu cài App. Bạn dùng thiết bị di động lên cửa hàng và tìm cài app Microsoft Authenticator *(lưu ý tìm và cài đúng ứng dụng như hình bên dưới)* - Đối với điện thoại dùng hệ điều hành Android: bạn vào CH Play. - Đối với hệ điều hành IOS: bạn vào App Store Sau khi cài đặt xong ứng dụng, đồng thời bạn ấn **Next** ở màn hình chờ *(như hình dưới)*",
-                "Sau khi đăng ký thành công, sinh viên có thể truy cập vào email và sử dụng miễn phí các tiện ích của Microsoft. Lưu ý: - Sinh viên chịu trách nhiệm cập nhật đúng thông tin email và số điện thoại để làm cơ sở khôi phục mật khẩu. Trung tâm Quản trị Hệ thống không chịu trách nhiệm cấp lại mật khẩu mới. - Sau khi đăng ký, cập nhật email, số điện thoại thành công, hệ thống sẽ cần khoảng 15 phút để xây dựng hộp thư email. Vì vậy, sinh viên có thể sử dụng email sau 15 phút kể từ lúc đăng ký thành công. - Trong quá trình đăng ký sử dụng nếu gặp các vấn đề khó khăn về kỹ thuật, người dùng có thể liên hệ với Trung tâm Quản trị hệ thống qua các kênh thông tin qua số điện thoại 0283 8940 390 (nhánh 168, 838) trong giờ hành chính hoặc qua Cổng liên hệ - phản hồi từ website Trung tâm hoặc thông qua các kênh Facebook và Zalo OA.",
-                "Sau khi đăng nhập thành công, sinh viên chọn chức năng **ĐĂNG KÝ EMAIL** Hệ thống sẽ tự động điền thông tin cá nhân của sinh viên, sinh viên cần bổ sung hoặc cập nhật lại số điện thoại và email cá nhân vào biểu mẫu đăng ký. Lưu ý: Số điện thoại và Email này dùng để hỗ trợ người dùng kích hoạt tài khoản trong lần đăng nhập đầu tiên cũng như lấy lại mật khẩu khi bị quên vì vậy cần điền chính xác thông tin Sau khi điền đầy đủ thông tin, sinh viên cần xem điều khoản và tích vào mục **“Tôi đã đọc hiểu và chấp nhận các điều khoản sử dụng email”** và nhấn nút **Đăng ký**"
+                "Sau khi đăng ký thành công, sinh viên truy cập đường dẫn [ https://outlook.office365.com](https://outlook.office365.com), hệ thống sẽ tự chuyển hướng sinh viên qua trang đăng nhập. Sinh viên tiến hành nhập email và mật khẩu đã được cung cấp ở **Bước 3**. Sau khi đăng nhập thành công lần đầu tiên, hệ thống yêu cầu sinh viên đổi mật khẩu, trong đó mật khẩu hiện tại chính là mật khẩu sau khi đăng nhập thành công *(mật khẩu được cung cấp ở Bước 3)*. Sinh viên tiến hành cập nhật mật khẩu mới bao gồm ký tự hoa, thường, số và ký tự đặc biệt sau đó nhấn nút **Sign in**. Hệ thống sẽ yêu cầu sinh viên xác thực số điện thoại hoặc email *(Hình 7)* để tăng cường bảo mật cho tài khoản. Khuyến khích sinh viên xác thực đầy đủ email và số điện thoại. **Xác thực số điện thoại:** Sinh viên tiến hành cập nhật mã vùng là Việt Nam (Vietnam + 84) và nhập số điện thoại di động của mình. Nhấn nút Text me để nhận mã xác thực về điện thoại *(Xem hình 8)*. Hệ thống sẽ gửi mã xác thực và sinh viên tiến hành nhập mã, sau đó nhấn nút **Verify** *(Xem hình 9)* **Xác thực email:** Thực hiện tương tự như bước xác thực số điện thoại, sinh viên tiến hành nhập địa chỉ email cá nhân và yêu cầu mã xác nhận để xác thực email *(Xem hình 10)*",
+                "Phê duyệt đăng nhập lần đầu, hệ thống gửi mã code là số tới ứng dụng Authenticator của bạn. Bạn mở ứng dụng lên, sau đó nhập đúng số giống với trên màn hình hiển thị của bạn và ấn **Có**. Hệ thống sẽ tự động dùng phương pháp xác thực là Faceid hoặc mã pin mở máy của bạn (yêu cầu bạn nhập) để xác thực lần nữa, nếu đúng thì tài khoản sẽ chấp thuận đăng nhập. Tương tự bạn làm như vậy cho các lần đăng nhập của tài khoản."
             ]
         }
     },
@@ -104,7 +104,7 @@
         "true_tier": 1,
         "expected_urls": "https://camnang.iuh.edu.vn/huong-dan-dang-ky-hoc-phan.php",
         "baseline_1": {
-            "latency": 0.015999317169189453,
+            "latency": 0.017396926879882812,
             "retrieved_urls": [
                 "https://camnang.iuh.edu.vn/huong-dan-dang-ky-hoc-phan.php",
                 "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
@@ -118,7 +118,7 @@
         },
         "baseline_2": {
             "method": "Hybrid (Tier 2 - Tree Search + Cohere)",
-            "latency": 6.813442230224609,
+            "latency": 7.178308486938477,
             "retrieved_urls": [
                 "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
                 "https://camnang.iuh.edu.vn/huong-dan-dang-ky-hoc-phan.php",
@@ -137,7 +137,7 @@
         "true_tier": 1,
         "expected_urls": "https://camnang.iuh.edu.vn/huong-dan-nop-tien-hoc-phi-bang-hinh-thuc-truc-tuyen.php",
         "baseline_1": {
-            "latency": 0.0319981575012207,
+            "latency": 0.021513938903808594,
             "retrieved_urls": [
                 "https://camnang.iuh.edu.vn/huong-dan-nop-tien-hoc-phi-bang-hinh-thuc-truc-tuyen.php",
                 "https://camnang.iuh.edu.vn/huong-dan-nop-tien-hoc-phi-bang-hinh-thuc-truc-tuyen.php",
@@ -150,8 +150,8 @@
             ]
         },
         "baseline_2": {
-            "method": "Hybrid (Tier 3 - Tree Search + Cohere)",
-            "latency": 15.405295610427856,
+            "method": "Hybrid (Tier 4 - Tree Search + Cohere)",
+            "latency": 10.307890892028809,
             "retrieved_urls": [
                 "https://camnang.iuh.edu.vn/huong-dan-nop-tien-hoc-phi-bang-hinh-thuc-truc-tuyen.php",
                 "https://camnang.iuh.edu.vn/huong-dan-nop-tien-hoc-phi-bang-hinh-thuc-truc-tuyen.php",
@@ -170,7 +170,7 @@
         "true_tier": 1,
         "expected_urls": "https://camnang.iuh.edu.vn/hoc-bong-doanh-nghiep.php",
         "baseline_1": {
-            "latency": 0.027879953384399414,
+            "latency": 0.017030715942382812,
             "retrieved_urls": [
                 "https://camnang.iuh.edu.vn/hoc-bong-doanh-nghiep.php",
                 "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
@@ -184,7 +184,7 @@
         },
         "baseline_2": {
             "method": "Hybrid (Tier 4 - Tree Search + Cohere)",
-            "latency": 11.51740050315857,
+            "latency": 7.658643484115601,
             "retrieved_urls": [
                 "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
                 "https://camnang.iuh.edu.vn/hoat-dong-phong-trao.php",
@@ -203,7 +203,7 @@
         "true_tier": 1,
         "expected_urls": "https://camnang.iuh.edu.vn/co-so-va-phan-hieu.php",
         "baseline_1": {
-            "latency": 0.028668642044067383,
+            "latency": 0.01705312728881836,
             "retrieved_urls": [
                 "https://iuh.edu.vn/upload/files/2026/03/tb-92-2026.pdf",
                 "https://iuh.edu.vn/upload/files/2026/05/TB-889-2026.pdf",
@@ -217,7 +217,7 @@
         },
         "baseline_2": {
             "method": "Hybrid (Tier 1 - Vector)",
-            "latency": 0.5601873397827148,
+            "latency": 0.5413041114807129,
             "retrieved_urls": [
                 "https://iuh.edu.vn/upload/files/2026/03/tb-92-2026.pdf",
                 "https://iuh.edu.vn/upload/files/2026/05/TB-889-2026.pdf",
@@ -236,7 +236,7 @@
         "true_tier": 1,
         "expected_urls": "https://camnang.iuh.edu.vn/chinh-sach-mien-giam-hoc-phi-va-ho-tro-chi-phi-hoc-tap.php",
         "baseline_1": {
-            "latency": 0.025612592697143555,
+            "latency": 0.01654839515686035,
             "retrieved_urls": [
                 "https://camnang.iuh.edu.vn/chinh-sach-mien-giam-hoc-phi-va-ho-tro-chi-phi-hoc-tap.php",
                 "https://camnang.iuh.edu.vn/lien-he-don-vi.php",
@@ -250,7 +250,7 @@
         },
         "baseline_2": {
             "method": "Hybrid (Tier 2 - Tree Search + Cohere)",
-            "latency": 11.886181116104126,
+            "latency": 7.994211435317993,
             "retrieved_urls": [
                 "https://camnang.iuh.edu.vn/chinh-sach-mien-giam-hoc-phi-va-ho-tro-chi-phi-hoc-tap.php",
                 "https://camnang.iuh.edu.vn/ket-noi-doanh-nghiep-va-gioi-thieu-viec-lam.php",
@@ -269,7 +269,7 @@
         "true_tier": 2,
         "expected_urls": "https://camnang.iuh.edu.vn/canh-bao-lien-quan-den-chung-chi-xet-tot-nghiep.php",
         "baseline_1": {
-            "latency": 0.03313851356506348,
+            "latency": 0.024089336395263672,
             "retrieved_urls": [
                 "https://camnang.iuh.edu.vn/canh-bao-lien-quan-den-chung-chi-xet-tot-nghiep.php",
                 "https://camnang.iuh.edu.vn/canh-bao-lien-quan-den-chung-chi-xet-tot-nghiep.php",
@@ -283,7 +283,7 @@
         },
         "baseline_2": {
             "method": "Hybrid (Tier 2 - Tree Search + Cohere)",
-            "latency": 12.867365598678589,
+            "latency": 10.380748987197876,
             "retrieved_urls": [
                 "https://camnang.iuh.edu.vn/canh-bao-lien-quan-den-chung-chi-xet-tot-nghiep.php",
                 "https://camnang.iuh.edu.vn/canh-bao-lien-quan-den-chung-chi-xet-tot-nghiep.php",
@@ -302,7 +302,7 @@
         "true_tier": 2,
         "expected_urls": "https://camnang.iuh.edu.vn/dieu-kien-xet-tot-nghiep.php",
         "baseline_1": {
-            "latency": 0.029491901397705078,
+            "latency": 0.03030085563659668,
             "retrieved_urls": [
                 "https://camnang.iuh.edu.vn/dieu-kien-xet-tot-nghiep.php",
                 "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
@@ -316,7 +316,7 @@
         },
         "baseline_2": {
             "method": "Hybrid (Tier 4 - Tree Search + Cohere)",
-            "latency": 11.617783546447754,
+            "latency": 12.583323955535889,
             "retrieved_urls": [
                 "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
                 "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
@@ -335,7 +335,7 @@
         "true_tier": 2,
         "expected_urls": "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
         "baseline_1": {
-            "latency": 0.03222370147705078,
+            "latency": 0.03325247764587402,
             "retrieved_urls": [
                 "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
                 "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
@@ -349,7 +349,7 @@
         },
         "baseline_2": {
             "method": "Hybrid (Tier 2 - Tree Search + Cohere)",
-            "latency": 11.22761344909668,
+            "latency": 12.603601455688477,
             "retrieved_urls": [
                 "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
                 "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
@@ -368,7 +368,7 @@
         "true_tier": 2,
         "expected_urls": "https://camnang.iuh.edu.vn/canh-bao-ket-qua-hoc-tap.php",
         "baseline_1": {
-            "latency": 0.031218290328979492,
+            "latency": 0.03171420097351074,
             "retrieved_urls": [
                 "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
                 "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
@@ -382,7 +382,7 @@
         },
         "baseline_2": {
             "method": "Hybrid (Tier 2 - Tree Search + Cohere)",
-            "latency": 11.360780000686646,
+            "latency": 12.350312948226929,
             "retrieved_urls": [
                 "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
                 "https://camnang.iuh.edu.vn/canh-bao-ket-qua-hoc-tap.php",
@@ -401,7 +401,7 @@
         "true_tier": 2,
         "expected_urls": "https://camnang.iuh.edu.vn/buoc-thoi-hoc.php",
         "baseline_1": {
-            "latency": 0.032308340072631836,
+            "latency": 0.031455039978027344,
             "retrieved_urls": [
                 "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
                 "https://camnang.iuh.edu.vn/quy-che-cong-tac-sinh-vien.php",
@@ -414,8 +414,8 @@
             ]
         },
         "baseline_2": {
-            "method": "Hybrid (Tier 4 - Tree Search + Cohere)",
-            "latency": 7.92150354385376,
+            "method": "Hybrid (Tier 2 - Tree Search + Cohere)",
+            "latency": 12.112699270248413,
             "retrieved_urls": [
                 "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
                 "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
@@ -434,7 +434,7 @@
         "true_tier": 2,
         "expected_urls": "https://camnang.iuh.edu.vn/chuong-trinh-dao-tao.php",
         "baseline_1": {
-            "latency": 0.04843735694885254,
+            "latency": 0.03347444534301758,
             "retrieved_urls": [
                 "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
                 "https://camnang.iuh.edu.vn/chinh-sach-chat-luong.php",
@@ -448,7 +448,7 @@
         },
         "baseline_2": {
             "method": "Hybrid (Tier 4 - Tree Search + Cohere)",
-            "latency": 8.580316305160522,
+            "latency": 13.038988828659058,
             "retrieved_urls": [
                 "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
                 "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
@@ -467,7 +467,7 @@
         "true_tier": 2,
         "expected_urls": "https://camnang.iuh.edu.vn/danh-gia-ket-qua-ren-luyen.php",
         "baseline_1": {
-            "latency": 0.04088950157165527,
+            "latency": 0.03498363494873047,
             "retrieved_urls": [
                 "https://camnang.iuh.edu.vn/danh-gia-ket-qua-ren-luyen.php",
                 "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
@@ -480,8 +480,8 @@
             ]
         },
         "baseline_2": {
-            "method": "Hybrid (Tier 3 - Tree Search + Cohere)",
-            "latency": 12.75925087928772,
+            "method": "Hybrid (Tier 2 - Tree Search + Cohere)",
+            "latency": 12.996047019958496,
             "retrieved_urls": [
                 "https://camnang.iuh.edu.vn/danh-gia-ket-qua-ren-luyen.php",
                 "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
@@ -500,7 +500,7 @@
         "true_tier": 2,
         "expected_urls": "https://camnang.iuh.edu.vn/hoat-dong-hoc-thuat.php",
         "baseline_1": {
-            "latency": 0.050256967544555664,
+            "latency": 0.029442787170410156,
             "retrieved_urls": [
                 "https://iuh.edu.vn/upload/files/2026/04/Ke-hoach-99-ke-hoach-to-chuc-cuoc-thi-chinh-luan.pdf",
                 "https://camnang.iuh.edu.vn/hoat-dong-vhvn-tdtt.php",
@@ -514,7 +514,7 @@
         },
         "baseline_2": {
             "method": "Hybrid (Tier 4 - Tree Search + Cohere)",
-            "latency": 15.339679718017578,
+            "latency": 16.48261308670044,
             "retrieved_urls": [
                 "https://camnang.iuh.edu.vn/hoat-dong-phong-trao.php",
                 "https://camnang.iuh.edu.vn/hoat-dong-vhvn-tdtt.php",
@@ -533,7 +533,7 @@
         "true_tier": 3,
         "expected_urls": "https://camnang.iuh.edu.vn/chinh-sach-mien-giam-hoc-phi-va-ho-tro-chi-phi-hoc-tap.php",
         "baseline_1": {
-            "latency": 0.035414934158325195,
+            "latency": 0.032705068588256836,
             "retrieved_urls": [
                 "https://iuh.edu.vn/upload/files/2026/04/867_Thongbao_tuyensinh_2026.pdf",
                 "https://iuh.edu.vn/upload/files/2026/04/Ke-hoach-99-ke-hoach-to-chuc-cuoc-thi-chinh-luan.pdf",
@@ -547,7 +547,7 @@
         },
         "baseline_2": {
             "method": "Hybrid (Tier 3 - Tree Search + Cohere)",
-            "latency": 12.040174722671509,
+            "latency": 12.843831777572632,
             "retrieved_urls": [
                 "https://iuh.edu.vn/upload/files/2026/04/867_Thongbao_tuyensinh_2026.pdf",
                 "https://iuh.edu.vn/upload/files/2026/04/Ke-hoach-99-ke-hoach-to-chuc-cuoc-thi-chinh-luan.pdf",
@@ -566,7 +566,7 @@
         "true_tier": 3,
         "expected_urls": "https://camnang.iuh.edu.vn/huong-dan-dang-ky-hoc-phan.php",
         "baseline_1": {
-            "latency": 0.03444933891296387,
+            "latency": 0.053058624267578125,
             "retrieved_urls": [
                 "https://camnang.iuh.edu.vn/huong-dan-lam-thi-sat-hach-tieng-anh-k20-k21.php",
                 "https://iuh.edu.vn/upload/files/2026/03/TB-100-2026.pdf",
@@ -580,7 +580,7 @@
         },
         "baseline_2": {
             "method": "Hybrid (Tier 3 - Tree Search + Cohere)",
-            "latency": 16.09926676750183,
+            "latency": 16.71414089202881,
             "retrieved_urls": [
                 "https://iuh.edu.vn/upload/files/2026/03/TB-100-2026.pdf",
                 "https://iuh.edu.vn/upload/files/2026/03/TB-100-2026.pdf",
@@ -599,7 +599,7 @@
         "true_tier": 3,
         "expected_urls": "https://camnang.iuh.edu.vn/hoat-dong-tinh-nguyen.php,\n https://camnang.iuh.edu.vn/hoat-dong-phong-trao.php,\nhttps://camnang.iuh.edu.vn/lien-he-don-vi.php",
         "baseline_1": {
-            "latency": 0.03573322296142578,
+            "latency": 0.05507183074951172,
             "retrieved_urls": [
                 "https://camnang.iuh.edu.vn/hoat-dong-tinh-nguyen.php",
                 "https://camnang.iuh.edu.vn/hoat-dong-tinh-nguyen.php",
@@ -613,7 +613,7 @@
         },
         "baseline_2": {
             "method": "Hybrid (Tier 3 - Tree Search + Cohere)",
-            "latency": 15.41761565208435,
+            "latency": 15.944132804870605,
             "retrieved_urls": [
                 "https://camnang.iuh.edu.vn/hoat-dong-phong-trao.php",
                 "https://camnang.iuh.edu.vn/hoat-dong-tinh-nguyen.php",
@@ -632,7 +632,7 @@
         "true_tier": 3,
         "expected_urls": "https://camnang.iuh.edu.vn/cai-dat-tinh-nang-xac-thuc-microsoft-authenticator.php",
         "baseline_1": {
-            "latency": 0.033177852630615234,
+            "latency": 0.030546188354492188,
             "retrieved_urls": [
                 "https://camnang.iuh.edu.vn/cai-dat-tinh-nang-xac-thuc-microsoft-authenticator.php",
                 "https://camnang.iuh.edu.vn/cai-dat-tinh-nang-xac-thuc-microsoft-authenticator.php",
@@ -646,7 +646,7 @@
         },
         "baseline_2": {
             "method": "Hybrid (Tier 3 - Tree Search + Cohere)",
-            "latency": 12.713099956512451,
+            "latency": 13.958905220031738,
             "retrieved_urls": [
                 "https://camnang.iuh.edu.vn/cai-dat-tinh-nang-xac-thuc-microsoft-authenticator.php",
                 "https://camnang.iuh.edu.vn/cai-dat-tinh-nang-xac-thuc-microsoft-authenticator.php",
@@ -665,7 +665,7 @@
         "true_tier": 3,
         "expected_urls": "https://camnang.iuh.edu.vn/huong-dan-lam-thi-sat-hach-tieng-anh-k20-k21.php",
         "baseline_1": {
-            "latency": 0.02936410903930664,
+            "latency": 0.032126665115356445,
             "retrieved_urls": [
                 "https://camnang.iuh.edu.vn/quy-dinh-chuan-tieng-anh.php",
                 "https://camnang.iuh.edu.vn/quy-dinh-chuan-tieng-anh.php",
@@ -679,7 +679,7 @@
         },
         "baseline_2": {
             "method": "Hybrid (Tier 3 - Tree Search + Cohere)",
-            "latency": 11.049307584762573,
+            "latency": 12.24410605430603,
             "retrieved_urls": [
                 "https://camnang.iuh.edu.vn/quy-dinh-chuan-tieng-anh.php",
                 "https://camnang.iuh.edu.vn/quy-dinh-chuan-tieng-anh.php",
@@ -698,7 +698,7 @@
         "true_tier": 4,
         "expected_urls": "https://camnang.iuh.edu.vn/bang-quy-doi-diem-chung-chi-tieng-anh.php, https://camnang.iuh.edu.vn/canh-bao-lien-quan-den-chung-chi-xet-tot-nghiep.php",
         "baseline_1": {
-            "latency": 0.036712646484375,
+            "latency": 0.03681135177612305,
             "retrieved_urls": [
                 "https://camnang.iuh.edu.vn/quy-dinh-chuan-tieng-anh.php",
                 "https://camnang.iuh.edu.vn/canh-bao-lien-quan-den-chung-chi-xet-tot-nghiep.php",
@@ -712,7 +712,7 @@
         },
         "baseline_2": {
             "method": "Hybrid (Tier 4 - Tree Search + Cohere)",
-            "latency": 9.994416236877441,
+            "latency": 16.57239866256714,
             "retrieved_urls": [
                 "https://camnang.iuh.edu.vn/canh-bao-lien-quan-den-chung-chi-xet-tot-nghiep.php",
                 "https://camnang.iuh.edu.vn/quy-dinh-chuan-tieng-anh.php",
@@ -731,7 +731,7 @@
         "true_tier": 4,
         "expected_urls": "https://camnang.iuh.edu.vn/hoc-bong-doanh-nghiep.php,\n https://camnang.iuh.edu.vn/ho-tro-ve-doi-song.php",
         "baseline_1": {
-            "latency": 0.026047945022583008,
+            "latency": 0.03298544883728027,
             "retrieved_urls": [
                 "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
                 "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
@@ -745,7 +745,7 @@
         },
         "baseline_2": {
             "method": "Hybrid (Tier 4 - Tree Search + Cohere)",
-            "latency": 7.942079782485962,
+            "latency": 12.989543914794922,
             "retrieved_urls": [
                 "https://camnang.iuh.edu.vn/hoc-bong-doanh-nghiep.php",
                 "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
@@ -764,7 +764,7 @@
         "true_tier": 4,
         "expected_urls": "dieu-kien-xet-tot-nghiep-php.md, thoi-gian-toi-da-de-hoan-thanh-chuong-trinh-php.md",
         "baseline_1": {
-            "latency": 0.028553247451782227,
+            "latency": 0.03634309768676758,
             "retrieved_urls": [
                 "https://camnang.iuh.edu.vn/dieu-kien-xet-tot-nghiep.php",
                 "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
@@ -778,7 +778,7 @@
         },
         "baseline_2": {
             "method": "Hybrid (Tier 4 - Tree Search + Cohere)",
-            "latency": 7.569441318511963,
+            "latency": 13.142056703567505,
             "retrieved_urls": [
                 "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
                 "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
@@ -797,7 +797,7 @@
         "true_tier": 4,
         "expected_urls": "https://camnang.iuh.edu.vn/huong-dan-dang-ky-email-iuh.php, \nhttps://camnang.iuh.edu.vn/huong-dan-su-dung-lms.php",
         "baseline_1": {
-            "latency": 0.023059606552124023,
+            "latency": 0.034140825271606445,
             "retrieved_urls": [
                 "https://camnang.iuh.edu.vn/huong-dan-su-dung-lms.php",
                 "https://camnang.iuh.edu.vn/huong-dan-su-dung-lms.php",
@@ -811,7 +811,7 @@
         },
         "baseline_2": {
             "method": "Hybrid (Tier 4 - Tree Search + Cohere)",
-            "latency": 7.229670286178589,
+            "latency": 16.317745685577393,
             "retrieved_urls": [
                 "https://camnang.iuh.edu.vn/huong-dan-su-dung-lms.php",
                 "https://camnang.iuh.edu.vn/huong-dan-su-dung-lms.php",
@@ -830,7 +830,7 @@
         "true_tier": 4,
         "expected_urls": "hoat-dong-tinh-nguyen-php.mdhttps://camnang.iuh.edu.vn/hoat-dong-tinh-nguyen.php, \nhttps://camnang.iuh.edu.vn/hoat-dong-vhvn-tdtt.php, \nhttps://camnang.iuh.edu.vn/hoat-dong-hoc-thuat.php",
         "baseline_1": {
-            "latency": 0.019031763076782227,
+            "latency": 0.03808140754699707,
             "retrieved_urls": [
                 "https://camnang.iuh.edu.vn/hoat-dong-tinh-nguyen.php",
                 "https://camnang.iuh.edu.vn/hoat-dong-tinh-nguyen.php",
@@ -844,7 +844,7 @@
         },
         "baseline_2": {
             "method": "Hybrid (Tier 4 - Tree Search + Cohere)",
-            "latency": 5.888451814651489,
+            "latency": 13.583055973052979,
             "retrieved_urls": [
                 "https://camnang.iuh.edu.vn/hoat-dong-tinh-nguyen.php",
                 "https://camnang.iuh.edu.vn/hoat-dong-phong-trao.php",
@@ -863,7 +863,7 @@
         "true_tier": 4,
         "expected_urls": "https://camnang.iuh.edu.vn/huong-dan-chuyen-sinh-hoat-dang.php, https://camnang.iuh.edu.vn/chinh-sach-mien-giam-hoc-phi-va-ho-tro-chi-phi-hoc-tap.php",
         "baseline_1": {
-            "latency": 0.023879289627075195,
+            "latency": 0.0359194278717041,
             "retrieved_urls": [
                 "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
                 "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
@@ -877,7 +877,7 @@
         },
         "baseline_2": {
             "method": "Hybrid (Tier 4 - Tree Search + Cohere)",
-            "latency": 6.174818277359009,
+            "latency": 14.2385892868042,
             "retrieved_urls": [
                 "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
                 "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
@@ -896,7 +896,7 @@
         "true_tier": 4,
         "expected_urls": "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php, https://camnang.iuh.edu.vn/hoc-bong-doanh-nghiep.php, https://camnang.iuh.edu.vn/hoi-thao-doanh-nghiep.php",
         "baseline_1": {
-            "latency": 0.02254319190979004,
+            "latency": 0.032434940338134766,
             "retrieved_urls": [
                 "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
                 "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
@@ -910,7 +910,7 @@
         },
         "baseline_2": {
             "method": "Hybrid (Tier 4 - Tree Search + Cohere)",
-            "latency": 6.705295562744141,
+            "latency": 12.069037199020386,
             "retrieved_urls": [
                 "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
                 "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
