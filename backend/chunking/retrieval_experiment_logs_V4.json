@@ -1,0 +1,1486 @@
+[
+    {
+        "query_id": 1,
+        "true_tier": 1,
+        "expected_urls": "https://camnang.iuh.edu.vn/gia-tri-cot-loi.php",
+        "b1": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/gia-tri-cot-loi.php",
+                "https://iuh.edu.vn/Resource/Upload2/files/2021/07/qd966_2021.pdf",
+                "https://camnang.iuh.edu.vn/muc-tieu-chien-luoc.php"
+            ],
+            "latency": 0.030588865280151367
+        },
+        "b2": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/gia-tri-cot-loi.php",
+                "https://iuh.edu.vn/Resource/Upload2/files/2021/07/qd966_2021.pdf",
+                "https://iuh.edu.vn/Resource/Upload2/files/2021/07/qd966_2021.pdf"
+            ],
+            "latency": 0.002002716064453125
+        },
+        "b3": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/gia-tri-cot-loi.php",
+                "https://iuh.edu.vn/Resource/Upload2/files/2021/07/qd966_2021.pdf",
+                "https://iuh.edu.vn/Resource/Upload2/files/2021/07/qd966_2021.pdf"
+            ],
+            "latency": 0.018024444580078125
+        },
+        "b4": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/gia-tri-cot-loi.php",
+                "https://camnang.iuh.edu.vn/triet-ly-giao-duc.php",
+                "https://iuh.edu.vn/Resource/Upload2/files/2021/07/qd966_2021.pdf"
+            ],
+            "latency": 13.253506183624268
+        },
+        "b5": {
+            "urls": [
+                "https://iuh.edu.vn/Resource/Upload2/files/2021/07/qd966_2021.pdf",
+                "https://camnang.iuh.edu.vn/gia-tri-cot-loi.php",
+                "https://camnang.iuh.edu.vn/phuong-cham-hoat-dong.php"
+            ],
+            "latency": 7.925119161605835
+        },
+        "b6": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/gia-tri-cot-loi.php",
+                "https://camnang.iuh.edu.vn/triet-ly-giao-duc.php",
+                "https://camnang.iuh.edu.vn/phuong-cham-hoat-dong.php"
+            ],
+            "latency": 19.343645811080933
+        }
+    },
+    {
+        "query_id": 2,
+        "true_tier": 1,
+        "expected_urls": "https://camnang.iuh.edu.vn/bang-quy-doi-diem-chung-chi-tieng-anh.php",
+        "b1": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/danh-gia-ket-qua-ren-luyen.php"
+            ],
+            "latency": 0.0167844295501709
+        },
+        "b2": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/dieu-kien-xet-tot-nghiep.php",
+                "https://camnang.iuh.edu.vn/bang-quy-doi-diem-chung-chi-tieng-anh.php"
+            ],
+            "latency": 0.0020024776458740234
+        },
+        "b3": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/bang-quy-doi-diem-chung-chi-tieng-anh.php"
+            ],
+            "latency": 0.018294811248779297
+        },
+        "b4": {
+            "urls": [
+                "https://iuh.edu.vn/upload/files/2026/04/867_Thongbao_tuyensinh_2026.pdf",
+                "https://camnang.iuh.edu.vn/bang-quy-doi-diem-chung-chi-tieng-anh.php",
+                "https://camnang.iuh.edu.vn/dieu-kien-xet-tot-nghiep.php"
+            ],
+            "latency": 12.205232620239258
+        },
+        "b5": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/dieu-kien-xet-tot-nghiep.php",
+                "https://camnang.iuh.edu.vn/lien-he-don-vi.php"
+            ],
+            "latency": 3.7418668270111084
+        },
+        "b6": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/bang-quy-doi-diem-chung-chi-tieng-anh.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://iuh.edu.vn/upload/files/2026/04/867_Thongbao_tuyensinh_2026.pdf"
+            ],
+            "latency": 22.381582975387573
+        }
+    },
+    {
+        "query_id": 3,
+        "true_tier": 1,
+        "expected_urls": "https://camnang.iuh.edu.vn/cai-dat-tinh-nang-xac-thuc-microsoft-authenticator.php",
+        "b1": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/cai-dat-tinh-nang-xac-thuc-microsoft-authenticator.php",
+                "https://camnang.iuh.edu.vn/huong-dan-dang-ky-email-iuh.php",
+                "https://camnang.iuh.edu.vn/huong-dan-dang-ky-email-iuh.php"
+            ],
+            "latency": 0.014904975891113281
+        },
+        "b2": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/cai-dat-tinh-nang-xac-thuc-microsoft-authenticator.php",
+                "https://camnang.iuh.edu.vn/cai-dat-tinh-nang-xac-thuc-microsoft-authenticator.php",
+                "https://camnang.iuh.edu.vn/huong-dan-dang-ky-email-iuh.php"
+            ],
+            "latency": 0.0025060176849365234
+        },
+        "b3": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/cai-dat-tinh-nang-xac-thuc-microsoft-authenticator.php",
+                "https://camnang.iuh.edu.vn/huong-dan-dang-ky-email-iuh.php",
+                "https://camnang.iuh.edu.vn/thong-bao-ke-khai-so-tai-khoan-ngan-hang.php"
+            ],
+            "latency": 0.022546052932739258
+        },
+        "b4": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/cai-dat-tinh-nang-xac-thuc-microsoft-authenticator.php",
+                "https://camnang.iuh.edu.vn/huong-dan-dang-ky-email-iuh.php",
+                "https://camnang.iuh.edu.vn/cai-dat-tinh-nang-xac-thuc-microsoft-authenticator.php"
+            ],
+            "latency": 10.972865581512451
+        },
+        "b5": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/huong-dan-dang-ky-email-iuh.php",
+                "https://camnang.iuh.edu.vn/cai-dat-tinh-nang-xac-thuc-microsoft-authenticator.php",
+                "https://camnang.iuh.edu.vn/huong-dan-su-dung-lms.php"
+            ],
+            "latency": 3.9389290809631348
+        },
+        "b6": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/cai-dat-tinh-nang-xac-thuc-microsoft-authenticator.php",
+                "https://camnang.iuh.edu.vn/huong-dan-dang-ky-email-iuh.php",
+                "https://camnang.iuh.edu.vn/huong-dan-su-dung-cong-thong-tin-sinh-vien.php"
+            ],
+            "latency": 15.38125228881836
+        }
+    },
+    {
+        "query_id": 4,
+        "true_tier": 1,
+        "expected_urls": "https://camnang.iuh.edu.vn/huong-dan-dang-ky-hoc-phan.php",
+        "b1": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/huong-dan-dang-ky-hoc-phan.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/quy-dinh-ve-hoc-cung-luc-2-chuong-trinh.php"
+            ],
+            "latency": 0.019510746002197266
+        },
+        "b2": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php"
+            ],
+            "latency": 0.003004789352416992
+        },
+        "b3": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/huong-dan-dang-ky-hoc-phan.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php"
+            ],
+            "latency": 0.016053199768066406
+        },
+        "b4": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/huong-dan-dang-ky-hoc-phan.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php"
+            ],
+            "latency": 10.25244426727295
+        },
+        "b5": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/huong-dan-dang-ky-hoc-phan.php",
+                "https://iuh.edu.vn/upload/files/2026/05/TB_Dang%20ki%20hoc%20phan%20HK1-nam%20hoc%202026-2027.pdf"
+            ],
+            "latency": 4.201003789901733
+        },
+        "b6": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/huong-dan-dang-ky-hoc-phan.php",
+                "https://iuh.edu.vn/upload/files/2026/05/TB_Dang%20ki%20hoc%20phan%20HK1-nam%20hoc%202026-2027.pdf"
+            ],
+            "latency": 17.14862847328186
+        }
+    },
+    {
+        "query_id": 5,
+        "true_tier": 1,
+        "expected_urls": "https://camnang.iuh.edu.vn/huong-dan-nop-tien-hoc-phi-bang-hinh-thuc-truc-tuyen.php",
+        "b1": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/huong-dan-nop-tien-hoc-phi-bang-hinh-thuc-truc-tuyen.php",
+                "https://camnang.iuh.edu.vn/huong-dan-nop-tien-hoc-phi-bang-hinh-thuc-truc-tuyen.php",
+                "https://iuh.edu.vn/upload/files/2026/05/TB_Dang%20ki%20hoc%20phan%20HK1-nam%20hoc%202026-2027.pdf"
+            ],
+            "latency": 0.019860506057739258
+        },
+        "b2": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/huong-dan-nop-tien-hoc-phi-bang-hinh-thuc-truc-tuyen.php",
+                "https://iuh.edu.vn/upload/files/2026/03/TB-100-2026.pdf",
+                "https://iuh.edu.vn/upload/files/2026/05/TB_Dang%20ki%20hoc%20phan%20HK1-nam%20hoc%202026-2027.pdf"
+            ],
+            "latency": 0.0020439624786376953
+        },
+        "b3": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/huong-dan-nop-tien-hoc-phi-bang-hinh-thuc-truc-tuyen.php",
+                "https://iuh.edu.vn/upload/files/2026/05/TB_Dang%20ki%20hoc%20phan%20HK1-nam%20hoc%202026-2027.pdf",
+                "https://iuh.edu.vn/upload/files/2026/03/TB-100-2026.pdf"
+            ],
+            "latency": 0.019900083541870117
+        },
+        "b4": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/huong-dan-nop-tien-hoc-phi-bang-hinh-thuc-truc-tuyen.php",
+                "https://camnang.iuh.edu.vn/huong-dan-nop-tien-hoc-phi-bang-hinh-thuc-truc-tuyen.php",
+                "https://iuh.edu.vn/upload/files/2026/03/TB-100-2026.pdf"
+            ],
+            "latency": 13.907853603363037
+        },
+        "b5": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/huong-dan-nop-tien-hoc-phi-bang-hinh-thuc-truc-tuyen.php",
+                "https://camnang.iuh.edu.vn/thong-bao-ke-khai-so-tai-khoan-ngan-hang.php",
+                "https://iuh.edu.vn/upload/files/2026/05/TB_Dang%20ki%20hoc%20phan%20HK1-nam%20hoc%202026-2027.pdf"
+            ],
+            "latency": 3.8444602489471436
+        },
+        "b6": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/huong-dan-nop-tien-hoc-phi-bang-hinh-thuc-truc-tuyen.php",
+                "https://iuh.edu.vn/upload/files/2026/03/TB-100-2026.pdf",
+                "https://iuh.edu.vn/upload/files/2026/05/TB_Dang%20ki%20hoc%20phan%20HK1-nam%20hoc%202026-2027.pdf"
+            ],
+            "latency": 20.743961572647095
+        }
+    },
+    {
+        "query_id": 6,
+        "true_tier": 1,
+        "expected_urls": "https://camnang.iuh.edu.vn/hoc-bong-doanh-nghiep.php",
+        "b1": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/hoc-bong-doanh-nghiep.php",
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php"
+            ],
+            "latency": 0.01960301399230957
+        },
+        "b2": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
+                "https://camnang.iuh.edu.vn/huong-dan-su-dung-thu-vien.php",
+                "https://camnang.iuh.edu.vn/ket-noi-doanh-nghiep-va-gioi-thieu-viec-lam.php"
+            ],
+            "latency": 0.0031883716583251953
+        },
+        "b3": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
+                "https://camnang.iuh.edu.vn/hoc-bong-doanh-nghiep.php"
+            ],
+            "latency": 0.023305654525756836
+        },
+        "b4": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php"
+            ],
+            "latency": 19.92950415611267
+        },
+        "b5": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
+                "https://camnang.iuh.edu.vn/hoc-bong-doanh-nghiep.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php"
+            ],
+            "latency": 3.896212339401245
+        },
+        "b6": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
+                "https://camnang.iuh.edu.vn/hoc-bong-doanh-nghiep.php",
+                "https://camnang.iuh.edu.vn/ket-noi-doanh-nghiep-va-gioi-thieu-viec-lam.php"
+            ],
+            "latency": 20.896384954452515
+        }
+    },
+    {
+        "query_id": 7,
+        "true_tier": 1,
+        "expected_urls": "https://camnang.iuh.edu.vn/co-so-va-phan-hieu.php",
+        "b1": {
+            "urls": [
+                "https://iuh.edu.vn/upload/files/2026/03/tb-92-2026.pdf",
+                "https://iuh.edu.vn/upload/files/2026/05/TB-889-2026.pdf",
+                "https://camnang.iuh.edu.vn/buoc-thoi-hoc.php"
+            ],
+            "latency": 0.01685023307800293
+        },
+        "b2": {
+            "urls": [
+                "https://iuh.edu.vn/upload/files/2026/04/867_Thongbao_tuyensinh_2026.pdf",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/quy-dinh-ve-chuyen-nganh-dao-tao-chuyen-chuong-trinh-hinh-thuc-dao-tao-va-co-so-hoc-tap.php"
+            ],
+            "latency": 0.002005338668823242
+        },
+        "b3": {
+            "urls": [
+                "https://iuh.edu.vn/upload/files/2026/03/tb-92-2026.pdf",
+                "https://iuh.edu.vn/upload/files/2026/04/867_Thongbao_tuyensinh_2026.pdf",
+                "https://iuh.edu.vn/upload/files/2026/05/TB-889-2026.pdf"
+            ],
+            "latency": 0.02386617660522461
+        },
+        "b4": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/quy-dinh-ve-chuyen-nganh-dao-tao-chuyen-chuong-trinh-hinh-thuc-dao-tao-va-co-so-hoc-tap.php",
+                "https://camnang.iuh.edu.vn/tu-van-tam-ly-cham-soc-suc-khoe.php"
+            ],
+            "latency": 17.916497707366943
+        },
+        "b5": {
+            "urls": [
+                "https://iuh.edu.vn/upload/files/2026/04/867_Thongbao_tuyensinh_2026.pdf",
+                "https://camnang.iuh.edu.vn/lien-he-don-vi.php",
+                "https://iuh.edu.vn/upload/files/2026/03/tb-92-2026.pdf"
+            ],
+            "latency": 3.4891951084136963
+        },
+        "b6": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/quy-dinh-ve-chuyen-nganh-dao-tao-chuyen-chuong-trinh-hinh-thuc-dao-tao-va-co-so-hoc-tap.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://iuh.edu.vn/upload/files/2026/04/867_Thongbao_tuyensinh_2026.pdf"
+            ],
+            "latency": 20.035628080368042
+        }
+    },
+    {
+        "query_id": 8,
+        "true_tier": 1,
+        "expected_urls": "https://camnang.iuh.edu.vn/chinh-sach-mien-giam-hoc-phi-va-ho-tro-chi-phi-hoc-tap.php",
+        "b1": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/chinh-sach-mien-giam-hoc-phi-va-ho-tro-chi-phi-hoc-tap.php",
+                "https://camnang.iuh.edu.vn/lien-he-don-vi.php",
+                "https://camnang.iuh.edu.vn/ket-noi-doanh-nghiep-va-gioi-thieu-viec-lam.php"
+            ],
+            "latency": 0.020893335342407227
+        },
+        "b2": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/chinh-sach-mien-giam-hoc-phi-va-ho-tro-chi-phi-hoc-tap.php",
+                "https://camnang.iuh.edu.vn/chinh-sach-mien-giam-hoc-phi-va-ho-tro-chi-phi-hoc-tap.php",
+                "https://iuh.edu.vn/Resource/Upload2/files/2021/07/qd966_2021.pdf"
+            ],
+            "latency": 0.0035064220428466797
+        },
+        "b3": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/chinh-sach-mien-giam-hoc-phi-va-ho-tro-chi-phi-hoc-tap.php",
+                "https://camnang.iuh.edu.vn/chinh-sach-mien-giam-hoc-phi-va-ho-tro-chi-phi-hoc-tap.php",
+                "https://camnang.iuh.edu.vn/ket-noi-doanh-nghiep-va-gioi-thieu-viec-lam.php"
+            ],
+            "latency": 0.0240476131439209
+        },
+        "b4": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/chinh-sach-mien-giam-hoc-phi-va-ho-tro-chi-phi-hoc-tap.php",
+                "https://camnang.iuh.edu.vn/ket-noi-doanh-nghiep-va-gioi-thieu-viec-lam.php",
+                "https://camnang.iuh.edu.vn/quy-che-cong-tac-sinh-vien.php"
+            ],
+            "latency": 11.394212007522583
+        },
+        "b5": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/chinh-sach-mien-giam-hoc-phi-va-ho-tro-chi-phi-hoc-tap.php",
+                "https://camnang.iuh.edu.vn/ket-noi-doanh-nghiep-va-gioi-thieu-viec-lam.php",
+                "https://camnang.iuh.edu.vn/buoc-thoi-hoc.php"
+            ],
+            "latency": 3.9578495025634766
+        },
+        "b6": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/ket-noi-doanh-nghiep-va-gioi-thieu-viec-lam.php",
+                "https://camnang.iuh.edu.vn/chinh-sach-mien-giam-hoc-phi-va-ho-tro-chi-phi-hoc-tap.php",
+                "https://camnang.iuh.edu.vn/quy-che-cong-tac-sinh-vien.php"
+            ],
+            "latency": 27.275945901870728
+        }
+    },
+    {
+        "query_id": 9,
+        "true_tier": 2,
+        "expected_urls": "https://camnang.iuh.edu.vn/canh-bao-lien-quan-den-chung-chi-xet-tot-nghiep.php",
+        "b1": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/canh-bao-lien-quan-den-chung-chi-xet-tot-nghiep.php",
+                "https://camnang.iuh.edu.vn/canh-bao-lien-quan-den-chung-chi-xet-tot-nghiep.php",
+                "https://camnang.iuh.edu.vn/dieu-kien-xet-tot-nghiep.php"
+            ],
+            "latency": 0.022044658660888672
+        },
+        "b2": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/quy-che-cong-tac-sinh-vien.php",
+                "https://camnang.iuh.edu.vn/canh-bao-lien-quan-den-chung-chi-xet-tot-nghiep.php"
+            ],
+            "latency": 0.00435328483581543
+        },
+        "b3": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/canh-bao-lien-quan-den-chung-chi-xet-tot-nghiep.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/canh-bao-lien-quan-den-chung-chi-xet-tot-nghiep.php"
+            ],
+            "latency": 0.025396108627319336
+        },
+        "b4": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/canh-bao-lien-quan-den-chung-chi-xet-tot-nghiep.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/quy-che-cong-tac-sinh-vien.php"
+            ],
+            "latency": 10.793227910995483
+        },
+        "b5": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/noi-quy-hoc-duong.php",
+                "https://camnang.iuh.edu.vn/quy-che-cong-tac-sinh-vien.php"
+            ],
+            "latency": 4.740177631378174
+        },
+        "b6": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/canh-bao-lien-quan-den-chung-chi-xet-tot-nghiep.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/quy-che-cong-tac-sinh-vien.php"
+            ],
+            "latency": 18.101821422576904
+        }
+    },
+    {
+        "query_id": 10,
+        "true_tier": 2,
+        "expected_urls": "https://camnang.iuh.edu.vn/dieu-kien-xet-tot-nghiep.php",
+        "b1": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/dieu-kien-xet-tot-nghiep.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php"
+            ],
+            "latency": 0.02051687240600586
+        },
+        "b2": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php"
+            ],
+            "latency": 0.004502296447753906
+        },
+        "b3": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php"
+            ],
+            "latency": 0.026389360427856445
+        },
+        "b4": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/quy-dinh-ve-hoc-cung-luc-2-chuong-trinh.php"
+            ],
+            "latency": 12.12443733215332
+        },
+        "b5": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/dieu-kien-xet-tot-nghiep.php",
+                "https://camnang.iuh.edu.vn/quy-dinh-ve-hoc-cung-luc-2-chuong-trinh.php"
+            ],
+            "latency": 4.536523818969727
+        },
+        "b6": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/dieu-kien-xet-tot-nghiep.php",
+                "https://camnang.iuh.edu.vn/canh-bao-lien-quan-den-chung-chi-xet-tot-nghiep.php"
+            ],
+            "latency": 18.287042140960693
+        }
+    },
+    {
+        "query_id": 11,
+        "true_tier": 2,
+        "expected_urls": "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
+        "b1": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php"
+            ],
+            "latency": 0.022931575775146484
+        },
+        "b2": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php"
+            ],
+            "latency": 0.004328250885009766
+        },
+        "b3": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php"
+            ],
+            "latency": 0.028755664825439453
+        },
+        "b4": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php"
+            ],
+            "latency": 19.227640628814697
+        },
+        "b5": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
+                "https://camnang.iuh.edu.vn/hoc-bong-doanh-nghiep.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php"
+            ],
+            "latency": 4.341501474380493
+        },
+        "b6": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/hoc-bong-doanh-nghiep.php",
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
+                "https://camnang.iuh.edu.vn/danh-gia-ket-qua-ren-luyen.php"
+            ],
+            "latency": 34.12002158164978
+        }
+    },
+    {
+        "query_id": 12,
+        "true_tier": 2,
+        "expected_urls": "https://camnang.iuh.edu.vn/canh-bao-ket-qua-hoc-tap.php",
+        "b1": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/canh-bao-ket-qua-hoc-tap.php"
+            ],
+            "latency": 0.02436685562133789
+        },
+        "b2": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/quy-dinh-ve-hoc-cung-luc-2-chuong-trinh.php"
+            ],
+            "latency": 0.003999471664428711
+        },
+        "b3": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/canh-bao-ket-qua-hoc-tap.php"
+            ],
+            "latency": 0.02505207061767578
+        },
+        "b4": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/canh-bao-ket-qua-hoc-tap.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php"
+            ],
+            "latency": 10.75593376159668
+        },
+        "b5": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/quy-che-cong-tac-sinh-vien.php",
+                "https://camnang.iuh.edu.vn/canh-bao-ket-qua-hoc-tap.php"
+            ],
+            "latency": 4.221381664276123
+        },
+        "b6": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/canh-bao-ket-qua-hoc-tap.php",
+                "https://camnang.iuh.edu.vn/quy-dinh-ve-hoc-cung-luc-2-chuong-trinh.php"
+            ],
+            "latency": 17.213505744934082
+        }
+    },
+    {
+        "query_id": 13,
+        "true_tier": 2,
+        "expected_urls": "https://camnang.iuh.edu.vn/buoc-thoi-hoc.php",
+        "b1": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/quy-che-cong-tac-sinh-vien.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php"
+            ],
+            "latency": 0.020561695098876953
+        },
+        "b2": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/buoc-thoi-hoc.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php"
+            ],
+            "latency": 0.0035028457641601562
+        },
+        "b3": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/quy-che-cong-tac-sinh-vien.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php"
+            ],
+            "latency": 0.024255752563476562
+        },
+        "b4": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/buoc-thoi-hoc.php",
+                "https://camnang.iuh.edu.vn/danh-gia-ket-qua-ren-luyen.php"
+            ],
+            "latency": 10.911195993423462
+        },
+        "b5": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/canh-bao-lien-quan-den-chung-chi-xet-tot-nghiep.php",
+                "https://camnang.iuh.edu.vn/quy-che-cong-tac-sinh-vien.php"
+            ],
+            "latency": 4.230549335479736
+        },
+        "b6": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/buoc-thoi-hoc.php",
+                "https://camnang.iuh.edu.vn/quy-dinh-ve-nghi-hoc-tam-thoi-va-bao-luu-ket-qua-hoc-tap.php"
+            ],
+            "latency": 18.409653186798096
+        }
+    },
+    {
+        "query_id": 14,
+        "true_tier": 2,
+        "expected_urls": "https://camnang.iuh.edu.vn/chuong-trinh-dao-tao.php",
+        "b1": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/chinh-sach-chat-luong.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php"
+            ],
+            "latency": 0.025616168975830078
+        },
+        "b2": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/chuong-trinh-dao-tao.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php"
+            ],
+            "latency": 0.0050237178802490234
+        },
+        "b3": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/chinh-sach-chat-luong.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php"
+            ],
+            "latency": 0.027570724487304688
+        },
+        "b4": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/chuong-trinh-dao-tao.php",
+                "https://camnang.iuh.edu.vn/chuong-trinh-dao-tao.php",
+                "https://camnang.iuh.edu.vn/chuong-trinh-dao-tao.php"
+            ],
+            "latency": 78.44910335540771
+        },
+        "b5": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://iuh.edu.vn/Resource/Upload2/files/2021/07/qd966_2021.pdf",
+                "https://iuh.edu.vn/upload/files/2026/04/Ke-hoach-99-ke-hoach-to-chuc-cuoc-thi-chinh-luan.pdf"
+            ],
+            "latency": 5.131622076034546
+        },
+        "b6": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/chuong-trinh-dao-tao.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/thoi-han-hoc-tap-k21.php"
+            ],
+            "latency": 63.626641511917114
+        }
+    },
+    {
+        "query_id": 15,
+        "true_tier": 2,
+        "expected_urls": "https://camnang.iuh.edu.vn/danh-gia-ket-qua-ren-luyen.php",
+        "b1": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/danh-gia-ket-qua-ren-luyen.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/dieu-kien-xet-tot-nghiep.php"
+            ],
+            "latency": 0.021667957305908203
+        },
+        "b2": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/danh-gia-ket-qua-ren-luyen.php",
+                "https://camnang.iuh.edu.vn/danh-gia-ket-qua-ren-luyen.php",
+                "https://camnang.iuh.edu.vn/canh-bao-ket-qua-hoc-tap.php"
+            ],
+            "latency": 0.0035104751586914062
+        },
+        "b3": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/danh-gia-ket-qua-ren-luyen.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php"
+            ],
+            "latency": 0.022560834884643555
+        },
+        "b4": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/danh-gia-ket-qua-ren-luyen.php",
+                "https://camnang.iuh.edu.vn/danh-gia-ket-qua-ren-luyen.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php"
+            ],
+            "latency": 13.01246690750122
+        },
+        "b5": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/danh-gia-ket-qua-ren-luyen.php",
+                "https://camnang.iuh.edu.vn/dieu-kien-xet-tot-nghiep.php"
+            ],
+            "latency": 3.9628427028656006
+        },
+        "b6": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/danh-gia-ket-qua-ren-luyen.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/noi-quy-hoc-duong.php"
+            ],
+            "latency": 18.635155200958252
+        }
+    },
+    {
+        "query_id": 16,
+        "true_tier": 2,
+        "expected_urls": "https://camnang.iuh.edu.vn/hoat-dong-hoc-thuat.php",
+        "b1": {
+            "urls": [
+                "https://iuh.edu.vn/upload/files/2026/04/Ke-hoach-99-ke-hoach-to-chuc-cuoc-thi-chinh-luan.pdf",
+                "https://camnang.iuh.edu.vn/hoat-dong-vhvn-tdtt.php",
+                "https://iuh.edu.vn/upload/files/2026/04/867_Thongbao_tuyensinh_2026.pdf"
+            ],
+            "latency": 0.024062156677246094
+        },
+        "b2": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/hoat-dong-giao-luu-quoc-te.php",
+                "https://camnang.iuh.edu.vn/hoat-dong-phong-trao.php",
+                "https://camnang.iuh.edu.vn/quy-che-cong-tac-sinh-vien.php"
+            ],
+            "latency": 0.0035071372985839844
+        },
+        "b3": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/hoat-dong-phong-trao.php",
+                "https://camnang.iuh.edu.vn/hoat-dong-vhvn-tdtt.php",
+                "https://camnang.iuh.edu.vn/hoat-dong-hoc-thuat.php"
+            ],
+            "latency": 0.0255582332611084
+        },
+        "b4": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/hoat-dong-hoc-thuat.php",
+                "https://camnang.iuh.edu.vn/quy-che-cong-tac-sinh-vien.php",
+                "https://camnang.iuh.edu.vn/hoat-dong-hoc-thuat.php"
+            ],
+            "latency": 12.14205026626587
+        },
+        "b5": {
+            "urls": [
+                "https://iuh.edu.vn/upload/files/2026/04/Ke-hoach-99-ke-hoach-to-chuc-cuoc-thi-chinh-luan.pdf",
+                "https://camnang.iuh.edu.vn/hoat-dong-phong-trao.php",
+                "https://camnang.iuh.edu.vn/hoat-dong-vhvn-tdtt.php"
+            ],
+            "latency": 4.005537509918213
+        },
+        "b6": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/hoat-dong-hoc-thuat.php",
+                "https://camnang.iuh.edu.vn/hoat-dong-vhvn-tdtt.php",
+                "https://camnang.iuh.edu.vn/hoat-dong-phong-trao.php"
+            ],
+            "latency": 19.283480167388916
+        }
+    },
+    {
+        "query_id": 17,
+        "true_tier": 3,
+        "expected_urls": "https://camnang.iuh.edu.vn/chinh-sach-mien-giam-hoc-phi-va-ho-tro-chi-phi-hoc-tap.php",
+        "b1": {
+            "urls": [
+                "https://iuh.edu.vn/upload/files/2026/04/867_Thongbao_tuyensinh_2026.pdf",
+                "https://iuh.edu.vn/upload/files/2026/04/Ke-hoach-99-ke-hoach-to-chuc-cuoc-thi-chinh-luan.pdf",
+                "https://iuh.edu.vn/upload/files/2026/04/Ke-hoach-99-ke-hoach-to-chuc-cuoc-thi-chinh-luan.pdf"
+            ],
+            "latency": 0.02429342269897461
+        },
+        "b2": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/chinh-sach-mien-giam-hoc-phi-va-ho-tro-chi-phi-hoc-tap.php",
+                "https://camnang.iuh.edu.vn/chinh-sach-mien-giam-hoc-phi-va-ho-tro-chi-phi-hoc-tap.php",
+                "https://camnang.iuh.edu.vn/chinh-sach-mien-giam-hoc-phi-va-ho-tro-chi-phi-hoc-tap.php"
+            ],
+            "latency": 0.0035026073455810547
+        },
+        "b3": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/chinh-sach-mien-giam-hoc-phi-va-ho-tro-chi-phi-hoc-tap.php",
+                "https://iuh.edu.vn/upload/files/2026/04/867_Thongbao_tuyensinh_2026.pdf",
+                "https://camnang.iuh.edu.vn/chinh-sach-mien-giam-hoc-phi-va-ho-tro-chi-phi-hoc-tap.php"
+            ],
+            "latency": 0.026064634323120117
+        },
+        "b4": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/chinh-sach-mien-giam-hoc-phi-va-ho-tro-chi-phi-hoc-tap.php",
+                "https://camnang.iuh.edu.vn/chinh-sach-mien-giam-hoc-phi-va-ho-tro-chi-phi-hoc-tap.php",
+                "https://camnang.iuh.edu.vn/chinh-sach-mien-giam-hoc-phi-va-ho-tro-chi-phi-hoc-tap.php"
+            ],
+            "latency": 25.02251672744751
+        },
+        "b5": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/chinh-sach-mien-giam-hoc-phi-va-ho-tro-chi-phi-hoc-tap.php",
+                "https://iuh.edu.vn/upload/files/2026/04/Ke-hoach-99-ke-hoach-to-chuc-cuoc-thi-chinh-luan.pdf",
+                "https://iuh.edu.vn/vi/vp-dang-uy.html"
+            ],
+            "latency": 4.408026695251465
+        },
+        "b6": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/chinh-sach-mien-giam-hoc-phi-va-ho-tro-chi-phi-hoc-tap.php",
+                "https://camnang.iuh.edu.vn/thong-bao-ke-khai-so-tai-khoan-ngan-hang.php",
+                "https://camnang.iuh.edu.vn/huong-dan-nop-tien-hoc-phi-bang-hinh-thuc-truc-tuyen.php"
+            ],
+            "latency": 32.6762535572052
+        }
+    },
+    {
+        "query_id": 18,
+        "true_tier": 3,
+        "expected_urls": "https://camnang.iuh.edu.vn/huong-dan-dang-ky-hoc-phan.php",
+        "b1": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/huong-dan-lam-thi-sat-hach-tieng-anh-k20-k21.php",
+                "https://iuh.edu.vn/upload/files/2026/03/TB-100-2026.pdf",
+                "https://camnang.iuh.edu.vn/lich-kham-suc-khoe-k19-va-k20.php"
+            ],
+            "latency": 0.02324080467224121
+        },
+        "b2": {
+            "urls": [
+                "https://iuh.edu.vn/upload/files/2026/05/TB_Dang%20ki%20hoc%20phan%20HK1-nam%20hoc%202026-2027.pdf",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/huong-dan-dang-ky-hoc-phan.php"
+            ],
+            "latency": 0.0040094852447509766
+        },
+        "b3": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/huong-dan-dang-ky-hoc-phan.php",
+                "https://camnang.iuh.edu.vn/huong-dan-dang-ky-hoc-phan.php"
+            ],
+            "latency": 0.026554584503173828
+        },
+        "b4": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/huong-dan-dang-ky-hoc-phan.php",
+                "https://camnang.iuh.edu.vn/huong-dan-dang-ky-hoc-phan.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php"
+            ],
+            "latency": 12.042511224746704
+        },
+        "b5": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://iuh.edu.vn/upload/files/2026/05/TB_Dang%20ki%20hoc%20phan%20HK1-nam%20hoc%202026-2027.pdf",
+                "https://iuh.edu.vn/upload/files/2026/04/867_Thongbao_tuyensinh_2026.pdf"
+            ],
+            "latency": 4.770323038101196
+        },
+        "b6": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/huong-dan-dang-ky-hoc-phan.php",
+                "https://camnang.iuh.edu.vn/quy-dinh-chuan-tieng-anh.php"
+            ],
+            "latency": 77.20785808563232
+        }
+    },
+    {
+        "query_id": 19,
+        "true_tier": 3,
+        "expected_urls": "https://camnang.iuh.edu.vn/hoat-dong-tinh-nguyen.php,\n https://camnang.iuh.edu.vn/hoat-dong-phong-trao.php,\nhttps://camnang.iuh.edu.vn/lien-he-don-vi.php",
+        "b1": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/hoat-dong-tinh-nguyen.php",
+                "https://camnang.iuh.edu.vn/hoat-dong-tinh-nguyen.php",
+                "https://camnang.iuh.edu.vn/hoat-dong-hoc-thuat.php"
+            ],
+            "latency": 0.02212238311767578
+        },
+        "b2": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/hoat-dong-hoc-thuat.php",
+                "https://camnang.iuh.edu.vn/hoat-dong-tinh-nguyen.php",
+                "https://camnang.iuh.edu.vn/hoat-dong-phong-trao.php"
+            ],
+            "latency": 0.0040035247802734375
+        },
+        "b3": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/hoat-dong-hoc-thuat.php",
+                "https://camnang.iuh.edu.vn/hoat-dong-tinh-nguyen.php",
+                "https://camnang.iuh.edu.vn/hoat-dong-tinh-nguyen.php"
+            ],
+            "latency": 0.026062726974487305
+        },
+        "b4": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/hoat-dong-phong-trao.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/hoat-dong-tinh-nguyen.php"
+            ],
+            "latency": 15.137237548828125
+        },
+        "b5": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/hoat-dong-tinh-nguyen.php",
+                "https://camnang.iuh.edu.vn/hoat-dong-hoc-thuat.php",
+                "https://iuh.edu.vn/upload/files/2026/04/867_Thongbao_tuyensinh_2026.pdf"
+            ],
+            "latency": 4.311703205108643
+        },
+        "b6": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/hoat-dong-phong-trao.php",
+                "https://camnang.iuh.edu.vn/huong-dan-dang-ky-hoc-phan.php",
+                "https://camnang.iuh.edu.vn/hoat-dong-tinh-nguyen.php"
+            ],
+            "latency": 30.573315620422363
+        }
+    },
+    {
+        "query_id": 20,
+        "true_tier": 3,
+        "expected_urls": "https://camnang.iuh.edu.vn/cai-dat-tinh-nang-xac-thuc-microsoft-authenticator.php",
+        "b1": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/cai-dat-tinh-nang-xac-thuc-microsoft-authenticator.php",
+                "https://camnang.iuh.edu.vn/cai-dat-tinh-nang-xac-thuc-microsoft-authenticator.php",
+                "https://camnang.iuh.edu.vn/cai-dat-tinh-nang-xac-thuc-microsoft-authenticator.php"
+            ],
+            "latency": 0.01653599739074707
+        },
+        "b2": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/cai-dat-tinh-nang-xac-thuc-microsoft-authenticator.php",
+                "https://camnang.iuh.edu.vn/huong-dan-su-dung-lms.php",
+                "https://camnang.iuh.edu.vn/lich-kham-suc-khoe-k19-va-k20.php"
+            ],
+            "latency": 0.0025167465209960938
+        },
+        "b3": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/cai-dat-tinh-nang-xac-thuc-microsoft-authenticator.php",
+                "https://camnang.iuh.edu.vn/cai-dat-tinh-nang-xac-thuc-microsoft-authenticator.php",
+                "https://iuh.edu.vn/upload/files/2026/04/867_Thongbao_tuyensinh_2026.pdf"
+            ],
+            "latency": 0.02105402946472168
+        },
+        "b4": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/cai-dat-tinh-nang-xac-thuc-microsoft-authenticator.php",
+                "https://camnang.iuh.edu.vn/cai-dat-tinh-nang-xac-thuc-microsoft-authenticator.php",
+                "https://camnang.iuh.edu.vn/huong-dan-su-dung-lms.php"
+            ],
+            "latency": 21.71749496459961
+        },
+        "b5": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/cai-dat-tinh-nang-xac-thuc-microsoft-authenticator.php",
+                "https://iuh.edu.vn/upload/files/2026/04/Ke-hoach-99-ke-hoach-to-chuc-cuoc-thi-chinh-luan.pdf",
+                "https://camnang.iuh.edu.vn/huong-dan-dang-ky-email-iuh.php"
+            ],
+            "latency": 4.141993999481201
+        },
+        "b6": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/cai-dat-tinh-nang-xac-thuc-microsoft-authenticator.php",
+                "https://camnang.iuh.edu.vn/huong-dan-dang-ky-email-iuh.php",
+                "https://camnang.iuh.edu.vn/thong-bao-ke-khai-so-tai-khoan-ngan-hang.php"
+            ],
+            "latency": 34.50142288208008
+        }
+    },
+    {
+        "query_id": 21,
+        "true_tier": 3,
+        "expected_urls": "https://camnang.iuh.edu.vn/huong-dan-lam-thi-sat-hach-tieng-anh-k20-k21.php",
+        "b1": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/quy-dinh-chuan-tieng-anh.php",
+                "https://camnang.iuh.edu.vn/quy-dinh-chuan-tieng-anh.php",
+                "https://camnang.iuh.edu.vn/huong-dan-dang-ky-hoc-phan.php"
+            ],
+            "latency": 0.021544933319091797
+        },
+        "b2": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/quy-dinh-chuan-tieng-anh.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php"
+            ],
+            "latency": 0.0040051937103271484
+        },
+        "b3": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/quy-dinh-chuan-tieng-anh.php",
+                "https://camnang.iuh.edu.vn/huong-dan-dang-ky-hoc-phan.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php"
+            ],
+            "latency": 0.027949810028076172
+        },
+        "b4": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/quy-dinh-chuan-tieng-anh.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php"
+            ],
+            "latency": 12.161946773529053
+        },
+        "b5": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/quy-dinh-chuan-tieng-anh.php",
+                "https://camnang.iuh.edu.vn/huong-dan-dang-ky-hoc-phan.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php"
+            ],
+            "latency": 4.517676115036011
+        },
+        "b6": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/quy-dinh-chuan-tieng-anh.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/huong-dan-lam-thi-sat-hach-tieng-anh-k20-k21.php"
+            ],
+            "latency": 18.02278423309326
+        }
+    },
+    {
+        "query_id": 22,
+        "true_tier": 4,
+        "expected_urls": "https://camnang.iuh.edu.vn/bang-quy-doi-diem-chung-chi-tieng-anh.php, https://camnang.iuh.edu.vn/canh-bao-lien-quan-den-chung-chi-xet-tot-nghiep.php",
+        "b1": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/quy-dinh-chuan-tieng-anh.php",
+                "https://camnang.iuh.edu.vn/canh-bao-lien-quan-den-chung-chi-xet-tot-nghiep.php",
+                "https://camnang.iuh.edu.vn/dieu-kien-xet-tot-nghiep.php"
+            ],
+            "latency": 0.020933151245117188
+        },
+        "b2": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/dieu-kien-xet-tot-nghiep.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/canh-bao-lien-quan-den-chung-chi-xet-tot-nghiep.php"
+            ],
+            "latency": 0.0049991607666015625
+        },
+        "b3": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/canh-bao-lien-quan-den-chung-chi-xet-tot-nghiep.php",
+                "https://camnang.iuh.edu.vn/canh-bao-lien-quan-den-chung-chi-xet-tot-nghiep.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php"
+            ],
+            "latency": 0.02604985237121582
+        },
+        "b4": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/canh-bao-lien-quan-den-chung-chi-xet-tot-nghiep.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/quy-dinh-chuan-tieng-anh.php"
+            ],
+            "latency": 10.755043268203735
+        },
+        "b5": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/dieu-kien-xet-tot-nghiep.php",
+                "https://camnang.iuh.edu.vn/canh-bao-lien-quan-den-chung-chi-xet-tot-nghiep.php",
+                "https://camnang.iuh.edu.vn/quy-dinh-chuan-tieng-anh.php"
+            ],
+            "latency": 4.506638050079346
+        },
+        "b6": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/quy-dinh-chuan-tieng-anh.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/canh-bao-lien-quan-den-chung-chi-xet-tot-nghiep.php"
+            ],
+            "latency": 40.13241648674011
+        }
+    },
+    {
+        "query_id": 23,
+        "true_tier": 4,
+        "expected_urls": "https://camnang.iuh.edu.vn/hoc-bong-doanh-nghiep.php,\n https://camnang.iuh.edu.vn/ho-tro-ve-doi-song.php",
+        "b1": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
+                "https://camnang.iuh.edu.vn/hoc-bong-doanh-nghiep.php"
+            ],
+            "latency": 0.022546052932739258
+        },
+        "b2": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/chinh-sach-mien-giam-hoc-phi-va-ho-tro-chi-phi-hoc-tap.php",
+                "https://camnang.iuh.edu.vn/chinh-sach-mien-giam-hoc-phi-va-ho-tro-chi-phi-hoc-tap.php",
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php"
+            ],
+            "latency": 0.004003047943115234
+        },
+        "b3": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
+                "https://camnang.iuh.edu.vn/chinh-sach-mien-giam-hoc-phi-va-ho-tro-chi-phi-hoc-tap.php"
+            ],
+            "latency": 0.027347087860107422
+        },
+        "b4": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/chinh-sach-mien-giam-hoc-phi-va-ho-tro-chi-phi-hoc-tap.php",
+                "https://camnang.iuh.edu.vn/hoc-bong-doanh-nghiep.php",
+                "https://camnang.iuh.edu.vn/chinh-sach-mien-giam-hoc-phi-va-ho-tro-chi-phi-hoc-tap.php"
+            ],
+            "latency": 11.93601393699646
+        },
+        "b5": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/chinh-sach-mien-giam-hoc-phi-va-ho-tro-chi-phi-hoc-tap.php",
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
+                "https://camnang.iuh.edu.vn/hoat-dong-tinh-nguyen.php"
+            ],
+            "latency": 4.399755477905273
+        },
+        "b6": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/chinh-sach-mien-giam-hoc-phi-va-ho-tro-chi-phi-hoc-tap.php",
+                "https://camnang.iuh.edu.vn/hoc-bong-doanh-nghiep.php",
+                "https://iuh.edu.vn/upload/files/2026/03/TB-100-2026.pdf"
+            ],
+            "latency": 27.380438089370728
+        }
+    },
+    {
+        "query_id": 24,
+        "true_tier": 4,
+        "expected_urls": "dieu-kien-xet-tot-nghiep-php.md, thoi-gian-toi-da-de-hoan-thanh-chuong-trinh-php.md",
+        "b1": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/dieu-kien-xet-tot-nghiep.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/quy-dinh-ve-nghi-hoc-tam-thoi-va-bao-luu-ket-qua-hoc-tap.php"
+            ],
+            "latency": 0.024087905883789062
+        },
+        "b2": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/quy-dinh-ve-hoc-cung-luc-2-chuong-trinh.php"
+            ],
+            "latency": 0.00500035285949707
+        },
+        "b3": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/dieu-kien-xet-tot-nghiep.php",
+                "https://camnang.iuh.edu.vn/dieu-kien-xet-tot-nghiep.php"
+            ],
+            "latency": 0.02958846092224121
+        },
+        "b4": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/quy-dinh-ve-hoc-cung-luc-2-chuong-trinh.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php"
+            ],
+            "latency": 12.025907039642334
+        },
+        "b5": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://iuh.edu.vn/upload/files/2026/04/Ke-hoach-99-ke-hoach-to-chuc-cuoc-thi-chinh-luan.pdf",
+                "https://camnang.iuh.edu.vn/huong-dan-lam-thi-sat-hach-tieng-anh-k20-k21.php"
+            ],
+            "latency": 4.568325042724609
+        },
+        "b6": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/dieu-kien-xet-tot-nghiep.php",
+                "https://camnang.iuh.edu.vn/quy-dinh-ve-hoc-cung-luc-2-chuong-trinh.php"
+            ],
+            "latency": 17.92944097518921
+        }
+    },
+    {
+        "query_id": 25,
+        "true_tier": 4,
+        "expected_urls": "https://camnang.iuh.edu.vn/huong-dan-dang-ky-email-iuh.php, \nhttps://camnang.iuh.edu.vn/huong-dan-su-dung-lms.php",
+        "b1": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/huong-dan-su-dung-lms.php",
+                "https://camnang.iuh.edu.vn/huong-dan-su-dung-lms.php",
+                "https://camnang.iuh.edu.vn/huong-dan-su-dung-lms.php"
+            ],
+            "latency": 0.020568370819091797
+        },
+        "b2": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/huong-dan-su-dung-lms.php",
+                "https://camnang.iuh.edu.vn/huong-dan-dang-ky-email-iuh.php",
+                "https://camnang.iuh.edu.vn/huong-dan-dang-ky-email-iuh.php"
+            ],
+            "latency": 0.0039997100830078125
+        },
+        "b3": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/huong-dan-su-dung-lms.php",
+                "https://camnang.iuh.edu.vn/huong-dan-su-dung-lms.php",
+                "https://camnang.iuh.edu.vn/huong-dan-dang-ky-email-iuh.php"
+            ],
+            "latency": 0.0276186466217041
+        },
+        "b4": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/huong-dan-su-dung-lms.php",
+                "https://camnang.iuh.edu.vn/huong-dan-su-dung-lms.php",
+                "https://camnang.iuh.edu.vn/huong-dan-su-dung-lms.php"
+            ],
+            "latency": 12.649705410003662
+        },
+        "b5": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/huong-dan-su-dung-lms.php",
+                "https://camnang.iuh.edu.vn/huong-dan-dang-ky-email-iuh.php",
+                "https://camnang.iuh.edu.vn/lien-he-don-vi.php"
+            ],
+            "latency": 4.43451452255249
+        },
+        "b6": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/huong-dan-su-dung-lms.php",
+                "https://camnang.iuh.edu.vn/huong-dan-dang-ky-email-iuh.php",
+                "https://camnang.iuh.edu.vn/thong-bao-ke-khai-so-tai-khoan-ngan-hang.php"
+            ],
+            "latency": 25.692328691482544
+        }
+    },
+    {
+        "query_id": 26,
+        "true_tier": 4,
+        "expected_urls": "hoat-dong-tinh-nguyen-php.mdhttps://camnang.iuh.edu.vn/hoat-dong-tinh-nguyen.php, \nhttps://camnang.iuh.edu.vn/hoat-dong-vhvn-tdtt.php, \nhttps://camnang.iuh.edu.vn/hoat-dong-hoc-thuat.php",
+        "b1": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/hoat-dong-tinh-nguyen.php",
+                "https://camnang.iuh.edu.vn/hoat-dong-tinh-nguyen.php",
+                "https://camnang.iuh.edu.vn/hoat-dong-tinh-nguyen.php"
+            ],
+            "latency": 0.017034053802490234
+        },
+        "b2": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/hoat-dong-giao-luu-quoc-te.php",
+                "https://camnang.iuh.edu.vn/quy-che-cong-tac-sinh-vien.php",
+                "https://camnang.iuh.edu.vn/hoat-dong-tinh-nguyen.php"
+            ],
+            "latency": 0.0027997493743896484
+        },
+        "b3": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/hoat-dong-tinh-nguyen.php",
+                "https://camnang.iuh.edu.vn/hoat-dong-tinh-nguyen.php",
+                "https://camnang.iuh.edu.vn/hoat-dong-vhvn-tdtt.php"
+            ],
+            "latency": 0.02332615852355957
+        },
+        "b4": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/hoat-dong-tinh-nguyen.php",
+                "https://camnang.iuh.edu.vn/hoat-dong-phong-trao.php",
+                "https://camnang.iuh.edu.vn/hoat-dong-vhvn-tdtt.php"
+            ],
+            "latency": 11.605467081069946
+        },
+        "b5": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/hoat-dong-tinh-nguyen.php",
+                "https://camnang.iuh.edu.vn/hoat-dong-vhvn-tdtt.php",
+                "https://camnang.iuh.edu.vn/hoat-dong-giao-luu-quoc-te.php"
+            ],
+            "latency": 4.400703430175781
+        },
+        "b6": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/hoat-dong-tinh-nguyen.php",
+                "https://camnang.iuh.edu.vn/hoat-dong-vhvn-tdtt.php",
+                "https://camnang.iuh.edu.vn/hoat-dong-phong-trao.php"
+            ],
+            "latency": 29.256772756576538
+        }
+    },
+    {
+        "query_id": 27,
+        "true_tier": 4,
+        "expected_urls": "https://camnang.iuh.edu.vn/huong-dan-chuyen-sinh-hoat-dang.php, https://camnang.iuh.edu.vn/chinh-sach-mien-giam-hoc-phi-va-ho-tro-chi-phi-hoc-tap.php",
+        "b1": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/quy-dinh-ve-chuyen-nganh-dao-tao-chuyen-chuong-trinh-hinh-thuc-dao-tao-va-co-so-hoc-tap.php"
+            ],
+            "latency": 0.025599002838134766
+        },
+        "b2": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/chinh-sach-mien-giam-hoc-phi-va-ho-tro-chi-phi-hoc-tap.php",
+                "https://camnang.iuh.edu.vn/quy-dinh-ve-chuyen-nganh-dao-tao-chuyen-chuong-trinh-hinh-thuc-dao-tao-va-co-so-hoc-tap.php"
+            ],
+            "latency": 0.004000186920166016
+        },
+        "b3": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/chinh-sach-mien-giam-hoc-phi-va-ho-tro-chi-phi-hoc-tap.php"
+            ],
+            "latency": 0.027377605438232422
+        },
+        "b4": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/chinh-sach-mien-giam-hoc-phi-va-ho-tro-chi-phi-hoc-tap.php",
+                "https://camnang.iuh.edu.vn/huong-dan-chuyen-sinh-hoat-dang.php",
+                "https://camnang.iuh.edu.vn/chinh-sach-mien-giam-hoc-phi-va-ho-tro-chi-phi-hoc-tap.php"
+            ],
+            "latency": 12.585807085037231
+        },
+        "b5": {
+            "urls": [
+                "https://iuh.edu.vn/upload/files/2026/04/Ke-hoach-99-ke-hoach-to-chuc-cuoc-thi-chinh-luan.pdf",
+                "https://camnang.iuh.edu.vn/chinh-sach-mien-giam-hoc-phi-va-ho-tro-chi-phi-hoc-tap.php",
+                "https://iuh.edu.vn/upload/files/2026/05/TB_Dang%20ki%20hoc%20phan%20HK1-nam%20hoc%202026-2027.pdf"
+            ],
+            "latency": 5.334015369415283
+        },
+        "b6": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/chinh-sach-mien-giam-hoc-phi-va-ho-tro-chi-phi-hoc-tap.php",
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
+                "https://iuh.edu.vn/upload/files/2026/05/TB_Dang%20ki%20hoc%20phan%20HK1-nam%20hoc%202026-2027.pdf"
+            ],
+            "latency": 24.861982583999634
+        }
+    },
+    {
+        "query_id": 28,
+        "true_tier": 4,
+        "expected_urls": "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php, https://camnang.iuh.edu.vn/hoc-bong-doanh-nghiep.php, https://camnang.iuh.edu.vn/hoi-thao-doanh-nghiep.php",
+        "b1": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php"
+            ],
+            "latency": 0.02062511444091797
+        },
+        "b2": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/hoc-bong-doanh-nghiep.php",
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php"
+            ],
+            "latency": 0.004581928253173828
+        },
+        "b3": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/hoc-bong-doanh-nghiep.php",
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php"
+            ],
+            "latency": 0.02558612823486328
+        },
+        "b4": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
+                "https://camnang.iuh.edu.vn/hoi-thao-doanh-nghiep.php",
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php"
+            ],
+            "latency": 12.499266624450684
+        },
+        "b5": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php",
+                "https://camnang.iuh.edu.vn/dao-tao-quoc-te.php"
+            ],
+            "latency": 4.245843172073364
+        },
+        "b6": {
+            "urls": [
+                "https://camnang.iuh.edu.vn/che-do-hoc-bong-danh-cho-sinh-vien.php",
+                "https://camnang.iuh.edu.vn/chinh-sach-mien-giam-hoc-phi-va-ho-tro-chi-phi-hoc-tap.php",
+                "https://camnang.iuh.edu.vn/quy-che-dao-tao-theo-he-thong-tin-chi.php"
+            ],
+            "latency": 33.86451005935669
+        }
+    }
+]
