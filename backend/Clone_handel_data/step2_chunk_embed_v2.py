@@ -358,7 +358,7 @@ def process_single_markdown(file_path):
             injected_text = inject_meta(child["text"], child["metadata"])
             
             ids.append(child["id"])
-            documents.append(child["text"]) 
+            documents.append(injected_text) 
             
             meta = child["metadata"].copy()
             if "placeholder_ancestors" in meta and isinstance(meta["placeholder_ancestors"], list):
