@@ -18,9 +18,13 @@ export function Sidebar() {
   return (
     <aside className="flex h-full w-16 flex-col items-center justify-between bg-[#152a6e] py-4">
       <div className="flex flex-col items-center gap-2">
-        <div className="mb-4 flex h-9 w-9 items-center justify-center rounded-lg bg-white/10 font-bold text-white">
+        <NavLink
+          to="/chat"
+          title="Đến trang Chatbot"
+          className="mb-4 flex h-9 w-9 items-center justify-center rounded-lg bg-white/10 font-bold text-white hover:bg-white/20 transition-colors"
+        >
           E
-        </div>
+        </NavLink>
         <nav className="flex flex-col gap-1">
           {NAV_ITEMS.map(({ to, icon: Icon, label }) => (
             <NavLink
@@ -42,12 +46,19 @@ export function Sidebar() {
       </div>
 
       <div className="flex flex-col gap-1">
-        <button
-          title="Settings"
-          className="flex h-11 w-11 items-center justify-center rounded-xl text-blue-200/70 transition-colors hover:bg-white/10 hover:text-white"
+        <NavLink
+          to="/settings"
+          title="Cài đặt hệ thống"
+          className={({ isActive }) =>
+            `flex h-11 w-11 items-center justify-center rounded-xl transition-colors ${
+              isActive
+                ? "bg-orange-500 text-white shadow-md shadow-orange-500/30"
+                : "text-blue-200/70 hover:bg-white/10 hover:text-white"
+            }`
+          }
         >
           <Settings size={20} />
-        </button>
+        </NavLink>
         <button
           title="Help"
           className="flex h-11 w-11 items-center justify-center rounded-xl text-blue-200/70 transition-colors hover:bg-white/10 hover:text-white"

@@ -11,7 +11,7 @@ export async function translateText(req: TranslateRequest): Promise<ApiResult<Tr
     return { ok: false, error: { message: "Vui lòng nhập văn bản cần dịch." } };
   }
 
-  const translatedText = mockTranslate(req.sourceText, req.targetLang as "de" | "en" | "vi");
+  const translatedText = mockTranslate(req.sourceText, req.targetLang);
   return { ok: true, data: { translatedText, detectedSourceLang: req.sourceLang } };
 }
 

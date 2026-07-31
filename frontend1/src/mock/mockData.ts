@@ -117,22 +117,77 @@ export const MOCK_TRANSLATION_HISTORY: TranslationHistoryItem[] = [
 
 // Tiny VI -> DE phrase table so the demo translation feels real for the
 // example the requester gave ("tôi muốn đăng ký tín chỉ").
-const VI_DE_PHRASES: Record<string, string> = {
-  "tôi muốn đăng ký tín chỉ": "Ich möchte mich für Kreditpunkte anmelden.",
-  "chào bạn": "Hallo!",
-  "cảm ơn bạn": "Danke schön.",
+const SAMPLE_PHRASES: Record<string, Record<string, string>> = {
+  "tôi muốn đăng ký tín chỉ": {
+    en: "I would like to register for academic credits.",
+    de: "Ich möchte mich für Kreditpunkte anmelden.",
+    zh: "我想选课登记 (学分)。",
+    ja: "単位登録を申請したいです。",
+    ko: "학점 수강 신청을 하고 싶습니다.",
+    fr: "Je voudrais m'inscrire aux crédits universitaires.",
+    es: "Me gustaría registrarme para los créditos académicos.",
+    ru: "Я хотел бы зарегистрироваться на учебные кредиты.",
+    th: "ฉันต้องการลงทะเบียนหน่วยกิต",
+    vi: "Tôi muốn đăng ký tín chỉ.",
+  },
+  "chào bạn": {
+    en: "Hello! How can I help you today?",
+    de: "Hallo! Wie kann ich Ihnen helfen?",
+    zh: "你好！今天有什么我可以帮你的？",
+    ja: "こんにちは！どのようなご用件でしょうか？",
+    ko: "안녕하세요! 무엇을 도와드릴까요?",
+    fr: "Bonjour ! Comment puis-je vous aider ?",
+    es: "¡Hola! ¿En qué puedo ayudarte?",
+    ru: "Здравствуйте! Чем я могу помочь?",
+    th: "สวัสดีครับ/ค่ะ มีอะไรให้ช่วยเหลือไหมครับ/คะ?",
+    vi: "Chào bạn! Tôi có thể giúp gì cho bạn?",
+  },
+  "cảm ơn bạn": {
+    en: "Thank you very much!",
+    de: "Vielen Dank!",
+    zh: "非常感谢你！",
+    ja: "本当にありがとうございます！",
+    ko: "정말 감사합니다!",
+    fr: "Merci beaucoup !",
+    es: "¡Muchas gracias!",
+    ru: "Большое спасибо!",
+    th: "ขอบคุณมากครับ/ค่ะ!",
+    vi: "Cảm ơn bạn rất nhiều!",
+  },
+  "khoa công nghệ thông tin": {
+    en: "Faculty of Information Technology (IUH)",
+    de: "Fakultät für Informationstechnik",
+    zh: "信息技术学院 (IUH)",
+    ja: "情報技術学部 (IUH)",
+    ko: "정보기술대학 (IUH)",
+    fr: "Faculté des Technologies de l'Information",
+    es: "Facultad de Tecnología de la Información",
+    ru: "Факультет информационных технологий",
+    th: "คณะเทคโนโลยีสารสนเทศ",
+    vi: "Khoa Công nghệ Thông tin - Đại học Công nghiệp TP.HCM",
+  },
 };
 
-export function mockTranslate(sourceText: string, targetLang: "de" | "en" | "vi"): string {
+const LANG_PREFIXES: Record<string, string> = {
+  en: "[English]",
+  de: "[German / Deutsch]",
+  zh: "[Chinese / 中文]",
+  ja: "[Japanese / 日本語]",
+  ko: "[Korean / 한국어]",
+  fr: "[French / Français]",
+  es: "[Spanish / Español]",
+  ru: "[Russian / Русский]",
+  th: "[Thai / ไทย]",
+  vi: "[Vietnamese / Tiếng Việt]",
+};
+
+export function mockTranslate(sourceText: string, targetLang: string): string {
   const key = sourceText.trim().toLowerCase();
-  if (targetLang === "de" && VI_DE_PHRASES[key]) return VI_DE_PHRASES[key];
-  if (targetLang === "de") {
-    return `[DE] ${sourceText} (übersetzt)`;
+  if (SAMPLE_PHRASES[key] && SAMPLE_PHRASES[key][targetLang]) {
+    return SAMPLE_PHRASES[key][targetLang];
   }
-  if (targetLang === "en") {
-    return `[EN] ${sourceText} (translated)`;
-  }
-  return `[VI] ${sourceText} (đã dịch)`;
+  const prefix = LANG_PREFIXES[targetLang] || `[${targetLang.toUpperCase()}]`;
+  return `${prefix} ${sourceText} (translated)`;
 }
 
 export const MOCK_FLASHCARDS: Flashcard[] = [

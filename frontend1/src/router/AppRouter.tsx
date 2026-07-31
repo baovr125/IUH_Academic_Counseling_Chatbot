@@ -3,8 +3,11 @@ import { MainLayout } from "../components/layout/MainLayout";
 import ChatPage from "../pages/ChatPage";
 import DashboardPage from "../pages/DashboardPage";
 import TranslationPage from "../pages/TranslationPage";
+import DocumentTranslationPage from "../pages/DocumentTranslationPage";
 import FlashcardPage from "../pages/FlashcardPage";
 import LoginPage from "../pages/LoginPage";
+import ProfilePage from "../pages/ProfilePage";
+import SettingsPage from "../pages/SettingsPage";
 import { useAuth } from "../hooks/useAuth";
 
 function RequireAuth({ children }: { children: React.ReactElement }) {
@@ -28,10 +31,15 @@ export function AppRouter() {
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/chat" element={<ChatPage />} />
         <Route path="/translation" element={<TranslationPage />} />
+        <Route path="/translation-doc" element={<DocumentTranslationPage />} />
         <Route path="/flashcards" element={<FlashcardPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/settings" element={<SettingsPage />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
   );
 }
+
+

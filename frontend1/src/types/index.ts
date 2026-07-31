@@ -107,7 +107,7 @@ export interface SendMessageResponse {
 
 // ---- Translation Studio -------------------------------------------------
 
-export type LanguageCode = "vi" | "en" | "de";
+export type LanguageCode = "vi" | "en" | "de" | "zh" | "ja" | "ko" | "fr" | "es" | "ru" | "th" | string;
 
 export interface TranslateRequest {
   sourceLang: LanguageCode;
