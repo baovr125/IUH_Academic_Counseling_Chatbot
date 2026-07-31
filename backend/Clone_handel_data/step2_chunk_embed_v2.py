@@ -1,8 +1,9 @@
 # =================================================================
-# SCRIPT GIAI ĐOẠN 2 & 3: CHUNK VÀ EMBED (CẬP NHẬT CHROMADB DYNAMIC)
+# SCRIPT GIAI ĐOẠN 2 & 3: CHUNK VÀ EMBED (CẬP NHẬT SUPABASE POSTGRESQL)
 # 
-# Luồng 1 (Chạy độc lập): Quét sạch thư mục Markdown -> Nạp vào ChromaDB
-# Luồng 2 (Crawl gọi): Nhận 1 file Markdown thay đổi -> Upsert vào ChromaDB
+# Luồng 1 (Chạy độc lập): Quét sạch thư mục Markdown -> Nạp vào Supabase PostgreSQL
+# Luồng 2 (Crawl gọi): Nhận 1 file Markdown thay đổi -> Upsert vào Supabase PostgreSQL
+# (Tương thích với schema_v2_hybrid_rag.sql)
 # =================================================================
 
 import os
@@ -10,10 +11,18 @@ import re
 import json
 import uuid
 import glob
+import hashlib
 from tqdm.auto import tqdm
 from sentence_transformers import SentenceTransformer
 import nltk
-import chromadb
+
+try:
+    import psycopg2
+    from psycopg2.extras import Json, execute_values
+except ImportError:
+    raise ImportError("Vui lòng cài đặt thư viện psycopg2-binary bằng lệnh: pip install psycopg2-binary")
+
+from dotenv import load_dotenv
 
 # --- 0. KHỞI TẠO NLTK ---
 try:
@@ -29,35 +38,62 @@ from nltk.tokenize import sent_tokenize
 INPUT_DIR = r"G:\Khoa_Luan\Source_code\data\markdown_craw3\markdown_updates" 
 FILE_EXTENSION = ".md"
 
-# Nơi lưu trữ Cơ sở dữ liệu ChromaDB
-CHROMA_DB_DIR = r"G:\Khoa_Luan\Source_code\data\chroma_db"
-os.makedirs(CHROMA_DB_DIR, exist_ok=True)
-
 # Cấu hình Model và Chunking
 MODEL_NAME = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
 MAX_CHILD_WORDS = 250
 MIN_CHILD_WORDS = 5
 INJECT_METADATA = True
 
-# --- 2. KHỞI TẠO CHROMADB & EMBEDDING MODEL ---
-from chromadb.utils import embedding_functions # Thêm dòng import này
+# --- 2. KHỞI TẠO KẾT NỐI SUPABASE POSTGRESQL & EMBEDDING MODEL ---
 
-print(f"📦 Đang kết nối ChromaDB tại: {CHROMA_DB_DIR}")
-chroma_client = chromadb.PersistentClient(path=CHROMA_DB_DIR)
+# Load biến môi trường từ các file .env có thể có trong dự án
+load_dotenv()
+load_dotenv(r"G:\Khoa_Luan\Source_code\backend_api\.env")
+load_dotenv(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "backend_api", ".env"))
 
-print(f"🔗 Đang tải mô hình nhúng: {MODEL_NAME}")
-# Giữ nguyên model này để dùng cho hàm encode() bên dưới của bạn
-embedding_model = SentenceTransformer(MODEL_NAME)
-
-# BƯỚC QUAN TRỌNG: Khai báo hàm embedding cho ChromaDB
-emb_fn = embedding_functions.SentenceTransformerEmbeddingFunction(model_name=MODEL_NAME)
-
-# Truyền embedding_function vào lúc tạo collection
-collection = chroma_client.get_or_create_collection(
-    name="camnang_iuh_collection",
-    metadata={"hnsw:space": "l2"},
-    embedding_function=emb_fn # Dòng được bổ sung
+DATABASE_URL = os.getenv(
+    "DATABASE_URL",
+    "postgresql://YOUR_USER:YOUR_URL_ENCODED_PASSWORD@YOUR_SUPABASE_POOLER_HOST:6543/postgres"
 )
+
+def get_db_connection():
+    """Tạo và trả về connection tới Supabase PostgreSQL."""
+    try:
+        return psycopg2.connect(DATABASE_URL)
+    except Exception as e:
+        # Xử lý tự động chuẩn hóa URL nếu password chứa @ hoặc @@ (double @)
+        try:
+            url = DATABASE_URL
+            if url.startswith("postgresql://") or url.startswith("postgres://"):
+                prefix = url.split("://", 1)[1]
+                if "@" in prefix:
+                    auth_part, host_part = prefix.rsplit("@", 1)
+                    if ":" in auth_part:
+                        user, password = auth_part.split(":", 1)
+                        if password.endswith("@"):
+                            password = password[:-1]
+                    else:
+                        user = auth_part
+                        password = ""
+                    host_db = host_part.split("/", 1)
+                    host_port = host_db[0].split(":", 1)
+                    host = host_port[0]
+                    port = host_port[1] if len(host_port) > 1 else 5432
+                    dbname = host_db[1] if len(host_db) > 1 else "postgres"
+                    return psycopg2.connect(
+                        host=host,
+                        port=int(port),
+                        dbname=dbname,
+                        user=user,
+                        password=password
+                    )
+        except Exception:
+            pass
+        raise e
+
+print(f"📦 Đang kết nối và chuẩn bị tải mô hình nhúng cho Supabase...")
+print(f"🔗 Đang tải mô hình nhúng: {MODEL_NAME}")
+embedding_model = SentenceTransformer(MODEL_NAME)
 
 # --- 3. CÁC HÀM TIỀN XỬ LÝ VÀ CHUNKING (HÀM UTILITY) ---
 
@@ -318,69 +354,116 @@ def build_hierarchical_chunks_v6_2(input_file):
     return parents, children
 
 
-# --- 4. HÀM CHÍNH ĐỂ ĐẨY VÀO CHROMADB (DÙNG CHO CẢ 2 LUỒNG) ---
+# --- 4. HÀM CHÍNH ĐỂ ĐẨY VÀO SUPABASE POSTGRESQL (DÙNG CHO CẢ 2 LUỒNG) ---
 
 def process_single_markdown(file_path):
     """
     Hàm bóc tách một file Markdown đơn lẻ, tạo Embedding 
-    và Upsert (Thêm/Cập nhật) trực tiếp vào ChromaDB.
+    và Upsert (Thêm/Cập nhật) trực tiếp vào Supabase PostgreSQL
+    theo cấu trúc bảng documents và document_chunks (schema_v2_hybrid_rag.sql).
     """
     try:
         filename = os.path.basename(file_path)
         
-        # BƯỚC MỚI: Phải đọc file trước để lấy source_url nhằm mục đích xóa dữ liệu cũ
+        # Đọc file và parse front-matter
         raw = read_text(file_path).replace('\r\n', '\n').replace('\r', '\n')
-        parsed_source_url, _, _, _ = parse_front_matter(raw)
+        parsed_source_url, parsed_title, parsed_breadcrumbs, content_after_fm = parse_front_matter(raw)
         
-        # Xác định ID nguồn cần xóa (ưu tiên URL)
-        source_id = parsed_source_url if parsed_source_url else filename
+        # Xác định URL nguồn và tiêu đề (ưu tiên front-matter, nếu không có fallback theo tên file)
+        source_url = parsed_source_url if parsed_source_url else f"file://{filename}"
+        title = parsed_title if parsed_title else filename.replace('.md', '')
+        breadcrumbs = parsed_breadcrumbs if parsed_breadcrumbs else ""
         
-        # ========================================================
-        # XÓA DỮ LIỆU CŨ TRƯỚC KHI CẬP NHẬT
-        # ========================================================
-        try:
-            collection.delete(where={"source": source_id})
-        except Exception as e:
-            pass
-        # ========================================================
-
+        # Tính mã băm MD5 cho nội dung để kiểm soát phiên bản
+        content_only = content_after_fm.strip()
+        content_hash = hashlib.md5(content_only.encode('utf-8')).hexdigest()
+        
+        # Lấy danh sách các chunk phân cấp
         parents, children = build_hierarchical_chunks_v6_2(file_path)
         
         if not children:
             return False
 
-        ids = []
-        documents = []
-        embeddings = []
-        metadatas = []
-
-        for child in children:
-            injected_text = inject_meta(child["text"], child["metadata"])
+        # Kết nối tới Supabase PostgreSQL trong một transaction đồng bộ
+        with get_db_connection() as conn:
+            with conn.cursor() as cur:
+                # 1. UPSERT vào bảng `documents` theo source_url UNIQUE
+                upsert_doc_query = """
+                    INSERT INTO documents (title, source_url, breadcrumbs, content_hash, updated_at)
+                    VALUES (%s, %s, %s, %s, NOW())
+                    ON CONFLICT (source_url) 
+                    DO UPDATE SET 
+                        title = EXCLUDED.title,
+                        breadcrumbs = EXCLUDED.breadcrumbs,
+                        content_hash = EXCLUDED.content_hash,
+                        updated_at = NOW()
+                    RETURNING id;
+                """
+                cur.execute(upsert_doc_query, (title, source_url, breadcrumbs, content_hash))
+                doc_row = cur.fetchone()
+                if not doc_row:
+                    print(f"❌ Không thể upsert document cho '{source_url}'")
+                    return False
+                document_id = doc_row[0]
+                
+                # 2. Xóa các chunk cũ của document này (tránh orphan/duplicate khi bài viết cập nhật)
+                cur.execute("DELETE FROM document_chunks WHERE document_id = %s;", (document_id,))
+                
+                # 3. Tạo embedding vector 384 chiều và chuẩn bị danh sách record cho document_chunks
+                chunk_records = []
+                for idx, child in enumerate(children):
+                    injected_text = inject_meta(child["text"], child["metadata"])
+                    
+                    # Xử lý metadata danh sách thành chuỗi và chuẩn hóa None
+                    meta = child["metadata"].copy()
+                    if "placeholder_ancestors" in meta and isinstance(meta["placeholder_ancestors"], list):
+                        meta["placeholder_ancestors"] = " > ".join(meta["placeholder_ancestors"])
+                    meta_cleaned = {k: (v if v is not None else "") for k, v in meta.items()}
+                    
+                    # Encode thành vector 384 chiều của model paraphrase-multilingual-MiniLM-L12-v2
+                    vector = embedding_model.encode(injected_text, convert_to_numpy=True).tolist()
+                    vector_str = "[" + ",".join(str(x) for x in vector) + "]"
+                    
+                    tokens_count = child.get("tokens", len(child["text"].split()))
+                    
+                    # Bảng document_chunks: (document_id, chunk_index, content, injected_content, metadata, embedding, tokens_count)
+                    # Cột fts_tokens tự động sinh GENERATED ALWAYS AS (to_tsvector('simple', ...))
+                    chunk_records.append((
+                        document_id,
+                        idx,
+                        child["text"],
+                        injected_text,
+                        Json(meta_cleaned),
+                        vector_str,
+                        tokens_count
+                    ))
+                
+                # 4. Bulk insert toàn bộ chunk mới
+                insert_chunks_query = """
+                    INSERT INTO document_chunks (
+                        document_id,
+                        chunk_index,
+                        content,
+                        injected_content,
+                        metadata,
+                        embedding,
+                        tokens_count
+                    ) VALUES %s;
+                """
+                execute_values(
+                    cur,
+                    insert_chunks_query,
+                    chunk_records,
+                    template="(%s, %s, %s, %s, %s, %s::vector, %s)"
+                )
+                
+            # Commit transaction khi mọi thao tác cho document + chunks thành công
+            conn.commit()
             
-            ids.append(child["id"])
-            documents.append(injected_text) 
-            
-            meta = child["metadata"].copy()
-            if "placeholder_ancestors" in meta and isinstance(meta["placeholder_ancestors"], list):
-                meta["placeholder_ancestors"] = " > ".join(meta["placeholder_ancestors"])
-            
-            meta_cleaned = {k: (v if v is not None else "") for k, v in meta.items()}
-            metadatas.append(meta_cleaned)
-            
-            vector = embedding_model.encode(injected_text, convert_to_numpy=True).tolist()
-            embeddings.append(vector)
-
-        if ids:
-            collection.upsert(
-                ids=ids,
-                embeddings=embeddings,
-                documents=documents,
-                metadatas=metadatas
-            )
-            return True
+        return True
             
     except Exception as e:
-        print(f"❌ Lỗi xử lý ChromaDB cho file {file_path}: {e}")
+        print(f"❌ Lỗi xử lý Supabase PostgreSQL cho file {file_path}: {e}")
         return False
 
 
@@ -388,7 +471,7 @@ def process_single_markdown(file_path):
 
 if __name__ == "__main__":
     print("\n" + "="*60)
-    print("🚀 KHỞI CHẠY LUỒNG ĐỘC LẬP: TIẾN TRÌNH NẠP TOÀN BỘ VÀO CHROMADB")
+    print("🚀 KHỞI CHẠY LUỒNG ĐỘC LẬP: TIẾN TRÌNH NẠP TOÀN BỘ VÀO SUPABASE POSTGRESQL")
     print("="*60)
     
     search_path = os.path.join(INPUT_DIR, f"*{FILE_EXTENSION}")
@@ -405,9 +488,22 @@ if __name__ == "__main__":
             if process_single_markdown(path):
                 success_count += 1
                 
+        doc_count = 0
+        chunk_count = 0
+        try:
+            with get_db_connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute("SELECT COUNT(*) FROM documents;")
+                    doc_count = cur.fetchone()[0]
+                    cur.execute("SELECT COUNT(*) FROM document_chunks;")
+                    chunk_count = cur.fetchone()[0]
+        except Exception as e:
+            print(f"⚠️ Không thể thống kê số lượng bản ghi từ Supabase: {e}")
+
         print("\n" + "="*60)
         print("🎉 TIẾN TRÌNH HOÀN TẤT TỐT ĐẸP!")
         print(f"📊 Đồng bộ thành công: {success_count}/{len(file_paths)} files.")
-        print(f"🗂️ Tổng số lượng bản ghi hiện có trong ChromaDB: {collection.count()}")
-        print(f"💾 Vị trí cơ sở dữ liệu: {CHROMA_DB_DIR}")
+        print(f"🗂️ Tổng số bài viết (documents) trong Supabase: {doc_count}")
+        print(f"🧩 Tổng số đoạn văn bản (chunks) trong Supabase: {chunk_count}")
+        print(f"💾 Cơ sở dữ liệu: Supabase PostgreSQL (schema_v2_hybrid_rag.sql)")
         print("="*60)

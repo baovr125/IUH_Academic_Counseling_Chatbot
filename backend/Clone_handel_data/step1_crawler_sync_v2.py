@@ -305,7 +305,7 @@ def process_single_url_sync(current_url, state, graph_data):
 
 def run_dynamic_sync_threaded(start_urls, max_workers=10):
     print("="*70)
-    print(f"🌐 KHỞI ĐỘNG AUTO SYNC MULTI-THREAD VÀ TREE INDEXING...")
+    print(f"🌐 KHỞI ĐỘNG AUTO SYNC MULTI-THREAD VÀ ĐỒNG BỘ SUPABASE POSTGRESQL...")
     print("="*70)
     
     state = load_json(STATE_FILE)
@@ -331,7 +331,7 @@ def run_dynamic_sync_threaded(start_urls, max_workers=10):
                     
                     if is_updated:
                         changes_detected += 1
-                        tqdm.write(f"✨ [CẬP NHẬT WEB] Phát hiện thay đổi: {url}")
+                        tqdm.write(f"✨ [CẬP NHẬT WEB -> SUPABASE] Phát hiện thay đổi: {url}")
 
                     for link in new_links:
                         if should_crawl_url(link) and link not in visited_links and link not in links_to_crawl:
@@ -351,7 +351,7 @@ def run_dynamic_sync_threaded(start_urls, max_workers=10):
     
     print("\n" + "="*70)
     print(f"🏁 Hoàn thành đợt đồng bộ đa luồng. Đã duyệt {len(visited_links)} links.")
-    print(f"📈 Phát hiện và đẩy sang JSON thành công {changes_detected} trang web/file PDF thay đổi.")
+    print(f"📈 Phát hiện và đồng bộ thành công {changes_detected} trang web/file PDF thay đổi vào Supabase PostgreSQL.")
     print(f"🌲 Đồ thị cấu trúc Web được cập nhật tại: {GRAPH_FILE}")
     print("="*70)
 
