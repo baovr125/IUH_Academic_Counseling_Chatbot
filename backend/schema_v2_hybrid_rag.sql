@@ -4,7 +4,9 @@
 -- ====================================================================================
 
 -- 0. XÓA BẢNG VÀ HÀM CŨ TRƯỚC KHI TẠO LẠI (CLEANUP)
+DROP TABLE IF EXISTS document_translations CASCADE;
 DROP TABLE IF EXISTS flashcards CASCADE;
+DROP TABLE IF EXISTS flashcard_decks CASCADE;
 DROP TABLE IF EXISTS translation_history CASCADE;
 DROP TABLE IF EXISTS messages CASCADE;
 DROP TABLE IF EXISTS conversations CASCADE;
@@ -113,15 +115,45 @@ CREATE TABLE translation_history (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- BẢNG 7: FLASHCARDS (Hệ thống thẻ từ vựng ôn tập)
-CREATE TABLE flashcards (
+-- BẢNG 7: FLASHCARD_DECKS (Sổ thẻ từ vựng phân loại theo từng ngôn ngữ dịch)
+CREATE TABLE flashcard_decks (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-    term VARCHAR(500) NOT NULL,               -- Mặt trước
-    definition TEXT NOT NULL,                 -- Mặt sau
-    part_of_speech VARCHAR(50),               -- Từ loại (Danh từ, Động từ...)
+    lang_code VARCHAR(10) NOT NULL,           -- en, de, ja, zh, ko, fr...
+    title VARCHAR(255) NOT NULL,              -- Sổ từ vựng Tiếng Anh...
+    description TEXT,
+    icon_flag VARCHAR(10) DEFAULT '🌐',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- BẢNG 8: FLASHCARDS (Hệ thống thẻ từ vựng ôn tập trong từng Sổ thẻ)
+CREATE TABLE flashcards (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    deck_id UUID REFERENCES flashcard_decks(id) ON DELETE CASCADE, -- [MỚI] Liên kết Sổ thẻ
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    term VARCHAR(500) NOT NULL,               -- Mặt trước (Từ vựng / Mẫu câu gốc)
+    definition TEXT NOT NULL,                 -- Mặt sau (Ý nghĩa bản dịch)
+    example TEXT,                             -- [MỚI] Ví dụ câu văn / Ghi chú ngữ cảnh
+    part_of_speech VARCHAR(50),               -- Từ loại (Danh từ, Động từ, cụm từ...)
+    lang_code VARCHAR(10) DEFAULT 'en',       -- [MỚI] Mã ngôn ngữ (en, de, ja...)
     status VARCHAR(50) DEFAULT 'learning',    -- learning, review_later, mastered
     last_reviewed_at TIMESTAMP WITH TIME ZONE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- BẢNG 9: DOCUMENT_TRANSLATIONS (Dịch thuật và Tóm tắt tài liệu PDF, PPT, Word)
+CREATE TABLE document_translations (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    file_name VARCHAR(255) NOT NULL,          -- Tên tài liệu gốc
+    file_type VARCHAR(20) NOT NULL,           -- 'pdf', 'docx', 'pptx'
+    file_size_bytes BIGINT,                   -- Kích thước file (bytes)
+    pages_or_slides VARCHAR(50),              -- Số trang / slides ước tính
+    source_lang VARCHAR(10) NOT NULL,         -- Ngôn ngữ gốc
+    target_lang VARCHAR(10) NOT NULL,         -- Ngôn ngữ đích
+    translated_file_url TEXT,                 -- Đường dẫn lưu file đã dịch để tải về
+    summary_json JSONB,                       -- [MỚI] Tóm tắt AI (Executive summary, Key points, Key terminology)
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -134,6 +166,7 @@ CREATE TABLE flashcards (
 CREATE TRIGGER update_users_modtime BEFORE UPDATE ON users FOR EACH ROW EXECUTE PROCEDURE update_modified_column();
 CREATE TRIGGER update_documents_modtime BEFORE UPDATE ON documents FOR EACH ROW EXECUTE PROCEDURE update_modified_column();
 CREATE TRIGGER update_conversations_modtime BEFORE UPDATE ON conversations FOR EACH ROW EXECUTE PROCEDURE update_modified_column();
+CREATE TRIGGER update_flashcard_decks_modtime BEFORE UPDATE ON flashcard_decks FOR EACH ROW EXECUTE PROCEDURE update_modified_column();
 
 -- Tạo Index thông thường để tăng tốc độ truy vấn Khóa ngoại & Filtering
 CREATE INDEX idx_documents_user_id ON documents(user_id);
@@ -141,7 +174,10 @@ CREATE INDEX idx_document_chunks_doc_id ON document_chunks(document_id);
 CREATE INDEX idx_conversations_user_id ON conversations(user_id);
 CREATE INDEX idx_messages_conv_id ON messages(conversation_id);
 CREATE INDEX idx_translation_history_user_id ON translation_history(user_id);
+CREATE INDEX idx_flashcard_decks_user_id ON flashcard_decks(user_id);
 CREATE INDEX idx_flashcards_user_id ON flashcards(user_id);
+CREATE INDEX idx_flashcards_deck_id ON flashcards(deck_id);
+CREATE INDEX idx_document_translations_user_id ON document_translations(user_id);
 CREATE INDEX idx_document_chunks_metadata ON document_chunks USING GIN (metadata);
 
 -- [QUAN TRỌNG 1] TẠO INDEX VECTOR HNSW (Dense Retrieval)
