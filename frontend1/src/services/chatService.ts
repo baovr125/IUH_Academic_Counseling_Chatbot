@@ -12,12 +12,20 @@ import { delay, generateId } from "./utils";
 let sessionsStore: ChatSession[] = JSON.parse(JSON.stringify(MOCK_CHAT_SESSIONS));
 
 export async function fetchSessions(): Promise<ApiResult<ChatSession[]>> {
-  await delay(600);
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/chat/sessions`);
+    const result: ApiResult<ChatSession[]> = await res.json();
+    if (result.ok && result.data && result.data.length > 0) {
+      sessionsStore = result.data;
+      return result;
+    }
+  } catch (err) {
+    // Fallback to local store if DB is empty or unreachable
+  }
   return { ok: true, data: sessionsStore };
 }
 
 export async function fetchSession(sessionId: string): Promise<ApiResult<ChatSession>> {
-  await delay(400);
   const session = sessionsStore.find((s) => s.id === sessionId);
   if (!session) return { ok: false, error: { message: "Không tìm thấy hội thoại." } };
   return { ok: true, data: session };
@@ -42,11 +50,11 @@ export async function fetchSession(sessionId: string): Promise<ApiResult<ChatSes
  * for a real `fetch` call requires no changes elsewhere.
  * ---------------------------------------------------------------------------
  */
+const API_BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || "http://localhost:8000";
+
 export async function sendMessage(
   payload: SendMessagePayload
 ): Promise<ApiResult<SendMessageResponse>> {
-  await delay(1800); // simulate RAG retrieval + generation latency
-
   let session = sessionsStore.find((s) => s.id === payload.sessionId);
   const sessionId = payload.sessionId ?? generateId("s");
 
@@ -67,25 +75,36 @@ export async function sendMessage(
     createdAt: new Date().toISOString(),
     status: "complete",
   };
+  session.messages.push(userMessage);
 
-  const rawAnswer =
-    "Based on the retrieved documents, here is a summary that addresses the question directly, drawing only on verified university sources.";
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/chat/messages`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        sessionId: payload.sessionId,
+        content: payload.content,
+      }),
+    });
 
-  const assistantMessage: ChatMessage = {
-    id: generateId("m"),
-    role: "assistant",
-    original_answer: rawAnswer,
-    content: `Here's what I found:\n\n${rawAnswer}\n\nLet me know if you'd like more detail on any part.`,
-    citations: [
-      { id: generateId("c"), sourceTitle: "Sổ tay sinh viên", pageOrSection: "trang 15" },
-      { id: generateId("c"), sourceTitle: "Quy chế đào tạo IUH 2024", pageOrSection: "Điều 12" },
-    ],
-    createdAt: new Date().toISOString(),
-    status: "complete",
-  };
-
-  session.messages.push(userMessage, assistantMessage);
-  session.updatedAt = new Date().toISOString();
-
-  return { ok: true, data: { sessionId: session.id, message: assistantMessage } };
+    const result: ApiResult<SendMessageResponse> = await res.json();
+    if (result.ok && result.data) {
+      session.messages.push(result.data.message);
+      session.updatedAt = new Date().toISOString();
+      return {
+        ok: true,
+        data: {
+          sessionId: result.data.sessionId || sessionId,
+          message: result.data.message,
+        },
+      };
+    } else {
+      return result;
+    }
+  } catch (err: any) {
+    return {
+      ok: false,
+      error: { message: err.message || "Lỗi kết nối tới Server Backend." },
+    };
+  }
 }
