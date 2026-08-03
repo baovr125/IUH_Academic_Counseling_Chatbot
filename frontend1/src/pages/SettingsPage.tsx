@@ -1,26 +1,68 @@
-import { useState } from "react";
-import { Sun, Moon, Laptop, Globe, Bell, Bot, CheckCircle2, Save } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Sun, Moon, Laptop, Globe, Bell, CheckCircle2, Save, Loader2, AlertCircle } from "lucide-react";
+import { fetchUserSettings, updateUserSettings } from "../services/settingsService";
 
 export default function SettingsPage() {
   const [theme, setTheme] = useState<"light" | "dark" | "system">("light");
   const [language, setLanguage] = useState<"vi" | "en">("vi");
 
-  // AI Assistant toggles
-  const [autoSuggest, setAutoSuggest] = useState(true);
-  const [saveHistory, setSaveHistory] = useState(true);
-  const [detailedCitations, setDetailedCitations] = useState(true);
-
   // Notification toggles
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [academicAlerts, setAcademicAlerts] = useState(true);
 
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const handleSaveSettings = (e: React.FormEvent) => {
+  useEffect(() => {
+    async function loadSettings() {
+      setLoading(true);
+      setErrorMessage(null);
+      const res = await fetchUserSettings();
+      if (res.ok && res.data) {
+        if (res.data.theme) setTheme(res.data.theme as "light" | "dark" | "system");
+        if (res.data.language) setLanguage(res.data.language as "vi" | "en");
+        if (typeof res.data.soundEnabled === "boolean") setSoundEnabled(res.data.soundEnabled);
+        if (typeof res.data.academicAlerts === "boolean") setAcademicAlerts(res.data.academicAlerts);
+      } else if (!res.ok) {
+        // Fallback gracefully if not logged in or server unreachable
+      }
+      setLoading(false);
+    }
+    loadSettings();
+  }, []);
+
+  const handleSaveSettings = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSavedSuccess(true);
-    setTimeout(() => setSavedSuccess(false), 3500);
+    setSaving(true);
+    setSavedSuccess(false);
+    setErrorMessage(null);
+
+    const res = await updateUserSettings({
+      theme,
+      language,
+      soundEnabled,
+      academicAlerts,
+    });
+
+    setSaving(false);
+    if (res.ok) {
+      setSavedSuccess(true);
+      setTimeout(() => setSavedSuccess(false), 3500);
+    } else {
+      setErrorMessage(res.error?.message || "Không thể lưu cài đặt hệ thống.");
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+        <span className="ml-3 text-xs font-medium text-slate-500">Đang tải cài đặt hệ thống...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-4xl p-6">
@@ -28,17 +70,18 @@ export default function SettingsPage() {
         <div>
           <h1 className="text-xl font-bold text-slate-800">Cài đặt hệ thống</h1>
           <p className="text-xs text-slate-500">
-            Tùy chỉnh giao diện, ngôn ngữ và hoạt động của Trợ lý Học vụ IUH
+            Tùy chỉnh giao diện, ngôn ngữ và nhận thông báo học vụ IUH
           </p>
         </div>
 
         <button
           onClick={handleSaveSettings}
+          disabled={saving}
           type="button"
-          className="flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-blue-700 transition-colors"
+          className="flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-blue-700 disabled:opacity-50 transition-colors"
         >
-          <Save size={15} />
-          <span>Lưu cài đặt</span>
+          {saving ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
+          <span>{saving ? "Đang lưu..." : "Lưu cài đặt"}</span>
         </button>
       </div>
 
@@ -46,6 +89,13 @@ export default function SettingsPage() {
         <div className="mb-6 flex items-center gap-3 rounded-xl border border-green-200 bg-green-50 p-4 text-xs font-medium text-green-800">
           <CheckCircle2 size={18} className="text-green-600 flex-shrink-0" />
           <span>Toàn bộ cài đặt hệ thống đã được lưu thành công!</span>
+        </div>
+      )}
+
+      {errorMessage && (
+        <div className="mb-6 flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 p-4 text-xs font-medium text-red-800">
+          <AlertCircle size={18} className="text-red-600 flex-shrink-0" />
+          <span>{errorMessage}</span>
         </div>
       )}
 
@@ -94,7 +144,7 @@ export default function SettingsPage() {
             <h2 className="text-sm font-bold text-slate-800">Ngôn ngữ hiển thị</h2>
           </div>
           <p className="mb-4 text-xs text-slate-500">
-            Ngôn ngữ chính sử dụng trong giao diện và phản hồi từ trợ lý
+            Ngôn ngữ chính sử dụng trong giao diện hệ thống
           </p>
 
           <div className="flex flex-wrap gap-3">
@@ -118,85 +168,6 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        {/* AI Assistant Settings */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <div className="flex items-center gap-2 mb-1">
-            <Bot size={16} className="text-blue-600" />
-            <h2 className="text-sm font-bold text-slate-800">Cấu hình Trợ lý Học vụ AI (RAG)</h2>
-          </div>
-          <p className="mb-4 text-xs text-slate-500">
-            Cài đặt hành vi khi tương tác với chatbot học vụ IUH
-          </p>
-
-          <div className="divide-y divide-slate-100">
-            <div className="flex items-center justify-between py-3">
-              <div>
-                <div className="text-xs font-semibold text-slate-800">Tự động gợi ý câu hỏi tiếp theo</div>
-                <div className="text-[11px] text-slate-500">
-                  Gợi ý các câu hỏi liên quan dựa theo quy chế và sổ tay sinh viên
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setAutoSuggest(!autoSuggest)}
-                className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full transition-colors ${
-                  autoSuggest ? "bg-blue-600" : "bg-slate-200"
-                }`}
-              >
-                <span
-                  className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
-                    autoSuggest ? "translate-x-5" : "translate-x-0.5"
-                  } mt-0.5`}
-                />
-              </button>
-            </div>
-
-            <div className="flex items-center justify-between py-3">
-              <div>
-                <div className="text-xs font-semibold text-slate-800">Lưu lịch sử hội thoại trên đám mây</div>
-                <div className="text-[11px] text-slate-500">
-                  Đồng bộ các phiên tra cứu giữa các thiết bị đăng nhập
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setSaveHistory(!saveHistory)}
-                className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full transition-colors ${
-                  saveHistory ? "bg-blue-600" : "bg-slate-200"
-                }`}
-              >
-                <span
-                  className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
-                    saveHistory ? "translate-x-5" : "translate-x-0.5"
-                  } mt-0.5`}
-                />
-              </button>
-            </div>
-
-            <div className="flex items-center justify-between py-3">
-              <div>
-                <div className="text-xs font-semibold text-slate-800">Hiển thị trích dẫn nguồn chi tiết</div>
-                <div className="text-[11px] text-slate-500">
-                  Hiển thị tên tài liệu, trang số khi AI trả lời câu hỏi
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setDetailedCitations(!detailedCitations)}
-                className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full transition-colors ${
-                  detailedCitations ? "bg-blue-600" : "bg-slate-200"
-                }`}
-              >
-                <span
-                  className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
-                    detailedCitations ? "translate-x-5" : "translate-x-0.5"
-                  } mt-0.5`}
-                />
-              </button>
-            </div>
-          </div>
-        </div>
-
         {/* Notification Settings */}
         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
           <div className="flex items-center gap-2 mb-1">
@@ -204,7 +175,7 @@ export default function SettingsPage() {
             <h2 className="text-sm font-bold text-slate-800">Thông báo hệ thống</h2>
           </div>
           <p className="mb-4 text-xs text-slate-500">
-            Quản lý nhận thông báo học vụ từ trường và lời nhắc học tập
+            Quản lý nhận thông báo học vụ từ trường và âm thanh thông báo
           </p>
 
           <div className="divide-y divide-slate-100">
@@ -212,7 +183,7 @@ export default function SettingsPage() {
               <div>
                 <div className="text-xs font-semibold text-slate-800">Âm thanh thông báo</div>
                 <div className="text-[11px] text-slate-500">
-                  Phát âm báo nhẹ khi hoàn thành dịch thuật hoặc câu trả lời AI xong
+                  Phát âm báo nhẹ khi hoàn thành dịch thuật hoặc thao tác xong
                 </div>
               </div>
               <button

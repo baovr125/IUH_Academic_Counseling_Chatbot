@@ -47,6 +47,22 @@ export interface AuthResponse {
   token: string;
 }
 
+// ---- User Settings ---------------------------------------------------------
+
+export interface UserSettings {
+  theme: "light" | "dark" | "system";
+  language: "vi" | "en";
+  soundEnabled: boolean;
+  academicAlerts: boolean;
+}
+
+export interface UpdateSettingsPayload {
+  theme?: "light" | "dark" | "system";
+  language?: "vi" | "en";
+  soundEnabled?: boolean;
+  academicAlerts?: boolean;
+}
+
 // ---- Dashboard ---------------------------------------------------------
 
 export interface LearningStreakDay {

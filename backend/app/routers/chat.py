@@ -15,17 +15,47 @@ from google.genai import types
 
 router = APIRouter(prefix="/api/chat", tags=["chat"])
 
-# --- 1. Clients & Models Initialization ---
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+# --- 1. Clients & Models Lazy Initialization ---
+_supabase_client = None
+_gemini_client = None
+_embedder_model = None
+_reranker_model = None
 
-# Gemini Client (uses GEMINI_API_KEY environment variable)
-gemini_client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+def get_supabase():
+    global _supabase_client
+    if _supabase_client is None:
+        url = os.getenv("SUPABASE_URL", "")
+        key = os.getenv("SUPABASE_KEY", "")
+        if url and key:
+            try:
+                _supabase_client = create_client(url, key)
+            except Exception:
+                pass
+    return _supabase_client
 
-# Local models
-embedder = SentenceTransformer("sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
-reranker = CrossEncoder("BAAI/bge-reranker-v2-m3")
+def get_gemini():
+    global _gemini_client
+    if _gemini_client is None:
+        api_key = os.getenv("GEMINI_API_KEY", "")
+        if api_key:
+            try:
+                _gemini_client = genai.Client(api_key=api_key)
+            except Exception:
+                pass
+    return _gemini_client
+
+def get_embedder():
+    global _embedder_model
+    if _embedder_model is None:
+        _embedder_model = SentenceTransformer("sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
+    return _embedder_model
+
+def get_reranker():
+    global _reranker_model
+    if _reranker_model is None:
+        _reranker_model = CrossEncoder("BAAI/bge-reranker-v2-m3")
+    return _reranker_model
+
 
 # In-memory session memory fallback (session_id -> list of message dicts)
 session_memory: dict = {}
@@ -73,18 +103,25 @@ def retrieve_relevant_chunks(query_text: str, top_k: int = 5, candidate_count: i
     Stage 1: Retrieve candidate_count (35) chunks via Supabase Hybrid RRF RPC.
     Stage 2: Cross-Encoder Reranking using BAAI/bge-reranker-v2-m3 -> Top k (5).
     """
-    query_vector = embedder.encode(query_text).tolist()
+    query_vector = get_embedder().encode(query_text).tolist()
 
-    response = supabase.rpc(
-        "match_chunks_hybrid_rrf",
-        {
-            "query_text": query_text,
-            "query_embedding": query_vector,
-            "match_count": candidate_count
-        }
-    ).execute()
+    supabase = get_supabase()
+    if not supabase:
+        return []
 
-    chunks = response.data or []
+    try:
+        response = supabase.rpc(
+            "match_chunks_hybrid_rrf",
+            {
+                "query_text": query_text,
+                "query_embedding": query_vector,
+                "match_count": candidate_count
+            }
+        ).execute()
+        chunks = response.data or []
+    except Exception:
+        chunks = []
+
     if not chunks:
         return []
 
@@ -96,7 +133,7 @@ def retrieve_relevant_chunks(query_text: str, top_k: int = 5, candidate_count: i
         text = f"{title}\n{c.get('content', '')}".strip()
         pairs.append((query_text, text))
 
-    scores = reranker.predict(pairs)
+    scores = get_reranker().predict(pairs)
     for idx, chunk in enumerate(chunks):
         chunk["rerank_score"] = float(scores[idx])
 
@@ -131,17 +168,19 @@ def generate_standalone_query(history: list, current_query: str) -> str:
         "Standalone Search Query:"
     )
 
-    for m in GEMINI_MODELS:
-        try:
-            res = gemini_client.models.generate_content(
-                model=m,
-                contents=rewrite_prompt,
-                config=types.GenerateContentConfig(temperature=0.0)
-            )
-            if res and res.text:
-                return res.text.strip()
-        except Exception:
-            continue
+    gemini_client = get_gemini()
+    if gemini_client:
+        for m in GEMINI_MODELS:
+            try:
+                res = gemini_client.models.generate_content(
+                    model=m,
+                    contents=rewrite_prompt,
+                    config=types.GenerateContentConfig(temperature=0.0)
+                )
+                if res and res.text:
+                    return res.text.strip()
+            except Exception:
+                continue
 
     return f"{last_user_msg} {current_query}"
 
@@ -150,9 +189,11 @@ def generate_standalone_query(history: list, current_query: str) -> str:
 def get_session_history_from_db(session_id: str) -> list:
     """Loads chat messages from Supabase PostgreSQL tables."""
     try:
-        res = supabase.table("messages").select("*").eq("conversation_id", session_id).order("created_at").execute()
-        if res.data:
-            return [{"role": m["role"], "content": m["content"]} for m in res.data]
+        supabase = get_supabase()
+        if supabase:
+            res = supabase.table("messages").select("*").eq("conversation_id", session_id).order("created_at").execute()
+            if res.data:
+                return [{"role": m["role"], "content": m["content"]} for m in res.data]
     except Exception:
         pass
     return session_memory.get(session_id, [])
@@ -160,23 +201,25 @@ def get_session_history_from_db(session_id: str) -> list:
 
 def save_turn_to_db(session_id: str, user_content: str, assistant_content: str, title: str):
     """Persists conversation and message turns into PostgreSQL tables."""
-    # 1. Ensure conversation exists
-    try:
-        supabase.table("conversations").upsert({
-            "id": session_id,
-            "title": title[:50]
-        }).execute()
-    except Exception:
-        pass
+    supabase = get_supabase()
+    if supabase:
+        # 1. Ensure conversation exists
+        try:
+            supabase.table("conversations").upsert({
+                "id": session_id,
+                "title": title[:50]
+            }).execute()
+        except Exception:
+            pass
 
-    # 2. Save messages
-    try:
-        supabase.table("messages").insert([
-            {"conversation_id": session_id, "role": "user", "content": user_content},
-            {"conversation_id": session_id, "role": "assistant", "content": assistant_content}
-        ]).execute()
-    except Exception:
-        pass
+        # 2. Save messages
+        try:
+            supabase.table("messages").insert([
+                {"conversation_id": session_id, "role": "user", "content": user_content},
+                {"conversation_id": session_id, "role": "assistant", "content": assistant_content}
+            ]).execute()
+        except Exception:
+            pass
 
     # Backup in memory
     if session_id not in session_memory:
@@ -191,6 +234,10 @@ def save_turn_to_db(session_id: str, user_content: str, assistant_content: str, 
 async def fetch_sessions():
     """Fetches all persistent sessions from PostgreSQL for sidebar history."""
     try:
+        supabase = get_supabase()
+        if not supabase:
+            return ApiResult(ok=True, data=[])
+
         conv_res = supabase.table("conversations").select("*").order("updated_at", desc=True).execute()
         conversations = conv_res.data or []
 
@@ -302,27 +349,29 @@ async def send_message(payload: SendMessagePayload):
 
         gemini_response = None
         last_exception = None
+        gemini_client = get_gemini()
 
-        for model_name in GEMINI_MODELS:
-            try:
-                gemini_response = gemini_client.models.generate_content(
-                    model=model_name,
-                    contents=contents,
-                    config=types.GenerateContentConfig(
-                        system_instruction=system_instruction,
-                        temperature=0.2,
+        if gemini_client:
+            for model_name in GEMINI_MODELS:
+                try:
+                    gemini_response = gemini_client.models.generate_content(
+                        model=model_name,
+                        contents=contents,
+                        config=types.GenerateContentConfig(
+                            system_instruction=system_instruction,
+                            temperature=0.2,
+                        )
                     )
-                )
-                if gemini_response and gemini_response.text:
-                    break
-            except Exception as e:
-                last_exception = e
-                continue
+                    if gemini_response and gemini_response.text:
+                        break
+                except Exception as e:
+                    last_exception = e
+                    continue
 
         if gemini_response and gemini_response.text:
             generated_text = gemini_response.text
         else:
-            err_msg = str(last_exception)
+            err_msg = str(last_exception) if last_exception else "Gemini client không thể khởi tạo"
             if "429" in err_msg or "RESOURCE_EXHAUSTED" in err_msg:
                 generated_text = (
                     "⚠️ **Thông báo giới hạn API**: Khóa API Gemini hiện tại đã đạt giới hạn truy cập. "
@@ -375,21 +424,23 @@ async def send_message_stream(payload: SendMessagePayload):
             accumulated_text = ""
             stream = None
             last_err = None
+            gemini_client = get_gemini()
 
-            for model_name in GEMINI_MODELS:
-                try:
-                    stream = gemini_client.models.generate_content_stream(
-                        model=model_name,
-                        contents=contents,
-                        config=types.GenerateContentConfig(
-                            system_instruction=system_instruction,
-                            temperature=0.2,
+            if gemini_client:
+                for model_name in GEMINI_MODELS:
+                    try:
+                        stream = gemini_client.models.generate_content_stream(
+                            model=model_name,
+                            contents=contents,
+                            config=types.GenerateContentConfig(
+                                system_instruction=system_instruction,
+                                temperature=0.2,
+                            )
                         )
-                    )
-                    break
-                except Exception as e:
-                    last_err = e
-                    continue
+                        break
+                    except Exception as e:
+                        last_err = e
+                        continue
 
             if stream:
                 for chunk in stream:
@@ -398,7 +449,7 @@ async def send_message_stream(payload: SendMessagePayload):
                         yield f"data: {json.dumps({'type': 'delta', 'text': chunk.text})}\n\n"
                         await asyncio.sleep(0.01)
             else:
-                err_str = str(last_err)
+                err_str = str(last_err) if last_err else "Gemini client không thể khởi tạo"
                 if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str:
                     fallback_txt = "⚠️ Giới hạn lượt truy cập API Gemini. Vui lòng đợi ít phút!"
                 else:
@@ -415,4 +466,4 @@ async def send_message_stream(payload: SendMessagePayload):
         except Exception as e:
             yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
 
-    return StreamingResponse(event_generator(), media_type="text/event-stream")
+    return StreamingResponse(event_generator(), media_type="text/event-stream")

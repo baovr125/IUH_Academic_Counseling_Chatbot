@@ -5,13 +5,19 @@ from fastapi.responses import JSONResponse
 
 from database import Base, engine
 from routes.auth import router as auth_router
+from routes.settings import router as settings_router
+
+try:
+    from app.routers.chat import router as chat_router
+except ImportError:
+    chat_router = None
 
 # Khởi tạo bảng CSDL nếu chưa có
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="IUH Portal AI - Backend API",
-    description="Hệ thống Authentication & Account Linking cho IUH Portal AI",
+    description="Hệ thống Authentication, Settings & AI Chatbot cho IUH Portal AI",
     version="1.0.0",
 )
 
@@ -53,6 +59,9 @@ async def custom_http_exception_handler(request: Request, exc: HTTPException):
 
 # Mount routes
 app.include_router(auth_router)
+app.include_router(settings_router)
+if chat_router:
+    app.include_router(chat_router)
 
 
 @app.get("/", tags=["Health"])

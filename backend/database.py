@@ -2,7 +2,7 @@ import os
 import uuid
 from datetime import datetime
 from dotenv import load_dotenv
-from sqlalchemy import Column, String, Text, DateTime, Boolean, create_engine
+from sqlalchemy import Column, String, Text, DateTime, Boolean, ForeignKey, create_engine
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
@@ -27,6 +27,38 @@ engine = create_engine(
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
+
+
+class UserSetting(Base):
+    """
+    Model ánh xạ bảng user_settings trong CSDL PostgreSQL (Supabase):
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID UNIQUE NOT NULL REFERENCES users(id),
+    theme VARCHAR(20) DEFAULT 'light',
+    language VARCHAR(10) DEFAULT 'vi',
+    sound_enabled BOOLEAN DEFAULT TRUE,
+    academic_alerts BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    """
+    __tablename__ = "user_settings"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), unique=True, nullable=False, index=True)
+    theme = Column(String(20), default="light")
+    language = Column(String(10), default="vi")
+    sound_enabled = Column(Boolean, default=True)
+    academic_alerts = Column(Boolean, default=True)
+    created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
+    updated_at = Column(DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def to_response_dict(self) -> dict:
+        return {
+            "theme": self.theme or "light",
+            "language": self.language or "vi",
+            "soundEnabled": self.sound_enabled if self.sound_enabled is not None else True,
+            "academicAlerts": self.academic_alerts if self.academic_alerts is not None else True,
+        }
 
 
 class User(Base):

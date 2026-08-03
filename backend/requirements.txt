@@ -19,3 +19,4 @@ supabase>=2.4.0
 # AI & RAG Services (Gemini & Embeddings)
 google-genai>=0.1.0
 sentence-transformers>=3.0.0
+transformers>=4.40.0
