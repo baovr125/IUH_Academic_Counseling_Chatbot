@@ -16,6 +16,10 @@ export interface User {
   studentCode?: string;
   role: UserRole;
   avatarUrl?: string;
+  google_id?: string | null;
+  googleId?: string | null;
+  password_hash?: string | null;
+  passwordHash?: string | null;
 }
 
 export interface LoginPayload {

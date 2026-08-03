@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import * as authService from "../services/authService";
 import type { LoginPayload, RegisterPayload, User } from "../types";
 
@@ -10,6 +10,9 @@ interface AuthContextValue {
   login: (payload: LoginPayload) => Promise<boolean>;
   register: (payload: RegisterPayload) => Promise<boolean>;
   logout: () => Promise<void>;
+  linkGoogleAccount: (idToken: string) => Promise<{ ok: boolean; message?: string; user?: User }>;
+  setAccountPassword: (newPassword: string, confirmPassword: string) => Promise<{ ok: boolean; message?: string }>;
+  updateUser: (user: User) => void;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -21,8 +24,28 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
  */
 export function useAuthState(): AuthContextValue {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Khôi phục phiên làm việc từ JWT token trong localStorage khi khởi động
+  useEffect(() => {
+    const token = authService.getToken();
+    if (token && !user) {
+      setIsLoading(true);
+      authService
+        .fetchCurrentUser()
+        .then((result) => {
+          if (result.ok && result.data) {
+            setUser(result.data);
+          } else {
+            authService.removeToken();
+          }
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    }
+  }, [user]);
 
   const login = useCallback(async (payload: LoginPayload) => {
     setIsLoading(true);
@@ -57,9 +80,57 @@ export function useAuthState(): AuthContextValue {
     setUser(null);
   }, []);
 
+  const linkGoogleAccount = useCallback(async (idToken: string) => {
+    setIsLoading(true);
+    setError(null);
+    const result = await authService.linkGoogleAccount(idToken);
+    setIsLoading(false);
+
+    if (!result.ok) {
+      const msg = result.error.message;
+      setError(msg);
+      return { ok: false, message: msg };
+    }
+
+    setUser(result.data);
+    return { ok: true, user: result.data };
+  }, []);
+
+  const setAccountPassword = useCallback(async (newPassword: string, confirmPassword: string) => {
+    setIsLoading(true);
+    setError(null);
+    const result = await authService.setAccountPassword(newPassword, confirmPassword);
+    setIsLoading(false);
+
+    if (!result.ok) {
+      const msg = result.error.message;
+      setError(msg);
+      return { ok: false, message: msg };
+    }
+
+    // Cập nhật indicator cờ mật khẩu vào state người dùng
+    setUser((prev) => (prev ? { ...prev, password_hash: "hashed", passwordHash: "hashed" } : prev));
+    return { ok: true };
+  }, []);
+
+  const updateUser = useCallback((updated: User) => {
+    setUser(updated);
+  }, []);
+
   return useMemo(
-    () => ({ user, isAuthenticated: !!user, isLoading, error, login, register, logout }),
-    [user, isLoading, error, login, register, logout]
+    () => ({
+      user,
+      isAuthenticated: !!user,
+      isLoading,
+      error,
+      login,
+      register,
+      logout,
+      linkGoogleAccount,
+      setAccountPassword,
+      updateUser,
+    }),
+    [user, isLoading, error, login, register, logout, linkGoogleAccount, setAccountPassword, updateUser]
   );
 }
 

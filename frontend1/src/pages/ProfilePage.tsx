@@ -1,10 +1,23 @@
 import { useState } from "react";
 import { useAuth } from "../hooks/useAuth";
-import { User, Lock, Eye, EyeOff, CheckCircle2, AlertCircle, Save } from "lucide-react";
+import {
+  User,
+  Lock,
+  Eye,
+  EyeOff,
+  CheckCircle2,
+  AlertCircle,
+  Save,
+  ShieldCheck,
+  Link,
+  X,
+  Key,
+  Check,
+} from "lucide-react";
 
 export default function ProfilePage() {
-  const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<"info" | "password">("info");
+  const { user, linkGoogleAccount, setAccountPassword } = useAuth();
+  const [activeTab, setActiveTab] = useState<"info" | "security" | "password">("info");
 
   // Profile Form state
   const [fullName, setFullName] = useState(user?.fullName || "Nguyễn Văn A");
@@ -13,7 +26,7 @@ export default function ProfilePage() {
   const [phone, setPhone] = useState("0912 345 678");
   const [profileSuccess, setProfileSuccess] = useState(false);
 
-  // Password Form state
+  // Password Form state (Tab Đổi mật khẩu)
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -22,6 +35,26 @@ export default function ProfilePage() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [passwordSuccess, setPasswordSuccess] = useState(false);
+
+  // Account Security & Linking state (Tab Liên kết & Bảo mật)
+  const [setupPassword, setSetupPassword] = useState("");
+  const [setupConfirmPassword, setSetupConfirmPassword] = useState("");
+  const [showSetup, setShowSetup] = useState(false);
+  const [showSetupConfirm, setShowSetupConfirm] = useState(false);
+  const [securitySuccess, setSecuritySuccess] = useState<string | null>(null);
+  const [securityError, setSecurityError] = useState<string | null>(null);
+  const [isSubmittingPassword, setIsSubmittingPassword] = useState(false);
+
+  // Google Modal state
+  const [showGoogleModal, setShowGoogleModal] = useState(false);
+  const [selectedGoogleAccount, setSelectedGoogleAccount] = useState(
+    user?.email || "nguyenvana.iuh@gmail.com"
+  );
+  const [isLinkingGoogle, setIsLinkingGoogle] = useState(false);
+
+  // Kiểm tra cờ trạng thái tài khoản
+  const hasGoogleLinked = Boolean(user?.google_id || user?.googleId);
+  const hasPasswordSet = Boolean(user?.password_hash || user?.passwordHash);
 
   const handleProfileSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,12 +82,65 @@ export default function ProfilePage() {
       return;
     }
 
-    // Simulate password change
     setPasswordSuccess(true);
     setCurrentPassword("");
     setNewPassword("");
     setConfirmPassword("");
     setTimeout(() => setPasswordSuccess(false), 5000);
+  };
+
+  // Xử lý thiết lập mật khẩu lần đầu cho tài khoản tạo qua Google (!user.password_hash)
+  const handleSetupPasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSecuritySuccess(null);
+    setSecurityError(null);
+
+    if (!setupPassword || !setupConfirmPassword) {
+      setSecurityError("Vui lòng nhập đầy đủ mật khẩu mới và xác nhận mật khẩu.");
+      return;
+    }
+
+    if (setupPassword.length < 6) {
+      setSecurityError("Mật khẩu mới phải có ít nhất 6 ký tự.");
+      return;
+    }
+
+    if (setupPassword !== setupConfirmPassword) {
+      setSecurityError("Mật khẩu xác nhận không khớp.");
+      return;
+    }
+
+    setIsSubmittingPassword(true);
+    const result = await setAccountPassword(setupPassword, setupConfirmPassword);
+    setIsSubmittingPassword(false);
+
+    if (!result.ok) {
+      setSecurityError(result.message || "Thiết lập mật khẩu thất bại.");
+    } else {
+      setSecuritySuccess("Thiết lập mật khẩu đăng nhập thành công!");
+      setSetupPassword("");
+      setSetupConfirmPassword("");
+      setTimeout(() => setSecuritySuccess(null), 5000);
+    }
+  };
+
+  // Xử lý liên kết tài khoản Google
+  const handleLinkGoogle = async () => {
+    setSecuritySuccess(null);
+    setSecurityError(null);
+    setIsLinkingGoogle(true);
+
+    const mockIdToken = `google_id_token_${selectedGoogleAccount}`;
+    const result = await linkGoogleAccount(mockIdToken);
+    setIsLinkingGoogle(false);
+    setShowGoogleModal(false);
+
+    if (!result.ok) {
+      setSecurityError(result.message || "Liên kết Google thất bại.");
+    } else {
+      setSecuritySuccess(`Đã liên kết thành công với tài khoản Google (${selectedGoogleAccount})!`);
+      setTimeout(() => setSecuritySuccess(null), 5000);
+    }
   };
 
   return (
@@ -108,6 +194,18 @@ export default function ProfilePage() {
         </button>
         <button
           type="button"
+          onClick={() => setActiveTab("security")}
+          className={`flex items-center gap-2 border-b-2 px-4 py-2.5 text-xs font-semibold transition-colors ${
+            activeTab === "security"
+              ? "border-blue-600 text-blue-600"
+              : "border-transparent text-slate-600 hover:text-slate-800"
+          }`}
+        >
+          <ShieldCheck size={15} />
+          <span>Liên kết & Bảo mật</span>
+        </button>
+        <button
+          type="button"
           onClick={() => setActiveTab("password")}
           className={`flex items-center gap-2 border-b-2 px-4 py-2.5 text-xs font-semibold transition-colors ${
             activeTab === "password"
@@ -121,7 +219,7 @@ export default function ProfilePage() {
       </div>
 
       {/* Content */}
-      {activeTab === "info" ? (
+      {activeTab === "info" && (
         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
           <h2 className="mb-1 text-base font-bold text-slate-800">Cập nhật thông tin cá nhân</h2>
           <p className="mb-6 text-xs text-slate-500">
@@ -209,7 +307,181 @@ export default function ProfilePage() {
             </div>
           </form>
         </div>
-      ) : (
+      )}
+
+      {/* Account Security & Linking Tab */}
+      {activeTab === "security" && (
+        <div className="space-y-6">
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <h2 className="mb-1 text-base font-bold text-slate-800">
+              Liên kết & Bảo mật tài khoản (Account Security & Linking)
+            </h2>
+            <p className="mb-6 text-xs text-slate-500">
+              Quản lý trạng thái liên kết với Google và thiết lập mật khẩu đăng nhập cho hệ thống IUH Portal AI.
+            </p>
+
+            {securitySuccess && (
+              <div className="mb-6 flex items-center gap-3 rounded-xl border border-green-200 bg-green-50 p-4 text-xs font-medium text-green-800">
+                <CheckCircle2 size={18} className="text-green-600 flex-shrink-0" />
+                <span>{securitySuccess}</span>
+              </div>
+            )}
+
+            {securityError && (
+              <div className="mb-6 flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 p-4 text-xs font-medium text-red-800">
+                <AlertCircle size={18} className="text-red-600 flex-shrink-0" />
+                <span>{securityError}</span>
+              </div>
+            )}
+
+            {/* Grid Trạng thái */}
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 mb-6">
+              {/* Thẻ trạng thái Mật khẩu */}
+              <div className="flex flex-col justify-between rounded-xl border border-slate-200 bg-slate-50/70 p-4">
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-semibold text-slate-700 flex items-center gap-2">
+                      <Key size={16} className="text-slate-500" />
+                      Mật khẩu đăng nhập
+                    </span>
+                    {hasPasswordSet ? (
+                      <span className="flex items-center gap-1 rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-semibold text-green-700">
+                        <Check size={13} />
+                        Đã thiết lập
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-700">
+                        <AlertCircle size={13} />
+                        Chưa thiết lập
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-slate-500">
+                    {hasPasswordSet
+                      ? "Tài khoản của bạn đã được bảo vệ bằng mật khẩu. Bạn có thể cập nhật mật khẩu tại tab Đổi mật khẩu."
+                      : "Tài khoản được đăng ký qua Google chưa có mật khẩu độc lập. Hãy thiết lập bên dưới để đăng nhập bằng Email/MSSV."}
+                  </p>
+                </div>
+              </div>
+
+              {/* Thẻ trạng thái Google */}
+              <div className="flex flex-col justify-between rounded-xl border border-slate-200 bg-slate-50/70 p-4">
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-semibold text-slate-700 flex items-center gap-2">
+                      <Link size={16} className="text-slate-500" />
+                      Tài khoản Google
+                    </span>
+                    {hasGoogleLinked ? (
+                      <span className="flex items-center gap-1 rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-semibold text-green-700">
+                        <Check size={13} />
+                        Đã liên kết
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1 rounded-full bg-slate-200 px-2.5 py-0.5 text-xs font-semibold text-slate-700">
+                        Chưa liên kết
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-slate-500">
+                    {hasGoogleLinked
+                      ? `Đã liên kết với Google ID: ${user?.google_id || user?.googleId}. Bạn có thể đăng nhập nhanh bằng Google Sign-In.`
+                      : "Liên kết với tài khoản Google để đăng nhập nhanh chỉ với một lần nhấp chuột mà không cần mật khẩu."}
+                  </p>
+                </div>
+                {!hasGoogleLinked && (
+                  <div className="mt-3">
+                    <button
+                      type="button"
+                      onClick={() => setShowGoogleModal(true)}
+                      className="flex items-center justify-center gap-2 w-full rounded-lg bg-white border border-slate-300 px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 transition-colors"
+                    >
+                      <img
+                        src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png"
+                        alt="Google"
+                        className="w-4 h-4"
+                      />
+                      <span>Liên kết với tài khoản Google</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Form Thiết lập mật khẩu khi user.password_hash === null */}
+            {!hasPasswordSet && (
+              <div className="mt-6 border-t border-slate-200 pt-6">
+                <h3 className="text-sm font-bold text-slate-800 mb-1">
+                  Thiết lập mật khẩu đăng nhập
+                </h3>
+                <p className="text-xs text-slate-500 mb-4">
+                  Thiết lập mật khẩu để bạn có thể đăng nhập vào hệ thống bằng Email hoặc Mã số sinh viên bên cạnh Google Sign-In.
+                </p>
+
+                <form onSubmit={handleSetupPasswordSubmit} className="max-w-md space-y-4">
+                  <div>
+                    <label className="mb-1.5 block text-xs font-semibold text-slate-700">
+                      Mật khẩu mới
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showSetup ? "text" : "password"}
+                        value={setupPassword}
+                        onChange={(e) => setSetupPassword(e.target.value)}
+                        placeholder="Ít nhất 6 ký tự..."
+                        className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 pr-10 text-xs text-slate-800 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowSetup((p) => !p)}
+                        className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600"
+                      >
+                        {showSetup ? <EyeOff size={16} /> : <Eye size={16} />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="mb-1.5 block text-xs font-semibold text-slate-700">
+                      Xác nhận mật khẩu mới
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showSetupConfirm ? "text" : "password"}
+                        value={setupConfirmPassword}
+                        onChange={(e) => setSetupConfirmPassword(e.target.value)}
+                        placeholder="Nhập lại mật khẩu mới..."
+                        className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 pr-10 text-xs text-slate-800 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowSetupConfirm((p) => !p)}
+                        className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600"
+                      >
+                        {showSetupConfirm ? <EyeOff size={16} /> : <Eye size={16} />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="pt-2">
+                    <button
+                      type="submit"
+                      disabled={isSubmittingPassword}
+                      className="flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-blue-700 disabled:opacity-60 transition-colors"
+                    >
+                      <Lock size={15} />
+                      <span>{isSubmittingPassword ? "Đang lưu..." : "Thiết lập mật khẩu"}</span>
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Tab Đổi mật khẩu */}
+      {activeTab === "password" && (
         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
           <h2 className="mb-1 text-base font-bold text-slate-800">Đổi mật khẩu tài khoản</h2>
           <p className="mb-6 text-xs text-slate-500">
@@ -219,7 +491,10 @@ export default function ProfilePage() {
           {passwordSuccess && (
             <div className="mb-6 flex items-center gap-3 rounded-xl border border-green-200 bg-green-50 p-4 text-xs font-medium text-green-800">
               <CheckCircle2 size={18} className="text-green-600 flex-shrink-0" />
-              <span>Mật khẩu đã được cập nhật thành công! Vui lòng sử dụng mật khẩu mới trong các lần đăng nhập tiếp theo.</span>
+              <span>
+                Mật khẩu đã được cập nhật thành công! Vui lòng sử dụng mật khẩu mới trong các lần đăng
+                nhập tiếp theo.
+              </span>
             </div>
           )}
 
@@ -301,6 +576,93 @@ export default function ProfilePage() {
               </button>
             </div>
           </form>
+        </div>
+      )}
+
+      {/* Popup Modal Chọn tài khoản Google để liên kết */}
+      {showGoogleModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl border border-slate-100">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <img
+                  src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png"
+                  alt="Google"
+                  className="w-5 h-5"
+                />
+                <h3 className="text-base font-bold text-slate-800">Liên kết tài khoản Google</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowGoogleModal(false)}
+                className="text-slate-400 hover:text-slate-600"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <p className="text-xs text-slate-500 mb-4">
+              Chọn tài khoản Google (Google Sign-In) để liên kết với hệ thống Trợ lý học vụ IUH:
+            </p>
+
+            <div className="space-y-2 mb-6">
+              {[
+                {
+                  email: user?.email || "nguyenvana.iuh@gmail.com",
+                  name: user?.fullName || "Nguyễn Văn A",
+                  recommended: true,
+                },
+                {
+                  email: "student.iuh.2026@gmail.com",
+                  name: "IUH Student Google",
+                  recommended: false,
+                },
+              ].map((item) => (
+                <div
+                  key={item.email}
+                  onClick={() => setSelectedGoogleAccount(item.email)}
+                  className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all ${
+                    selectedGoogleAccount === item.email
+                      ? "border-blue-600 bg-blue-50/70"
+                      : "border-slate-200 hover:bg-slate-50"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-xs">
+                      {item.name.charAt(0)}
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-slate-800">{item.name}</p>
+                      <p className="text-[11px] text-slate-500">{item.email}</p>
+                    </div>
+                  </div>
+                  {item.recommended && (
+                    <span className="text-[10px] bg-blue-100 text-blue-700 font-semibold px-2 py-0.5 rounded-full">
+                      Khuyên dùng
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setShowGoogleModal(false)}
+                className="px-4 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50"
+              >
+                Hủy
+              </button>
+              <button
+                type="button"
+                onClick={handleLinkGoogle}
+                disabled={isLinkingGoogle}
+                className="px-4 py-2 rounded-xl bg-blue-600 text-xs font-semibold text-white shadow-sm hover:bg-blue-700 disabled:opacity-60"
+              >
+                {isLinkingGoogle ? "Đang liên kết..." : "Xác nhận liên kết"}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

@@ -1,52 +1,134 @@
-import type { ApiResult, AuthResponse, LoginPayload, RegisterPayload } from "../types";
-import { MOCK_USER } from "../mock/mockData";
-import { delay } from "./utils";
+import type { ApiResult, AuthResponse, LoginPayload, RegisterPayload, User } from "../types";
 
-// ----------------------------------------------------------------------------
-// CONTRACT: keep this function signature identical when swapping to the real
-// backend. Real implementation will just replace the body with:
-//   const res = await fetch(`${API_BASE}/auth/login`, { method: "POST", body: ... })
-//   return res.json();
-// ----------------------------------------------------------------------------
+const TOKEN_KEY = "iuh_portal_ai_token";
 
-export async function login(payload: LoginPayload): Promise<ApiResult<AuthResponse>> {
-  await delay(1200);
+export function getToken(): string | null {
+  return localStorage.getItem(TOKEN_KEY);
+}
 
-  if (!payload.identifier || !payload.password) {
-    return { ok: false, error: { message: "Vui lòng nhập đầy đủ thông tin đăng nhập." } };
+export function setToken(token: string): void {
+  localStorage.setItem(TOKEN_KEY, token);
+}
+
+export function removeToken(): void {
+  localStorage.removeItem(TOKEN_KEY);
+}
+
+const getApiUrl = (endpoint: string): string => {
+  const env = (import.meta as any).env || {};
+  const base = (env.VITE_API_BASE_URL || "http://localhost:8000").replace(/\/+$/, "");
+  if (base.endsWith("/api") && endpoint.startsWith("/api/")) {
+    return `${base}${endpoint.slice(4)}`;
+  }
+  return `${base}${endpoint}`;
+};
+
+async function request<T>(
+  endpoint: string,
+  options: RequestInit = {}
+): Promise<ApiResult<T>> {
+  const url = getApiUrl(endpoint);
+  const token = getToken();
+
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...(options.headers as Record<string, string>),
+  };
+
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
   }
 
-  return {
-    ok: true,
-    data: {
-      user: MOCK_USER,
-      token: "mock_jwt_token_" + Date.now(),
-    },
-  };
+  try {
+    const response = await fetch(url, {
+      ...options,
+      headers,
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || data.ok === false) {
+      return {
+        ok: false,
+        error: {
+          message: data?.error?.message || data?.detail || "Yêu cầu đến máy chủ thất bại.",
+          code: String(response.status),
+        },
+      };
+    }
+
+    return {
+      ok: true,
+      data: data.data !== undefined ? data.data : data,
+    };
+  } catch (error: any) {
+    return {
+      ok: false,
+      error: {
+        message: error?.message || "Không thể kết nối đến máy chủ.",
+      },
+    };
+  }
+}
+
+export async function login(payload: LoginPayload): Promise<ApiResult<AuthResponse>> {
+  const result = await request<AuthResponse>("/api/auth/login", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+
+  if (result.ok && result.data?.token) {
+    setToken(result.data.token);
+  }
+
+  return result;
 }
 
 export async function register(payload: RegisterPayload): Promise<ApiResult<AuthResponse>> {
-  await delay(1500);
+  const result = await request<AuthResponse>("/api/auth/register", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
 
-  if (payload.password !== payload.confirmPassword) {
-    return { ok: false, error: { message: "Mật khẩu xác nhận không khớp." } };
+  if (result.ok && result.data?.token) {
+    setToken(result.data.token);
   }
 
-  return {
-    ok: true,
-    data: {
-      user: { ...MOCK_USER, fullName: payload.fullName, email: payload.identifier },
-      token: "mock_jwt_token_" + Date.now(),
-    },
-  };
+  return result;
 }
 
 export async function logout(): Promise<ApiResult<null>> {
-  await delay(300);
+  removeToken();
   return { ok: true, data: null };
 }
 
-export async function fetchCurrentUser(): Promise<ApiResult<AuthResponse["user"]>> {
-  await delay(500);
-  return { ok: true, data: MOCK_USER };
+export async function fetchCurrentUser(): Promise<ApiResult<User>> {
+  const token = getToken();
+  if (!token) {
+    return {
+      ok: false,
+      error: { message: "Chưa đăng nhập hệ thống." },
+    };
+  }
+
+  return await request<User>("/api/auth/me", {
+    method: "GET",
+  });
+}
+
+export async function linkGoogleAccount(idToken: string): Promise<ApiResult<User>> {
+  return await request<User>("/api/auth/link-google", {
+    method: "POST",
+    body: JSON.stringify({ idToken }),
+  });
+}
+
+export async function setAccountPassword(
+  newPassword: string,
+  confirmPassword: string
+): Promise<ApiResult<null>> {
+  return await request<null>("/api/auth/set-password", {
+    method: "POST",
+    body: JSON.stringify({ newPassword, confirmPassword }),
+  });
 }
