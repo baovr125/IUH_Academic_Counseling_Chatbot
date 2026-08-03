@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "../hooks/useAuth";
 import {
-  User,
+  User as UserIcon,
   Lock,
   Eye,
   EyeOff,
@@ -9,22 +9,48 @@ import {
   AlertCircle,
   Save,
   ShieldCheck,
-  Link,
+  Link as LinkIcon,
   X,
   Key,
   Check,
+  Camera,
 } from "lucide-react";
 
 export default function ProfilePage() {
-  const { user, linkGoogleAccount, setAccountPassword } = useAuth();
+  const { user, updateProfile, linkGoogleAccount, setAccountPassword } = useAuth();
   const [activeTab, setActiveTab] = useState<"info" | "security" | "password">("info");
 
+  // Determine user identity mode
+  const isStudent = user?.role === "student" || Boolean(user?.studentCode);
+
   // Profile Form state
-  const [fullName, setFullName] = useState(user?.fullName || "Nguyễn Văn A");
-  const [department, setDepartment] = useState("Khoa Công nghệ Thông tin");
-  const [major, setMajor] = useState("Kỹ thuật Phần mềm");
-  const [phone, setPhone] = useState("0912 345 678");
+  const [fullName, setFullName] = useState(user?.fullName || "");
+  const [studentCode, setStudentCode] = useState(user?.studentCode || "");
+  const [department, setDepartment] = useState(user?.department || "");
+  const [major, setMajor] = useState(user?.major || "");
+  const [phone, setPhone] = useState(user?.phoneNumber || "");
+  const [avatarUrl, setAvatarUrl] = useState(user?.avatarUrl || "");
   const [profileSuccess, setProfileSuccess] = useState(false);
+  const [profileError, setProfileError] = useState<string | null>(null);
+  const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
+
+  // Avatar Modal state
+  const [showAvatarModal, setShowAvatarModal] = useState(false);
+  const [inputAvatarUrl, setInputAvatarUrl] = useState(user?.avatarUrl || "");
+  const [isUpdatingAvatar, setIsUpdatingAvatar] = useState(false);
+
+  // Sync state if user changes
+  useEffect(() => {
+    if (user) {
+      setFullName(user.fullName || "");
+      setStudentCode(user.studentCode || "");
+      setDepartment(user.department || "");
+      setMajor(user.major || "");
+      setPhone(user.phoneNumber || "");
+      setAvatarUrl(user.avatarUrl || "");
+      setInputAvatarUrl(user.avatarUrl || "");
+    }
+  }, [user]);
 
   // Password Form state (Tab Đổi mật khẩu)
   const [currentPassword, setCurrentPassword] = useState("");
@@ -56,12 +82,50 @@ export default function ProfilePage() {
   const hasGoogleLinked = Boolean(user?.google_id || user?.googleId);
   const hasPasswordSet = Boolean(user?.password_hash || user?.passwordHash);
 
-  const handleProfileSubmit = (e: React.FormEvent) => {
+  // Xử lý gửi Form Cập nhật thông tin cá nhân
+  const handleProfileSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setProfileSuccess(true);
-    setTimeout(() => setProfileSuccess(false), 4000);
+    setProfileError(null);
+    setProfileSuccess(false);
+    setIsUpdatingProfile(true);
+
+    const result = await updateProfile({
+      fullName,
+      phoneNumber: phone,
+      studentCode: studentCode ? studentCode.trim() : undefined,
+      department,
+      major,
+      avatarUrl,
+    });
+
+    setIsUpdatingProfile(false);
+
+    if (!result.ok) {
+      setProfileError(result.message || "Cập nhật thông tin thất bại.");
+    } else {
+      setProfileSuccess(true);
+      setTimeout(() => setProfileSuccess(false), 5000);
+    }
   };
 
+  // Xử lý Cập nhật Avatar
+  const handleAvatarSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsUpdatingAvatar(true);
+    const result = await updateProfile({ avatarUrl: inputAvatarUrl.trim() });
+    setIsUpdatingAvatar(false);
+
+    if (result.ok) {
+      setAvatarUrl(inputAvatarUrl.trim());
+      setShowAvatarModal(false);
+      setProfileSuccess(true);
+      setTimeout(() => setProfileSuccess(false), 5000);
+    } else {
+      setProfileError(result.message || "Cập nhật ảnh đại diện thất bại.");
+    }
+  };
+
+  // Xử lý Đổi mật khẩu
   const handlePasswordSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setPasswordError(null);
@@ -151,25 +215,46 @@ export default function ProfilePage() {
         <div className="relative px-6 pb-6 pt-0">
           <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between">
             <div className="-mt-12 flex items-end gap-4">
-              <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-2xl border-4 border-white bg-blue-600 text-3xl font-bold text-white shadow-md">
-                {user?.avatarUrl ? (
-                  <img src={user.avatarUrl} alt={user.fullName} className="h-full w-full object-cover" />
-                ) : (
-                  <span>{user?.fullName?.charAt(0) ?? "U"}</span>
-                )}
+              {/* Avatar với nút thay ảnh */}
+              <div className="relative group">
+                <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-2xl border-4 border-white bg-blue-600 text-3xl font-bold text-white shadow-md">
+                  {user?.avatarUrl ? (
+                    <img src={user.avatarUrl} alt={user.fullName} className="h-full w-full object-cover" />
+                  ) : (
+                    <span>{user?.fullName?.charAt(0) ?? "U"}</span>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowAvatarModal(true)}
+                  className="absolute inset-0 flex flex-col items-center justify-center rounded-2xl bg-black/50 text-white opacity-0 transition-opacity group-hover:opacity-100 border-4 border-white"
+                  title="Thay đổi ảnh đại diện"
+                >
+                  <Camera size={20} />
+                  <span className="text-[10px] font-semibold mt-0.5">Thay ảnh</span>
+                </button>
               </div>
+
               <div className="mb-2">
-                <h1 className="text-xl font-bold text-slate-800">{fullName}</h1>
-                <p className="text-xs text-slate-500">{user?.email || "nguyenvana@iuh.edu.vn"}</p>
+                <h1 className="text-xl font-bold text-slate-800">{user?.fullName || fullName}</h1>
+                <p className="text-xs text-slate-500">{user?.email || "student@iuh.edu.vn"}</p>
               </div>
             </div>
 
+            {/* Huy hiệu thông minh (Badge) */}
             <div className="mt-4 flex gap-2 sm:mt-0">
-              <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 border border-blue-100">
-                Sinh viên IUH
-              </span>
+              {isStudent ? (
+                <span className="rounded-full bg-blue-50 px-3.5 py-1 text-xs font-semibold text-blue-700 border border-blue-200 shadow-sm flex items-center gap-1.5">
+                  🎓 Sinh viên IUH
+                </span>
+              ) : (
+                <span className="rounded-full bg-slate-100 px-3.5 py-1 text-xs font-semibold text-slate-700 border border-slate-200 shadow-sm flex items-center gap-1.5">
+                  🌐 Người dùng công cộng
+                </span>
+              )}
+
               {user?.studentCode && (
-                <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                <span className="rounded-full bg-slate-100 px-3.5 py-1 text-xs font-semibold text-slate-700 border border-slate-200">
                   MSSV: {user.studentCode}
                 </span>
               )}
@@ -189,7 +274,7 @@ export default function ProfilePage() {
               : "border-transparent text-slate-600 hover:text-slate-800"
           }`}
         >
-          <User size={15} />
+          <UserIcon size={15} />
           <span>Thông tin chung</span>
         </button>
         <button
@@ -233,6 +318,13 @@ export default function ProfilePage() {
             </div>
           )}
 
+          {profileError && (
+            <div className="mb-6 flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 p-4 text-xs font-medium text-red-800">
+              <AlertCircle size={18} className="text-red-600 flex-shrink-0" />
+              <span>{profileError}</span>
+            </div>
+          )}
+
           <form onSubmit={handleProfileSubmit} className="space-y-5">
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
               <div>
@@ -246,22 +338,23 @@ export default function ProfilePage() {
               </div>
 
               <div>
-                <label className="mb-1.5 block text-xs font-semibold text-slate-700">Email trường (IUH)</label>
+                <label className="mb-1.5 block text-xs font-semibold text-slate-700">Email hệ thống</label>
                 <input
                   type="email"
-                  value={user?.email || "nguyenvana@iuh.edu.vn"}
+                  value={user?.email || ""}
                   disabled
                   className="w-full cursor-not-allowed rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs text-slate-500"
                 />
               </div>
 
               <div>
-                <label className="mb-1.5 block text-xs font-semibold text-slate-700">Mã số sinh viên</label>
+                <label className="mb-1.5 block text-xs font-semibold text-slate-700">Mã số sinh viên (MSSV)</label>
                 <input
                   type="text"
-                  value={user?.studentCode || "20045211"}
-                  disabled
-                  className="w-full cursor-not-allowed rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs text-slate-500"
+                  value={studentCode}
+                  onChange={(e) => setStudentCode(e.target.value)}
+                  placeholder="Nhập MSSV nếu là Sinh viên IUH..."
+                  className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-xs text-slate-800 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
                 />
               </div>
 
@@ -271,6 +364,7 @@ export default function ProfilePage() {
                   type="text"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
+                  placeholder="Nhập số điện thoại..."
                   className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-xs text-slate-800 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
                 />
               </div>
@@ -281,6 +375,7 @@ export default function ProfilePage() {
                   type="text"
                   value={department}
                   onChange={(e) => setDepartment(e.target.value)}
+                  placeholder="Ví dụ: Khoa Công nghệ Thông tin..."
                   className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-xs text-slate-800 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
                 />
               </div>
@@ -291,6 +386,7 @@ export default function ProfilePage() {
                   type="text"
                   value={major}
                   onChange={(e) => setMajor(e.target.value)}
+                  placeholder="Ví dụ: Kỹ thuật Phần mềm..."
                   className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-xs text-slate-800 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
                 />
               </div>
@@ -299,10 +395,11 @@ export default function ProfilePage() {
             <div className="flex justify-end pt-2">
               <button
                 type="submit"
-                className="flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-blue-700 transition-colors"
+                disabled={isUpdatingProfile}
+                className="flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-blue-700 disabled:opacity-60 transition-colors"
               >
                 <Save size={15} />
-                <span>Lưu thay đổi</span>
+                <span>{isUpdatingProfile ? "Đang lưu..." : "Lưu thay đổi"}</span>
               </button>
             </div>
           </form>
@@ -369,7 +466,7 @@ export default function ProfilePage() {
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-xs font-semibold text-slate-700 flex items-center gap-2">
-                      <Link size={16} className="text-slate-500" />
+                      <LinkIcon size={16} className="text-slate-500" />
                       Tài khoản Google
                     </span>
                     {hasGoogleLinked ? (
@@ -576,6 +673,76 @@ export default function ProfilePage() {
               </button>
             </div>
           </form>
+        </div>
+      )}
+
+      {/* Popup Modal Thay đổi Ảnh đại diện Avatar */}
+      {showAvatarModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl border border-slate-100">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Camera className="w-5 h-5 text-blue-600" />
+                <h3 className="text-base font-bold text-slate-800">Cập nhật ảnh đại diện</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowAvatarModal(false)}
+                className="text-slate-400 hover:text-slate-600"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleAvatarSubmit} className="space-y-4">
+              <p className="text-xs text-slate-500">
+                Nhập đường dẫn URL ảnh đại diện của bạn (hỗ trợ ảnh Google, Unsplash, Gravatar...):
+              </p>
+
+              <div>
+                <label className="mb-1 block text-xs font-semibold text-slate-700">URL ảnh đại diện</label>
+                <input
+                  type="url"
+                  value={inputAvatarUrl}
+                  onChange={(e) => setInputAvatarUrl(e.target.value)}
+                  placeholder="https://images.unsplash.com/..."
+                  required
+                  className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-xs text-slate-800 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                />
+              </div>
+
+              {inputAvatarUrl && (
+                <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
+                  <span className="text-xs text-slate-500 font-medium">Xem trước:</span>
+                  <img
+                    src={inputAvatarUrl}
+                    alt="Preview"
+                    className="w-10 h-10 rounded-full object-cover border border-slate-300"
+                    onError={(e) => {
+                      (e.target as HTMLElement).style.display = "none";
+                    }}
+                  />
+                </div>
+              )}
+
+              <div className="flex justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowAvatarModal(false)}
+                  className="px-4 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50"
+                >
+                  Hủy
+                </button>
+                <button
+                  type="submit"
+                  disabled={isUpdatingAvatar}
+                  className="px-4 py-2 rounded-xl bg-blue-600 text-xs font-semibold text-white shadow-sm hover:bg-blue-700 disabled:opacity-60"
+                >
+                  {isUpdatingAvatar ? "Đang lưu..." : "Cập nhật ảnh"}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
 

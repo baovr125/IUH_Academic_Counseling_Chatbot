@@ -4,6 +4,7 @@
 -- ====================================================================================
 
 -- 0. XÓA BẢNG VÀ HÀM CŨ TRƯỚC KHI TẠO LẠI (CLEANUP)
+DROP TABLE IF EXISTS password_resets CASCADE;
 DROP TABLE IF EXISTS document_translations CASCADE;
 DROP TABLE IF EXISTS flashcards CASCADE;
 DROP TABLE IF EXISTS flashcard_decks CASCADE;
@@ -40,13 +41,31 @@ CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     full_name VARCHAR(255),
     email VARCHAR(255) UNIQUE NOT NULL,
-    password_hash VARCHAR(255),               -- Null nếu login bằng Google
-    google_id VARCHAR(255) UNIQUE,            -- ID từ hệ thống Google
+    student_code VARCHAR(50) UNIQUE DEFAULT NULL, -- Mã số sinh viên (NULL cho người dùng công cộng)
+    department VARCHAR(150) DEFAULT NULL,         -- Khoa / Viện
+    major VARCHAR(150) DEFAULT NULL,              -- Ngành học
+    phone_number VARCHAR(20) DEFAULT NULL,        -- Số điện thoại liên hệ
+    password_hash VARCHAR(255),                   -- Null nếu login bằng Google
+    google_id VARCHAR(255) UNIQUE,                -- ID từ hệ thống Google
     avatar_url TEXT,
-    role VARCHAR(50) DEFAULT 'student',
+    role VARCHAR(50) DEFAULT 'student',           -- 'student' (Sinh viên IUH) | 'public' (Công cộng)
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE INDEX IF NOT EXISTS idx_users_student_code ON users(student_code);
+
+-- BẢNG: PASSWORD_RESETS (Lưu trữ mã OTP khôi phục mật khẩu)
+CREATE TABLE IF NOT EXISTS password_resets (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    email VARCHAR(255) NOT NULL,
+    otp_code VARCHAR(10) NOT NULL,
+    expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    is_used BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_password_resets_email_otp ON password_resets(email, otp_code);
 
 -- BẢNG 2: DOCUMENTS (Quản lý File/Bài viết gốc từ Crawler hoặc Upload)
 CREATE TABLE documents (

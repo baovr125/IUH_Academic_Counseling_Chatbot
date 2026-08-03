@@ -1,6 +1,11 @@
 import os
 from datetime import datetime, timedelta
 from typing import Optional, Any, Dict
+import bcrypt
+if not hasattr(bcrypt, "__about__"):
+    class _About:
+        __version__ = getattr(bcrypt, "__version__", "4.0.0")
+    bcrypt.__about__ = _About()
 from passlib.context import CryptContext
 from jose import JWTError, jwt
 from fastapi import HTTPException, status, Security, Depends

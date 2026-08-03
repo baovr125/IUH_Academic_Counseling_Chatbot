@@ -48,10 +48,23 @@ async function request<T>(
     const data = await response.json();
 
     if (!response.ok || data.ok === false) {
+      let errorMessage = "Yêu cầu đến máy chủ thất bại.";
+      if (data?.error?.message && typeof data.error.message === "string") {
+        errorMessage = data.error.message;
+      } else if (typeof data?.detail === "string") {
+        errorMessage = data.detail;
+      } else if (Array.isArray(data?.detail)) {
+        errorMessage = data.detail
+          .map((item: any) => (typeof item === "string" ? item : item?.msg || JSON.stringify(item)))
+          .join("; ");
+      } else if (data?.message && typeof data.message === "string") {
+        errorMessage = data.message;
+      }
+
       return {
         ok: false,
         error: {
-          message: data?.error?.message || data?.detail || "Yêu cầu đến máy chủ thất bại.",
+          message: errorMessage,
           code: String(response.status),
         },
       };
@@ -130,5 +143,33 @@ export async function setAccountPassword(
   return await request<null>("/api/auth/set-password", {
     method: "POST",
     body: JSON.stringify({ newPassword, confirmPassword }),
+  });
+}
+
+export async function updateProfile(payload: Partial<User>): Promise<ApiResult<User>> {
+  return await request<User>("/api/auth/profile", {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function forgotPassword(
+  email: string
+): Promise<ApiResult<{ message: string; devOtp?: string }>> {
+  return await request<{ message: string; devOtp?: string }>("/api/auth/forgot-password", {
+    method: "POST",
+    body: JSON.stringify({ email }),
+  });
+}
+
+export async function resetPassword(payload: {
+  email: string;
+  otp: string;
+  newPassword: string;
+  confirmPassword: string;
+}): Promise<ApiResult<null>> {
+  return await request<null>("/api/auth/reset-password", {
+    method: "POST",
+    body: JSON.stringify(payload),
   });
 }

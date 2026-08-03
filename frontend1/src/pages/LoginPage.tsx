@@ -1,88 +1,205 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
-import { Eye, EyeOff } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  X,
+  KeyRound,
+  CheckCircle2,
+  AlertCircle,
+  Sparkles,
+  GraduationCap,
+  Globe,
+} from "lucide-react";
 
-const GoogleIcon = () => (
-  <svg className="h-4 w-4" viewBox="0 0 24 24">
-    <path
-      fill="#4285F4"
-      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-    />
-    <path
-      fill="#34A853"
-      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-    />
-    <path
-      fill="#FBBC05"
-      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
-    />
-    <path
-      fill="#EA4335"
-      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
-    />
-  </svg>
-);
 
 export default function LoginPage() {
-  const { login, register, isLoading, error } = useAuth();
+  const { isAuthenticated, login, register, forgotPassword, resetPassword, isLoading, error } = useAuth();
   const navigate = useNavigate();
 
+  // Tự động điều hướng sang /dashboard nếu đã đăng nhập
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
+
+  // Auth mode & form state
   const [isRegistering, setIsRegistering] = useState(false);
+  const [userType, setUserType] = useState<"student" | "public">("student");
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [studentCode, setStudentCode] = useState("");
+  const [department, setDepartment] = useState("");
+  const [major, setMajor] = useState("");
+
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [clientError, setClientError] = useState<string | null>(null);
+
+  // Forgot Password Modal state
+  const [showForgotModal, setShowForgotModal] = useState(false);
+  const [forgotStep, setForgotStep] = useState<1 | 2>(1);
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotOtp, setForgotOtp] = useState("");
+  const [devOtpHint, setDevOtpHint] = useState<string | null>(null);
+  const [forgotNewPassword, setForgotNewPassword] = useState("");
+  const [forgotConfirmPassword, setForgotConfirmPassword] = useState("");
+  const [showForgotNewPw, setShowForgotNewPw] = useState(false);
+  const [showForgotConfirmPw, setShowForgotConfirmPw] = useState(false);
+  const [forgotMsg, setForgotMsg] = useState<string | null>(null);
+  const [forgotErr, setForgotErr] = useState<string | null>(null);
+  const [isForgotLoading, setIsForgotLoading] = useState(false);
+  const [resetSuccessMsg, setResetSuccessMsg] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setClientError(null);
+
     if (isRegistering) {
+      if (!fullName || fullName.trim().length < 2) {
+        setClientError("Họ và tên phải chứa ít nhất 2 ký tự.");
+        return;
+      }
+      if (userType === "student" && (!studentCode || !studentCode.trim())) {
+        setClientError("Mã số sinh viên (MSSV) là bắt buộc đối với tài khoản Sinh viên.");
+        return;
+      }
+      if (!identifier || !identifier.includes("@")) {
+        setClientError("Vui lòng nhập Email hợp lệ (chứa ký tự '@').");
+        return;
+      }
+      if (!password || password.length < 6) {
+        setClientError("Mật khẩu phải có ít nhất 6 ký tự.");
+        return;
+      }
+      if (password !== confirmPassword) {
+        setClientError("Mật khẩu xác nhận không trùng khớp.");
+        return;
+      }
+
       const ok = await register({
-        fullName,
-        identifier,
+        fullName: fullName.trim(),
+        identifier: identifier.trim(),
         password,
         confirmPassword,
+        userType,
+        studentCode: userType === "student" ? studentCode.trim() : undefined,
+        department: userType === "student" ? department.trim() : undefined,
+        major: userType === "student" ? major.trim() : undefined,
       });
       if (ok) navigate("/dashboard");
     } else {
-      const ok = await login({ identifier, password });
+      if (!identifier || !identifier.trim()) {
+        setClientError("Vui lòng nhập Email hoặc Mã số sinh viên.");
+        return;
+      }
+      if (!password) {
+        setClientError("Vui lòng nhập mật khẩu.");
+        return;
+      }
+
+      const ok = await login({ identifier: identifier.trim(), password });
       if (ok) navigate("/dashboard");
     }
   };
 
-  const handleGoogleLogin = async () => {
-    setIsGoogleLoading(true);
-    const ok = await login({
-      identifier: "nguyenvana.google@iuh.edu.vn",
-      password: "google_oauth_token",
+  // Xử lý gửi OTP Quên mật khẩu (Bước 1)
+  const handleForgotStep1 = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setForgotMsg(null);
+    setForgotErr(null);
+
+    if (!forgotEmail || !forgotEmail.includes("@")) {
+      setForgotErr("Vui lòng nhập Email hợp lệ.");
+      return;
+    }
+
+    setIsForgotLoading(true);
+    const result = await forgotPassword(forgotEmail);
+    setIsForgotLoading(false);
+
+    if (!result.ok) {
+      setForgotErr(result.message || "Không thể gửi yêu cầu mã OTP.");
+    } else {
+      setForgotMsg(result.message || "Đã tạo mã OTP khôi phục mật khẩu.");
+      if (result.devOtp) {
+        setDevOtpHint(result.devOtp);
+      }
+      setForgotStep(2);
+    }
+  };
+
+  // Xử lý xác nhận OTP & Đặt lại mật khẩu (Bước 2)
+  const handleForgotStep2 = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setForgotMsg(null);
+    setForgotErr(null);
+
+    if (!forgotOtp) {
+      setForgotErr("Vui lòng nhập mã OTP 6 số.");
+      return;
+    }
+
+    if (!forgotNewPassword || forgotNewPassword.length < 6) {
+      setForgotErr("Mật khẩu mới phải có ít nhất 6 ký tự.");
+      return;
+    }
+
+    if (forgotNewPassword !== forgotConfirmPassword) {
+      setForgotErr("Mật khẩu xác nhận không khớp.");
+      return;
+    }
+
+    setIsForgotLoading(true);
+    const result = await resetPassword({
+      email: forgotEmail,
+      otp: forgotOtp,
+      newPassword: forgotNewPassword,
+      confirmPassword: forgotConfirmPassword,
     });
-    setIsGoogleLoading(false);
-    if (ok) navigate("/dashboard");
+    setIsForgotLoading(false);
+
+    if (!result.ok) {
+      setForgotErr(result.message || "Xác nhận mã OTP hoặc đổi mật khẩu thất bại.");
+    } else {
+      setShowForgotModal(false);
+      setIdentifier(forgotEmail);
+      setPassword("");
+      setResetSuccessMsg("Đặt lại mật khẩu thành công! Vui lòng đăng nhập bằng mật khẩu mới.");
+      setTimeout(() => setResetSuccessMsg(null), 6000);
+    }
   };
 
   return (
     <div className="flex h-screen w-full">
+      {/* Left side banner */}
       <div className="hidden w-1/2 flex-col justify-between bg-[#152a6e] p-10 text-white lg:flex">
-        <span className="font-semibold">IUH Portal AI</span>
+        <span className="font-semibold text-lg flex items-center gap-2">
+          <Sparkles className="w-5 h-5 text-amber-300" />
+          IUH Portal AI
+        </span>
         <div>
           <h1 className="mb-3 text-3xl font-bold leading-tight">
             Hệ thống Trợ lý Học vụ Thông minh IUH
           </h1>
-          <p className="text-blue-200">
+          <p className="text-blue-200 text-sm leading-relaxed">
             Tra cứu quy chế, dịch thuật tài liệu học thuật trong vài giây. Một giải pháp AI đột phá
-            dành cho cộng đồng IUH.
+            dành cho cộng đồng Trường Đại học Công nghiệp TP.HCM.
           </p>
         </div>
-        <span className="w-fit rounded-full bg-white/10 px-3 py-1 text-xs">
-          Hệ thống sẵn sàng cho HK2 · 2024
+        <span className="w-fit rounded-full bg-white/10 px-3.5 py-1.5 text-xs font-medium">
+          Hệ thống sẵn sàng cho HK2 · 2026
         </span>
       </div>
 
-      <div className="flex w-full items-center justify-center bg-slate-50 p-6 lg:w-1/2">
-        <form onSubmit={handleSubmit} className="w-full max-w-sm rounded-2xl bg-white p-8 shadow-sm">
+      {/* Right side form */}
+      <div className="flex w-full items-center justify-center bg-slate-50 p-6 lg:w-1/2 overflow-y-auto">
+        <form onSubmit={handleSubmit} className="w-full max-w-md rounded-2xl bg-white p-8 shadow-sm my-auto">
+          {/* Tab chuyển đổi Đăng nhập / Đăng ký */}
           <div className="mb-6 flex rounded-xl bg-slate-100 p-1">
             <button
               type="button"
@@ -111,41 +228,128 @@ export default function LoginPage() {
           <h2 className="mb-1 text-xl font-bold text-slate-800">
             {isRegistering ? "Tạo tài khoản mới" : "Chào mừng đến với IUH Portal AI"}
           </h2>
-          <p className="mb-6 text-sm text-slate-500">
+          <p className="mb-5 text-xs text-slate-500">
             {isRegistering
-              ? "Đăng ký tài khoản để trải nghiệm trợ lý AI học vụ"
-              : "Đăng nhập bằng tài khoản được cấp để tiếp tục"}
+              ? "Chọn đối tượng sử dụng và điền đầy đủ thông tin bên dưới"
+              : "Đăng nhập bằng Email hoặc Mã số sinh viên để tiếp tục"}
           </p>
 
-          {isRegistering && (
-            <div className="mb-4">
-              <label className="mb-1 block text-xs font-medium text-slate-600">Họ và tên</label>
-              <input
-                type="text"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                placeholder="Nhập họ và tên của bạn..."
-                required={isRegistering}
-                className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none"
-              />
+          {resetSuccessMsg && (
+            <div className="mb-4 flex items-center gap-2 rounded-xl bg-green-50 border border-green-200 p-3 text-xs text-green-800 font-medium">
+              <CheckCircle2 size={16} className="text-green-600 flex-shrink-0" />
+              <span>{resetSuccessMsg}</span>
             </div>
           )}
 
+          {/* Form Đăng ký 2 chế độ: Student vs Public */}
+          {isRegistering && (
+            <div className="mb-5 space-y-3">
+              <label className="block text-xs font-semibold text-slate-700">
+                Đối tượng sử dụng hệ thống
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setUserType("student")}
+                  className={`flex items-center justify-center gap-2 rounded-xl border p-2.5 text-xs font-semibold transition-all ${
+                    userType === "student"
+                      ? "border-blue-600 bg-blue-50/80 text-blue-700 shadow-sm"
+                      : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                  }`}
+                >
+                  <GraduationCap size={16} />
+                  <span>Sinh viên / GV IUH</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setUserType("public")}
+                  className={`flex items-center justify-center gap-2 rounded-xl border p-2.5 text-xs font-semibold transition-all ${
+                    userType === "public"
+                      ? "border-blue-600 bg-blue-50/80 text-blue-700 shadow-sm"
+                      : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                  }`}
+                >
+                  <Globe size={16} />
+                  <span>Người dùng công cộng</span>
+                </button>
+              </div>
+
+              {/* Các ô thông tin theo chế độ */}
+              <div>
+                <label className="mb-1 block text-xs font-medium text-slate-600">Họ và tên</label>
+                <input
+                  type="text"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  placeholder="Nhập họ và tên của bạn..."
+                  required={isRegistering}
+                  className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs focus:border-blue-400 focus:outline-none"
+                />
+              </div>
+
+              {/* Nếu là sinh viên: Hiện 3 ô học vụ */}
+              {userType === "student" && (
+                <>
+                  <div>
+                    <label className="mb-1 block text-xs font-medium text-slate-600">
+                      Mã số sinh viên (MSSV) <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={studentCode}
+                      onChange={(e) => setStudentCode(e.target.value)}
+                      placeholder="Ví dụ: 20045211..."
+                      required={userType === "student"}
+                      className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs focus:border-blue-400 focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-1 block text-xs font-medium text-slate-600">Khoa / Viện</label>
+                    <input
+                      type="text"
+                      value={department}
+                      onChange={(e) => setDepartment(e.target.value)}
+                      placeholder="Ví dụ: Khoa Công nghệ Thông tin..."
+                      className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs focus:border-blue-400 focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-1 block text-xs font-medium text-slate-600">Ngành học</label>
+                    <input
+                      type="text"
+                      value={major}
+                      onChange={(e) => setMajor(e.target.value)}
+                      placeholder="Ví dụ: Kỹ thuật Phần mềm..."
+                      className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs focus:border-blue-400 focus:outline-none"
+                    />
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+
+          {/* Ô nhập Email hoặc Mã số */}
           <div className="mb-4">
             <label className="mb-1 block text-xs font-medium text-slate-600">
-              Mã số sinh viên hoặc Email
+              {isRegistering
+                ? "Email đăng ký"
+                : "Mã số sinh viên hoặc Email đăng nhập"}
             </label>
             <input
               type="text"
               value={identifier}
               onChange={(e) => setIdentifier(e.target.value)}
-              placeholder="Nhập mã số hoặc email..."
+              placeholder={isRegistering ? "nhapemail@iuh.edu.vn..." : "Nhập mã số hoặc email..."}
               required
-              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none"
+              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs focus:border-blue-400 focus:outline-none"
             />
           </div>
 
-          <div className="mb-4">
+          {/* Ô nhập Mật khẩu */}
+          <div className="mb-3">
             <label className="mb-1 block text-xs font-medium text-slate-600">Mật khẩu</label>
             <div className="relative">
               <input
@@ -154,18 +358,39 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 required
-                className="w-full rounded-lg border border-slate-200 px-3 py-2 pr-9 text-sm focus:border-blue-400 focus:outline-none"
+                className="w-full rounded-lg border border-slate-200 px-3 py-2 pr-9 text-xs focus:border-blue-400 focus:outline-none"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword((prev) => !prev)}
-                className="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-600"
+                className="absolute right-2.5 top-2 text-slate-400 hover:text-slate-600"
               >
-                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
               </button>
             </div>
+
+            {/* Nút Quên mật khẩu? (chỉ hiện khi Đăng nhập) */}
+            {!isRegistering && (
+              <div className="mt-1 text-right">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowForgotModal(true);
+                    setForgotStep(1);
+                    setForgotEmail(identifier.includes("@") ? identifier : "");
+                    setForgotMsg(null);
+                    setForgotErr(null);
+                    setDevOtpHint(null);
+                  }}
+                  className="text-[11px] font-semibold text-blue-600 hover:underline"
+                >
+                  Quên mật khẩu?
+                </button>
+              </div>
+            )}
           </div>
 
+          {/* Ô nhập Xác nhận mật khẩu (khi Đăng ký) */}
           {isRegistering && (
             <div className="mb-4">
               <label className="mb-1 block text-xs font-medium text-slate-600">
@@ -178,25 +403,34 @@ export default function LoginPage() {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="••••••••"
                   required={isRegistering}
-                  className="w-full rounded-lg border border-slate-200 px-3 py-2 pr-9 text-sm focus:border-blue-400 focus:outline-none"
+                  className="w-full rounded-lg border border-slate-200 px-3 py-2 pr-9 text-xs focus:border-blue-400 focus:outline-none"
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword((prev) => !prev)}
-                  className="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-600"
+                  className="absolute right-2.5 top-2 text-slate-400 hover:text-slate-600"
                 >
-                  {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  {showConfirmPassword ? <EyeOff size={15} /> : <Eye size={15} />}
                 </button>
               </div>
             </div>
           )}
 
-          {error && <p className="mb-3 text-xs text-red-600">{error}</p>}
+          {(clientError || error) && (
+            <div className="mb-4 flex items-center gap-2 rounded-xl bg-red-50 border border-red-200 p-3 text-xs text-red-800 font-medium">
+              <AlertCircle size={16} className="text-red-600 flex-shrink-0" />
+              <span>
+                {typeof (clientError || error) === "string"
+                  ? (clientError || error)
+                  : JSON.stringify(clientError || error)}
+              </span>
+            </div>
+          )}
 
           <button
             type="submit"
-            disabled={isLoading || isGoogleLoading}
-            className="mb-4 w-full rounded-lg bg-blue-700 py-2.5 text-sm font-medium text-white hover:bg-blue-800 disabled:opacity-60 transition-colors shadow-sm"
+            disabled={isLoading}
+            className="mb-4 w-full rounded-lg bg-blue-700 py-2.5 text-xs font-semibold text-white hover:bg-blue-800 disabled:opacity-60 transition-colors shadow-sm"
           >
             {isLoading
               ? isRegistering
@@ -205,24 +439,6 @@ export default function LoginPage() {
               : isRegistering
               ? "Đăng ký tài khoản"
               : "Đăng nhập"}
-          </button>
-
-          <div className="my-4 flex items-center gap-2 text-[11px] uppercase text-slate-400">
-            <div className="h-px flex-1 bg-slate-200" /> Hoặc <div className="h-px flex-1 bg-slate-200" />
-          </div>
-
-          <button
-            type="button"
-            onClick={handleGoogleLogin}
-            disabled={isLoading || isGoogleLoading}
-            className="flex w-full items-center justify-center gap-2.5 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-50 disabled:opacity-60 transition-colors"
-          >
-            <GoogleIcon />
-            <span>
-              {isGoogleLoading
-                ? "Đang kết nối Google..."
-                : "Đăng nhập bằng tài khoản Google"}
-            </span>
           </button>
 
           <div className="mt-6 text-center text-xs text-slate-500">
@@ -252,7 +468,177 @@ export default function LoginPage() {
           </div>
         </form>
       </div>
+
+      {/* Modal Quên Mật Khẩu (2 bước) */}
+      {showForgotModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl border border-slate-100 relative">
+            <button
+              type="button"
+              onClick={() => setShowForgotModal(false)}
+              className="absolute right-4 top-4 text-slate-400 hover:text-slate-600"
+            >
+              <X size={18} />
+            </button>
+
+            <div className="flex items-center gap-2 mb-2">
+              <KeyRound className="w-5 h-5 text-blue-600" />
+              <h3 className="text-base font-bold text-slate-800">
+                {forgotStep === 1 ? "Khôi phục mật khẩu (Bước 1/2)" : "Nhập mã OTP & Đặt lại mật khẩu (Bước 2/2)"}
+              </h3>
+            </div>
+
+            {forgotErr && (
+              <div className="mb-4 flex items-center gap-2 rounded-xl bg-red-50 border border-red-200 p-3 text-xs text-red-800 font-medium">
+                <AlertCircle size={16} className="text-red-600 flex-shrink-0" />
+                <span>{forgotErr}</span>
+              </div>
+            )}
+
+            {forgotMsg && (
+              <div className="mb-4 flex items-center gap-2 rounded-xl bg-green-50 border border-green-200 p-3 text-xs text-green-800 font-medium">
+                <CheckCircle2 size={16} className="text-green-600 flex-shrink-0" />
+                <span>{forgotMsg}</span>
+              </div>
+            )}
+
+            {/* Bước 1: Nhập Email */}
+            {forgotStep === 1 ? (
+              <form onSubmit={handleForgotStep1} className="space-y-4">
+                <p className="text-xs text-slate-500">
+                  Nhập địa chỉ Email đăng ký tài khoản của bạn. Hệ thống sẽ tạo mã OTP xác minh khôi phục mật khẩu.
+                </p>
+
+                <div>
+                  <label className="mb-1 block text-xs font-semibold text-slate-700">Email khôi phục</label>
+                  <input
+                    type="email"
+                    value={forgotEmail}
+                    onChange={(e) => setForgotEmail(e.target.value)}
+                    placeholder="ví dụ: student@iuh.edu.vn..."
+                    required
+                    className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-xs text-slate-800 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                  />
+                </div>
+
+                <div className="flex justify-end gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowForgotModal(false)}
+                    className="px-4 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50"
+                  >
+                    Hủy
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isForgotLoading}
+                    className="px-4 py-2 rounded-xl bg-blue-600 text-xs font-semibold text-white shadow-sm hover:bg-blue-700 disabled:opacity-60"
+                  >
+                    {isForgotLoading ? "Đang tạo mã OTP..." : "Tiếp tục nhận OTP"}
+                  </button>
+                </div>
+              </form>
+            ) : (
+              /* Bước 2: Nhập OTP + Mật khẩu mới */
+              <form onSubmit={handleForgotStep2} className="space-y-4">
+                <p className="text-xs text-slate-500">
+                  Mã OTP đã được tạo cho email <strong className="text-slate-800">{forgotEmail}</strong>.
+                </p>
+
+                {devOtpHint && (
+                  <div className="rounded-xl border border-blue-200 bg-blue-50 p-3 text-xs font-semibold text-blue-800">
+                    💡 Mã OTP Demo phát triển: <span className="font-mono text-sm tracking-widest bg-white px-2 py-0.5 rounded border border-blue-300 text-blue-900">{devOtpHint}</span>
+                  </div>
+                )}
+
+                <div>
+                  <label className="mb-1 block text-xs font-semibold text-slate-700">
+                    Mã OTP 6 số <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={forgotOtp}
+                    onChange={(e) => setForgotOtp(e.target.value)}
+                    placeholder="Nhập 6 chữ số OTP..."
+                    maxLength={6}
+                    required
+                    className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 font-mono text-center text-sm font-bold tracking-widest text-slate-800 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-xs font-semibold text-slate-700">Mật khẩu mới</label>
+                  <div className="relative">
+                    <input
+                      type={showForgotNewPw ? "text" : "password"}
+                      value={forgotNewPassword}
+                      onChange={(e) => setForgotNewPassword(e.target.value)}
+                      placeholder="Ít nhất 6 ký tự..."
+                      required
+                      className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 pr-9 text-xs text-slate-800 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowForgotNewPw((p) => !p)}
+                      className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600"
+                    >
+                      {showForgotNewPw ? <EyeOff size={15} /> : <Eye size={15} />}
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-xs font-semibold text-slate-700">Xác nhận mật khẩu mới</label>
+                  <div className="relative">
+                    <input
+                      type={showForgotConfirmPw ? "text" : "password"}
+                      value={forgotConfirmPassword}
+                      onChange={(e) => setForgotConfirmPassword(e.target.value)}
+                      placeholder="Nhập lại mật khẩu..."
+                      required
+                      className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 pr-9 text-xs text-slate-800 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowForgotConfirmPw((p) => !p)}
+                      className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600"
+                    >
+                      {showForgotConfirmPw ? <EyeOff size={15} /> : <Eye size={15} />}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex justify-between items-center pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setForgotStep(1)}
+                    className="text-xs font-semibold text-blue-600 hover:underline"
+                  >
+                    ← Quay lại nhập Email
+                  </button>
+
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setShowForgotModal(false)}
+                      className="px-4 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50"
+                    >
+                      Hủy
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={isForgotLoading}
+                      className="px-4 py-2 rounded-xl bg-blue-600 text-xs font-semibold text-white shadow-sm hover:bg-blue-700 disabled:opacity-60"
+                    >
+                      {isForgotLoading ? "Đang xử lý..." : "Đặt lại mật khẩu"}
+                    </button>
+                  </div>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
-

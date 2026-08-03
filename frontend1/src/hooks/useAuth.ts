@@ -12,6 +12,9 @@ interface AuthContextValue {
   logout: () => Promise<void>;
   linkGoogleAccount: (idToken: string) => Promise<{ ok: boolean; message?: string; user?: User }>;
   setAccountPassword: (newPassword: string, confirmPassword: string) => Promise<{ ok: boolean; message?: string }>;
+  updateProfile: (payload: Partial<User>) => Promise<{ ok: boolean; message?: string; user?: User }>;
+  forgotPassword: (email: string) => Promise<{ ok: boolean; message?: string; devOtp?: string }>;
+  resetPassword: (payload: { email: string; otp: string; newPassword: string; confirmPassword: string }) => Promise<{ ok: boolean; message?: string }>;
   updateUser: (user: User) => void;
 }
 
@@ -113,6 +116,55 @@ export function useAuthState(): AuthContextValue {
     return { ok: true };
   }, []);
 
+  const updateProfile = useCallback(async (payload: Partial<User>) => {
+    setIsLoading(true);
+    setError(null);
+    const result = await authService.updateProfile(payload);
+    setIsLoading(false);
+
+    if (!result.ok) {
+      const msg = result.error.message;
+      setError(msg);
+      return { ok: false, message: msg };
+    }
+
+    setUser(result.data);
+    return { ok: true, user: result.data };
+  }, []);
+
+  const forgotPassword = useCallback(async (email: string) => {
+    setIsLoading(true);
+    setError(null);
+    const result = await authService.forgotPassword(email);
+    setIsLoading(false);
+
+    if (!result.ok) {
+      const msg = result.error.message;
+      setError(msg);
+      return { ok: false, message: msg };
+    }
+
+    return { ok: true, message: result.data.message, devOtp: result.data.devOtp };
+  }, []);
+
+  const resetPassword = useCallback(
+    async (payload: { email: string; otp: string; newPassword: string; confirmPassword: string }) => {
+      setIsLoading(true);
+      setError(null);
+      const result = await authService.resetPassword(payload);
+      setIsLoading(false);
+
+      if (!result.ok) {
+        const msg = result.error.message;
+        setError(msg);
+        return { ok: false, message: msg };
+      }
+
+      return { ok: true };
+    },
+    []
+  );
+
   const updateUser = useCallback((updated: User) => {
     setUser(updated);
   }, []);
@@ -128,9 +180,25 @@ export function useAuthState(): AuthContextValue {
       logout,
       linkGoogleAccount,
       setAccountPassword,
+      updateProfile,
+      forgotPassword,
+      resetPassword,
       updateUser,
     }),
-    [user, isLoading, error, login, register, logout, linkGoogleAccount, setAccountPassword, updateUser]
+    [
+      user,
+      isLoading,
+      error,
+      login,
+      register,
+      logout,
+      linkGoogleAccount,
+      setAccountPassword,
+      updateProfile,
+      forgotPassword,
+      resetPassword,
+      updateUser,
+    ]
   );
 }
 

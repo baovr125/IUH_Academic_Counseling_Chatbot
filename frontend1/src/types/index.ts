@@ -7,13 +7,16 @@
 
 // ---- Auth ------------------------------------------------------------------
 
-export type UserRole = "student" | "parent" | "highschool" | "guest";
+export type UserRole = "student" | "public" | "parent" | "highschool" | "guest" | string;
 
 export interface User {
   id: string;
   fullName: string;
   email: string;
   studentCode?: string;
+  department?: string;
+  major?: string;
+  phoneNumber?: string;
   role: UserRole;
   avatarUrl?: string;
   google_id?: string | null;
@@ -33,6 +36,10 @@ export interface RegisterPayload {
   identifier: string;
   password: string;
   confirmPassword: string;
+  userType?: "student" | "public" | string;
+  studentCode?: string;
+  department?: string;
+  major?: string;
 }
 
 export interface AuthResponse {
