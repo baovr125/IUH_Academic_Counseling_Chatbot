@@ -37,8 +37,8 @@ Settings.embed_model = HuggingFaceEmbedding(
 # 2. KẾT NỐI CHROMADB & NẠP DỮ LIỆU BAN ĐẦU
 # =====================================================================
 print("-> Đang kết nối tới ChromaDB...")
-DB_DIR = "/kaggle/working/chatbox_IUH/chroma_db"
-JSON_DIR = "/kaggle/working/chatbox_IUH/data_json/json_documents"
+DB_DIR = os.getenv("CHROMA_DB_DIR", "./data/chroma_db")
+JSON_DIR = os.getenv("DATA_JSON_DIR", "./data/json_documents")
 
 db = chromadb.PersistentClient(path=DB_DIR)
 chroma_collection = db.get_or_create_collection("camnang_iuh")

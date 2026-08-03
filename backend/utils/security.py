@@ -2,20 +2,13 @@ import os
 from datetime import datetime, timedelta
 from typing import Optional, Any, Dict
 import bcrypt
-if not hasattr(bcrypt, "__about__"):
-    class _About:
-        __version__ = getattr(bcrypt, "__version__", "4.0.0")
-    bcrypt.__about__ = _About()
-from passlib.context import CryptContext
 from jose import JWTError, jwt
 from fastapi import HTTPException, status, Security, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 # =====================================================================
-# CẤU HÌNH PASSLIB BCRYPT & JOSE JWT
+# CẤU HÌNH JOSE JWT & BCRYPT
 # =====================================================================
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
 SECRET_KEY = os.getenv("JWT_SECRET_KEY", "iuh_portal_ai_secret_key_2026_super_secure_default")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "10080")) # 7 ngày
@@ -26,7 +19,9 @@ optional_security_scheme = HTTPBearer(auto_error=False)
 
 def hash_password(password: str) -> str:
     """Mã hóa mật khẩu sử dụng Bcrypt."""
-    return pwd_context.hash(password)
+    pwd_bytes = password.encode("utf-8")[:72]
+    salt = bcrypt.gensalt()
+    return bcrypt.hashpw(pwd_bytes, salt).decode("utf-8")
 
 
 def verify_password(plain_password: str, hashed_password: Optional[str]) -> bool:
@@ -34,7 +29,9 @@ def verify_password(plain_password: str, hashed_password: Optional[str]) -> bool
     if not hashed_password:
         return False
     try:
-        return pwd_context.verify(plain_password, hashed_password)
+        pwd_bytes = plain_password.encode("utf-8")[:72]
+        hash_bytes = hashed_password.encode("utf-8")
+        return bcrypt.checkpw(pwd_bytes, hash_bytes)
     except Exception:
         return False
 

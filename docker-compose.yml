@@ -1,0 +1,40 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: iuh_chatbot_backend
+    restart: always
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_KEY=${SUPABASE_KEY}
+      - JWT_SECRET=${JWT_SECRET}
+      - ALGORITHM=${ALGORITHM}
+      - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES}
+      - CHROMA_DB_DIR=${CHROMA_DB_DIR:-./data/chroma_db}
+      - DATA_JSON_DIR=${DATA_JSON_DIR:-./data/json_documents}
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://localhost:11434}
+    networks:
+      - iuh-network
+
+  frontend:
+    build:
+      context: ./frontend1
+      dockerfile: Dockerfile
+    container_name: iuh_chatbot_frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - iuh-network
+
+networks:
+  iuh-network:
+    driver: bridge
