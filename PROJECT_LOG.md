@@ -30,6 +30,7 @@ Hệ thống Trợ lý Học vụ Thông minh IUH tích hợp RAG 4 Giai đoạn
 - **Soft Delete Bảo Lưu CSDL**: Khi xóa chat (`DELETE /api/chat/sessions/{id}`), backend cập nhật `is_deleted = true`. Cuộc trò chuyện ẩn khỏi sidebar người dùng nhưng dữ liệu được **bảo lưu 100% trong PostgreSQL** cho RAG.
 - **Tự Động Lưu Tiêu Đề (`onBlur`)**: Nhập tiêu đề mới và click ra ngoài (`onBlur`) hoặc ấn `Enter` để lưu ngay lập tức.
 - **Modal Pop-up Cảnh Báo Xóa**: Bấm icon Xóa (🗑️ Trash) mở cửa sổ Pop-up xác nhận trước khi thực hiện soft delete.
+- **Cố Định Tiêu Đề Ban Đầu (Preserve Chat Title)**: Sửa hàm `save_user_msg_to_db` trong `backend/app/routers/chat.py`. Tiêu đề chỉ tự động tạo 1 lần duy nhất ở tin nhắn đầu tiên; các tin nhắn sau chỉ cập nhật `updated_at`, giữ nguyên tiêu đề ban đầu (hoặc tiêu đề người dùng đã sửa).
 
 ---
 
@@ -41,4 +42,4 @@ Hệ thống Trợ lý Học vụ Thông minh IUH tích hợp RAG 4 Giai đoạn
 | **6-8** | Gemini API & Persistence | Khắc phục trễ stream Gemini 2.5, sửa lỗi 400 INVALID_ARGUMENT, chuẩn hóa UUID v5 lưu PostgreSQL. |
 | **9-11** | Robustness & Performance | Khắc phục mất history khi switch tab (`finally:` block), preload ML models ở lifespan, failover tự động lỗi 503 trong 0.05s. |
 | **12-14** | Auth & Session Sync | Sửa Pydantic schema `ApiResult`, phân vùng session theo User ID, thêm header Auth Bearer token cho SSE stream. |
-| **15-16** | UI/UX Rename & Soft Delete | Thêm cột `is_deleted` bảo lưu CSDL, đổi tên tự động lưu `onBlur`, tạo Pop-up modal xác nhận xóa. |
+| **15-17** | UI/UX & Title Preservation | Thêm cột `is_deleted` bảo lưu CSDL, đổi tên `onBlur`, Pop-up modal xác nhận xóa, giữ nguyên tiêu đề ban đầu không ghi đè. |

@@ -11,7 +11,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 # =====================================================================
 SECRET_KEY = os.getenv("JWT_SECRET_KEY", "iuh_portal_ai_secret_key_2026_super_secure_default")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "10080")) # 7 ngày
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
 
 security_scheme = HTTPBearer(auto_error=True)
 optional_security_scheme = HTTPBearer(auto_error=False)

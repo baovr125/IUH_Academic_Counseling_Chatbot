@@ -235,20 +235,29 @@ def get_session_history_from_db(session_id: str) -> list:
     return session_memory.get(clean_id, [])
 
 def save_user_msg_to_db(session_id: str, user_content: str, title: str, user_id: Optional[str] = None) -> str:
-    """Ensures conversation exists and saves user message immediately to PostgreSQL."""
+    """Ensures conversation exists (setting initial title once) and saves user message immediately to PostgreSQL."""
     clean_id = ensure_uuid(session_id)
     supabase = get_supabase()
     if supabase:
         try:
-            conv_payload = {
-                "id": clean_id,
-                "title": title[:50],
-                "updated_at": datetime.now(timezone.utc).isoformat()
-            }
-            if user_id:
-                conv_payload["user_id"] = user_id
-
-            supabase.table("conversations").upsert(conv_payload).execute()
+            # Check if conversation already exists in DB
+            existing_res = supabase.table("conversations").select("id, title").eq("id", clean_id).execute()
+            if existing_res.data and len(existing_res.data) > 0:
+                # Existing conversation: only update timestamp, preserve original title
+                update_payload = {"updated_at": datetime.now(timezone.utc).isoformat()}
+                if user_id:
+                    update_payload["user_id"] = user_id
+                supabase.table("conversations").update(update_payload).eq("id", clean_id).execute()
+            else:
+                # New conversation: set initial title from first user query
+                conv_payload = {
+                    "id": clean_id,
+                    "title": title[:50] or "Cuộc trò chuyện mới",
+                    "updated_at": datetime.now(timezone.utc).isoformat()
+                }
+                if user_id:
+                    conv_payload["user_id"] = user_id
+                supabase.table("conversations").insert(conv_payload).execute()
         except Exception:
             pass
 

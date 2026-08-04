@@ -6,6 +6,7 @@ import type {
   SendMessageResponse,
 } from "../types";
 import { MOCK_CHAT_SESSIONS } from "../mock/mockData";
+import { getToken } from "./authService";
 import { delay, generateId } from "./utils";
 
 const getApiUrl = (endpoint: string): string => {
@@ -22,7 +23,7 @@ const getApiUrl = (endpoint: string): string => {
 let sessionsStore: ChatSession[] = JSON.parse(JSON.stringify(MOCK_CHAT_SESSIONS));
 
 function getAuthHeaders(): Record<string, string> {
-  const token = localStorage.getItem("token") || localStorage.getItem("auth_token") || "mock_dev_test_token_2026";
+  const token = getToken() || localStorage.getItem("token") || localStorage.getItem("auth_token") || "mock_dev_test_token_2026";
   return {
     "Content-Type": "application/json",
     "Authorization": `Bearer ${token}`

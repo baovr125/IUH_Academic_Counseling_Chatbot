@@ -181,7 +181,7 @@ export function ChatHistoryPanel({
               <div>
                 <h3 className="text-base font-semibold text-slate-800">Xác nhận xóa cuộc trò chuyện</h3>
                 <p className="mt-1 text-xs text-slate-500">
-                  Bạn có chắc chắn muốn xóa cuộc trò chuyện <strong className="text-slate-700">"{deletingTarget.title}"</strong> khỏi giao diện?
+                  Bạn có chắc chắn muốn xóa cuộc trò chuyện <strong className="text-slate-700">"{deletingTarget.title}"</strong> không?
                 </p>
               </div>
             </div>
