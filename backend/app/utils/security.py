@@ -1,5 +1,5 @@
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional, Any, Dict
 import bcrypt
 from jose import JWTError, jwt
@@ -11,7 +11,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 # =====================================================================
 SECRET_KEY = os.getenv("JWT_SECRET_KEY", "iuh_portal_ai_secret_key_2026_super_secure_default")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "180"))
 
 security_scheme = HTTPBearer(auto_error=True)
 optional_security_scheme = HTTPBearer(auto_error=False)
@@ -40,18 +40,18 @@ def create_access_token(data: Dict[str, Any], expires_delta: Optional[timedelta]
     """Tạo JWT Access Token."""
     to_encode = data.copy()
     if expires_delta:
-        expire = datetime.utcnow() + expires_delta
+        expire = datetime.now(timezone.utc) + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     
-    to_encode.update({"exp": expire, "iat": datetime.utcnow()})
+    to_encode.update({"exp": expire, "iat": datetime.now(timezone.utc)})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
 
 def verify_access_token(token: str) -> Dict[str, Any]:
     """Giải mã và xác thực JWT Token (hỗ trợ Mock/Test token cho môi trường dev)."""
-    if token.startswith("mock_") or token.startswith("test_") or token.startswith("dev_"):
+    if os.getenv("ENVIRONMENT", "production").lower() in ("development", "dev", "test") and (token.startswith("mock_") or token.startswith("test_") or token.startswith("dev_")):
         return {
             "sub": "00000000-0000-0000-0000-000000000001",
             "email": "test_student@iuh.edu.vn",

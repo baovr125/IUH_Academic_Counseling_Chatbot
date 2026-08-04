@@ -1,14 +1,16 @@
+import os
 import hashlib
 import random
 import uuid
-from datetime import datetime, timedelta
-from typing import Dict, Any
+from datetime import datetime, timezone, timedelta
+from typing import Dict, Any, Optional
+
 import requests
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
-from database import User, PasswordReset, get_db
-from schemas.auth_schema import (
+from database import User, PasswordReset
+from app.schemas.auth import (
     RegisterRequest,
     LoginRequest,
     LinkGoogleRequest,
@@ -16,22 +18,21 @@ from schemas.auth_schema import (
     UpdateProfileRequest,
     ForgotPasswordRequest,
     ResetPasswordRequest,
-    ApiResult,
 )
-from utils.security import (
+from app.utils.security import (
     hash_password,
     verify_password,
     create_access_token,
-    get_current_user_id,
 )
-
-router = APIRouter(prefix="/api/auth", tags=["Authentication & Account Linking"])
 
 
 def verify_google_id_token(id_token: str) -> Dict[str, Any]:
     """
     Xác thực Google ID Token với Google API hoặc fallback chế độ Demo/Development.
     """
+    env_mode = os.getenv("ENVIRONMENT", "production").lower()
+    is_dev = env_mode in ("development", "dev", "test")
+
     try:
         if (
             not id_token.startswith("mock_")
@@ -50,29 +51,29 @@ def verify_google_id_token(id_token: str) -> Dict[str, Any]:
     except Exception:
         pass
 
-    # Fallback cho môi trường phát triển (Dev/Demo) khi dùng mock token
-    token_str = (
-        id_token.replace("mock_", "")
-        .replace("test_", "")
-        .replace("google_id_token_", "")
+    if is_dev or id_token.startswith("mock_") or id_token.startswith("test_") or id_token.startswith("google_id_token_"):
+        token_str = (
+            id_token.replace("mock_", "")
+            .replace("test_", "")
+            .replace("google_id_token_", "")
+        )
+        mock_sub = f"gg_{hashlib.md5(token_str.encode('utf-8')).hexdigest()[:16]}"
+        email_val = token_str if "@" in token_str else f"{token_str}@gmail.com"
+        return {
+            "sub": mock_sub,
+            "email": email_val,
+            "name": "Google Linked User",
+            "picture": "https://lh3.googleusercontent.com/a/default-user=s96-c",
+        }
+
+    raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail="Mã xác thực Google ID Token không hợp lệ.",
     )
-    mock_sub = f"gg_{hashlib.md5(token_str.encode('utf-8')).hexdigest()[:16]}"
-    email_val = token_str if "@" in token_str else f"{token_str}@gmail.com"
-    return {
-        "sub": mock_sub,
-        "email": email_val,
-        "name": "Google Linked User",
-        "picture": "https://lh3.googleusercontent.com/a/default-user=s96-c",
-    }
 
 
-@router.post("/register", status_code=status.HTTP_201_CREATED)
-def register_user(payload: RegisterRequest, db: Session = Depends(get_db)):
-    """
-    POST /api/auth/register:
-    - Hỗ trợ 2 chế độ: 'student' (Sinh viên/GV IUH) và 'public' (Người dùng công cộng).
-    - Email và MSSV được chuẩn hóa chữ thường / chữ hoa giúp đăng nhập không phân biệt hoa thường.
-    """
+def register_user_logic(payload: RegisterRequest, db: Session) -> dict:
+    """Hàm xử lý đăng ký tài khoản mới."""
     if payload.password != payload.confirmPassword:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -104,7 +105,6 @@ def register_user(payload: RegisterRequest, db: Session = Depends(get_db)):
             )
         student_code_val = payload.studentCode.strip().upper()
 
-        # Kiểm tra trùng lặp MSSV
         existing_student = (
             db.query(User)
             .filter((User.student_code == student_code_val) | (User.email == student_code_val.lower()))
@@ -120,6 +120,7 @@ def register_user(payload: RegisterRequest, db: Session = Depends(get_db)):
         major_val = payload.major.strip() if payload.major else None
 
     hashed_pw = hash_password(payload.password)
+    now_utc = datetime.now(timezone.utc)
     new_user = User(
         id=uuid.uuid4(),
         full_name=payload.fullName.strip(),
@@ -129,8 +130,8 @@ def register_user(payload: RegisterRequest, db: Session = Depends(get_db)):
         major=major_val,
         password_hash=hashed_pw,
         role=user_role,
-        created_at=datetime.utcnow(),
-        updated_at=datetime.utcnow(),
+        created_at=now_utc,
+        updated_at=now_utc,
     )
     db.add(new_user)
     db.commit()
@@ -153,13 +154,8 @@ def register_user(payload: RegisterRequest, db: Session = Depends(get_db)):
     }
 
 
-@router.post("/login", status_code=status.HTTP_200_OK)
-def login_user(payload: LoginRequest, db: Session = Depends(get_db)):
-    """
-    POST /api/auth/login:
-    - Nhận { identifier, password }.
-    - Xác thực email (case-insensitive) hoặc MSSV (case-insensitive) và mật khẩu bằng bcrypt -> Trả về token & user info.
-    """
+def login_user_logic(payload: LoginRequest, db: Session) -> dict:
+    """Hàm xử lý đăng nhập hệ thống."""
     identifier_clean = payload.identifier.strip()
     user = (
         db.query(User)
@@ -203,15 +199,8 @@ def login_user(payload: LoginRequest, db: Session = Depends(get_db)):
     }
 
 
-@router.get("/me", status_code=status.HTTP_200_OK)
-def get_current_user_profile(
-    current_user_id: str = Depends(get_current_user_id),
-    db: Session = Depends(get_db),
-):
-    """
-    GET /api/auth/me:
-    - Xác thực JWT Token từ header Authorization: Bearer <token>, trả về User hiện tại.
-    """
+def get_user_profile_logic(current_user_id: str, db: Session) -> dict:
+    """Hàm lấy thông tin người dùng hiện tại."""
     user = None
     try:
         user_uuid = uuid.UUID(current_user_id)
@@ -246,18 +235,8 @@ def get_current_user_profile(
     }
 
 
-@router.put("/profile", status_code=status.HTTP_200_OK)
-def update_user_profile(
-    payload: UpdateProfileRequest,
-    current_user_id: str = Depends(get_current_user_id),
-    db: Session = Depends(get_db),
-):
-    """
-    PUT /api/auth/profile (Yêu cầu JWT Token):
-    - Cập nhật các thông tin full_name, phone_number, student_code, department, major, avatar_url.
-    - Kiểm tra trùng lặp MSSV nếu có thay đổi.
-    - Trả về user mới.
-    """
+def update_user_profile_logic(payload: UpdateProfileRequest, current_user_id: str, db: Session) -> dict:
+    """Hàm cập nhật thông tin cá nhân."""
     user = None
     try:
         user_uuid = uuid.UUID(current_user_id)
@@ -300,7 +279,7 @@ def update_user_profile(
         elif not new_code:
             user.student_code = None
 
-    user.updated_at = datetime.utcnow()
+    user.updated_at = datetime.now(timezone.utc)
     db.commit()
     db.refresh(user)
 
@@ -310,14 +289,8 @@ def update_user_profile(
     }
 
 
-@router.post("/forgot-password", status_code=status.HTTP_200_OK)
-def forgot_password(payload: ForgotPasswordRequest, db: Session = Depends(get_db)):
-    """
-    POST /api/auth/forgot-password:
-    - Kiểm tra Email có trong hệ thống không -> Tạo mã OTP 6 số ngẫu nhiên.
-    - Lưu vào bảng password_resets hạn 15 phút.
-    - Trả về { "ok": true, "data": { "message": "Đã tạo mã OTP khôi phục mật khẩu", "devOtp": "<mã_6_số>" } }.
-    """
+def forgot_password_logic(payload: ForgotPasswordRequest, db: Session) -> dict:
+    """Hàm gửi yêu cầu quên mật khẩu (tạo mã OTP 6 số)."""
     email_clean = payload.email.strip()
     user = db.query(User).filter(User.email == email_clean).first()
     if not user:
@@ -327,7 +300,8 @@ def forgot_password(payload: ForgotPasswordRequest, db: Session = Depends(get_db
         )
 
     otp_code = f"{random.randint(100000, 999999):06d}"
-    expires_at = datetime.utcnow() + timedelta(minutes=15)
+    now_utc = datetime.now(timezone.utc)
+    expires_at = now_utc + timedelta(minutes=15)
 
     reset_record = PasswordReset(
         id=uuid.uuid4(),
@@ -335,7 +309,7 @@ def forgot_password(payload: ForgotPasswordRequest, db: Session = Depends(get_db
         otp_code=otp_code,
         expires_at=expires_at,
         is_used=False,
-        created_at=datetime.utcnow(),
+        created_at=now_utc,
     )
     db.add(reset_record)
     db.commit()
@@ -349,13 +323,8 @@ def forgot_password(payload: ForgotPasswordRequest, db: Session = Depends(get_db
     }
 
 
-@router.post("/reset-password", status_code=status.HTTP_200_OK)
-def reset_password(payload: ResetPasswordRequest, db: Session = Depends(get_db)):
-    """
-    POST /api/auth/reset-password:
-    - Kiểm tra mã OTP trong password_resets (đúng email, đúng OTP, expires_at > now(), is_used == False).
-    - Hash mật khẩu mới BCrypt -> Cập nhật password_hash trong users -> Đặt is_used = True cho OTP -> Trả về { "ok": true, "data": null }.
-    """
+def reset_password_logic(payload: ResetPasswordRequest, db: Session) -> dict:
+    """Hàm đặt lại mật khẩu mới bằng OTP."""
     if payload.newPassword != payload.confirmPassword:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -363,7 +332,7 @@ def reset_password(payload: ResetPasswordRequest, db: Session = Depends(get_db))
         )
 
     email_clean = payload.email.strip()
-    now = datetime.utcnow()
+    now_utc = datetime.now(timezone.utc)
 
     reset_record = (
         db.query(PasswordReset)
@@ -371,7 +340,7 @@ def reset_password(payload: ResetPasswordRequest, db: Session = Depends(get_db))
             PasswordReset.email == email_clean,
             PasswordReset.otp_code == payload.otp.strip(),
             PasswordReset.is_used == False,
-            PasswordReset.expires_at > now,
+            PasswordReset.expires_at > now_utc,
         )
         .order_by(PasswordReset.created_at.desc())
         .first()
@@ -391,7 +360,7 @@ def reset_password(payload: ResetPasswordRequest, db: Session = Depends(get_db))
         )
 
     user.password_hash = hash_password(payload.newPassword)
-    user.updated_at = now
+    user.updated_at = now_utc
     reset_record.is_used = True
     db.commit()
 
@@ -401,17 +370,8 @@ def reset_password(payload: ResetPasswordRequest, db: Session = Depends(get_db))
     }
 
 
-@router.post("/link-google", status_code=status.HTTP_200_OK)
-def link_google_account(
-    payload: LinkGoogleRequest,
-    current_user_id: str = Depends(get_current_user_id),
-    db: Session = Depends(get_db),
-):
-    """
-    POST /api/auth/link-google:
-    - Nhận { idToken } từ Google Sign-In của người dùng đang đăng nhập (nhận dạng qua JWT Bearer Token).
-    - Xác thực idToken với Google, cập nhật google_id và avatar_url (nếu chưa có) vào bản ghi users hiện tại.
-    """
+def link_google_account_logic(payload: LinkGoogleRequest, current_user_id: str, db: Session) -> dict:
+    """Hàm liên kết tài khoản Google."""
     user = None
     try:
         user_uuid = uuid.UUID(current_user_id)
@@ -433,7 +393,6 @@ def link_google_account(
             detail="Không thể xác thực Google ID Token.",
         )
 
-    # Kiểm tra google_id đã được liên kết với user khác chưa
     existing_linked = (
         db.query(User)
         .filter(User.google_id == google_id, User.id != user.id)
@@ -450,7 +409,7 @@ def link_google_account(
     if not user.avatar_url and avatar_url:
         user.avatar_url = avatar_url
 
-    user.updated_at = datetime.utcnow()
+    user.updated_at = datetime.now(timezone.utc)
     db.commit()
     db.refresh(user)
 
@@ -460,17 +419,8 @@ def link_google_account(
     }
 
 
-@router.post("/set-password", status_code=status.HTTP_200_OK)
-def set_account_password(
-    payload: SetPasswordRequest,
-    current_user_id: str = Depends(get_current_user_id),
-    db: Session = Depends(get_db),
-):
-    """
-    POST /api/auth/set-password:
-    - Nhận { newPassword, confirmPassword } từ người dùng đang đăng nhập.
-    - Kiểm tra nếu password_hash hiện tại là NULL hoặc cho phép cập nhật mật khẩu -> Hash và lưu password_hash mới.
-    """
+def set_account_password_logic(payload: SetPasswordRequest, current_user_id: str, db: Session) -> dict:
+    """Hàm thiết lập hoặc đổi mật khẩu tài khoản."""
     if payload.newPassword != payload.confirmPassword:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -491,11 +441,10 @@ def set_account_password(
         )
 
     user.password_hash = hash_password(payload.newPassword)
-    user.updated_at = datetime.utcnow()
+    user.updated_at = datetime.now(timezone.utc)
     db.commit()
 
     return {
         "ok": True,
         "data": None,
     }
-

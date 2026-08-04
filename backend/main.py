@@ -4,8 +4,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from database import Base, engine
-from routes.auth import router as auth_router
-from routes.settings import router as settings_router
+from app.routers.auth import router as auth_router
+from app.routers.settings import router as settings_router
 
 import asyncio
 from contextlib import asynccontextmanager
@@ -53,7 +53,6 @@ app.add_middleware(
         "http://localhost:8000",
         "http://127.0.0.1:8000",
     ],
-    allow_origin_regex=".*",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

@@ -104,7 +104,7 @@ def normalize_academic_query(query: str) -> str:
 ACADEMIC_DOMAIN_KEYWORDS = [
     "iuh", "học vụ", "tín chỉ", "học phần", "đăng ký", "học phí", "điểm", "gpa", "bảng điểm",
     "học bổng", "tốt nghiệp", "quy chế", "biểu mẫu", "khoa", "ngành", "lớp", "giảng viên",
-    "chào", "chào bạn", "hello", "hi", "xin chào", "tư vấn", "hỗ trợ", "hỏi", "thời khóa biểu",
+    "chào", "chào bạn", "hello", "hi", "xin chào", "thời khóa biểu",
     "thi", "bảo lưu", "rút môn", "hoãn thi", "xét", "chứng chỉ", "thực tập", "đồ án", "khóa luận"
 ]
 
@@ -118,15 +118,16 @@ def evaluate_domain_relevance(query: str) -> Tuple[bool, Optional[str]]:
 
     lower_query = query.lower()
 
-    if any(k in lower_query for k in ACADEMIC_DOMAIN_KEYWORDS):
-        return True, None
-
+    # Check off-topic triggers FIRST to prevent generic keyword bypass
     OFF_TOPIC_TRIGGERS = [
         "nấu phở", "công thức nấu", "chứng khoán", "coin", "bitcoin", "crypto", "hack game",
         "viết code game", "nấu ăn", "soạn nhạc", "tiểu thuyết"
     ]
     if any(t in lower_query for t in OFF_TOPIC_TRIGGERS):
         return False, OFF_TOPIC_MESSAGE
+
+    if any(k in lower_query for k in ACADEMIC_DOMAIN_KEYWORDS):
+        return True, None
 
     return True, None
 

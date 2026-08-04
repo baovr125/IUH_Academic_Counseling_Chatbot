@@ -1,11 +1,11 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from database import User, UserSetting, get_db
-from schemas.settings_schema import UserSettingsResponse, UpdateSettingsRequest
-from utils.security import get_current_user_id
+from app.schemas.settings import UserSettingsResponse, UpdateSettingsRequest
+from app.utils.security import get_current_user_id
 
 router = APIRouter(prefix="/api/settings", tags=["User Settings"])
 
@@ -40,7 +40,7 @@ def get_user_settings(
     setting = db.query(UserSetting).filter(UserSetting.user_id == user.id).first()
 
     if not setting:
-        # Tự động khởi tạo cài đặt mặc định cho người dùng lần đầu truy cập
+        now_utc = datetime.now(timezone.utc)
         setting = UserSetting(
             id=uuid.uuid4(),
             user_id=user.id,
@@ -48,8 +48,8 @@ def get_user_settings(
             language="vi",
             sound_enabled=True,
             academic_alerts=True,
-            created_at=datetime.utcnow(),
-            updated_at=datetime.utcnow(),
+            created_at=now_utc,
+            updated_at=now_utc,
         )
         db.add(setting)
         db.commit()
@@ -75,6 +75,7 @@ def update_user_settings(
     setting = db.query(UserSetting).filter(UserSetting.user_id == user.id).first()
 
     if not setting:
+        now_utc = datetime.now(timezone.utc)
         setting = UserSetting(
             id=uuid.uuid4(),
             user_id=user.id,
@@ -82,8 +83,8 @@ def update_user_settings(
             language="vi",
             sound_enabled=True,
             academic_alerts=True,
-            created_at=datetime.utcnow(),
-            updated_at=datetime.utcnow(),
+            created_at=now_utc,
+            updated_at=now_utc,
         )
         db.add(setting)
 
@@ -98,7 +99,7 @@ def update_user_settings(
     if payload.academicAlerts is not None:
         setting.academic_alerts = payload.academicAlerts
 
-    setting.updated_at = datetime.utcnow()
+    setting.updated_at = datetime.now(timezone.utc)
     db.commit()
     db.refresh(setting)
 

@@ -19,4 +19,3 @@ class UpdateSettingsRequest(BaseModel):
     language: Optional[Literal["vi", "en"]] = Field(None, description="Ngôn ngữ mới: 'vi' hoặc 'en'")
     soundEnabled: Optional[bool] = Field(None, description="Bật/Tắt âm thanh thông báo")
     academicAlerts: Optional[bool] = Field(None, description="Bật/Tắt thông báo học vụ từ IUH")
-
