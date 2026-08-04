@@ -2,6 +2,8 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
+ENV PYTHONUNBUFFERED=1
+
 # Cài đặt các thư viện hệ thống cần thiết cho C++ build / native extensions
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
