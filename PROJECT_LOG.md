@@ -43,3 +43,5 @@ Hệ thống Trợ lý Học vụ Thông minh IUH tích hợp RAG 4 Giai đoạn
 | **9-11** | Robustness & Performance | Khắc phục mất history khi switch tab (`finally:` block), preload ML models ở lifespan, failover tự động lỗi 503 trong 0.05s. |
 | **12-14** | Auth & Session Sync | Sửa Pydantic schema `ApiResult`, phân vùng session theo User ID, thêm header Auth Bearer token cho SSE stream. |
 | **15-17** | UI/UX & Title Preservation | Thêm cột `is_deleted` bảo lưu CSDL, đổi tên `onBlur`, Pop-up modal xác nhận xóa, giữ nguyên tiêu đề ban đầu không ghi đè. |
+| **18** | Pre-Retrieval Guardrails | Triển khai Stage 0 Guardrails (`backend/app/guardrails/query_filter.py`): Chống Jailbreak & System Prompt Exfiltration (0ms), chuẩn hóa từ viết tắt học vụ (`dkhp`, `gpa`), lọc câu hỏi ngoài phạm vi học vụ, đóng gói XML `<retrieved_context>` chống Indirect Prompt Injection, cập nhật JWT expire 180 phút trong `.env`. |
+

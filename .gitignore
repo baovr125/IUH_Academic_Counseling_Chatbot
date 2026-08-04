@@ -14,3 +14,4 @@ __pycache__/
 
 # skip agent skills
 .agent/
+.plan/
