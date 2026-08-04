@@ -8,16 +8,29 @@ import type {
 import { MOCK_CHAT_SESSIONS } from "../mock/mockData";
 import { delay, generateId } from "./utils";
 
+const getApiUrl = (endpoint: string): string => {
+  const env = (import.meta as any).env || {};
+  const base = (env.VITE_API_BASE_URL !== undefined ? env.VITE_API_BASE_URL : "").replace(/\/+$/, "");
+  if (!base) return endpoint;
+  if (base.endsWith("/api") && endpoint.startsWith("/api/")) {
+    return `${base}${endpoint.slice(4)}`;
+  }
+  return `${base}${endpoint}`;
+};
+
 // In-memory store standing in for a DB table during frontend-only development.
 let sessionsStore: ChatSession[] = JSON.parse(JSON.stringify(MOCK_CHAT_SESSIONS));
 
 export async function fetchSessions(): Promise<ApiResult<ChatSession[]>> {
   try {
-    const res = await fetch(`${API_BASE_URL}/api/chat/sessions`);
-    const result: ApiResult<ChatSession[]> = await res.json();
-    if (result.ok && result.data && result.data.length > 0) {
-      sessionsStore = result.data;
-      return result;
+    const res = await fetch(getApiUrl("/api/chat/sessions"));
+    const contentType = res.headers.get("content-type") || "";
+    if (contentType.includes("application/json")) {
+      const result: ApiResult<ChatSession[]> = await res.json();
+      if (result.ok && result.data && result.data.length > 0) {
+        sessionsStore = result.data;
+        return result;
+      }
     }
   } catch (err) {
     // Fallback to local store if DB is empty or unreachable
@@ -50,7 +63,6 @@ export async function fetchSession(sessionId: string): Promise<ApiResult<ChatSes
  * for a real `fetch` call requires no changes elsewhere.
  * ---------------------------------------------------------------------------
  */
-const API_BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || "http://localhost:8000";
 
 export async function sendMessage(
   payload: SendMessagePayload
@@ -78,7 +90,7 @@ export async function sendMessage(
   session.messages.push(userMessage);
 
   try {
-    const res = await fetch(`${API_BASE_URL}/api/chat/messages`, {
+    const res = await fetch(getApiUrl("/api/chat/messages"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -86,6 +98,14 @@ export async function sendMessage(
         content: payload.content,
       }),
     });
+
+    const contentType = res.headers.get("content-type") || "";
+    if (!contentType.includes("application/json")) {
+      return {
+        ok: false,
+        error: { message: `Lỗi máy chủ (${res.status}): Không thể kết nối Backend API.` },
+      };
+    }
 
     const result: ApiResult<SendMessageResponse> = await res.json();
     if (result.ok && result.data) {
@@ -108,3 +128,4 @@ export async function sendMessage(
     };
   }
 }
+

@@ -12,8 +12,11 @@ try:
 except ImportError:
     chat_router = None
 
-# Khởi tạo bảng CSDL nếu chưa có
-Base.metadata.create_all(bind=engine)
+# Khởi tạo bảng CSDL nếu kết nối thành công (không làm sập server nếu CSDL tạm thời ngắt kết nối)
+try:
+    Base.metadata.create_all(bind=engine)
+except Exception as err:
+    print(f"[WARNING] Chưa thể khởi tạo CSDL lúc bắt đầu server: {err}")
 
 app = FastAPI(
     title="IUH Portal AI - Backend API",
@@ -25,6 +28,8 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
+        "http://localhost",
+        "http://localhost:80",
         "http://localhost:5173",
         "http://127.0.0.1:5173",
         "http://localhost:3000",
@@ -52,6 +57,22 @@ async def custom_http_exception_handler(request: Request, exc: HTTPException):
             "error": {
                 "message": str(exc.detail),
                 "code": str(exc.status_code),
+            },
+        },
+    )
+
+
+from sqlalchemy.exc import OperationalError
+
+@app.exception_handler(OperationalError)
+async def db_operational_exception_handler(request: Request, exc: OperationalError):
+    return JSONResponse(
+        status_code=500,
+        content={
+            "ok": False,
+            "error": {
+                "message": "Không thể kết nối đến cơ sở dữ liệu PostgreSQL/Supabase. Vui lòng kiểm tra mật khẩu & cấu hình DATABASE_URL trong file .env.",
+                "code": "500",
             },
         },
     )

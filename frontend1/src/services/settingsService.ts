@@ -3,7 +3,8 @@ import { getToken } from "./authService";
 
 const getApiUrl = (endpoint: string): string => {
   const env = (import.meta as any).env || {};
-  const base = (env.VITE_API_BASE_URL || "http://localhost:8000").replace(/\/+$/, "");
+  const base = (env.VITE_API_BASE_URL !== undefined ? env.VITE_API_BASE_URL : "").replace(/\/+$/, "");
+  if (!base) return endpoint;
   if (base.endsWith("/api") && endpoint.startsWith("/api/")) {
     return `${base}${endpoint.slice(4)}`;
   }
@@ -32,7 +33,23 @@ async function request<T>(
       headers,
     });
 
-    const data = await response.json();
+    const contentType = response.headers.get("content-type") || "";
+    let data: any;
+
+    if (contentType.includes("application/json")) {
+      data = await response.json();
+    } else {
+      const text = await response.text();
+      return {
+        ok: false,
+        error: {
+          message: response.ok
+            ? "Máy chủ trả về định dạng không phải JSON."
+            : `Lỗi kết nối máy chủ (${response.status}): ${response.statusText || text.slice(0, 80)}`,
+          code: String(response.status),
+        },
+      };
+    }
 
     if (!response.ok || data.ok === false) {
       let errorMessage = "Yêu cầu đến máy chủ thất bại.";

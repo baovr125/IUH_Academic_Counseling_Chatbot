@@ -1,5 +1,6 @@
 import { BrowserRouter } from "react-router-dom";
 import { AuthContext, useAuthState } from "./hooks/useAuth";
+import { SettingsProvider } from "./context/SettingsContext";
 import { AppRouter } from "./router/AppRouter";
 
 export default function App() {
@@ -7,9 +8,12 @@ export default function App() {
 
   return (
     <AuthContext.Provider value={auth}>
-      <BrowserRouter>
-        <AppRouter />
-      </BrowserRouter>
+      <SettingsProvider>
+        <BrowserRouter>
+          <AppRouter />
+        </BrowserRouter>
+      </SettingsProvider>
     </AuthContext.Provider>
   );
 }
+

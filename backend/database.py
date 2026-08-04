@@ -2,49 +2,100 @@ import os
 import uuid
 from datetime import datetime
 from dotenv import load_dotenv
-from sqlalchemy import Column, String, Text, DateTime, Boolean, ForeignKey, create_engine
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Column, String, Text, DateTime, Boolean, ForeignKey, create_engine, TypeDecorator, CHAR
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 
 load_dotenv()
+
+
+class GUID(TypeDecorator):
+    """
+    Platform-independent GUID type.
+    Uses PostgreSQL's UUID type when on Postgres, otherwise uses CHAR(36) for SQLite compatibility.
+    """
+    impl = CHAR
+    cache_ok = True
+
+    def load_dialect_impl(self, dialect):
+        if dialect.name == "postgresql":
+            return dialect.type_descriptor(PG_UUID(as_uuid=True))
+        else:
+            return dialect.type_descriptor(CHAR(36))
+
+    def process_bind_param(self, value, dialect):
+        if value is None:
+            return value
+        if not isinstance(value, uuid.UUID):
+            try:
+                value = uuid.UUID(str(value))
+            except (ValueError, TypeError, AttributeError):
+                return str(value)
+        if dialect.name == "postgresql":
+            return value
+        else:
+            return str(value)
+
+    def process_result_value(self, value, dialect):
+        if value is None:
+            return value
+        if isinstance(value, uuid.UUID):
+            return value
+        try:
+            return uuid.UUID(str(value))
+        except (ValueError, TypeError):
+            return value
+
 
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
     "postgresql://postgres.rsvwbkuqzksqfybvcwvl:Khoa%3Biam2026%40@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres"
 )
 
-# Chuyển đổi postgres:// thành postgresql:// cho tương thích với SQLAlchemy 2.x
 if DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
-engine = create_engine(
-    DATABASE_URL,
-    pool_pre_ping=True,
-    pool_size=10,
-    max_overflow=20,
-)
 
+def init_engine():
+    if "sqlite" in DATABASE_URL:
+        return create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+
+    try:
+        eng = create_engine(
+            DATABASE_URL,
+            pool_pre_ping=True,
+            pool_size=10,
+            max_overflow=20,
+        )
+        with eng.connect() as conn:
+            pass
+        print("[DATABASE] Kết nối PostgreSQL (Supabase) thành công!", flush=True)
+        return eng
+    except Exception as e:
+        print(f"[DATABASE WARNING] Không thể kết nối PostgreSQL ({e}). Đang chuyển sang CSDL SQLite cục bộ...", flush=True)
+        print("[DATABASE HINT] Vui lòng kiểm tra lại mật khẩu CSDL Supabase trong DATABASE_URL ở file .env", flush=True)
+        db_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
+        os.makedirs(db_dir, exist_ok=True)
+        sqlite_path = os.path.join(db_dir, "app.db")
+        sqlite_url = f"sqlite:///{sqlite_path}"
+        eng = create_engine(sqlite_url, connect_args={"check_same_thread": False})
+        return eng
+
+
+engine = init_engine()
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 
 class UserSetting(Base):
     """
-    Model ánh xạ bảng user_settings trong CSDL PostgreSQL (Supabase):
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID UNIQUE NOT NULL REFERENCES users(id),
-    theme VARCHAR(20) DEFAULT 'light',
-    language VARCHAR(10) DEFAULT 'vi',
-    sound_enabled BOOLEAN DEFAULT TRUE,
-    academic_alerts BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    Model ánh xạ bảng user_settings trong CSDL (PostgreSQL / SQLite fallback):
     """
     __tablename__ = "user_settings"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), unique=True, nullable=False, index=True)
+    id = Column(GUID, primary_key=True, default=uuid.uuid4)
+    user_id = Column(GUID, ForeignKey("users.id", ondelete="CASCADE"), unique=True, nullable=False, index=True)
     theme = Column(String(20), default="light")
     language = Column(String(10), default="vi")
     sound_enabled = Column(Boolean, default=True)
@@ -63,24 +114,11 @@ class UserSetting(Base):
 
 class User(Base):
     """
-    Model ánh xạ bảng users trong CSDL PostgreSQL (Supabase):
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    full_name VARCHAR(255),
-    email VARCHAR(255) UNIQUE NOT NULL,
-    student_code VARCHAR(50) UNIQUE DEFAULT NULL,
-    department VARCHAR(150) DEFAULT NULL,
-    major VARCHAR(150) DEFAULT NULL,
-    phone_number VARCHAR(20) DEFAULT NULL,
-    password_hash VARCHAR(255),
-    google_id VARCHAR(255) UNIQUE,
-    avatar_url TEXT,
-    role VARCHAR(50) DEFAULT 'student',  -- 'student' hoặc 'public'
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    Model ánh xạ bảng users trong CSDL (PostgreSQL / SQLite fallback):
     """
     __tablename__ = "users"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(GUID, primary_key=True, default=uuid.uuid4)
     full_name = Column(String(255), nullable=True)
     email = Column(String(255), unique=True, nullable=False, index=True)
     student_code = Column(String(50), unique=True, nullable=True, index=True)
@@ -95,10 +133,6 @@ class User(Base):
     updated_at = Column(DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow)
 
     def to_response_dict(self) -> dict:
-        """
-        Chuyển đổi đối tượng User ORM sang định dạng dictionary chuẩn cho API Response.
-        Hỗ trợ cả 2 chế độ đối tượng: Sinh viên IUH và Người dùng công cộng.
-        """
         id_str = str(self.id) if self.id else ""
         return {
             "id": id_str,
@@ -120,12 +154,11 @@ class User(Base):
 
 class PasswordReset(Base):
     """
-    Model ánh xạ bảng password_resets trong CSDL PostgreSQL (Supabase)
-    dùng cho tính năng Quên mật khẩu / Khôi phục mật khẩu OTP.
+    Model ánh xạ bảng password_resets trong CSDL
     """
     __tablename__ = "password_resets"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(GUID, primary_key=True, default=uuid.uuid4)
     email = Column(String(255), nullable=False, index=True)
     otp_code = Column(String(10), nullable=False)
     expires_at = Column(DateTime(timezone=True), nullable=False)
