@@ -16,6 +16,8 @@ export default function ChatPage() {
     selectSession,
     startNewSession,
     sendMessage,
+    renameSession,
+    deleteSession,
   } = useChat();
 
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -32,6 +34,8 @@ export default function ChatPage() {
         isLoading={isLoadingSessions}
         onSelectSession={selectSession}
         onNewChat={startNewSession}
+        onRenameSession={renameSession}
+        onDeleteSession={deleteSession}
       />
 
       <div className="flex min-w-0 flex-1 flex-col bg-slate-50">

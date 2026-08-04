@@ -11,3 +11,6 @@ __pycache__/
 
 # Bỏ qua file môi trường 
 .env
+
+# skip agent skills
+.agent/

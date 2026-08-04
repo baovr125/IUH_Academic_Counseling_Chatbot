@@ -3,15 +3,21 @@ import uuid
 import json
 import asyncio
 from datetime import datetime, timezone
-from typing import List, Optional
+from typing import List, Optional, Any
 
-from fastapi import APIRouter, HTTPException
+# Suppress HuggingFace hub warnings & load HF_TOKEN if provided
+# os.environ["HF_HUB_DISABLE_SYMLINKS_WARNING"] = "1"
+# os.environ["TOKENIZERS_PARALLELISM"] = "false"
+
+from fastapi import APIRouter, HTTPException, Depends
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from sentence_transformers import SentenceTransformer, CrossEncoder
 from supabase import Client, create_client
 from google import genai
 from google.genai import types
+
+from utils.security import get_optional_current_user_id
 
 router = APIRouter(prefix="/api/chat", tags=["chat"])
 
@@ -57,6 +63,15 @@ def get_reranker():
     return _reranker_model
 
 
+def preload_models():
+    """Preloads HuggingFace ML models (Embedder & Reranker) during application startup."""
+    print("🚀 [PRELOAD] Đang tải ML Models (SentenceTransformer & CrossEncoder) vào RAM...")
+    get_embedder()
+    get_reranker()
+    get_gemini()
+    print("✅ [PRELOAD] Sẵn sàng! Tất cả ML Models đã được nạp trước vào bộ nhớ RAM.")
+
+
 # In-memory session memory fallback (session_id -> list of message dicts)
 session_memory: dict = {}
 
@@ -64,6 +79,8 @@ session_memory: dict = {}
 GEMINI_MODELS = [
     "gemini-3.5-flash-lite",
     "gemini-3.1-flash-lite",
+    "gemini-2.5-flash",
+    "gemini-3.5-flash"
 ]
 
 # --- 2. Schemas ---
@@ -93,31 +110,36 @@ class SendMessageResponseData(BaseModel):
 
 class ApiResult(BaseModel):
     ok: bool
-    data: Optional[dict] = None
+    data: Optional[Any] = None
     error: Optional[dict] = None
 
 
 # --- 3. Step 1 & 2: Database Retrieval + Reranking ---
-def retrieve_relevant_chunks(query_text: str, top_k: int = 5, candidate_count: int = 35):
+async def retrieve_relevant_chunks(query_text: str, top_k: int = 5, candidate_count: int = 35):
     """
     Stage 1: Retrieve candidate_count (35) chunks via Supabase Hybrid RRF RPC.
     Stage 2: Cross-Encoder Reranking using BAAI/bge-reranker-v2-m3 -> Top k (5).
+    Offloads CPU-bound ML inference to background thread pool.
     """
-    query_vector = get_embedder().encode(query_text).tolist()
+    embedder = get_embedder()
+    query_vector = await asyncio.to_thread(lambda: embedder.encode(query_text).tolist())
 
     supabase = get_supabase()
     if not supabase:
         return []
 
     try:
-        response = supabase.rpc(
-            "match_chunks_hybrid_rrf",
-            {
-                "query_text": query_text,
-                "query_embedding": query_vector,
-                "match_count": candidate_count
-            }
-        ).execute()
+        def _call_rpc():
+            return supabase.rpc(
+                "match_chunks_hybrid_rrf",
+                {
+                    "query_text": query_text,
+                    "query_embedding": query_vector,
+                    "match_count": candidate_count
+                }
+            ).execute()
+
+        response = await asyncio.to_thread(_call_rpc)
         chunks = response.data or []
     except Exception:
         chunks = []
@@ -133,7 +155,8 @@ def retrieve_relevant_chunks(query_text: str, top_k: int = 5, candidate_count: i
         text = f"{title}\n{c.get('content', '')}".strip()
         pairs.append((query_text, text))
 
-    scores = get_reranker().predict(pairs)
+    reranker = get_reranker()
+    scores = await asyncio.to_thread(lambda: reranker.predict(pairs, batch_size=16))
     for idx, chunk in enumerate(chunks):
         chunk["rerank_score"] = float(scores[idx])
 
@@ -141,10 +164,10 @@ def retrieve_relevant_chunks(query_text: str, top_k: int = 5, candidate_count: i
     return chunks[:top_k]
 
 
-def generate_standalone_query(history: list, current_query: str) -> str:
+async def generate_standalone_query(history: list, current_query: str) -> str:
     """
     Upgrade 2: LLM Standalone Query Rewriter.
-    Converts follow-up questions into a self-contained search query.
+    Converts follow-up questions into a self-contained search query in Vietnamese.
     """
     if not history:
         return current_query
@@ -159,7 +182,7 @@ def generate_standalone_query(history: list, current_query: str) -> str:
         return current_query
 
     rewrite_prompt = (
-        "You are a search query rewriter for an academic counselor chatbot at IUH University. "
+        "You are a search query rewriter for an academic counselor chatbot at IUH University (Đại học Công nghiệp TP.HCM). "
         "Given the conversation context and a follow-up question, rewrite the follow-up question into "
         "a single, self-contained standalone search query in Vietnamese. "
         "Do NOT answer the question. Only output the rewritten search query.\n\n"
@@ -172,11 +195,13 @@ def generate_standalone_query(history: list, current_query: str) -> str:
     if gemini_client:
         for m in GEMINI_MODELS:
             try:
-                res = gemini_client.models.generate_content(
-                    model=m,
-                    contents=rewrite_prompt,
-                    config=types.GenerateContentConfig(temperature=0.0)
-                )
+                def _gen_rewrite():
+                    return gemini_client.models.generate_content(
+                        model=m,
+                        contents=rewrite_prompt,
+                        config=types.GenerateContentConfig(temperature=0.0)
+                    )
+                res = await asyncio.to_thread(_gen_rewrite)
                 if res and res.text:
                     return res.text.strip()
             except Exception:
@@ -185,60 +210,113 @@ def generate_standalone_query(history: list, current_query: str) -> str:
     return f"{last_user_msg} {current_query}"
 
 
-# --- 4. Database Session History Helpers (Upgrade 3) ---
+def ensure_uuid(session_id: Optional[str]) -> str:
+    """Converts any custom string session_id (e.g. 's_abc123') deterministically to a valid PostgreSQL UUID."""
+    if not session_id:
+        return str(uuid.uuid4())
+    try:
+        return str(uuid.UUID(session_id))
+    except (ValueError, TypeError, AttributeError):
+        return str(uuid.uuid5(uuid.NAMESPACE_DNS, str(session_id)))
+
+
+# --- 4. Database Session History Helpers ---
 def get_session_history_from_db(session_id: str) -> list:
     """Loads chat messages from Supabase PostgreSQL tables."""
+    clean_id = ensure_uuid(session_id)
     try:
         supabase = get_supabase()
         if supabase:
-            res = supabase.table("messages").select("*").eq("conversation_id", session_id).order("created_at").execute()
+            res = supabase.table("messages").select("*").eq("conversation_id", clean_id).order("created_at").execute()
             if res.data:
                 return [{"role": m["role"], "content": m["content"]} for m in res.data]
     except Exception:
         pass
-    return session_memory.get(session_id, [])
+    return session_memory.get(clean_id, [])
 
-
-def save_turn_to_db(session_id: str, user_content: str, assistant_content: str, title: str):
-    """Persists conversation and message turns into PostgreSQL tables."""
+def save_user_msg_to_db(session_id: str, user_content: str, title: str, user_id: Optional[str] = None) -> str:
+    """Ensures conversation exists and saves user message immediately to PostgreSQL."""
+    clean_id = ensure_uuid(session_id)
     supabase = get_supabase()
     if supabase:
-        # 1. Ensure conversation exists
         try:
-            supabase.table("conversations").upsert({
-                "id": session_id,
-                "title": title[:50]
+            conv_payload = {
+                "id": clean_id,
+                "title": title[:50],
+                "updated_at": datetime.now(timezone.utc).isoformat()
+            }
+            if user_id:
+                conv_payload["user_id"] = user_id
+
+            supabase.table("conversations").upsert(conv_payload).execute()
+        except Exception:
+            pass
+
+        try:
+            supabase.table("messages").insert({
+                "conversation_id": clean_id,
+                "role": "user",
+                "content": user_content
             }).execute()
         except Exception:
             pass
 
-        # 2. Save messages
+    if clean_id not in session_memory:
+        session_memory[clean_id] = []
+    session_memory[clean_id].append({"role": "user", "content": user_content})
+    return clean_id
+
+
+def save_assistant_msg_to_db(session_id: str, assistant_content: str, retrieved_chunk_ids: list = None):
+    """Saves assistant message to PostgreSQL and updates conversation timestamp."""
+    clean_id = ensure_uuid(session_id)
+    supabase = get_supabase()
+    if supabase:
         try:
-            supabase.table("messages").insert([
-                {"conversation_id": session_id, "role": "user", "content": user_content},
-                {"conversation_id": session_id, "role": "assistant", "content": assistant_content}
-            ]).execute()
+            supabase.table("conversations").update({
+                "updated_at": datetime.now(timezone.utc).isoformat()
+            }).eq("id", clean_id).execute()
         except Exception:
             pass
 
-    # Backup in memory
-    if session_id not in session_memory:
-        session_memory[session_id] = []
-    session_memory[session_id].append({"role": "user", "content": user_content})
-    session_memory[session_id].append({"role": "assistant", "content": assistant_content})
+        try:
+            supabase.table("messages").insert({
+                "conversation_id": clean_id,
+                "role": "assistant",
+                "content": assistant_content,
+                "retrieved_chunk_ids": retrieved_chunk_ids or []
+            }).execute()
+        except Exception:
+            pass
+
+    if clean_id not in session_memory:
+        session_memory[clean_id] = []
+    session_memory[clean_id].append({"role": "assistant", "content": assistant_content})
 
 
-# --- 5. Endpoints ---
+def save_turn_to_db(session_id: str, user_content: str, assistant_content: str, title: str, retrieved_chunk_ids: list = None, user_id: Optional[str] = None):
+    """Persists conversation and message turns into PostgreSQL tables."""
+    clean_id = save_user_msg_to_db(session_id, user_content, title, user_id=user_id)
+    save_assistant_msg_to_db(clean_id, assistant_content, retrieved_chunk_ids)
 
-@router.get("/sessions", response_model=ApiResult)
-async def fetch_sessions():
-    """Fetches all persistent sessions from PostgreSQL for sidebar history."""
+
+class RenameSessionPayload(BaseModel):
+    title: str
+
+# --- 5. Chat Router Endpoints ---
+@router.get("/sessions")
+async def get_sessions(current_user_id: Optional[str] = Depends(get_optional_current_user_id)):
+    """Fetches all persistent sessions for the authenticated user from PostgreSQL."""
     try:
         supabase = get_supabase()
         if not supabase:
             return ApiResult(ok=True, data=[])
 
-        conv_res = supabase.table("conversations").select("*").order("updated_at", desc=True).execute()
+        query = supabase.table("conversations").select("*").or_("is_deleted.eq.false,is_deleted.is.null")
+        if current_user_id:
+            query = query.or_(f"user_id.eq.{current_user_id},user_id.is.null")
+
+        conv_res = query.order("updated_at", desc=True).execute()
         conversations = conv_res.data or []
 
         result_sessions = []
@@ -269,19 +347,55 @@ async def fetch_sessions():
         return ApiResult(ok=False, error={"message": str(e)})
 
 
-def build_rag_payload(session_id: str, content: str):
+@router.patch("/sessions/{session_id}")
+async def rename_session(
+    session_id: str,
+    payload: RenameSessionPayload,
+    current_user_id: Optional[str] = Depends(get_optional_current_user_id)
+):
+    """Renames a chat conversation session in PostgreSQL."""
+    clean_id = ensure_uuid(session_id)
+    supabase = get_supabase()
+    if supabase:
+        try:
+            new_title = payload.title.strip()[:100] or "Cuộc trò chuyện mới"
+            supabase.table("conversations").update({"title": new_title, "updated_at": datetime.now(timezone.utc).isoformat()}).eq("id", clean_id).execute()
+        except Exception as e:
+            return ApiResult(ok=False, error={"message": f"Không thể đổi tên cuộc trò chuyện: {str(e)}"})
+    return ApiResult(ok=True, data={"sessionId": clean_id, "title": payload.title})
+
+
+@router.delete("/sessions/{session_id}")
+async def delete_session(
+    session_id: str,
+    current_user_id: Optional[str] = Depends(get_optional_current_user_id)
+):
+    """Soft deletes a chat conversation from user view while preserving database records for RAG analytics."""
+    clean_id = ensure_uuid(session_id)
+    supabase = get_supabase()
+    if supabase:
+        try:
+            supabase.table("conversations").update({"is_deleted": True, "updated_at": datetime.now(timezone.utc).isoformat()}).eq("id", clean_id).execute()
+        except Exception as e:
+            return ApiResult(ok=False, error={"message": f"Không thể xóa cuộc trò chuyện: {str(e)}"})
+    return ApiResult(ok=True, data={"sessionId": clean_id, "deleted": True})
+
+
+async def build_rag_payload(session_id: str, content: str):
     """Helper to process history, query expansion, retrieval, citations, and prompt."""
     history = get_session_history_from_db(session_id)
-    retrieval_query = generate_standalone_query(history, content)
+    retrieval_query = await generate_standalone_query(history, content)
 
     # 1. Retrieve & Rerank (Top 35 candidates -> Top 5)
-    chunks = retrieve_relevant_chunks(retrieval_query, top_k=5, candidate_count=35)
+    chunks = await retrieve_relevant_chunks(retrieval_query, top_k=5, candidate_count=35)
 
     # 2. Citations & Context
     context_parts = []
     citations = []
+    chunk_ids = []
     for index, c in enumerate(chunks, 1):
         context_parts.append(f"[Source {index}]: {c['content']}")
+        chunk_ids.append(c.get("id"))
         meta = c.get("metadata", {}) or {}
 
         source_title = meta.get("title") or meta.get("sourceTitle") or "Cẩm nang Sinh viên IUH"
@@ -291,61 +405,56 @@ def build_rag_payload(session_id: str, content: str):
 
         if page and str(page) != "None":
             page_or_section = f"Trang {page}"
-        elif chapter and str(chapter) != "None":
+        elif breadcrumbs and len(breadcrumbs) > 0:
+            page_or_section = " > ".join(breadcrumbs[:2])
+        elif chapter:
             page_or_section = str(chapter)
-        elif breadcrumbs and str(breadcrumbs) != "None":
-            page_or_section = str(breadcrumbs)
         else:
-            page_or_section = "Quy chế & Cẩm nang"
+            page_or_section = "Quy định IUH"
 
-        source_url = c.get("source_url") or meta.get("source_url") or meta.get("source")
+        snippet = c['content'][:140] + "..." if len(c['content']) > 140 else c['content']
 
-        citations.append(
-            Citation(
-                id=f"c_{uuid.uuid4().hex[:8]}",
-                sourceTitle=source_title,
-                pageOrSection=page_or_section,
-                snippet=c["content"][:120].strip() + "...",
-                url=source_url if source_url and source_url != "N/A" else None
-            )
-        )
+        citations.append(Citation(
+            id=f"c_{uuid.uuid4().hex[:8]}",
+            sourceTitle=source_title,
+            pageOrSection=page_or_section,
+            snippet=snippet,
+            url=c.get("source_url")
+        ))
 
-    context_str = "\n\n".join(context_parts)
+    context_str = "\n\n".join(context_parts) if context_parts else "Không tìm thấy tài liệu phù hợp trong CSDL."
 
-    # 3. Formulate Gemini Multi-Turn Contents
+    # 3. Build System Instruction with strict grounding rules
     system_instruction = (
-        "You are an academic counselor assistant for Industrial University of Ho Chi Minh City (IUH). "
-        "Answer the student's question accurately using ONLY the provided context below. "
-        "Consider previous conversation context when responding to follow-up questions. "
-        "If the answer cannot be found in the context, state that you don't have enough information in the university documents."
+        "Bạn là Trợ lý Tư vấn Học tập thông minh của Trường Đại học Công nghiệp TP.HCM (IUH).\n"
+        "Nhiệm vụ của bạn là giải đáp thắc mắc của sinh viên về quy chế học tập, quy trình thủ tục, học phí, và các quy định nhà trường.\n\n"
+        "QUY TẮC BẮT BUỘC:\n"
+        "1. Trả lời CHÍNH XÁC, DỰA TRÊN NGỮ CẢNH ĐƯỢC CỦNG CỐ bên dưới.\n"
+        "2. Nếu ngữ cảnh không có thông tin, hãy thành thật trả lời không biết và hướng dẫn sinh viên liên hệ Phòng Đào tạo (pdt@iuh.edu.vn).\n"
+        "3. Trích dẫn rõ nguồn, trang hoặc điều khoản nếu có trong ngữ cảnh.\n"
+        "4. Trả lời thân thiện, lịch sự, chuẩn mực sư phạm.\n\n"
+        f"--- NGỮ CẢNH TÀI LIỆU TRÍCH XUẤT ---\n{context_str}\n-----------------------------------"
     )
 
+    # Convert past turns to Gemini content objects
     contents = []
-    for msg in history[-6:]:
-        role = "user" if msg["role"] == "user" else "model"
-        contents.append(
-            types.Content(
-                role=role,
-                parts=[types.Part.from_text(text=msg["content"])]
-            )
-        )
+    for turn in history[-6:]:
+        role = "user" if turn["role"] == "user" else "model"
+        contents.append(types.Content(role=role, parts=[types.Part.from_text(text=turn["content"])]))
+    contents.append(types.Content(role="user", parts=[types.Part.from_text(text=content)]))
 
-    current_turn_prompt = f"Retrieved Document Context:\n{context_str}\n\nStudent Question: {content}"
-    contents.append(
-        types.Content(
-            role="user",
-            parts=[types.Part.from_text(text=current_turn_prompt)]
-        )
-    )
-
-    return history, retrieval_query, citations, system_instruction, contents
+    return history, retrieval_query, citations, chunk_ids, system_instruction, contents
 
 
-@router.post("/messages", response_model=ApiResult)
+@router.post("/messages")
 async def send_message(payload: SendMessagePayload):
+    """
+    Standard Non-Streaming Endpoint (Fallback).
+    """
+    session_id = payload.sessionId or f"s_{uuid.uuid4().hex[:8]}"
+
     try:
-        session_id = payload.sessionId or f"s_{uuid.uuid4().hex[:8]}"
-        history, retrieval_query, citations, system_instruction, contents = build_rag_payload(session_id, payload.content)
+        history, retrieval_query, citations, chunk_ids, system_instruction, contents = await build_rag_payload(session_id, payload.content)
 
         gemini_response = None
         last_exception = None
@@ -354,14 +463,20 @@ async def send_message(payload: SendMessagePayload):
         if gemini_client:
             for model_name in GEMINI_MODELS:
                 try:
-                    gemini_response = gemini_client.models.generate_content(
-                        model=model_name,
-                        contents=contents,
-                        config=types.GenerateContentConfig(
-                            system_instruction=system_instruction,
-                            temperature=0.2,
+                    cfg_kwargs = {
+                        "system_instruction": system_instruction,
+                        "temperature": 0.2,
+                    }
+                    if "2.5" in model_name:
+                        cfg_kwargs["thinking_config"] = types.ThinkingConfig(thinking_budget=0)
+
+                    def _gen_sync(m_name=model_name, c_kwargs=cfg_kwargs):
+                        return gemini_client.models.generate_content(
+                            model=m_name,
+                            contents=contents,
+                            config=types.GenerateContentConfig(**c_kwargs)
                         )
-                    )
+                    gemini_response = await asyncio.to_thread(_gen_sync)
                     if gemini_response and gemini_response.text:
                         break
                 except Exception as e:
@@ -380,8 +495,8 @@ async def send_message(payload: SendMessagePayload):
             else:
                 generated_text = f"⚠️ Lỗi kết nối AI: {err_msg}"
 
-        # Persist to DB
-        save_turn_to_db(session_id, payload.content, generated_text, payload.content)
+        # Persist user question and assistant answer
+        save_turn_to_db(session_id, payload.content, generated_text, payload.content, retrieved_chunk_ids=chunk_ids)
 
         assistant_message = ChatMessage(
             id=f"m_{uuid.uuid4().hex[:8]}",
@@ -396,7 +511,7 @@ async def send_message(payload: SendMessagePayload):
         return ApiResult(
             ok=True,
             data={
-                "sessionId": session_id,
+                "sessionId": ensure_uuid(session_id),
                 "message": assistant_message.dict()
             }
         )
@@ -406,44 +521,65 @@ async def send_message(payload: SendMessagePayload):
 
 
 @router.post("/messages/stream")
-async def send_message_stream(payload: SendMessagePayload):
+async def send_message_stream(
+    payload: SendMessagePayload,
+    current_user_id: Optional[str] = Depends(get_optional_current_user_id)
+):
     """
-    Upgrade 4: Streaming Endpoint (Server-Sent Events SSE).
-    Streams Gemini response tokens in real-time.
+    Streaming Endpoint (Server-Sent Events SSE).
+    Saves user message immediately and assistant message on completion/abort.
     """
     session_id = payload.sessionId or f"s_{uuid.uuid4().hex[:8]}"
+    clean_session_id = save_user_msg_to_db(session_id, payload.content, payload.content, user_id=current_user_id)
 
     async def event_generator():
+        accumulated_text = ""
+        chunk_ids = []
         try:
-            history, retrieval_query, citations, system_instruction, contents = build_rag_payload(session_id, payload.content)
+            history, retrieval_query, citations, chunk_ids, system_instruction, contents = await build_rag_payload(clean_session_id, payload.content)
 
             # Send metadata event with citations first
             citations_data = [c.dict() for c in citations]
-            yield f"data: {json.dumps({'type': 'metadata', 'sessionId': session_id, 'citations': citations_data})}\n\n"
+            yield f"data: {json.dumps({'type': 'metadata', 'sessionId': clean_session_id, 'citations': citations_data})}\n\n"
 
-            accumulated_text = ""
-            stream = None
+            stream_iter = None
+            first_chunk = None
             last_err = None
             gemini_client = get_gemini()
 
             if gemini_client:
                 for model_name in GEMINI_MODELS:
                     try:
-                        stream = gemini_client.models.generate_content_stream(
-                            model=model_name,
-                            contents=contents,
-                            config=types.GenerateContentConfig(
-                                system_instruction=system_instruction,
-                                temperature=0.2,
+                        cfg_kwargs = {
+                            "system_instruction": system_instruction,
+                            "temperature": 0.2,
+                        }
+                        if "2.5" in model_name:
+                            cfg_kwargs["thinking_config"] = types.ThinkingConfig(thinking_budget=0)
+
+                        def _start_stream_with_first_chunk(m_name=model_name, c_kwargs=cfg_kwargs):
+                            st = gemini_client.models.generate_content_stream(
+                                model=m_name,
+                                contents=contents,
+                                config=types.GenerateContentConfig(**c_kwargs)
                             )
-                        )
+                            it = iter(st)
+                            fc = next(it, None)
+                            return it, fc
+
+                        stream_iter, first_chunk = await asyncio.to_thread(_start_stream_with_first_chunk)
                         break
                     except Exception as e:
                         last_err = e
                         continue
 
-            if stream:
-                for chunk in stream:
+            if stream_iter:
+                if first_chunk and first_chunk.text:
+                    accumulated_text += first_chunk.text
+                    yield f"data: {json.dumps({'type': 'delta', 'text': first_chunk.text})}\n\n"
+                    await asyncio.sleep(0.01)
+
+                for chunk in stream_iter:
                     if chunk.text:
                         accumulated_text += chunk.text
                         yield f"data: {json.dumps({'type': 'delta', 'text': chunk.text})}\n\n"
@@ -457,13 +593,22 @@ async def send_message_stream(payload: SendMessagePayload):
                 accumulated_text = fallback_txt
                 yield f"data: {json.dumps({'type': 'delta', 'text': fallback_txt})}\n\n"
 
-            # Save completed turn to PostgreSQL
-            save_turn_to_db(session_id, payload.content, accumulated_text, payload.content)
-
             # Done event
             yield f"data: {json.dumps({'type': 'done'})}\n\n"
 
         except Exception as e:
             yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
+        finally:
+            # Guarantee assistant response is persisted even if client tab disconnected/switched!
+            if accumulated_text.strip():
+                save_assistant_msg_to_db(clean_session_id, accumulated_text, retrieved_chunk_ids=chunk_ids)
 
-    return StreamingResponse(event_generator(), media_type="text/event-stream")
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no"
+        }
+    )

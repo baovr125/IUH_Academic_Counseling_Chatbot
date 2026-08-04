@@ -7,10 +7,14 @@ from database import Base, engine
 from routes.auth import router as auth_router
 from routes.settings import router as settings_router
 
+import asyncio
+from contextlib import asynccontextmanager
+
 try:
-    from app.routers.chat import router as chat_router
+    from app.routers.chat import router as chat_router, preload_models
 except ImportError:
     chat_router = None
+    preload_models = None
 
 # Khởi tạo bảng CSDL nếu kết nối thành công (không làm sập server nếu CSDL tạm thời ngắt kết nối)
 try:
@@ -18,10 +22,22 @@ try:
 except Exception as err:
     print(f"[WARNING] Chưa thể khởi tạo CSDL lúc bắt đầu server: {err}")
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    if preload_models:
+        try:
+            await asyncio.to_thread(preload_models)
+        except Exception as err:
+            print(f"[WARNING] Lỗi preload ML models lúc khởi động: {err}")
+    yield
+
+
 app = FastAPI(
     title="IUH Portal AI - Backend API",
     description="Hệ thống Authentication, Settings & AI Chatbot cho IUH Portal AI",
     version="1.0.0",
+    lifespan=lifespan,
 )
 
 # Cấu hình CORS cho phép React frontend (Vite) gọi API

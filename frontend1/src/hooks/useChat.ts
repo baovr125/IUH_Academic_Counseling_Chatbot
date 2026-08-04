@@ -12,6 +12,8 @@ interface UseChatReturn {
   selectSession: (sessionId: string) => void;
   startNewSession: () => void;
   sendMessage: (content: string) => Promise<void>;
+  renameSession: (sessionId: string, newTitle: string) => Promise<void>;
+  deleteSession: (sessionId: string) => Promise<void>;
 }
 
 /**
@@ -62,6 +64,33 @@ export function useChat(): UseChatReturn {
     setMessages([]);
   }, []);
 
+  const renameSession = useCallback(
+    async (sessionId: string, newTitle: string) => {
+      if (!newTitle.trim()) return;
+      setSessions((prev) =>
+        prev.map((s) => (s.id === sessionId ? { ...s, title: newTitle.trim() } : s))
+      );
+      await chatService.renameSession(sessionId, newTitle.trim());
+    },
+    []
+  );
+
+  const deleteSession = useCallback(
+    async (sessionId: string) => {
+      setSessions((prev) => {
+        const updated = prev.filter((s) => s.id !== sessionId);
+        if (activeSessionId === sessionId) {
+          const next = updated[0];
+          setActiveSessionId(next?.id ?? null);
+          setMessages(next?.messages ?? []);
+        }
+        return updated;
+      });
+      await chatService.deleteSession(sessionId);
+    },
+    [activeSessionId]
+  );
+
   const sendMessage = useCallback(
     async (content: string) => {
       if (!content.trim() || isSending) return;
@@ -88,27 +117,58 @@ export function useChat(): UseChatReturn {
       setMessages((prev) => [...prev, optimisticUserMessage, pendingAssistantMessage]);
       setIsSending(true);
 
-      const result = await chatService.sendMessage({
-        sessionId: activeSessionId,
-        content,
-      });
-
-      setIsSending(false);
-
-      if (!result.ok) {
-        setError(result.error.message);
-        setMessages((prev) => prev.filter((m) => m.id !== pendingAssistantMessage.id));
-        return;
-      }
-
-      setActiveSessionId(result.data.sessionId);
-      setMessages((prev) =>
-        prev.map((m) => (m.id === pendingAssistantMessage.id ? result.data.message : m))
+      await chatService.sendMessageStream(
+        {
+          sessionId: activeSessionId,
+          content,
+        },
+        {
+          onMetadata: async ({ sessionId, citations }) => {
+            if (sessionId) setActiveSessionId(sessionId);
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === pendingAssistantMessage.id
+                  ? { ...m, citations }
+                  : m
+              )
+            );
+            const refreshed = await chatService.fetchSessions();
+            if (refreshed.ok) setSessions(refreshed.data);
+          },
+          onDelta: (chunkText) => {
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === pendingAssistantMessage.id
+                  ? { ...m, content: m.content + chunkText }
+                  : m
+              )
+            );
+          },
+          onDone: async () => {
+            setIsSending(false);
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === pendingAssistantMessage.id
+                  ? { ...m, status: "complete" }
+                  : m
+              )
+            );
+            const refreshed = await chatService.fetchSessions();
+            if (refreshed.ok) setSessions(refreshed.data);
+          },
+          onError: (errMsg) => {
+            setIsSending(false);
+            setError(errMsg);
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === pendingAssistantMessage.id
+                  ? { ...m, content: m.content || `⚠️ Lỗi: ${errMsg}`, status: "complete" }
+                  : m
+              )
+            );
+          },
+        }
       );
-
-      // Refresh the session list so titles / ordering stay in sync.
-      const refreshed = await chatService.fetchSessions();
-      if (refreshed.ok) setSessions(refreshed.data);
     },
     [activeSessionId, isSending]
   );
@@ -123,5 +183,7 @@ export function useChat(): UseChatReturn {
     selectSession,
     startNewSession,
     sendMessage,
+    renameSession,
+    deleteSession,
   };
 }

@@ -430,7 +430,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={isLoading}
-            className="mb-4 w-full rounded-lg bg-blue-700 py-2.5 text-xs font-semibold text-white hover:bg-blue-800 disabled:opacity-60 transition-colors shadow-sm"
+            className="mb-3 w-full rounded-lg bg-blue-700 py-2.5 text-xs font-semibold text-white hover:bg-blue-800 disabled:opacity-60 transition-colors shadow-sm"
           >
             {isLoading
               ? isRegistering
@@ -439,6 +439,29 @@ export default function LoginPage() {
               : isRegistering
               ? "Đăng ký tài khoản"
               : "Đăng nhập"}
+          </button>
+
+          {/* Quick Bypass Test Mode Button */}
+          <div className="relative my-4">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-slate-200" />
+            </div>
+            <div className="relative flex justify-center text-[10px] uppercase">
+              <span className="bg-white px-2 text-slate-400 font-semibold">Chế độ kiểm thử nhanh</span>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => {
+              localStorage.setItem("iuh_portal_ai_token", "mock_dev_test_token_2026");
+              navigate("/dashboard", { replace: true });
+              window.location.reload();
+            }}
+            className="w-full flex items-center justify-center gap-2 rounded-lg border-2 border-dashed border-amber-400 bg-amber-50/70 py-2 text-xs font-bold text-amber-800 hover:bg-amber-100/80 active:scale-[0.99] transition-all shadow-sm"
+          >
+            <Sparkles className="w-4 h-4 text-amber-600 animate-pulse" />
+            <span>⚡ Đăng nhập Nhanh (Bypass Test Mode)</span>
           </button>
 
           <div className="mt-6 text-center text-xs text-slate-500">
