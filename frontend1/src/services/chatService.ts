@@ -130,7 +130,7 @@ export async function sendMessage(
   try {
     const res = await fetch(getApiUrl("/api/chat/messages"), {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: getAuthHeaders(),
       body: JSON.stringify({
         sessionId: payload.sessionId,
         content: payload.content,
@@ -182,7 +182,7 @@ export async function sendMessageStream(
   try {
     const response = await fetch(url, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: getAuthHeaders(),
       body: JSON.stringify(payload),
     });
 

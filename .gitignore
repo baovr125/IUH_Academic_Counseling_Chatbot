@@ -7,7 +7,14 @@ backend/data/
 # Bỏ qua cache của Python
 __pycache__/
 *.pyc
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+
+# Bỏ qua các file tạm/IDE
 .vscode/
+scratch/
 
 # Bỏ qua file môi trường 
 .env
@@ -15,3 +22,5 @@ __pycache__/
 # skip agent skills
 .agent/
 .plan/
+
+PROJECT_LOG.md

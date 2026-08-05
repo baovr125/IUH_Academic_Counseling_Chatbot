@@ -48,6 +48,7 @@ Hệ thống Trợ lý Học vụ Thông minh IUH tích hợp RAG 4 Giai đoạn
 | **20** | Tái Cấu Trúc Chat Backend (Modular Architecture) | Tách file `chat.py` (710 dòng) thành kiến trúc đa tầng Clean Architecture: `app/schemas/chat.py` (Pydantic models), `app/services/chat_service.py` (Supabase DB CRUD & Session), `app/services/rag_service.py` (ML Models, Hybrid RRF, Cross-Encoder, Rewriter), giữ `app/routers/chat.py` thuần túy (~200 dòng) xử lý HTTP/SSE Endpoints. |
 | **21** | Tái Cấu Trúc Auth Backend (Modular Architecture) | Tách file `routes/auth.py` (502 dòng) thành `services/auth_service.py` chứa 100% logic xác thực (đăng ký, đăng nhập, Google OAuth token check, OTP reset password), rút gọn `routes/auth.py` về ~100 dòng chỉ làm nhiệm vụ route handler. |
 | **22** | Hợp Nhất Thư Mục Backend (Unified App Package) | Xóa bỏ sự trùng lặp thư mục giữa `backend/` gốc và `backend/app/`. Gom 100% routers, schemas, services, utils về gói thống nhất `backend/app/` (`app/routers/`, `app/schemas/`, `app/services/`, `app/utils/`). Cập nhật tất cả các đường dẫn import chuẩn hóa (`from app.schemas...`, `from app.utils...`). |
+| **23** | Khắc phục lỗi Phase 0 (Roadmap) | Sửa 3 lỗi nghiêm trọng: 1) Sửa UI hiển thị nội dung stream (không bị kẹt ở typing dots), 2) Thêm Auth Headers cho `sendMessage` & `sendMessageStream`, 3) Cập nhật database hỗ trợ FTS tiếng Việt (thêm extension `unaccent` và `pg_trgm`). |
 
 ---
 
@@ -94,3 +95,33 @@ Hệ thống Trợ lý Học vụ Thông minh IUH tích hợp RAG 4 Giai đoạn
 | L4 | passlib + bcrypt xung đột | `backend/requirements.txt` | `passlib[bcrypt]` chưa tương thích `bcrypt>=4.1` (đổi API internal) → crash khi hash password. | Pin `bcrypt>=3.2.0,<4.0.0` trong requirements.txt. |
 | L5 | `datetime.utcnow()` deprecated | `backend/utils/security.py` | `datetime.utcnow()` deprecated từ Python 3.12, trả về naive datetime không có timezone info. | Thay bằng `datetime.now(timezone.utc)`, import thêm `timezone`. |
 
+---
+
+## 🧪 Hướng Dẫn Chạy Test Tự Động (Automated Tests)
+
+Các test case tự động cho Phase 0 đã được tạo. Dưới đây là cách chạy test (Yêu cầu phải cài đặt các thư viện test trước):
+
+### 1. Frontend Tests (React Testing Library + Jest)
+File test: `frontend1/tests/ChatMessageBubble.test.tsx` và `frontend1/tests/chatService.test.ts`
+
+**Cách cài đặt & chạy:**
+```bash
+cd frontend1
+# Cài đặt thư viện test (Vitest/Jest, Testing Library)
+npm install -D vitest jsdom @testing-library/react @testing-library/jest-dom
+# Chạy test
+npx vitest run
+```
+
+### 2. Backend Tests (Pytest + SQLAlchemy)
+File test: `backend/tests/test_fts_vietnamese.py`
+
+**Cách cài đặt & chạy:**
+```bash
+cd backend
+# Kích hoạt môi trường ảo (ví dụ: source .venv/bin/activate)
+# Cài đặt pytest
+pip install pytest pytest-asyncio
+# Chạy test
+python3 -m pytest tests/test_fts_vietnamese.py
+```

@@ -36,11 +36,14 @@ export function ChatMessageBubble({ message }: { message: ChatMessage }) {
         <Bot size={15} />
       </div>
       <div className="max-w-[75%] rounded-2xl rounded-tl-sm bg-blue-50 px-4 py-3 text-sm text-slate-700">
-        {message.status === "pending" ? (
+        {message.status === "pending" && !message.content ? (
           <TypingIndicator />
         ) : (
           <>
             <FormattedMarkdown content={message.content} />
+            {message.status === "pending" && (
+              <span className="inline-block h-3 w-1.5 animate-pulse rounded-sm bg-blue-400 ml-0.5 align-baseline" />
+            )}
             {message.citations && message.citations.length > 0 && (
               <div className="mt-2 flex flex-wrap items-center gap-1.5 border-t border-blue-100 pt-2">
                 <span className="text-xs text-slate-400">Nguồn:</span>

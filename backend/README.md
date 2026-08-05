@@ -18,19 +18,23 @@ Welcome to the backend architecture for **IUH Portal AI** — a high-performance
                               │              │              │
                               ▼              ▼              ▼
                        /api/auth       /api/settings     /api/chat
-                      (Auth & JWT)   (User Preferences) (2-Stage RAG)
-                              │              │              │
-                              ▼              │              ▼
-                       SQLAlchemy / DB       │       Supabase Hybrid RRF
-                       (PostgreSQL)          │       Vector & Keyword DB
+                      (Auth & JWT)   (User Preferences)     │
+                              │              │              ▼
+                              ▼              │    Stage 0: Guardrails Pipeline
+                       SQLAlchemy / DB       │    (Anti-Injection, Normalizer,
+                       (PostgreSQL)          │     Domain Relevance Filter)
                                              │              │
                                              ▼              ▼
-                                      PostgreSQL DB    BGE Cross-Encoder
-                                      (User Settings)    Reranker (Top 5)
+                                      PostgreSQL DB     Stage 1: Supabase Hybrid RRF
+                                      (User Settings)   (Dense Vector + Keyword FTS)
                                                             │
                                                             ▼
-                                                       Google Gemini
-                                                         2.5 Flash
+                                                        Stage 2: BGE Cross-Encoder
+                                                        Reranker (Top 5 Chunks)
+                                                            │
+                                                            ▼
+                                                        Stage 3: Gemini LLM
+                                                        (Grounded Response)
 ```
 
 ---
@@ -44,7 +48,18 @@ backend/
 ├── requirements.txt              # 📦 Python production dependencies
 ├── Dockerfile                    # 🐳 Production Docker container specification
 │
-├── routes/                       # 🛣️ API Route Handlers
+├── app/                          # 🧠 Core RAG Chat & Guardrails Subsystem
+│   ├── guardrails/
+│   │   └── query_filter.py       # 🛡️ Stage 0: Anti-Injection, Normalizer & Domain Relevance Filter
+│   ├── routers/
+│   │   └── chat.py               # 🛣️ Chat Router: Session history, HTTP & SSE streaming endpoints
+│   ├── services/
+│   │   ├── chat_service.py       # 💾 Supabase database persistence for conversations & messages
+│   │   └── rag_service.py        # 🔍 Hybrid retrieval, Cross-Encoder reranking & Gemini payload builder
+│   └── schemas/
+│       └── chat.py               # 📑 Chat Pydantic request/response schemas
+│
+├── routes/                       # 🛣️ Auth & Settings API Route Handlers
 │   ├── auth.py                   # Authentication, Registration, Login & Google Account Linking
 │   └── settings.py               # User Profile Settings & Interface Preferences
 │
@@ -52,13 +67,11 @@ backend/
 │   ├── auth_schema.py            # Authentication & JWT schemas
 │   └── settings_schema.py        # User settings payload schemas
 │
-├── app/
-│   └── routers/
-│       └── chat.py               # 🧠 2-Stage Hybrid RAG Chat Engine & SSE Streaming
+├── tests/                        # 🧪 Automated Test Suites
+│   └── test_guardrails.py        # 🛡️ Unit test suite for Stage 0 Guardrails
 │
-├── chunking/                     # 📄 PDF & Markdown document text chunking pipeline
+├── chunking/                     # 📄 PDF & Markdown text chunking scripts & Jupyter notebooks
 ├── Clone_handel_data/            # 🌐 Web crawling & raw data scraping scripts
-├── retrieval/                    # 🧪 Offline retrieval evaluation prototypes & cloud tests
 └── migration_v*.sql              # 📜 Database SQL Schema & Migration scripts (v2 - v5)
 ```
 
@@ -66,34 +79,47 @@ backend/
 
 ## 🔄 End-to-End RAG Chat Workflow
 
-The core academic counseling chatbot follows a **2-Stage Hybrid Retrieval & Reranking Workflow**:
+The core academic counseling chatbot follows a **5-Stage Hybrid Pipeline** (Stage 0 Guardrails $\rightarrow$ Stage 1 Hybrid Retrieval $\rightarrow$ Stage 2 Cross-Encoder Reranking $\rightarrow$ Stage 3 LLM Generation $\rightarrow$ Stage 4 Database Persistence):
 
 ```mermaid
 sequenceDiagram
     autonumber
     actor User as 🎓 Student (Frontend)
     participant API as ⚙️ FastAPI (/api/chat)
+    participant Shield as 🛡️ Stage 0 Guardrails
     participant DB as 🐘 Supabase PostgreSQL
     participant Reranker as 🎯 BGE Cross-Encoder
     participant LLM as 🤖 Gemini LLM
 
-    User->>API: POST /api/chat/messages { sessionId, content }
+    User->>API: POST /api/chat/messages/stream { sessionId, content }
+    API->>Shield: 1. Check Safety & Jailbreak Patterns
+    alt Harmful / Prompt Injection Detected
+        Shield-->>User: Immediate Refusal Stream (Abort RAG)
+    end
+    API->>Shield: 2. Normalize Student Abbreviations (dkhp -> đăng ký học phần, gpa, sv)
+    API->>Shield: 3. Evaluate Domain Relevance
+    alt Out-of-Domain Query
+        Shield-->>User: Off-Topic Guidance Stream (Abort RAG)
+    end
+
     API->>DB: Fetch previous conversation history
     Note over API: LLM Standalone Query Rewriter reformulates follow-up question
     API->>DB: Execute match_chunks_hybrid_rrf (Dense Vector + Keyword FTS)
     DB-->>API: Top 35 Candidate Chunks
     API->>Reranker: Jointly score (Query, Document) pairs using bge-reranker-v2-m3
     Reranker-->>API: Top 5 Highest-Precision Chunks
-    API->>LLM: Send Context Chunks + History + System Instructions to Gemini 2.5 Flash
+    API->>LLM: Send Context Chunks + History + System Instructions to Gemini
     LLM-->>API: Grounded Answer + Citations
     API->>DB: Save User & Assistant turns to PostgreSQL
-    API-->>User: Return Answer + Interactive Citations (or SSE Stream)
+    API-->>User: Stream Real-Time SSE Response + Citations
 ```
 
-### 1. Contextual Query Expansion
-* Uses an LLM Standalone Query Rewriter (`generate_standalone_query`) to turn short follow-up questions (e.g. *"Nộp đơn ở đâu?"*) into complete standalone queries (e.g. *"Phòng ban tiếp nhận đơn xin chuyển ngành tại IUH"*).
+### 🛡️ Stage 0: Pre-Retrieval Guardrails & Query Sanitizer
+1. **Safety & Jailbreak Shield**: Blocks prompt exfiltration attempts (*"Ignore previous instructions"*, *"System prompt"*, *"DAN mode"*, control tokens `<|im_start|>`) in both English and Vietnamese.
+2. **Academic Term Normalization**: Automatically replaces informal student slang and abbreviations (`dkhp` $\rightarrow$ `đăng ký học phần`, `dkhc` $\rightarrow$ `đăng ký học cải thiện`, `gpa` $\rightarrow$ `điểm trung bình tích lũy`, `sv` $\rightarrow$ `sinh viên`, `ctdt` $\rightarrow$ `chương trình đào tạo`, `clc` $\rightarrow$ `chất lượng cao`, `cntt` $\rightarrow$ `công nghệ thông tin`, `kktx` $\rightarrow$ `ký túc xá`).
+3. **Domain Relevance Evaluator**: Intercepts off-topic queries (e.g. recipes, stock advice, non-academic coding) and returns a friendly redirect message without executing expensive RAG searches.
 
-### 2. First-Stage Hybrid Retrieval (Vector + Keyword)
+### 🔍 Stage 1: First-Stage Hybrid Retrieval (Vector + Keyword)
 * **Embedding**: Embeds the query into a 384-dimensional vector using `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`.
 * **Hybrid Search (RPC)**: Executes `match_chunks_hybrid_rrf` in Supabase PostgreSQL:
   * **Dense Vector Search**: HNSW Index (Cosine Distance) $\rightarrow$ Top 30
@@ -101,12 +127,12 @@ sequenceDiagram
   * **Reciprocal Rank Fusion (RRF)**: Combines ranks via $\text{RRF Score} = \frac{1}{60 + \text{VectorRank}} + \frac{1}{60 + \text{KeywordRank}}$.
 * Returns **Top 35 candidates**.
 
-### 3. Second-Stage Cross-Encoder Reranking
+### 🎯 Stage 2: Second-Stage Cross-Encoder Reranking
 * Evaluates candidate chunks using `BAAI/bge-reranker-v2-m3`.
 * Jointly scores `(query, document_text)` pairs to filter out irrelevant footers/headers.
 * Selects the **Top 5 highest precision chunks**.
 
-### 4. Generation & Persistence
+### 🤖 Stage 3 & 4: Generation & Persistence
 * Formats retrieved context + citations.
 * Invokes `gemini-2.5-flash` (with fallback to `gemini-2.0-flash`).
 * Persists conversation history into PostgreSQL (`conversations` and `messages` tables).
@@ -251,6 +277,8 @@ erDiagram
 | `POST` | `/api/auth/login` | Login & receive JWT access token |
 | `POST` | `/api/auth/google/link` | Link Google Account / Google OAuth |
 | `GET` | `/api/chat/sessions` | Fetch user conversation history for sidebar |
+| `PATCH` | `/api/chat/sessions/{id}` | Rename conversation session title |
+| `DELETE` | `/api/chat/sessions/{id}` | Soft-delete conversation session |
 | `POST` | `/api/chat/messages` | Standard HTTP RAG chat endpoint |
 | `POST` | `/api/chat/messages/stream` | Real-time SSE token-by-token streaming RAG endpoint |
 | `GET` | `/api/settings` | Get user interface & AI settings |
@@ -280,7 +308,12 @@ ACCESS_TOKEN_EXPIRE_MINUTES=60
 pip install -r requirements.txt
 ```
 
-### 3. Run Backend Server
+### 3. Run Guardrails Automated Unit Tests
+```bash
+python tests/test_guardrails.py
+```
+
+### 4. Run Backend Server
 ```bash
 uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```

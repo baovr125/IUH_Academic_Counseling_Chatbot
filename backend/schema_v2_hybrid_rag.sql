@@ -20,6 +20,16 @@ DROP FUNCTION IF EXISTS update_modified_column CASCADE;
 -- 1. KÍCH HOẠT EXTENSION BẮT BUỘC
 -- Cần thiết cho việc lưu trữ vector và tìm kiếm độ tương đồng
 CREATE EXTENSION IF NOT EXISTS vector;
+-- Hỗ trợ tìm kiếm không dấu (diacritic-insensitive) cho tiếng Việt
+CREATE EXTENSION IF NOT EXISTS unaccent;
+-- Hỗ trợ tìm kiếm trigram (substring matching) cho tiếng Việt
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+
+-- Wrapper IMMUTABLE cho unaccent (cần thiết cho GENERATED ALWAYS columns)
+CREATE OR REPLACE FUNCTION immutable_unaccent(text)
+RETURNS text AS $$
+  SELECT public.unaccent('public.unaccent', $1);
+$$ LANGUAGE sql IMMUTABLE PARALLEL SAFE STRICT;
 
 -- Hàm tiện ích để tự động cập nhật cột updated_at khi có thay đổi dữ liệu (Trigger)
 CREATE OR REPLACE FUNCTION update_modified_column()
@@ -89,8 +99,8 @@ CREATE TABLE document_chunks (
     metadata JSONB,                           -- Các thông tin khác (level, page, header...)
     embedding VECTOR(384),                    -- [VECTOR SEARCH] Vector 384 chiều (paraphrase-multilingual-MiniLM-L12-v2)
     fts_tokens TSVECTOR GENERATED ALWAYS AS (
-        to_tsvector('simple', COALESCE(injected_content, content))
-    ) STORED,                                 -- [KEYWORD SEARCH - MỚI] Cột TSVECTOR tự động cho tìm kiếm từ khóa theo từ điển simple (tương tự BM25Okapi)
+        to_tsvector('simple', immutable_unaccent(COALESCE(injected_content, content)))
+    ) STORED,                                 -- [KEYWORD SEARCH] TSVECTOR tự động, unaccent cho tìm kiếm không dấu tiếng Việt
     tokens_count INTEGER,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -246,10 +256,10 @@ keyword_search AS (
     SELECT 
         c.id,
         ROW_NUMBER() OVER (
-            ORDER BY ts_rank_cd(c.fts_tokens, websearch_to_tsquery('simple', query_text)) DESC
+            ORDER BY ts_rank_cd(c.fts_tokens, websearch_to_tsquery('simple', public.unaccent(query_text))) DESC
         ) AS keyword_rank
     FROM document_chunks c
-    WHERE c.fts_tokens @@ websearch_to_tsquery('simple', query_text)
+    WHERE c.fts_tokens @@ websearch_to_tsquery('simple', public.unaccent(query_text))
     LIMIT 30
 ),
 rrf_fusion AS (
