@@ -47,7 +47,7 @@ export default function ChatPage() {
               <p className="text-sm">Ask anything about IUH's academic rules, forms, or policies.</p>
             </div>
           ) : (
-            messages.map((message) => <ChatMessageBubble key={message.id} message={message} onSendMessage={sendMessage} />)
+            messages.map((message, index) => <ChatMessageBubble key={message.id} message={message} isLatest={index === messages.length - 1} onSendMessage={sendMessage} />)
           )}
 
           {error && (

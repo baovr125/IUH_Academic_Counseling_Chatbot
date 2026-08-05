@@ -25,7 +25,9 @@ interface UseChatReturn {
  */
 export function useChat(): UseChatReturn {
   const [sessions, setSessions] = useState<ChatSession[]>([]);
-  const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
+  const [activeSessionId, setActiveSessionId] = useState<string | null>(() => {
+    return localStorage.getItem("activeChatSessionId");
+  });
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isSending, setIsSending] = useState(false);
   const [isLoadingSessions, setIsLoadingSessions] = useState(true);
@@ -44,10 +46,20 @@ export function useChat(): UseChatReturn {
         return;
       }
       setSessions(result.data);
-      const first = result.data[0];
-      if (first) {
-        setActiveSessionId(first.id);
-        setMessages(first.messages);
+      
+      const storedId = localStorage.getItem("activeChatSessionId");
+      const matched = result.data.find(s => s.id === storedId);
+      
+      if (matched) {
+        setActiveSessionId(matched.id);
+        setMessages(matched.messages);
+      } else {
+        const first = result.data[0];
+        if (first) {
+          setActiveSessionId(first.id);
+          localStorage.setItem("activeChatSessionId", first.id);
+          setMessages(first.messages);
+        }
       }
     })();
   }, []);
@@ -56,6 +68,7 @@ export function useChat(): UseChatReturn {
     (sessionId: string) => {
       const session = sessions.find((s) => s.id === sessionId);
       setActiveSessionId(sessionId);
+      localStorage.setItem("activeChatSessionId", sessionId);
       setMessages(session?.messages ?? []);
     },
     [sessions]
@@ -63,6 +76,7 @@ export function useChat(): UseChatReturn {
 
   const startNewSession = useCallback(() => {
     setActiveSessionId(null);
+    localStorage.removeItem("activeChatSessionId");
     setMessages([]);
   }, []);
 
@@ -84,6 +98,11 @@ export function useChat(): UseChatReturn {
         if (activeSessionId === sessionId) {
           const next = updated[0];
           setActiveSessionId(next?.id ?? null);
+          if (next?.id) {
+            localStorage.setItem("activeChatSessionId", next.id);
+          } else {
+            localStorage.removeItem("activeChatSessionId");
+          }
           setMessages(next?.messages ?? []);
         }
         return updated;
@@ -106,6 +125,8 @@ export function useChat(): UseChatReturn {
       if (!content.trim() || isSending) return;
       setError(null);
 
+      let currentSessionId = activeSessionId;
+      
       // Optimistic user bubble, then a pending assistant bubble while we
       // "wait" on the RAG pipeline — this is the loading state the chat
       // screen renders as a typing indicator.
@@ -116,6 +137,31 @@ export function useChat(): UseChatReturn {
         createdAt: new Date().toISOString(),
         status: "complete",
       };
+      
+      if (!currentSessionId) {
+        currentSessionId = `s_${Date.now()}`;
+        setActiveSessionId(currentSessionId);
+        localStorage.setItem("activeChatSessionId", currentSessionId);
+        
+        // Optimistically add the new session to the sidebar
+        const newSession: ChatSession = {
+          id: currentSessionId,
+          title: content.slice(0, 40) + (content.length > 40 ? "..." : ""),
+          updatedAt: new Date().toISOString(),
+          messages: [optimisticUserMessage],
+        };
+        setSessions(prev => [newSession, ...prev]);
+      } else {
+        // Optimistically update the existing session's message list in the sidebar
+        setSessions(prev => 
+          prev.map(s => 
+            s.id === currentSessionId 
+              ? { ...s, updatedAt: new Date().toISOString(), messages: [...s.messages, optimisticUserMessage] } 
+              : s
+          )
+        );
+      }
+
       const pendingAssistantMessage: ChatMessage = {
         id: `temp_pending_${Date.now()}`,
         role: "assistant",
@@ -131,12 +177,15 @@ export function useChat(): UseChatReturn {
 
       await chatService.sendMessageStream(
         {
-          sessionId: activeSessionId,
+          sessionId: currentSessionId,
           content,
         },
         {
           onMetadata: async ({ sessionId, citations }) => {
-            if (sessionId) setActiveSessionId(sessionId);
+            if (sessionId) {
+              setActiveSessionId(sessionId);
+              localStorage.setItem("activeChatSessionId", sessionId);
+            }
             setMessages((prev) =>
               prev.map((m) =>
                 m.id === pendingAssistantMessage.id

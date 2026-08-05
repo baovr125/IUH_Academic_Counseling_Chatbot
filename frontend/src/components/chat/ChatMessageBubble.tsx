@@ -21,9 +21,11 @@ function TypingIndicator() {
 
 export function ChatMessageBubble({ 
   message,
+  isLatest = false,
   onSendMessage
 }: { 
   message: ChatMessage;
+  isLatest?: boolean;
   onSendMessage?: (msg: string) => void;
 }) {
   const isUser = message.role === "user";
@@ -103,7 +105,7 @@ export function ChatMessageBubble({
                 ))}
               </div>
             )}
-            {followUps.length > 0 && (
+            {isLatest && followUps.length > 0 && (
               <div className="mt-3 flex flex-col gap-2">
                 <span className="text-xs font-medium text-slate-500">Gợi ý câu hỏi:</span>
                 <div className="flex flex-wrap gap-2">

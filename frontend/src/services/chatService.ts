@@ -23,11 +23,14 @@ const getApiUrl = (endpoint: string): string => {
 let sessionsStore: ChatSession[] = JSON.parse(JSON.stringify(MOCK_CHAT_SESSIONS));
 
 function getAuthHeaders(): Record<string, string> {
-  const token = getToken() || localStorage.getItem("token") || localStorage.getItem("auth_token") || "mock_dev_test_token_2026";
-  return {
+  const token = getToken() || localStorage.getItem("token") || localStorage.getItem("auth_token");
+  const headers: Record<string, string> = {
     "Content-Type": "application/json",
-    "Authorization": `Bearer ${token}`
   };
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+  return headers;
 }
 
 export async function fetchSessions(): Promise<ApiResult<ChatSession[]>> {

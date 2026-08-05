@@ -24,7 +24,7 @@ vi.mock('lucide-react', () => ({
 
 describe('ChatMessageBubble (Test Case 0.1)', () => {
   it('T0.1: renders typing indicator when status is pending and no content exists', () => {
-    const message = { id: '1', role: 'assistant' as const, content: '', status: 'pending' as const };
+    const message = { id: '1', role: 'assistant' as const, content: '', status: 'pending' as const, createdAt: new Date().toISOString() };
     const { container, queryByTestId } = render(<ChatMessageBubble message={message} />);
     
     // Typing indicator should be visible (3 bouncing dots)
@@ -36,7 +36,7 @@ describe('ChatMessageBubble (Test Case 0.1)', () => {
   });
 
   it('T0.1: renders content progressively and shows pulsing cursor when status is pending but content exists', () => {
-    const message = { id: '2', role: 'assistant' as const, content: 'Đang giải thích', status: 'pending' as const };
+    const message = { id: '2', role: 'assistant' as const, content: 'Đang giải thích', status: 'pending' as const, createdAt: new Date().toISOString() };
     const { getByTestId, container } = render(<ChatMessageBubble message={message} />);
     
     // Typing indicator should disappear
@@ -52,7 +52,7 @@ describe('ChatMessageBubble (Test Case 0.1)', () => {
   });
 
   it('T0.1: removes pulsing cursor when status is complete', () => {
-    const message = { id: '3', role: 'assistant' as const, content: 'Đã giải thích xong', status: 'complete' as const };
+    const message = { id: '3', role: 'assistant' as const, content: 'Đã giải thích xong', status: 'complete' as const, createdAt: new Date().toISOString() };
     const { getByTestId, container } = render(<ChatMessageBubble message={message} />);
     
     // Content should be rendered

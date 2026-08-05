@@ -2,8 +2,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { sendMessage, sendMessageStream } from '../src/services/chatService';
 import * as authService from '../src/services/authService';
 
-// Mock global fetch
-global.fetch = vi.fn();
+// Mock globalThis.fetch
+globalThis.fetch = vi.fn();
 
 // Mock authService to control the token returned
 vi.mock('../src/services/authService', () => ({
@@ -18,7 +18,7 @@ describe('chatService (Test Case 0.2)', () => {
   });
 
   it('T0.2: sendMessage includes Authorization header', async () => {
-    (global.fetch as any).mockResolvedValueOnce({
+    (globalThis.fetch as any).mockResolvedValueOnce({
       ok: true,
       json: async () => ({ answer: 'Mock response' })
     });
@@ -26,7 +26,7 @@ describe('chatService (Test Case 0.2)', () => {
     await sendMessage({ content: 'Hello API', sessionId: 'session-123' });
 
     // Verify fetch was called with the correct Authorization header
-    expect(global.fetch).toHaveBeenCalledWith(
+    expect(globalThis.fetch).toHaveBeenCalledWith(
       expect.any(String),
       expect.objectContaining({
         headers: expect.objectContaining({
@@ -37,7 +37,7 @@ describe('chatService (Test Case 0.2)', () => {
   });
 
   it('T0.2: sendMessageStream includes Authorization header', async () => {
-    (global.fetch as any).mockResolvedValueOnce({
+    (globalThis.fetch as any).mockResolvedValueOnce({
       ok: true,
       body: { getReader: vi.fn() }
     });
@@ -49,7 +49,7 @@ describe('chatService (Test Case 0.2)', () => {
     }
 
     // Verify fetch was called with the correct Authorization header
-    expect(global.fetch).toHaveBeenCalledWith(
+    expect(globalThis.fetch).toHaveBeenCalledWith(
       expect.any(String),
       expect.objectContaining({
         headers: expect.objectContaining({

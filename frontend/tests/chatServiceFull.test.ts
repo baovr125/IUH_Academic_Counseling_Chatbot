@@ -9,8 +9,8 @@ import {
 } from '../src/services/chatService';
 import * as authService from '../src/services/authService';
 
-// Mock global fetch
-global.fetch = vi.fn();
+// Mock globalThis.fetch
+globalThis.fetch = vi.fn();
 
 // Mock authService
 vi.mock('../src/services/authService', () => ({
@@ -33,7 +33,7 @@ describe('chatService — API integration', () => {
 
   describe('Auth Headers', () => {
     it('sendMessage includes Bearer token', async () => {
-      (global.fetch as any).mockResolvedValueOnce({
+      (globalThis.fetch as any).mockResolvedValueOnce({
         ok: true,
         headers: { get: () => 'application/json' },
         json: async () => ({
@@ -50,7 +50,7 @@ describe('chatService — API integration', () => {
 
       await sendMessage({ content: 'Hello', sessionId: 'test-session' });
 
-      expect(global.fetch).toHaveBeenCalledWith(
+      expect(globalThis.fetch).toHaveBeenCalledWith(
         expect.any(String),
         expect.objectContaining({
           headers: expect.objectContaining({
@@ -61,7 +61,7 @@ describe('chatService — API integration', () => {
     });
 
     it('fetchSessions includes Bearer token', async () => {
-      (global.fetch as any).mockResolvedValueOnce({
+      (globalThis.fetch as any).mockResolvedValueOnce({
         ok: true,
         headers: { get: () => 'application/json' },
         json: async () => ({ ok: true, data: [] }),
@@ -69,7 +69,7 @@ describe('chatService — API integration', () => {
 
       await fetchSessions();
 
-      expect(global.fetch).toHaveBeenCalledWith(
+      expect(globalThis.fetch).toHaveBeenCalledWith(
         expect.stringContaining('/api/chat/sessions'),
         expect.objectContaining({
           headers: expect.objectContaining({
@@ -80,14 +80,14 @@ describe('chatService — API integration', () => {
     });
 
     it('renameSession includes Bearer token', async () => {
-      (global.fetch as any).mockResolvedValueOnce({
+      (globalThis.fetch as any).mockResolvedValueOnce({
         ok: true,
         json: async () => ({ ok: true }),
       });
 
       await renameSession('s1', 'New Title');
 
-      expect(global.fetch).toHaveBeenCalledWith(
+      expect(globalThis.fetch).toHaveBeenCalledWith(
         expect.stringContaining('/api/chat/sessions/s1'),
         expect.objectContaining({
           method: 'PATCH',
@@ -99,14 +99,14 @@ describe('chatService — API integration', () => {
     });
 
     it('deleteSession includes Bearer token', async () => {
-      (global.fetch as any).mockResolvedValueOnce({
+      (globalThis.fetch as any).mockResolvedValueOnce({
         ok: true,
         json: async () => ({ ok: true }),
       });
 
       await deleteSession('s1');
 
-      expect(global.fetch).toHaveBeenCalledWith(
+      expect(globalThis.fetch).toHaveBeenCalledWith(
         expect.stringContaining('/api/chat/sessions/s1'),
         expect.objectContaining({
           method: 'DELETE',
@@ -118,14 +118,14 @@ describe('chatService — API integration', () => {
     });
 
     it('submitFeedback includes Bearer token', async () => {
-      (global.fetch as any).mockResolvedValueOnce({
+      (globalThis.fetch as any).mockResolvedValueOnce({
         ok: true,
         json: async () => ({ ok: true }),
       });
 
       await submitFeedback('msg1', { feedback: 'like' });
 
-      expect(global.fetch).toHaveBeenCalledWith(
+      expect(globalThis.fetch).toHaveBeenCalledWith(
         expect.stringContaining('/api/chat/messages/msg1/feedback'),
         expect.objectContaining({
           method: 'PATCH',
@@ -146,7 +146,7 @@ describe('chatService — API integration', () => {
         createdAt: '2026-08-05T10:00:00Z', status: 'complete',
       };
 
-      (global.fetch as any).mockResolvedValueOnce({
+      (globalThis.fetch as any).mockResolvedValueOnce({
         ok: true,
         headers: { get: () => 'application/json' },
         json: async () => ({
@@ -157,28 +157,34 @@ describe('chatService — API integration', () => {
 
       const result = await sendMessage({ content: 'Xin chào', sessionId: 'sess-1' });
       expect(result.ok).toBe(true);
-      expect(result.data?.sessionId).toBe('sess-1');
-      expect(result.data?.message.content).toBe('Xin chào!');
+      if (result.ok) {
+        expect(result.data.sessionId).toBe('sess-1');
+        expect(result.data.message.content).toBe('Xin chào!');
+      }
     });
 
     it('handles non-JSON response gracefully', async () => {
-      (global.fetch as any).mockResolvedValueOnce({
+      (globalThis.fetch as any).mockResolvedValueOnce({
         ok: false,
         status: 500,
         headers: { get: () => 'text/html' },
       });
 
-      const result = await sendMessage({ content: 'Test' });
+      const result = await sendMessage({ content: 'Test', sessionId: null });
       expect(result.ok).toBe(false);
-      expect(result.error?.message).toContain('500');
+      if (!result.ok) {
+        expect(result.error.message).toContain('500');
+      }
     });
 
     it('handles network error gracefully', async () => {
-      (global.fetch as any).mockRejectedValueOnce(new Error('Network error'));
+      (globalThis.fetch as any).mockRejectedValueOnce(new Error('Network error'));
 
-      const result = await sendMessage({ content: 'Test' });
+      const result = await sendMessage({ content: 'Test', sessionId: null });
       expect(result.ok).toBe(false);
-      expect(result.error?.message).toContain('Network error');
+      if (!result.ok) {
+        expect(result.error.message).toContain('Network error');
+      }
     });
   });
 
@@ -186,7 +192,7 @@ describe('chatService — API integration', () => {
 
   describe('sendMessageStream', () => {
     it('includes Bearer token in stream request', async () => {
-      (global.fetch as any).mockResolvedValueOnce({
+      (globalThis.fetch as any).mockResolvedValueOnce({
         ok: true,
         body: { getReader: vi.fn() },
       });
@@ -195,7 +201,7 @@ describe('chatService — API integration', () => {
         await sendMessageStream({ content: 'Stream test', sessionId: 's1' }, { onError: vi.fn() });
       } catch (e) { /* reader mock throws */ }
 
-      expect(global.fetch).toHaveBeenCalledWith(
+      expect(globalThis.fetch).toHaveBeenCalledWith(
         expect.stringContaining('/api/chat/messages/stream'),
         expect.objectContaining({
           headers: expect.objectContaining({
@@ -207,13 +213,13 @@ describe('chatService — API integration', () => {
 
     it('calls onError for non-ok response', async () => {
       const onError = vi.fn();
-      (global.fetch as any).mockResolvedValueOnce({
+      (globalThis.fetch as any).mockResolvedValueOnce({
         ok: false,
         status: 503,
         body: null,
       });
 
-      await sendMessageStream({ content: 'Test' }, { onError });
+      await sendMessageStream({ content: 'Test', sessionId: null }, { onError });
       expect(onError).toHaveBeenCalledWith(expect.stringContaining('503'));
     });
 
@@ -221,9 +227,9 @@ describe('chatService — API integration', () => {
       const onError = vi.fn();
       const abortError = new Error('Aborted');
       abortError.name = 'AbortError';
-      (global.fetch as any).mockRejectedValueOnce(abortError);
+      (globalThis.fetch as any).mockRejectedValueOnce(abortError);
 
-      await sendMessageStream({ content: 'Test' }, { onError });
+      await sendMessageStream({ content: 'Test', sessionId: null }, { onError });
       expect(onError).toHaveBeenCalledWith(expect.stringContaining('hủy'));
     });
 
@@ -242,7 +248,7 @@ describe('chatService — API integration', () => {
       const chunks = [encoder.encode(ssePayload)];
       let readIndex = 0;
 
-      (global.fetch as any).mockResolvedValueOnce({
+      (globalThis.fetch as any).mockResolvedValueOnce({
         ok: true,
         body: {
           getReader: () => ({
