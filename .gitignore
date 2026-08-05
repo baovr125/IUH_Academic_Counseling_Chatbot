@@ -29,3 +29,13 @@ PROJECT_LOG.md
 frontend1/dist/
 frontend1/build/
 
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+frontend1/dist/assets/
