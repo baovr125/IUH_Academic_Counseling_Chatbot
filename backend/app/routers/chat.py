@@ -53,9 +53,11 @@ async def get_sessions(current_user_id: Optional[str] = Depends(get_optional_cur
         if not supabase:
             return ApiResult(ok=True, data=[])
 
-        query = supabase.table("conversations").select("*").or_("is_deleted.eq.false,is_deleted.is.null")
+        query = supabase.table("conversations").select("*")
         if current_user_id:
             query = query.or_(f"user_id.eq.{current_user_id},user_id.is.null")
+        else:
+            query = query.filter("user_id", "is", "null")
 
         conv_res = query.order("updated_at", desc=True).execute()
         conversations = conv_res.data or []
@@ -116,15 +118,12 @@ async def delete_session(
     session_id: str,
     current_user_id: Optional[str] = Depends(get_optional_current_user_id)
 ):
-    """Soft deletes a chat conversation from user view while preserving database records for RAG analytics."""
+    """Deletes a chat conversation from PostgreSQL."""
     clean_id = ensure_uuid(session_id)
     supabase = get_supabase_client()
     if supabase:
         try:
-            supabase.table("conversations").update({
-                "is_deleted": True,
-                "updated_at": datetime.now(timezone.utc).isoformat()
-            }).eq("id", clean_id).execute()
+            supabase.table("conversations").delete().eq("id", clean_id).execute()
         except Exception as e:
             return ApiResult(ok=False, error={"message": f"Không thể xóa cuộc trò chuyện: {str(e)}"})
     return ApiResult(ok=True, data={"sessionId": clean_id, "deleted": True})

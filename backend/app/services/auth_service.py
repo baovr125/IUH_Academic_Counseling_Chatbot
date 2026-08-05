@@ -209,21 +209,6 @@ def get_user_profile_logic(current_user_id: str, db: Session) -> dict:
         user = db.query(User).filter(User.email == current_user_id).first()
 
     if not user:
-        if current_user_id == "00000000-0000-0000-0000-000000000001":
-            return {
-                "ok": True,
-                "data": {
-                    "id": "00000000-0000-0000-0000-000000000001",
-                    "fullName": "Sinh viên Thử nghiệm (Test Mode)",
-                    "email": "test_student@iuh.edu.vn",
-                    "studentCode": "SV2026001",
-                    "department": "Khoa Công nghệ Thông tin",
-                    "major": "Kỹ thuật Phần mềm",
-                    "role": "student",
-                    "avatarUrl": "https://lh3.googleusercontent.com/a/default-user=s96-c",
-                    "hasPassword": True
-                }
-            }
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Người dùng không tồn tại hoặc đã bị xóa.",

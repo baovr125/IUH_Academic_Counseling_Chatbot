@@ -34,8 +34,9 @@ from nltk.tokenize import sent_tokenize
 
 # --- 1. CẤU HÌNH HỆ THỐNG ---
 
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../"))
 # Thư mục chứa các file .md đầu vào (Dùng khi chạy độc lập)
-INPUT_DIR = r"G:\Khoa_Luan\Source_code\data\markdown_craw3\markdown_updates" 
+INPUT_DIR = os.path.join(PROJECT_ROOT, "data", "markdown_craw3", "markdown_updates")
 FILE_EXTENSION = ".md"
 
 # Cấu hình Model và Chunking
@@ -48,8 +49,8 @@ INJECT_METADATA = True
 
 # Load biến môi trường từ các file .env có thể có trong dự án
 load_dotenv()
-load_dotenv(r"G:\Khoa_Luan\Source_code\backend_api\.env")
-load_dotenv(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "backend_api", ".env"))
+load_dotenv(os.path.join(PROJECT_ROOT, "backend", ".env"))
+load_dotenv(os.path.join(PROJECT_ROOT, ".env"))
 
 DATABASE_URL = os.getenv(
     "DATABASE_URL",

@@ -32,7 +32,8 @@ START_URLS = [
     "https://iuh.edu.vn/"
 ]
 
-WORK_DIR = r"G:\Khoa_Luan\Source_code\data\markdown_craw3"
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../"))
+WORK_DIR = os.path.join(PROJECT_ROOT, "data", "markdown_craw3")
 STATE_FILE = os.path.join(WORK_DIR, "website_state.json")
 GRAPH_FILE = os.path.join(WORK_DIR, "web_structure_graph.json") # 🟢 File lưu sơ đồ đồ thị web
 MD_UPDATES_DIR = os.path.join(WORK_DIR, "markdown_updates")
