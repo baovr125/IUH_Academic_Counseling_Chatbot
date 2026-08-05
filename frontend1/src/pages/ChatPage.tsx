@@ -18,6 +18,7 @@ export default function ChatPage() {
     sendMessage,
     renameSession,
     deleteSession,
+    abortStream,
   } = useChat();
 
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -46,7 +47,7 @@ export default function ChatPage() {
               <p className="text-sm">Ask anything about IUH's academic rules, forms, or policies.</p>
             </div>
           ) : (
-            messages.map((message) => <ChatMessageBubble key={message.id} message={message} />)
+            messages.map((message) => <ChatMessageBubble key={message.id} message={message} onSendMessage={sendMessage} />)
           )}
 
           {error && (
@@ -56,7 +57,7 @@ export default function ChatPage() {
           )}
         </div>
 
-        <ChatComposer onSend={sendMessage} isSending={isSending} />
+        <ChatComposer onSend={sendMessage} isSending={isSending} onAbort={abortStream} />
       </div>
     </div>
   );

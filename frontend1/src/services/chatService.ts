@@ -176,7 +176,8 @@ export interface StreamCallbacks {
 
 export async function sendMessageStream(
   payload: SendMessagePayload,
-  callbacks: StreamCallbacks
+  callbacks: StreamCallbacks,
+  signal?: AbortSignal
 ): Promise<void> {
   const url = getApiUrl("/api/chat/messages/stream");
   try {
@@ -184,6 +185,7 @@ export async function sendMessageStream(
       method: "POST",
       headers: getAuthHeaders(),
       body: JSON.stringify(payload),
+      signal,
     });
 
     if (!response.ok || !response.body) {
@@ -228,7 +230,11 @@ export async function sendMessageStream(
       }
     }
   } catch (err: any) {
-    callbacks.onError?.(err?.message || "Không thể kết nối đến máy chủ.");
+    if (err.name === 'AbortError') {
+      callbacks.onError?.("Đã hủy tạo câu trả lời.");
+    } else {
+      callbacks.onError?.(err?.message || "Không thể kết nối đến máy chủ.");
+    }
   }
 }
 

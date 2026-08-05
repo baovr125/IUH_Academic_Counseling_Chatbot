@@ -1,104 +1,74 @@
-import React from "react";
+import React from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 interface FormattedMarkdownProps {
   content: string;
 }
 
-function parseInline(text: string): React.ReactNode[] {
-  // Matches **bold**, __bold__, *italic*, _italic_, and [link](url)
-  const regex = /(\*\*[^*]+\*\*|__[^_]+__|\[[^\]]+\]\([^)]+\)|\*[^*]+\*|_[^_]+_)/g;
-  const parts = text.split(regex);
-
-  return parts.map((part, index) => {
-    if ((part.startsWith("**") && part.endsWith("**")) || (part.startsWith("__") && part.endsWith("__"))) {
-      return (
-        <strong key={index} className="font-semibold text-slate-900">
-          {part.slice(2, -2)}
-        </strong>
-      );
-    }
-    if ((part.startsWith("*") && part.endsWith("*")) || (part.startsWith("_") && part.endsWith("_"))) {
-      return <em key={index}>{part.slice(1, -1)}</em>;
-    }
-    const linkMatch = part.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
-    if (linkMatch) {
-      return (
-        <a
-          key={index}
-          href={linkMatch[2]}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-blue-600 underline hover:text-blue-800"
-        >
-          {linkMatch[1]}
-        </a>
-      );
-    }
-    return part;
-  });
-}
-
 export function FormattedMarkdown({ content }: FormattedMarkdownProps) {
   if (!content) return null;
 
-  const lines = content.split("\n");
-  const elements: React.ReactNode[] = [];
-
-  lines.forEach((line, idx) => {
-    const trimmed = line.trim();
-    if (!trimmed) {
-      elements.push(<div key={`br-${idx}`} className="h-1.5" />);
-      return;
-    }
-
-    // Bullet list items
-    if (trimmed.startsWith("- ") || trimmed.startsWith("* ")) {
-      elements.push(
-        <div key={idx} className="ml-3 flex items-start gap-2 my-0.5">
-          <span className="text-blue-600 font-bold select-none">•</span>
-          <div className="flex-1">{parseInline(trimmed.slice(2))}</div>
-        </div>
-      );
-      return;
-    }
-
-    // Numbered list items
-    const numMatch = trimmed.match(/^(\d+)\.\s+(.*)$/);
-    if (numMatch) {
-      elements.push(
-        <div key={idx} className="ml-3 flex items-start gap-2 my-0.5">
-          <span className="text-blue-600 font-semibold select-none">{numMatch[1]}.</span>
-          <div className="flex-1">{parseInline(numMatch[2])}</div>
-        </div>
-      );
-      return;
-    }
-
-    // Headers
-    if (trimmed.startsWith("### ")) {
-      elements.push(
-        <h3 key={idx} className="font-bold text-slate-900 text-base mt-2 mb-1">
-          {parseInline(trimmed.slice(4))}
-        </h3>
-      );
-      return;
-    }
-    if (trimmed.startsWith("## ")) {
-      elements.push(
-        <h2 key={idx} className="font-bold text-slate-900 text-lg mt-3 mb-1 border-b border-slate-200 pb-1">
-          {parseInline(trimmed.slice(3))}
-        </h2>
-      );
-      return;
-    }
-
-    // Default paragraph line
-    elements.push(
-      <p key={idx} className="my-0.5 leading-relaxed">
-        {parseInline(line)}
-      </p>
-    );
-  });
-
-  return <div className="space-y-0.5">{elements}</div>;
+  return (
+    <div className="max-w-none break-words">
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        components={{
+        code(props: any) {
+          const { children, className, node, ...rest } = props;
+          const match = /language-(\w+)/.exec(className || '');
+          return match ? (
+            <SyntaxHighlighter
+              {...rest}
+              PreTag="div"
+              children={String(children).replace(/\n$/, '')}
+              language={match[1]}
+              style={vscDarkPlus}
+              className="rounded-md my-2"
+            />
+          ) : (
+            <code {...rest} className="bg-black/10 rounded px-1 py-0.5 text-xs font-mono text-inherit">
+              {children}
+            </code>
+          );
+        },
+        table({ node, ...props }: any) {
+          return (
+            <div className="overflow-x-auto my-2">
+              <table className="min-w-full border-collapse border border-black/20" {...props} />
+            </div>
+          );
+        },
+        th({ node, ...props }: any) {
+          return <th className="border border-black/20 px-3 py-2 bg-black/5 font-semibold text-left" {...props} />;
+        },
+        td({ node, ...props }: any) {
+          return <td className="border border-black/20 px-3 py-2" {...props} />;
+        },
+        a({ node, ...props }: any) {
+          return <a className="underline hover:opacity-80 font-medium" target="_blank" rel="noopener noreferrer" {...props} />;
+        },
+        p({ node, ...props }: any) {
+          return <p className="my-1.5 leading-relaxed" {...props} />;
+        },
+        ul({ node, ...props }: any) {
+          return <ul className="list-disc ml-5 my-1.5 space-y-1" {...props} />;
+        },
+        ol({ node, ...props }: any) {
+          return <ol className="list-decimal ml-5 my-1.5 space-y-1" {...props} />;
+        },
+        h2({ node, ...props }: any) {
+          return <h2 className="font-bold text-lg mt-3 mb-1 border-b border-black/10 pb-1" {...props} />;
+        },
+        h3({ node, ...props }: any) {
+          return <h3 className="font-bold text-base mt-2 mb-1" {...props} />;
+        }
+      }}
+    >
+      {content}
+    </ReactMarkdown>
+    </div>
+  );
 }

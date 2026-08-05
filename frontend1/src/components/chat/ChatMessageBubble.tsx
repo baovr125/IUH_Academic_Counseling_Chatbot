@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Bot, ThumbsUp, ThumbsDown, MessageSquare } from "lucide-react";
+import { Bot, ThumbsUp, ThumbsDown, MessageSquare, Copy, Check } from "lucide-react";
 import type { ChatMessage } from "../../types";
 import { CitationBadge } from "./CitationBadge";
 import { FormattedMarkdown } from "./FormattedMarkdown";
@@ -19,11 +19,28 @@ function TypingIndicator() {
   );
 }
 
-export function ChatMessageBubble({ message }: { message: ChatMessage }) {
+export function ChatMessageBubble({ 
+  message,
+  onSendMessage
+}: { 
+  message: ChatMessage;
+  onSendMessage?: (msg: string) => void;
+}) {
   const isUser = message.role === "user";
   const [feedback, setFeedback] = useState<'like' | 'dislike' | null>(null);
   const [showComment, setShowComment] = useState(false);
   const [comment, setComment] = useState("");
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(message.content);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy text', err);
+    }
+  };
 
   const handleFeedback = async (type: 'like' | 'dislike') => {
     // If clicking the same one, maybe toggle? Or just set it. We'll set it.
@@ -40,11 +57,25 @@ export function ChatMessageBubble({ message }: { message: ChatMessage }) {
     setShowComment(false);
   };
 
+  const followUpRegex = /\[follow_up\](.*?)\[\/follow_up\]/gs;
+  const followUps: string[] = [];
+  let match;
+  while ((match = followUpRegex.exec(message.content)) !== null) {
+    if (match[1].trim()) {
+      followUps.push(match[1].trim());
+    }
+  }
+
+  const cleanContent = message.content
+    .replace(followUpRegex, '')
+    .replace(/\[follow_up\][^\[]*$/, '')
+    .trim();
+
   if (isUser) {
     return (
       <div className="flex justify-end gap-2">
         <div className="max-w-[70%] rounded-2xl rounded-tr-sm bg-blue-600 px-4 py-2.5 text-sm text-white">
-          <FormattedMarkdown content={message.content} />
+          <FormattedMarkdown content={cleanContent || message.content} />
         </div>
       </div>
     );
@@ -60,7 +91,7 @@ export function ChatMessageBubble({ message }: { message: ChatMessage }) {
           <TypingIndicator />
         ) : (
           <>
-            <FormattedMarkdown content={message.content} />
+            <FormattedMarkdown content={cleanContent} />
             {message.status === "pending" && (
               <span className="inline-block h-3 w-1.5 animate-pulse rounded-sm bg-blue-400 ml-0.5 align-baseline" />
             )}
@@ -72,9 +103,32 @@ export function ChatMessageBubble({ message }: { message: ChatMessage }) {
                 ))}
               </div>
             )}
+            {followUps.length > 0 && (
+              <div className="mt-3 flex flex-col gap-2">
+                <span className="text-xs font-medium text-slate-500">Gợi ý câu hỏi:</span>
+                <div className="flex flex-wrap gap-2">
+                  {followUps.map((text, i) => (
+                    <button
+                      key={i}
+                      onClick={() => onSendMessage && onSendMessage(text)}
+                      className="text-left text-xs text-blue-700 bg-blue-100 hover:bg-blue-200 border border-blue-200 rounded-xl px-3 py-1.5 transition-colors"
+                    >
+                      {text}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
             {message.status === "complete" && (
               <div className="mt-3 flex flex-col gap-2 border-t border-blue-100 pt-2">
                 <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleCopy}
+                    className="p-1.5 rounded-md transition-colors text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+                    title="Sao chép"
+                  >
+                    {copied ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
+                  </button>
                   <button
                     onClick={() => handleFeedback('like')}
                     className={`p-1.5 rounded-md transition-colors ${feedback === 'like' ? 'bg-blue-100 text-blue-600' : 'text-slate-400 hover:bg-slate-100 hover:text-slate-600'}`}

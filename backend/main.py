@@ -6,13 +6,16 @@ from fastapi.responses import JSONResponse
 from database import Base, engine
 from app.routers.auth import router as auth_router
 from app.routers.settings import router as settings_router
+from app.routers.analytics import router as analytics_router
 
 import asyncio
 from contextlib import asynccontextmanager
 
 try:
     from app.routers.chat import router as chat_router, preload_models
-except ImportError:
+except ImportError as e:
+    import traceback
+    traceback.print_exc()
     chat_router = None
     preload_models = None
 
@@ -96,6 +99,7 @@ async def db_operational_exception_handler(request: Request, exc: OperationalErr
 # Mount routes
 app.include_router(auth_router)
 app.include_router(settings_router)
+app.include_router(analytics_router) 
 if chat_router:
     app.include_router(chat_router)
 

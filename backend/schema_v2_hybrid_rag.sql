@@ -238,7 +238,8 @@ RETURNS TABLE (
     injected_content TEXT,
     metadata JSONB,
     source_url TEXT,
-    rrf_score DOUBLE PRECISION
+    rrf_score DOUBLE PRECISION,
+    chunk_index INTEGER
 )
 LANGUAGE sql
 AS $$
@@ -281,10 +282,11 @@ SELECT
     c.injected_content,
     c.metadata,
     d.source_url,
-    rf.rrf_score
-FROM rrf_fusion rf
-JOIN document_chunks c ON c.id = rf.chunk_id
-JOIN documents d ON d.id = c.document_id
-ORDER BY rf.rrf_score DESC
+    f.rrf_score,
+    c.chunk_index
+FROM rrf_fusion f
+JOIN document_chunks c ON c.id = f.chunk_id
+LEFT JOIN documents d ON c.document_id = d.id
+ORDER BY f.rrf_score DESC
 LIMIT match_count;
 $$;

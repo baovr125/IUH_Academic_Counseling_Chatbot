@@ -14,6 +14,7 @@ interface UseChatReturn {
   sendMessage: (content: string) => Promise<void>;
   renameSession: (sessionId: string, newTitle: string) => Promise<void>;
   deleteSession: (sessionId: string) => Promise<void>;
+  abortStream: () => void;
 }
 
 /**
@@ -29,6 +30,7 @@ export function useChat(): UseChatReturn {
   const [isSending, setIsSending] = useState(false);
   const [isLoadingSessions, setIsLoadingSessions] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [abortController, setAbortController] = useState<AbortController | null>(null);
 
   // Initial load of chat history sidebar.
   useEffect(() => {
@@ -91,6 +93,14 @@ export function useChat(): UseChatReturn {
     [activeSessionId]
   );
 
+  const abortStream = useCallback(() => {
+    if (abortController) {
+      abortController.abort();
+      setAbortController(null);
+      setIsSending(false);
+    }
+  }, [abortController]);
+
   const sendMessage = useCallback(
     async (content: string) => {
       if (!content.trim() || isSending) return;
@@ -116,6 +126,8 @@ export function useChat(): UseChatReturn {
 
       setMessages((prev) => [...prev, optimisticUserMessage, pendingAssistantMessage]);
       setIsSending(true);
+      const newAbortController = new AbortController();
+      setAbortController(newAbortController);
 
       await chatService.sendMessageStream(
         {
@@ -146,6 +158,7 @@ export function useChat(): UseChatReturn {
           },
           onDone: async () => {
             setIsSending(false);
+            setAbortController(null);
             setMessages((prev) =>
               prev.map((m) =>
                 m.id === pendingAssistantMessage.id
@@ -158,6 +171,7 @@ export function useChat(): UseChatReturn {
           },
           onError: (errMsg) => {
             setIsSending(false);
+            setAbortController(null);
             setError(errMsg);
             setMessages((prev) =>
               prev.map((m) =>
@@ -167,7 +181,8 @@ export function useChat(): UseChatReturn {
               )
             );
           },
-        }
+        },
+        newAbortController.signal
       );
     },
     [activeSessionId, isSending]
@@ -185,5 +200,6 @@ export function useChat(): UseChatReturn {
     sendMessage,
     renameSession,
     deleteSession,
+    abortStream,
   };
 }

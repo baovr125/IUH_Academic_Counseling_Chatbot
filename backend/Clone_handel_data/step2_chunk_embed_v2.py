@@ -378,15 +378,22 @@ def process_single_markdown(file_path):
         content_only = content_after_fm.strip()
         content_hash = hashlib.md5(content_only.encode('utf-8')).hexdigest()
         
-        # Lấy danh sách các chunk phân cấp
-        parents, children = build_hierarchical_chunks_v6_2(file_path)
-        
-        if not children:
-            return False
-
-        # Kết nối tới Supabase PostgreSQL trong một transaction đồng bộ
         with get_db_connection() as conn:
             with conn.cursor() as cur:
+                # KIỂM TRA HASH TRONG DATABASE (INCREMENTAL CRAWL)
+                cur.execute("SELECT content_hash FROM documents WHERE source_url = %s", (source_url,))
+                row = cur.fetchone()
+                if row and row[0] == content_hash:
+                    return "unchanged"
+                
+                is_update = row is not None
+                
+                # Lấy danh sách các chunk phân cấp
+                parents, children = build_hierarchical_chunks_v6_2(file_path)
+                
+                if not children:
+                    return "error"
+
                 # 1. UPSERT vào bảng `documents` theo source_url UNIQUE
                 upsert_doc_query = """
                     INSERT INTO documents (title, source_url, breadcrumbs, content_hash, updated_at)
@@ -403,7 +410,7 @@ def process_single_markdown(file_path):
                 doc_row = cur.fetchone()
                 if not doc_row:
                     print(f"❌ Không thể upsert document cho '{source_url}'")
-                    return False
+                    return "error"
                 document_id = doc_row[0]
                 
                 # 2. Xóa các chunk cũ của document này (tránh orphan/duplicate khi bài viết cập nhật)
@@ -460,11 +467,11 @@ def process_single_markdown(file_path):
             # Commit transaction khi mọi thao tác cho document + chunks thành công
             conn.commit()
             
-        return True
+        return "updated" if is_update else "added"
             
     except Exception as e:
         print(f"❌ Lỗi xử lý Supabase PostgreSQL cho file {file_path}: {e}")
-        return False
+        return "error"
 
 
 # --- 5. CHẠY ĐỘC LẬP (MAIN SCRIPT) ---
@@ -483,10 +490,10 @@ if __name__ == "__main__":
     else:
         print(f"🔎 Tìm thấy tổng cộng {len(file_paths)} file .md để bắt đầu nạp.")
         
-        success_count = 0
+        stats = {"added": 0, "updated": 0, "unchanged": 0, "error": 0}
         for path in tqdm(file_paths, desc="Đang xử lý nạp dữ liệu"):
-            if process_single_markdown(path):
-                success_count += 1
+            status = process_single_markdown(path)
+            stats[status] += 1
                 
         doc_count = 0
         chunk_count = 0
@@ -502,7 +509,7 @@ if __name__ == "__main__":
 
         print("\n" + "="*60)
         print("🎉 TIẾN TRÌNH HOÀN TẤT TỐT ĐẸP!")
-        print(f"📊 Đồng bộ thành công: {success_count}/{len(file_paths)} files.")
+        print(f"📊 Kết quả đợt chạy: Thêm mới {stats['added']}, Cập nhật {stats['updated']}, Không đổi {stats['unchanged']}, Lỗi {stats['error']}")
         print(f"🗂️ Tổng số bài viết (documents) trong Supabase: {doc_count}")
         print(f"🧩 Tổng số đoạn văn bản (chunks) trong Supabase: {chunk_count}")
         print(f"💾 Cơ sở dữ liệu: Supabase PostgreSQL (schema_v2_hybrid_rag.sql)")

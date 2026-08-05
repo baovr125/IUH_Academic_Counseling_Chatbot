@@ -253,12 +253,12 @@ def scrape_and_convert_to_markdown(url, html_text, output_dir, state):
 
 def process_single_url_sync(current_url, state, graph_data):
     new_links = []
-    is_updated = False
+    status = "unchanged"
     
     try:
         response = session.get(current_url, timeout=10)
         if response.status_code != 200 or not response.headers.get('content-type', '').startswith('text/html'):
-            return new_links, is_updated
+            return new_links, status
 
         soup = BeautifulSoup(response.text, "html.parser")
         
@@ -291,17 +291,17 @@ def process_single_url_sync(current_url, state, graph_data):
                 with open(output_path, "w", encoding="utf-8") as f:
                     f.write(markdown_content)
                     
-                success = process_single_markdown(output_path)
+                status = process_single_markdown(output_path)
                 
-                if success:
+                if status in ["added", "updated"]:
                     with state_lock:
                         state[current_url] = content_hash
-                    is_updated = True
                     
     except Exception as e:
+        status = "error"
         pass
         
-    return new_links, is_updated
+    return new_links, status
 
 def run_dynamic_sync_threaded(start_urls, max_workers=10):
     print("="*70)
@@ -312,7 +312,7 @@ def run_dynamic_sync_threaded(start_urls, max_workers=10):
     graph_data = load_json(GRAPH_FILE) # 🟢 Nạp Đồ thị hiện tại
     links_to_crawl = set(start_urls)
     visited_links = set()
-    changes_detected = 0
+    stats = {"added": 0, "updated": 0, "unchanged": 0, "error": 0}
     
     pbar = tqdm(desc="Đang quét web", unit=" link")
 
@@ -327,11 +327,13 @@ def run_dynamic_sync_threaded(start_urls, max_workers=10):
             for future in concurrent.futures.as_completed(future_to_url):
                 url = future_to_url[future]
                 try:
-                    new_links, is_updated = future.result()
+                    new_links, status = future.result()
                     
-                    if is_updated:
-                        changes_detected += 1
-                        tqdm.write(f"✨ [CẬP NHẬT WEB -> SUPABASE] Phát hiện thay đổi: {url}")
+                    if status in stats:
+                        stats[status] += 1
+                    
+                    if status in ["added", "updated"]:
+                        tqdm.write(f"✨ [CẬP NHẬT WEB -> SUPABASE] {status.upper()}: {url}")
 
                     for link in new_links:
                         if should_crawl_url(link) and link not in visited_links and link not in links_to_crawl:
@@ -341,7 +343,7 @@ def run_dynamic_sync_threaded(start_urls, max_workers=10):
                     pass
                 
                 pbar.update(1)
-                pbar.set_postfix({"Queue": len(links_to_crawl), "Updated": changes_detected})
+                pbar.set_postfix({"Queue": len(links_to_crawl), "Added": stats["added"], "Updated": stats["updated"]})
 
     pbar.close()
     
@@ -351,7 +353,7 @@ def run_dynamic_sync_threaded(start_urls, max_workers=10):
     
     print("\n" + "="*70)
     print(f"🏁 Hoàn thành đợt đồng bộ đa luồng. Đã duyệt {len(visited_links)} links.")
-    print(f"📈 Phát hiện và đồng bộ thành công {changes_detected} trang web/file PDF thay đổi vào Supabase PostgreSQL.")
+    print(f"📊 Kết quả: Thêm mới {stats['added']}, Cập nhật {stats['updated']}, Không đổi {stats['unchanged']}, Lỗi {stats['error']}")
     print(f"🌲 Đồ thị cấu trúc Web được cập nhật tại: {GRAPH_FILE}")
     print("="*70)
 

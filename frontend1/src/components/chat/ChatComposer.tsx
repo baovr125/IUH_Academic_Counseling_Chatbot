@@ -1,9 +1,10 @@
-import { Paperclip, Send } from "lucide-react";
+import { Paperclip, Send, Square } from "lucide-react";
 import { useState } from "react";
 
 interface ChatComposerProps {
   onSend: (content: string) => void;
   isSending: boolean;
+  onAbort?: () => void;
 }
 
 const QUICK_ACTIONS = [
@@ -12,7 +13,7 @@ const QUICK_ACTIONS = [
   { label: "Viết email xin phép", icon: "✉️" },
 ];
 
-export function ChatComposer({ onSend, isSending }: ChatComposerProps) {
+export function ChatComposer({ onSend, isSending, onAbort }: ChatComposerProps) {
   const [value, setValue] = useState("");
 
   const handleSend = () => {
@@ -51,13 +52,23 @@ export function ChatComposer({ onSend, isSending }: ChatComposerProps) {
         <span className="text-xs text-slate-400 mr-2 select-none">
           {value.length}/2000
         </span>
-        <button
-          onClick={handleSend}
-          disabled={!value.trim() || isSending || value.length > 2000}
-          className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-200"
-        >
-          <Send size={15} />
-        </button>
+        {isSending ? (
+          <button
+            onClick={onAbort}
+            className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-600 transition-colors hover:bg-red-200"
+            title="Stop generating"
+          >
+            <Square fill="currentColor" size={12} />
+          </button>
+        ) : (
+          <button
+            onClick={handleSend}
+            disabled={!value.trim() || value.length > 2000}
+            className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-200"
+          >
+            <Send size={15} />
+          </button>
+        )}
       </div>
 
       <p className="mt-2 text-center text-[11px] text-slate-400">

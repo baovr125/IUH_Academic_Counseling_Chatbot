@@ -35,7 +35,7 @@ class SendMessageResponseData(BaseModel):
 
 
 class RenameSessionPayload(BaseModel):
-    title: str
+    title: str = Field(..., min_length=1, max_length=100)
 
 
 class ApiResult(BaseModel):
@@ -44,5 +44,5 @@ class ApiResult(BaseModel):
     error: Optional[dict] = None
 
 class FeedbackPayload(BaseModel):
-    feedback: str  # 'like' | 'dislike'
-    comment: Optional[str] = None
+    feedback: Literal['like', 'dislike']
+    comment: Optional[str] = Field(None, max_length=500)
