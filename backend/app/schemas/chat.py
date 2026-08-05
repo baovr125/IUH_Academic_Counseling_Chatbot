@@ -1,5 +1,5 @@
-from typing import List, Optional, Any
-from pydantic import BaseModel
+from typing import List, Optional, Any, Literal
+from pydantic import BaseModel, Field, validator
 
 
 class Citation(BaseModel):
@@ -12,7 +12,7 @@ class Citation(BaseModel):
 
 class ChatMessage(BaseModel):
     id: str
-    role: str
+    role: Literal['user', 'assistant']
     original_answer: Optional[str] = None
     content: str
     citations: Optional[List[Citation]] = None
@@ -22,7 +22,11 @@ class ChatMessage(BaseModel):
 
 class SendMessagePayload(BaseModel):
     sessionId: Optional[str] = None
-    content: str
+    content: str = Field(..., min_length=1, max_length=2000)
+
+    @validator('content')
+    def strip_whitespace(cls, v):
+        return v.strip()
 
 
 class SendMessageResponseData(BaseModel):
@@ -38,3 +42,7 @@ class ApiResult(BaseModel):
     ok: bool
     data: Optional[Any] = None
     error: Optional[dict] = None
+
+class FeedbackPayload(BaseModel):
+    feedback: str  # 'like' | 'dislike'
+    comment: Optional[str] = None

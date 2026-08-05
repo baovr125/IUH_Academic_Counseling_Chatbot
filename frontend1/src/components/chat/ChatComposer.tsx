@@ -42,14 +42,18 @@ export function ChatComposer({ onSend, isSending }: ChatComposerProps) {
         </button>
         <input
           value={value}
+          maxLength={2000}
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleSend()}
           placeholder="Ask the Knowledge Hub..."
           className="flex-1 border-none bg-transparent text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none"
         />
+        <span className="text-xs text-slate-400 mr-2 select-none">
+          {value.length}/2000
+        </span>
         <button
           onClick={handleSend}
-          disabled={!value.trim() || isSending}
+          disabled={!value.trim() || isSending || value.length > 2000}
           className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-200"
         >
           <Send size={15} />

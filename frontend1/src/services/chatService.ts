@@ -232,3 +232,17 @@ export async function sendMessageStream(
   }
 }
 
+export async function submitFeedback(messageId: string, payload: { feedback: 'like' | 'dislike' | null; comment?: string }): Promise<ApiResult<any>> {
+  try {
+    const res = await fetch(getApiUrl(`/api/chat/messages/${messageId}/feedback`), {
+      method: "PATCH",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(payload),
+    });
+    const result = await res.json();
+    return result;
+  } catch (err: any) {
+    return { ok: false, error: { message: err?.message || "Không thể gửi phản hồi." } };
+  }
+}
+

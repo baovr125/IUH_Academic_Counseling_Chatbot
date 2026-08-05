@@ -89,7 +89,7 @@ def save_user_msg_to_db(session_id: str, user_content: str, title: str, user_id:
     return clean_id
 
 
-def save_assistant_msg_to_db(session_id: str, assistant_content: str, retrieved_chunk_ids: list = None):
+def save_assistant_msg_to_db(session_id: str, assistant_content: str, retrieved_chunk_ids: list = None, latency_ms: int = None, prompt_tokens: int = None, completion_tokens: int = None):
     """Saves assistant message to PostgreSQL and updates conversation timestamp."""
     clean_id = ensure_uuid(session_id)
     supabase = get_supabase_client()
@@ -102,12 +102,17 @@ def save_assistant_msg_to_db(session_id: str, assistant_content: str, retrieved_
             logger.warning(f"Failed to update conversation timestamp for {clean_id}: {e}")
 
         try:
-            supabase.table("messages").insert({
+            msg_payload = {
                 "conversation_id": clean_id,
                 "role": "assistant",
                 "content": assistant_content,
                 "retrieved_chunk_ids": retrieved_chunk_ids or []
-            }).execute()
+            }
+            if latency_ms is not None: msg_payload["latency_ms"] = latency_ms
+            if prompt_tokens is not None: msg_payload["prompt_tokens"] = prompt_tokens
+            if completion_tokens is not None: msg_payload["completion_tokens"] = completion_tokens
+            
+            supabase.table("messages").insert(msg_payload).execute()
         except Exception as e:
             logger.warning(f"Failed to insert assistant message for {clean_id}: {e}")
 
@@ -116,7 +121,7 @@ def save_assistant_msg_to_db(session_id: str, assistant_content: str, retrieved_
     session_memory[clean_id].append({"role": "assistant", "content": assistant_content})
 
 
-def save_turn_to_db(session_id: str, user_content: str, assistant_content: str, title: str, retrieved_chunk_ids: list = None, user_id: Optional[str] = None):
+def save_turn_to_db(session_id: str, user_content: str, assistant_content: str, title: str, retrieved_chunk_ids: list = None, user_id: Optional[str] = None, latency_ms: int = None, prompt_tokens: int = None, completion_tokens: int = None):
     """Persists conversation and message turns into PostgreSQL tables."""
     clean_id = save_user_msg_to_db(session_id, user_content, title, user_id=user_id)
-    save_assistant_msg_to_db(clean_id, assistant_content, retrieved_chunk_ids)
+    save_assistant_msg_to_db(clean_id, assistant_content, retrieved_chunk_ids, latency_ms, prompt_tokens, completion_tokens)

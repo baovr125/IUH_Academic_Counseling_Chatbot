@@ -15,7 +15,11 @@ vi.mock('../src/components/chat/FormattedMarkdown', () => {
 
 // Mock lucide-react to avoid issues with SVGs
 vi.mock('lucide-react', () => ({
-  Bot: () => <div data-testid="bot-icon" />
+  Bot: () => <div data-testid="bot-icon" />,
+  ThumbsUp: () => <div data-testid="thumbs-up-icon" />,
+  ThumbsDown: () => <div data-testid="thumbs-down-icon" />,
+  MessageSquare: () => <div data-testid="message-square-icon" />,
+  BookMarked: () => <div data-testid="bookmarked-icon" />
 }));
 
 describe('ChatMessageBubble (Test Case 0.1)', () => {

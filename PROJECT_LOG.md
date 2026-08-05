@@ -49,6 +49,7 @@ Hệ thống Trợ lý Học vụ Thông minh IUH tích hợp RAG 4 Giai đoạn
 | **21** | Tái Cấu Trúc Auth Backend (Modular Architecture) | Tách file `routes/auth.py` (502 dòng) thành `services/auth_service.py` chứa 100% logic xác thực (đăng ký, đăng nhập, Google OAuth token check, OTP reset password), rút gọn `routes/auth.py` về ~100 dòng chỉ làm nhiệm vụ route handler. |
 | **22** | Hợp Nhất Thư Mục Backend (Unified App Package) | Xóa bỏ sự trùng lặp thư mục giữa `backend/` gốc và `backend/app/`. Gom 100% routers, schemas, services, utils về gói thống nhất `backend/app/` (`app/routers/`, `app/schemas/`, `app/services/`, `app/utils/`). Cập nhật tất cả các đường dẫn import chuẩn hóa (`from app.schemas...`, `from app.utils...`). |
 | **23** | Khắc phục lỗi Phase 0 (Roadmap) | Sửa 3 lỗi nghiêm trọng: 1) Sửa UI hiển thị nội dung stream (không bị kẹt ở typing dots), 2) Thêm Auth Headers cho `sendMessage` & `sendMessageStream`, 3) Cập nhật database hỗ trợ FTS tiếng Việt (thêm extension `unaccent` và `pg_trgm`). |
+| **24** | Khắc phục lỗi Phase 1 (Roadmap) - Task 1.4 | Cập nhật Schema Hardening và Input Validation. Thêm `max_length=2000` và validator loại bỏ khoảng trắng cho `SendMessagePayload` trong `backend/app/schemas/chat.py`. Kiểm tra nghiêm ngặt `role: Literal['user', 'assistant']`. Bổ sung hiển thị số lượng ký tự (`{value.length}/2000`) và vô hiệu hóa nút gửi trên frontend UI (`frontend1/src/components/chat/ChatComposer.tsx`). |
 
 ---
 

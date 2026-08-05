@@ -2,6 +2,7 @@ import uuid
 import json
 import asyncio
 import logging
+import time
 from datetime import datetime, timezone
 from typing import Optional
 
@@ -15,6 +16,7 @@ from app.schemas.chat import (
     ChatMessage,
     SendMessagePayload,
     RenameSessionPayload,
+    FeedbackPayload,
     ApiResult,
 )
 from app.guardrails.query_filter import (
@@ -128,6 +130,34 @@ async def delete_session(
     return ApiResult(ok=True, data={"sessionId": clean_id, "deleted": True})
 
 
+@router.patch("/messages/{message_id}/feedback")
+async def submit_feedback(
+    message_id: str,
+    payload: FeedbackPayload,
+    current_user_id: Optional[str] = Depends(get_optional_current_user_id)
+):
+    """Submits user feedback (like/dislike and comment) for a specific assistant message."""
+    try:
+        # Strip the "m_" prefix if it exists
+        clean_msg_id = message_id[2:] if message_id.startswith("m_") else message_id
+        clean_msg_id = ensure_uuid(clean_msg_id)
+        
+        supabase = get_supabase_client()
+        if not supabase:
+            return ApiResult(ok=False, error={"message": "Lỗi kết nối CSDL."})
+        
+        # Verify the message belongs to the user if authentication is implemented here
+        
+        supabase.table("messages").update({
+            "feedback": payload.feedback,
+            "feedback_comment": payload.comment
+        }).eq("id", clean_msg_id).execute()
+        
+        return ApiResult(ok=True, data={"messageId": message_id, "feedback": payload.feedback})
+    except Exception as e:
+        return ApiResult(ok=False, error={"message": f"Không thể gửi phản hồi: {str(e)}"})
+
+
 @router.post("/messages")
 async def send_message(
     payload: SendMessagePayload,
@@ -173,6 +203,7 @@ async def send_message(
             )
             return ApiResult(ok=True, data={"sessionId": clean_id, "message": assistant_msg.dict()})
 
+        start_time = time.perf_counter()
         history, retrieval_query, citations, chunk_ids, system_instruction, contents = await build_rag_payload(session_id, normalized_query)
 
         gemini_response = None
@@ -214,8 +245,20 @@ async def send_message(
             else:
                 generated_text = f"⚠️ Lỗi kết nối AI: {err_msg}"
 
+        latency_ms = int((time.perf_counter() - start_time) * 1000)
+        prompt_tokens = None
+        completion_tokens = None
+        if gemini_response and hasattr(gemini_response, "usage_metadata") and gemini_response.usage_metadata:
+            usage = gemini_response.usage_metadata
+            prompt_tokens = getattr(usage, "prompt_token_count", None)
+            completion_tokens = getattr(usage, "candidates_token_count", None)
+
         # Persist user question and assistant answer
-        save_turn_to_db(session_id, payload.content, generated_text, payload.content, retrieved_chunk_ids=chunk_ids, user_id=current_user_id)
+        save_turn_to_db(
+            session_id, payload.content, generated_text, payload.content, 
+            retrieved_chunk_ids=chunk_ids, user_id=current_user_id,
+            latency_ms=latency_ms, prompt_tokens=prompt_tokens, completion_tokens=completion_tokens
+        )
 
         assistant_message = ChatMessage(
             id=f"m_{uuid.uuid4().hex[:8]}",
@@ -275,6 +318,7 @@ async def send_message_stream(
                 yield f"data: {json.dumps({'type': 'done'})}\n\n"
                 return
 
+            start_time = time.perf_counter()
             history, retrieval_query, citations, chunk_ids, system_instruction, contents = await build_rag_payload(clean_session_id, normalized_query)
 
             # Send metadata event with citations first
@@ -315,6 +359,7 @@ async def send_message_stream(
             if stream_iter:
                 if first_chunk and first_chunk.text:
                     accumulated_text += first_chunk.text
+                    last_chunk = first_chunk
                     yield f"data: {json.dumps({'type': 'delta', 'text': first_chunk.text})}\n\n"
                     await asyncio.sleep(0.01)
 
@@ -323,6 +368,7 @@ async def send_message_stream(
                     chunk = await asyncio.to_thread(lambda: next(stream_iter, None))
                     if chunk is None:
                         break
+                    last_chunk = chunk
                     if chunk.text:
                         accumulated_text += chunk.text
                         yield f"data: {json.dumps({'type': 'delta', 'text': chunk.text})}\n\n"
@@ -344,7 +390,21 @@ async def send_message_stream(
         finally:
             # Guarantee assistant response is persisted even if client tab disconnected!
             if accumulated_text.strip():
-                save_assistant_msg_to_db(clean_session_id, accumulated_text, retrieved_chunk_ids=chunk_ids)
+                latency_ms = int((time.perf_counter() - start_time) * 1000) if 'start_time' in locals() else None
+                prompt_tokens = None
+                completion_tokens = None
+                if 'last_chunk' in locals() and last_chunk and hasattr(last_chunk, "usage_metadata") and last_chunk.usage_metadata:
+                    usage = last_chunk.usage_metadata
+                    prompt_tokens = getattr(usage, "prompt_token_count", None)
+                    completion_tokens = getattr(usage, "candidates_token_count", None)
+
+                save_assistant_msg_to_db(
+                    clean_session_id, accumulated_text, 
+                    retrieved_chunk_ids=chunk_ids,
+                    latency_ms=latency_ms,
+                    prompt_tokens=prompt_tokens,
+                    completion_tokens=completion_tokens
+                )
 
     return StreamingResponse(
         event_generator(),

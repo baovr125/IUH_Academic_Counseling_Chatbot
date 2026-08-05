@@ -3,6 +3,7 @@ chatbot/
 venv/
 env/
 backend/data/
+node_modules/
 
 # Bỏ qua cache của Python
 __pycache__/
@@ -24,3 +25,7 @@ scratch/
 .plan/
 
 PROJECT_LOG.md
+# Frontend build outputs
+frontend1/dist/
+frontend1/build/
+
