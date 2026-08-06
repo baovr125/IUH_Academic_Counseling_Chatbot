@@ -1,6 +1,11 @@
 import os
 import uuid
 import asyncio
+<<<<<<< HEAD:services/academic_chatbot_service/app/services/rag_service.py
+=======
+import logging
+import re
+>>>>>>> f2eeb171 (add Semantic cache (first version)):backend/app/services/rag_service.py
 from typing import List, Optional
 from cachetools import TTLCache
 
@@ -56,6 +61,7 @@ def preload_models():
     get_reranker()
     get_gemini()
 
+<<<<<<< HEAD:services/academic_chatbot_service/app/services/rag_service.py
 async def retrieve_relevant_chunks(query_text: str, top_k: int = 5, candidate_count: int = 35):
     if query_text in _embedding_cache:
         query_vector = _embedding_cache[query_text]
@@ -63,6 +69,137 @@ async def retrieve_relevant_chunks(query_text: str, top_k: int = 5, candidate_co
         embedder = get_embedder()
         query_vector = await asyncio.to_thread(lambda: embedder.encode(query_text).tolist())
         _embedding_cache[query_text] = query_vector
+=======
+
+# --- 1.5 Semantic Cache (Phase 2) ---
+async def get_query_embedding(query_text: str) -> list:
+    if query_text in _embedding_cache:
+        return _embedding_cache[query_text]
+    embedder = get_embedder()
+    query_vector = await asyncio.to_thread(lambda: embedder.encode(query_text).tolist())
+    _embedding_cache[query_text] = query_vector
+    return query_vector
+
+async def check_semantic_cache(query_text: str, threshold: float = 0.92) -> Optional[dict]:
+    """
+    Phase 2: Semantic Cache Lookup
+    Intercepts query and checks if a highly similar answer exists in the cache.
+    Now includes a number/entity verification to prevent false hits on different cohorts/years.
+    """
+    query_vector = await get_query_embedding(query_text)
+    supabase = get_supabase_client()
+    if not supabase:
+        return None
+
+    try:
+        def _call_rpc():
+            return supabase.rpc(
+                "match_semantic_cache",
+                {
+                    "query_vec": query_vector,
+                    "match_threshold": threshold
+                }
+            ).execute()
+
+        response = await asyncio.to_thread(_call_rpc)
+        data = response.data or []
+        if data and len(data) > 0:
+            hit = data[0]
+            
+            # Number verification step to avoid "Khóa 18" vs "Khóa 19" false positives
+            canonical_query = hit.get("canonical_query", "")
+            nums_q = sorted(re.findall(r'\d+', query_text))
+            nums_c = sorted(re.findall(r'\d+', canonical_query))
+            
+            if nums_q != nums_c:
+                logger.info(f"Semantic Cache MISS: Entity mismatch {nums_q} vs {nums_c} (Score: {hit.get('similarity')})")
+                return None
+                
+            logger.info(f"Semantic Cache HIT! Score: {hit.get('similarity')} (Passed entity check)")
+            
+            # Asynchronously increment hit count
+            cache_id = hit.get("id")
+            if cache_id:
+                async def _increment():
+                    try:
+                        res = supabase.table("semantic_cache").select("hit_count").eq("id", cache_id).execute()
+                        if res.data:
+                            curr = res.data[0].get("hit_count", 0)
+                            supabase.table("semantic_cache").update({"hit_count": curr + 1}).eq("id", cache_id).execute()
+                    except Exception as e:
+                        logger.error(f"Failed to increment cache hit: {e}")
+                asyncio.create_task(_increment())
+                
+            return hit
+            
+    except Exception as e:
+        logger.exception(f"Semantic cache lookup failed: {e}")
+
+    return None
+
+
+async def async_cache_writeback(query_text: str, answer: str, top_doc_score: float):
+    """
+    Phase 3: Quality Gate & Asynchronous Write-Back
+    Validates LLM answer against RAG context and blocks bad responses from entering cache.
+    """
+    try:
+        # Rule 1: Relevance check
+        if top_doc_score < 0.25:
+            logger.info(f"Cache writeback skipped: low top_doc_score {top_doc_score}")
+            return
+            
+        # Rule 2: Anti-Fallback check
+        fallback_phrases = [
+            "không đủ thông tin", 
+            "không có thông tin", 
+            "không được đề cập", 
+            "tôi không biết", 
+            "liên hệ phòng đào tạo", 
+            "không tìm thấy tài liệu"
+        ]
+        answer_lower = answer.lower()
+        if any(phrase in answer_lower for phrase in fallback_phrases):
+            logger.info("Cache writeback skipped: fallback phrase detected")
+            return
+            
+        # Rule 3: Length check
+        if not (30 <= len(answer) <= 3000):
+            logger.info(f"Cache writeback skipped: invalid length {len(answer)}")
+            return
+            
+        query_vector = await get_query_embedding(query_text)
+        supabase = get_supabase_client()
+        if not supabase:
+            return
+            
+        from datetime import datetime, timedelta, timezone
+        expires_at = datetime.now(timezone.utc) + timedelta(days=30)
+        
+        def _insert():
+            return supabase.table("semantic_cache").insert({
+                "canonical_query": query_text,
+                "query_embedding": query_vector,
+                "cached_answer": answer,
+                "retrieval_score": top_doc_score,
+                "expires_at": expires_at.isoformat()
+            }).execute()
+            
+        await asyncio.to_thread(_insert)
+        logger.info(f"Cache writeback success for query: '{query_text}'")
+    except Exception as e:
+        logger.exception(f"Cache writeback failed: {e}")
+
+
+# --- 2. Hybrid Retrieval & Reranking ---
+async def retrieve_relevant_chunks(query_text: str, top_k: int = 5, candidate_count: int = 35):
+    """
+    Stage 1: Retrieve candidate_count (35) chunks via Supabase Hybrid RRF RPC.
+    Stage 2: Cross-Encoder Reranking using BAAI/bge-reranker-v2-m3 -> Top k (5).
+    Offloads CPU-bound ML inference to background thread pool.
+    """
+    query_vector = await get_query_embedding(query_text)
+>>>>>>> f2eeb171 (add Semantic cache (first version)):backend/app/services/rag_service.py
 
     supabase = get_supabase_client()
     if not supabase:
@@ -265,4 +402,5 @@ async def build_rag_payload(session_id: str, content: str):
         contents.append(types.Content(role=role, parts=[types.Part.from_text(text=turn["content"])]))
     contents.append(types.Content(role="user", parts=[types.Part.from_text(text=content)]))
 
-    return history, retrieval_query, citations, chunk_ids, system_instruction, contents
+    top_doc_score = chunks[0].get("rerank_score", 0.0) if chunks else 0.0
+    return history, retrieval_query, citations, chunk_ids, system_instruction, contents, top_doc_score

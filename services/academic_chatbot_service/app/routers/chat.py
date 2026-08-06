@@ -35,6 +35,8 @@ from app.services.rag_service import (
     get_gemini,
     build_rag_payload,
     GEMINI_MODELS,
+    check_semantic_cache,
+    async_cache_writeback,
 )
 from app.utils.logger import logger
 
@@ -187,7 +189,38 @@ async def send_message(
             return ApiResult(ok=True, data={"sessionId": clean_id, "message": assistant_msg.dict()})
 
         start_time = time.perf_counter()
-        history, retrieval_query, citations, chunk_ids, system_instruction, contents = await build_rag_payload(session_id, normalized_query)
+
+        # Phase 2: Check Semantic Cache
+        cache_hit = await check_semantic_cache(normalized_query)
+        if cache_hit:
+            latency_ms = int((time.perf_counter() - start_time) * 1000)
+            cached_answer = cache_hit.get("cached_answer", "")
+            
+            save_turn_to_db(
+                session_id, payload.content, cached_answer, payload.content, 
+                retrieved_chunk_ids=[], user_id=current_user_id,
+                latency_ms=latency_ms, prompt_tokens=0, completion_tokens=0
+            )
+
+            assistant_msg = ChatMessage(
+                id=f"m_{uuid.uuid4().hex[:8]}",
+                role="assistant",
+                original_answer=cached_answer,
+                content=cached_answer,
+                citations=[],
+                createdAt=datetime.now(timezone.utc).isoformat(),
+                status="complete"
+            )
+            return ApiResult(
+                ok=True, 
+                data={
+                    "sessionId": ensure_uuid(session_id), 
+                    "message": assistant_msg.dict(),
+                    "cacheStatus": "HIT"
+                }
+            )
+
+        history, retrieval_query, citations, chunk_ids, system_instruction, contents, top_doc_score = await build_rag_payload(session_id, normalized_query)
 
         gemini_response = None
         last_exception = None
@@ -241,6 +274,10 @@ async def send_message(
             status="complete"
         )
 
+        # Trigger async cache write-back in background
+        if gemini_response and gemini_response.text:
+            asyncio.create_task(async_cache_writeback(normalized_query, generated_text, top_doc_score))
+
         return ApiResult(
             ok=True,
             data={
@@ -286,7 +323,20 @@ async def send_message_stream(
                 return
 
             start_time = time.perf_counter()
-            history, retrieval_query, citations, chunk_ids, system_instruction, contents = await build_rag_payload(clean_session_id, normalized_query)
+
+            # Phase 2: Check Semantic Cache
+            cache_hit = await check_semantic_cache(normalized_query)
+            if cache_hit:
+                cached_answer = cache_hit.get("cached_answer", "")
+                
+                # We yield metadata with cacheStatus
+                yield f"data: {json.dumps({'type': 'metadata', 'sessionId': clean_session_id, 'citations': [], 'cacheStatus': 'HIT'})}\n\n"
+                yield f"data: {json.dumps({'type': 'delta', 'text': cached_answer})}\n\n"
+                accumulated_text = cached_answer
+                yield f"data: {json.dumps({'type': 'done'})}\n\n"
+                return
+
+            history, retrieval_query, citations, chunk_ids, system_instruction, contents, top_doc_score = await build_rag_payload(clean_session_id, normalized_query)
 
             citations_data = [c.dict() for c in citations]
             yield f"data: {json.dumps({'type': 'metadata', 'sessionId': clean_session_id, 'citations': citations_data})}\n\n"
@@ -351,6 +401,10 @@ async def send_message_stream(
                     clean_session_id, accumulated_text, 
                     retrieved_chunk_ids=chunk_ids
                 )
+                
+                # Trigger async cache write-back in background
+                if not accumulated_text.startswith("⚠️"):
+                    asyncio.create_task(async_cache_writeback(normalized_query, accumulated_text, top_doc_score))
 
     return StreamingResponse(
         event_generator(),
