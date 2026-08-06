@@ -24,6 +24,7 @@ from app.utils.security import (
     verify_password,
     create_access_token,
 )
+from app.utils.logger import logger
 
 
 def verify_google_id_token(id_token: str) -> Dict[str, Any]:
@@ -48,8 +49,8 @@ def verify_google_id_token(id_token: str) -> Dict[str, Any]:
                 data = resp.json()
                 if data.get("sub"):
                     return data
-    except Exception:
-        pass
+    except Exception as e:
+        logger.exception(f"Failed to verify Google ID token via API: {e}")
 
     if is_dev or id_token.startswith("mock_") or id_token.startswith("test_") or id_token.startswith("google_id_token_"):
         token_str = (

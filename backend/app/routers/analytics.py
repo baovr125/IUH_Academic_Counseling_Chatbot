@@ -3,8 +3,7 @@ from typing import Dict, Any, List
 import logging
 from collections import Counter
 from app.services.chat_service import get_supabase_client
-
-logger = logging.getLogger(__name__)
+from app.utils.logger import logger
 
 router = APIRouter(prefix="/api/analytics", tags=["Analytics"])
 
@@ -83,5 +82,5 @@ async def get_analytics_overview() -> Dict[str, Any]:
             }
         }
     except Exception as e:
-        logger.error(f"Error fetching analytics overview: {e}")
-        return {"ok": False, "error": {"message": str(e), "code": "500"}}
+        logger.exception(f"Error fetching analytics overview: {e}")
+        return {"ok": False, "error": {"message": "Đã xảy ra lỗi nội bộ máy chủ", "code": "500"}}

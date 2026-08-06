@@ -1,17 +1,7 @@
 import { useEffect, useState } from "react";
 import { BarChart2, Activity, MessageSquare, ThumbsUp } from "lucide-react";
-
-interface AnalyticsData {
-  metrics: {
-    avg_latency_ms: number;
-    total_prompt_tokens: number;
-    satisfaction_rate: number;
-    total_feedback: number;
-    like_count: number;
-    dislike_count: number;
-  };
-  top_queries: { query: string; count: number }[];
-}
+import type { AnalyticsData } from "../types";
+import { fetchAnalyticsOverview } from "../services/analyticsService";
 
 export default function AnalyticsPage() {
   const [data, setData] = useState<AnalyticsData | null>(null);
@@ -19,10 +9,9 @@ export default function AnalyticsPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch("http://localhost:8000/api/analytics/overview")
-      .then(res => res.json())
+    fetchAnalyticsOverview()
       .then(res => {
-        if (res.ok) {
+        if (res.ok && res.data) {
           setData(res.data);
         } else {
           setError(res.error?.message || "Failed to fetch analytics");

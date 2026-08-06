@@ -1,4 +1,4 @@
-import { GraduationCap, LayoutDashboard, MessageSquare, Languages, Settings, HelpCircle } from "lucide-react";
+import { GraduationCap, LayoutDashboard, MessageSquare, Languages, Settings, HelpCircle, BarChart2 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useSettings } from "../../context/SettingsContext";
 
@@ -13,6 +13,7 @@ const NAV_ITEMS: NavItem[] = [
   { to: "/chat", icon: MessageSquare, key: "sidebar.knowledgeHub" },
   { to: "/translation", icon: Languages, key: "sidebar.translationStudio" },
   { to: "/flashcards", icon: GraduationCap, key: "sidebar.languageLab" },
+  { to: "/analytics", icon: BarChart2, key: "sidebar.analytics" },
 ];
 
 export function Sidebar() {

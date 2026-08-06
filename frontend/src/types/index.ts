@@ -181,6 +181,20 @@ export interface FlashcardSetProgress {
   needsReview: { term: string; whenLabel: string }[];
 }
 
+// ---- Analytics -------------------------------------------------------------
+
+export interface AnalyticsData {
+  metrics: {
+    avg_latency_ms: number;
+    total_prompt_tokens: number;
+    satisfaction_rate: number;
+    total_feedback: number;
+    like_count: number;
+    dislike_count: number;
+  };
+  top_queries: { query: string; count: number }[];
+}
+
 // ---- Generic wrapper -----------------------------------------------------
 
 export interface ApiError {

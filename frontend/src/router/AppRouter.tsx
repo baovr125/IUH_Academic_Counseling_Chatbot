@@ -8,6 +8,7 @@ import FlashcardPage from "../pages/FlashcardPage";
 import LoginPage from "../pages/LoginPage";
 import ProfilePage from "../pages/ProfilePage";
 import SettingsPage from "../pages/SettingsPage";
+import AnalyticsPage from "../pages/AnalyticsPage";
 import { useAuth } from "../hooks/useAuth";
 
 function RequireAuth({ children }: { children: React.ReactElement }) {
@@ -35,6 +36,7 @@ export function AppRouter() {
         <Route path="/flashcards" element={<FlashcardPage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/analytics" element={<AnalyticsPage />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/dashboard" replace />} />

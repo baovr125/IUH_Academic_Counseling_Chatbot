@@ -1,26 +1,13 @@
 import os
 import uuid
-import logging
+from typing import Dict, List, Optional
 from datetime import datetime, timezone
-from typing import Optional, List, Dict
-
-logger = logging.getLogger(__name__)
+from app.utils.logger import logger
 
 # In-memory session memory fallback (session_id -> list of message dicts)
 session_memory: Dict[str, List[dict]] = {}
 
-
-def get_supabase_client():
-    """Lazy initialization of Supabase client."""
-    from supabase import create_client
-    url = os.getenv("SUPABASE_URL", "")
-    key = os.getenv("SUPABASE_KEY", "")
-    if url and key:
-        try:
-            return create_client(url, key)
-        except Exception as e:
-            logger.error(f"Failed to create Supabase client: {e}")
-    return None
+from app.services.supabase_client import get_supabase_client
 
 
 def ensure_uuid(session_id: Optional[str]) -> str:
@@ -43,7 +30,7 @@ def get_session_history_from_db(session_id: str) -> list:
             if res.data:
                 return [{"role": m["role"], "content": m["content"]} for m in res.data]
     except Exception as e:
-        logger.warning(f"Failed to load session history for {clean_id}: {e}")
+        logger.exception(f"Failed to load session history for {clean_id}: {e}")
     return session_memory.get(clean_id, [])
 
 
@@ -72,7 +59,7 @@ def save_user_msg_to_db(session_id: str, user_content: str, title: str, user_id:
                     conv_payload["user_id"] = user_id
                 supabase.table("conversations").insert(conv_payload).execute()
         except Exception as e:
-            logger.warning(f"Failed to upsert conversation {clean_id}: {e}")
+            logger.exception(f"Failed to upsert conversation {clean_id}: {e}")
 
         try:
             supabase.table("messages").insert({
@@ -81,7 +68,7 @@ def save_user_msg_to_db(session_id: str, user_content: str, title: str, user_id:
                 "content": user_content
             }).execute()
         except Exception as e:
-            logger.warning(f"Failed to insert user message for {clean_id}: {e}")
+            logger.exception(f"Failed to insert user message for {clean_id}: {e}")
 
     if clean_id not in session_memory:
         session_memory[clean_id] = []
@@ -99,7 +86,7 @@ def save_assistant_msg_to_db(session_id: str, assistant_content: str, retrieved_
                 "updated_at": datetime.now(timezone.utc).isoformat()
             }).eq("id", clean_id).execute()
         except Exception as e:
-            logger.warning(f"Failed to update conversation timestamp for {clean_id}: {e}")
+            logger.exception(f"Failed to update conversation timestamp for {clean_id}: {e}")
 
         try:
             msg_payload = {
@@ -114,7 +101,7 @@ def save_assistant_msg_to_db(session_id: str, assistant_content: str, retrieved_
             
             supabase.table("messages").insert(msg_payload).execute()
         except Exception as e:
-            logger.warning(f"Failed to insert assistant message for {clean_id}: {e}")
+            logger.exception(f"Failed to insert assistant message for {clean_id}: {e}")
 
     if clean_id not in session_memory:
         session_memory[clean_id] = []

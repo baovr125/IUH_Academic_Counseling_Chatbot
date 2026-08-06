@@ -6,9 +6,11 @@ import time
 from datetime import datetime, timezone
 from typing import Optional
 
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Request
 from fastapi.responses import StreamingResponse
 from google.genai import types
+
+from app.utils.limiter import limiter
 
 from app.utils.security import get_optional_current_user_id
 from app.schemas.chat import (
@@ -38,7 +40,7 @@ from app.services.rag_service import (
     GEMINI_MODELS,
 )
 
-logger = logging.getLogger(__name__)
+from app.utils.logger import logger
 
 router = APIRouter(prefix="/api/chat", tags=["chat"])
 
@@ -87,7 +89,8 @@ async def get_sessions(current_user_id: Optional[str] = Depends(get_optional_cur
 
         return ApiResult(ok=True, data=result_sessions)
     except Exception as e:
-        return ApiResult(ok=False, error={"message": str(e)})
+        logger.exception(f"Error fetching sessions for user {current_user_id}: {e}")
+        return ApiResult(ok=False, error={"message": "Lỗi khi lấy danh sách phiên làm việc"})
 
 
 @router.patch("/sessions/{session_id}")
@@ -109,7 +112,8 @@ async def rename_session(
                 "updated_at": datetime.now(timezone.utc).isoformat()
             }).eq("id", clean_id).execute()
         except Exception as e:
-            return ApiResult(ok=False, error={"message": f"Không thể đổi tên cuộc trò chuyện: {str(e)}"})
+            logger.exception(f"Error renaming session {clean_id}: {e}")
+            return ApiResult(ok=False, error={"message": "Không thể đổi tên cuộc trò chuyện."})
     return ApiResult(ok=True, data={"sessionId": clean_id, "title": new_title})
 
 
@@ -125,7 +129,8 @@ async def delete_session(
         try:
             supabase.table("conversations").delete().eq("id", clean_id).execute()
         except Exception as e:
-            return ApiResult(ok=False, error={"message": f"Không thể xóa cuộc trò chuyện: {str(e)}"})
+            logger.exception(f"Error deleting session {clean_id}: {e}")
+            return ApiResult(ok=False, error={"message": "Không thể xóa cuộc trò chuyện."})
     return ApiResult(ok=True, data={"sessionId": clean_id, "deleted": True})
 
 
@@ -154,11 +159,14 @@ async def submit_feedback(
         
         return ApiResult(ok=True, data={"messageId": message_id, "feedback": payload.feedback})
     except Exception as e:
-        return ApiResult(ok=False, error={"message": f"Không thể gửi phản hồi: {str(e)}"})
+        logger.exception(f"Error submitting feedback for message {message_id}: {e}")
+        return ApiResult(ok=False, error={"message": "Không thể gửi phản hồi."})
 
 
 @router.post("/messages")
+@limiter.limit("20/minute")
 async def send_message(
+    request: Request,
     payload: SendMessagePayload,
     current_user_id: Optional[str] = Depends(get_optional_current_user_id)
 ):
@@ -229,6 +237,7 @@ async def send_message(
                     if gemini_response and gemini_response.text:
                         break
                 except Exception as e:
+                    logger.exception(f"Error generating content with model {model_name}: {e}")
                     last_exception = e
                     continue
 
@@ -278,11 +287,14 @@ async def send_message(
         )
 
     except Exception as e:
-        return ApiResult(ok=False, error={"message": str(e)})
+        logger.exception(f"Error in send_message: {e}")
+        return ApiResult(ok=False, error={"message": "Đã xảy ra lỗi khi gửi tin nhắn."})
 
 
 @router.post("/messages/stream")
+@limiter.limit("20/minute")
 async def send_message_stream(
+    request: Request,
     payload: SendMessagePayload,
     current_user_id: Optional[str] = Depends(get_optional_current_user_id)
 ):
@@ -352,6 +364,7 @@ async def send_message_stream(
                         stream_iter, first_chunk = await asyncio.to_thread(_start_stream_with_first_chunk)
                         break
                     except Exception as e:
+                        logger.exception(f"Error streaming content with model {model_name}: {e}")
                         last_err = e
                         continue
 
@@ -385,7 +398,8 @@ async def send_message_stream(
             yield f"data: {json.dumps({'type': 'done'})}\n\n"
 
         except Exception as e:
-            yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
+            logger.exception(f"Error in send_message_stream: {e}")
+            yield f"data: {json.dumps({'type': 'error', 'message': 'Đã xảy ra lỗi máy chủ'})}\n\n"
         finally:
             # Guarantee assistant response is persisted even if client tab disconnected!
             if accumulated_text.strip():

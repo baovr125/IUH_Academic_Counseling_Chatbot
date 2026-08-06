@@ -5,6 +5,7 @@ import bcrypt
 from jose import JWTError, jwt
 from fastapi import HTTPException, status, Security, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from app.utils.logger import logger
 
 # =====================================================================
 # CẤU HÌNH JOSE JWT & BCRYPT
@@ -32,7 +33,8 @@ def verify_password(plain_password: str, hashed_password: Optional[str]) -> bool
         pwd_bytes = plain_password.encode("utf-8")[:72]
         hash_bytes = hashed_password.encode("utf-8")
         return bcrypt.checkpw(pwd_bytes, hash_bytes)
-    except Exception:
+    except Exception as e:
+        logger.exception(f"Error during password verification: {e}")
         return False
 
 
