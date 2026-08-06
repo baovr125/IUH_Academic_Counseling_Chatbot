@@ -3,11 +3,37 @@ chatbot/
 venv/
 env/
 backend/data/
+node_modules/
 
 # Bỏ qua cache của Python
 __pycache__/
 *.pyc
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+
+# Bỏ qua các file tạm/IDE
 .vscode/
+scratch/
 
 # Bỏ qua file môi trường 
 .env
+
+# skip agent skills
+.agent/
+.plan/
+
+PROJECT_LOG.md
+# Frontend build outputs
+frontend1/dist/
+frontend1/build/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db

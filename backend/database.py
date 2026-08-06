@@ -4,7 +4,7 @@ from datetime import datetime
 from dotenv import load_dotenv
 from sqlalchemy import Column, String, Text, DateTime, Boolean, ForeignKey, create_engine, TypeDecorator, CHAR
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 
 load_dotenv()
