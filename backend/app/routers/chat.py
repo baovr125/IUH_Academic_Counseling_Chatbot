@@ -66,31 +66,49 @@ async def get_sessions(current_user_id: Optional[str] = Depends(get_optional_cur
 
         result_sessions = []
         for conv in conversations:
-            msg_res = supabase.table("messages").select("*").eq("conversation_id", conv["id"]).order("created_at").execute()
-            msg_list = msg_res.data or []
-
-            messages = [
-                {
-                    "id": f"m_{m['id']}",
-                    "role": m["role"],
-                    "content": m["content"],
-                    "createdAt": m.get("created_at", datetime.now(timezone.utc).isoformat()),
-                    "status": "complete"
-                }
-                for m in msg_list
-            ]
-
             result_sessions.append({
                 "id": conv["id"],
                 "title": conv.get("title", "Cuộc trò chuyện mới"),
                 "updatedAt": conv.get("updated_at", datetime.now(timezone.utc).isoformat()),
-                "messages": messages
+                "messages": []  # Lazy loading: messages fetched separately
             })
 
         return ApiResult(ok=True, data=result_sessions)
     except Exception as e:
         logger.exception(f"Error fetching sessions for user {current_user_id}: {e}")
         return ApiResult(ok=False, error={"message": "Lỗi khi lấy danh sách phiên làm việc"})
+
+
+@router.get("/sessions/{session_id}/messages")
+async def get_session_messages(
+    session_id: str,
+    current_user_id: Optional[str] = Depends(get_optional_current_user_id)
+):
+    """Fetches all messages for a specific session from PostgreSQL."""
+    clean_id = ensure_uuid(session_id)
+    try:
+        supabase = get_supabase_client()
+        if not supabase:
+            return ApiResult(ok=True, data=[])
+
+        msg_res = supabase.table("messages").select("*").eq("conversation_id", clean_id).order("created_at").execute()
+        msg_list = msg_res.data or []
+
+        messages = [
+            {
+                "id": f"m_{m['id']}",
+                "role": m["role"],
+                "content": m["content"],
+                "createdAt": m.get("created_at", datetime.now(timezone.utc).isoformat()),
+                "status": "complete"
+            }
+            for m in msg_list
+        ]
+
+        return ApiResult(ok=True, data=messages)
+    except Exception as e:
+        logger.exception(f"Error fetching messages for session {clean_id}: {e}")
+        return ApiResult(ok=False, error={"message": "Lỗi khi lấy tin nhắn của phiên làm việc"})
 
 
 @router.patch("/sessions/{session_id}")

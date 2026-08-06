@@ -58,6 +58,22 @@ export async function fetchSession(sessionId: string): Promise<ApiResult<ChatSes
   return { ok: true, data: session };
 }
 
+export async function fetchSessionMessages(sessionId: string): Promise<ApiResult<ChatMessage[]>> {
+  try {
+    const res = await fetch(getApiUrl(`/api/chat/sessions/${sessionId}/messages`), {
+      headers: getAuthHeaders()
+    });
+    const contentType = res.headers.get("content-type") || "";
+    if (contentType.includes("application/json")) {
+      const result = await res.json();
+      return result;
+    }
+  } catch (err) {
+    // Fallback error
+  }
+  return { ok: false, error: { message: "Không thể tải tin nhắn của hội thoại." } };
+}
+
 export async function renameSession(sessionId: string, title: string): Promise<ApiResult<{ sessionId: string; title: string }>> {
   try {
     const res = await fetch(getApiUrl(`/api/chat/sessions/${sessionId}`), {

@@ -21,8 +21,9 @@ Hệ thống Trợ lý Học vụ Thông minh IUH tích hợp RAG 4 Giai đoạn
 ## 📅 Lịch Sử Cập Nhật
 
 ### Mới Nhất (06/08/2026)
+- Hoàn thành (N+1 Session Loading Optimization): Thay đổi API `GET /api/chat/sessions` để áp dụng Lazy Loading cho tin nhắn (chỉ trả về metadata của hội thoại). Đã thêm endpoint mới `GET /api/chat/sessions/{session_id}/messages` để tải chi tiết tin nhắn của một phiên.
 - Hoàn thiện xử lý ngoại lệ toàn hệ thống: Thay thế toàn bộ các khối `except Exception:` trong thư mục `backend/app/` bằng `logger.exception()` từ `app.utils.logger` để ghi log chi tiết kèm theo stack trace.
-- Hoàn thành Giai đoạn 4.3 (Structured Logging & Error Monitoring): Triển khai `python-json-logger` để log dạng JSON, thêm UUID middleware theo dõi `request_id`, và bắt lỗi toàn cục bằng `logger.exception()` kèm phản hồi HTTP 500 sạch sẽ.
+- Hoàn thành (Structured Logging & Error Monitoring): Triển khai `python-json-logger` để log dạng JSON, thêm UUID middleware theo dõi `request_id`, và bắt lỗi toàn cục bằng `logger.exception()` kèm phản hồi HTTP 500 sạch sẽ.
 - Hoàn thành Giai đoạn 4.2 (Backend Rate Limiting): Triển khai giới hạn tần suất API bằng `slowapi` (`20/minute`) cho các endpoint chat, xử lý ngoại lệ `RateLimitExceeded`, và siết chặt cấu hình CORS origin.
 - Đổi tên thư mục `frontend1` thành `frontend`.
 - Sửa lỗi mất lịch sử sidebar bằng cách tạo tài khoản dev hợp lệ trong CSDL, khắc phục lỗi khoá ngoại `user_id`.

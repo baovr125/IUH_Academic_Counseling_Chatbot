@@ -52,26 +52,28 @@ export function useChat(): UseChatReturn {
       
       if (matched) {
         setActiveSessionId(matched.id);
-        setMessages(matched.messages);
+        const msgsRes = await chatService.fetchSessionMessages(matched.id);
+        setMessages(msgsRes.ok && msgsRes.data ? msgsRes.data : []);
       } else {
         const first = result.data[0];
         if (first) {
           setActiveSessionId(first.id);
           localStorage.setItem("activeChatSessionId", first.id);
-          setMessages(first.messages);
+          const msgsRes = await chatService.fetchSessionMessages(first.id);
+          setMessages(msgsRes.ok && msgsRes.data ? msgsRes.data : []);
         }
       }
     })();
   }, []);
 
   const selectSession = useCallback(
-    (sessionId: string) => {
-      const session = sessions.find((s) => s.id === sessionId);
+    async (sessionId: string) => {
       setActiveSessionId(sessionId);
       localStorage.setItem("activeChatSessionId", sessionId);
-      setMessages(session?.messages ?? []);
+      const msgsRes = await chatService.fetchSessionMessages(sessionId);
+      setMessages(msgsRes.ok && msgsRes.data ? msgsRes.data : []);
     },
-    [sessions]
+    []
   );
 
   const startNewSession = useCallback(() => {
@@ -93,6 +95,7 @@ export function useChat(): UseChatReturn {
 
   const deleteSession = useCallback(
     async (sessionId: string) => {
+      let nextIdToLoad: string | null = null;
       setSessions((prev) => {
         const updated = prev.filter((s) => s.id !== sessionId);
         if (activeSessionId === sessionId) {
@@ -100,13 +103,20 @@ export function useChat(): UseChatReturn {
           setActiveSessionId(next?.id ?? null);
           if (next?.id) {
             localStorage.setItem("activeChatSessionId", next.id);
+            nextIdToLoad = next.id;
           } else {
             localStorage.removeItem("activeChatSessionId");
+            setMessages([]);
           }
-          setMessages(next?.messages ?? []);
         }
         return updated;
       });
+      
+      if (nextIdToLoad) {
+        const msgsRes = await chatService.fetchSessionMessages(nextIdToLoad);
+        setMessages(msgsRes.ok && msgsRes.data ? msgsRes.data : []);
+      }
+      
       await chatService.deleteSession(sessionId);
     },
     [activeSessionId]
