@@ -33,9 +33,10 @@ function getAuthHeaders(): Record<string, string> {
   return headers;
 }
 
-export async function fetchSessions(): Promise<ApiResult<ChatSession[]>> {
+export async function fetchSessions(limit: number = 20, offset: number = 0): Promise<ApiResult<ChatSession[]>> {
   try {
-    const res = await fetch(getApiUrl("/api/chat/sessions"), {
+    const url = getApiUrl(`/api/chat/sessions?limit=${limit}&offset=${offset}`);
+    const res = await fetch(url, {
       headers: getAuthHeaders()
     });
     const contentType = res.headers.get("content-type") || "";
@@ -58,9 +59,10 @@ export async function fetchSession(sessionId: string): Promise<ApiResult<ChatSes
   return { ok: true, data: session };
 }
 
-export async function fetchSessionMessages(sessionId: string): Promise<ApiResult<ChatMessage[]>> {
+export async function fetchSessionMessages(sessionId: string, limit: number = 50, offset: number = 0): Promise<ApiResult<ChatMessage[]>> {
   try {
-    const res = await fetch(getApiUrl(`/api/chat/sessions/${sessionId}/messages`), {
+    const url = getApiUrl(`/api/chat/sessions/${sessionId}/messages?limit=${limit}&offset=${offset}`);
+    const res = await fetch(url, {
       headers: getAuthHeaders()
     });
     const contentType = res.headers.get("content-type") || "";

@@ -14,7 +14,7 @@ export default function AnalyticsPage() {
         if (res.ok && res.data) {
           setData(res.data);
         } else {
-          setError(res.error?.message || "Failed to fetch analytics");
+          setError((res as any).error?.message || "Failed to fetch analytics");
         }
       })
       .catch(err => setError(err.message))

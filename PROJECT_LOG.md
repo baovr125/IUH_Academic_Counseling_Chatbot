@@ -21,6 +21,7 @@ Hệ thống Trợ lý Học vụ Thông minh IUH tích hợp RAG 4 Giai đoạn
 ## 📅 Lịch Sử Cập Nhật
 
 ### Mới Nhất (06/08/2026)
+- Hoàn thành Frontend Infinite Scroll (Phase 4.4): Thêm phân trang và tải vô hạn cho cả danh sách Session (ở Sidebar) và danh sách Message (khi cuộn lên trên) dựa trên hệ thống API mới.
 - Hoàn thành (N+1 Session Loading Optimization): Thay đổi API `GET /api/chat/sessions` để áp dụng Lazy Loading cho tin nhắn (chỉ trả về metadata của hội thoại). Đã thêm endpoint mới `GET /api/chat/sessions/{session_id}/messages` để tải chi tiết tin nhắn của một phiên.
 - Hoàn thiện xử lý ngoại lệ toàn hệ thống: Thay thế toàn bộ các khối `except Exception:` trong thư mục `backend/app/` bằng `logger.exception()` từ `app.utils.logger` để ghi log chi tiết kèm theo stack trace.
 - Hoàn thành (Structured Logging & Error Monitoring): Triển khai `python-json-logger` để log dạng JSON, thêm UUID middleware theo dõi `request_id`, và bắt lỗi toàn cục bằng `logger.exception()` kèm phản hồi HTTP 500 sạch sẽ.

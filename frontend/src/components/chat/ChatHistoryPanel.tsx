@@ -10,6 +10,9 @@ interface ChatHistoryPanelProps {
   onNewChat: () => void;
   onRenameSession: (id: string, newTitle: string) => void;
   onDeleteSession: (id: string) => void;
+  hasMoreSessions: boolean;
+  isLoadingMoreSessions: boolean;
+  onLoadMoreSessions: () => void;
 }
 
 function groupByRecency(sessions: ChatSession[]) {
@@ -35,6 +38,9 @@ export function ChatHistoryPanel({
   onNewChat,
   onRenameSession,
   onDeleteSession,
+  hasMoreSessions,
+  isLoadingMoreSessions,
+  onLoadMoreSessions,
 }: ChatHistoryPanelProps) {
   const { today, yesterday, older } = groupByRecency(sessions);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -166,6 +172,25 @@ export function ChatHistoryPanel({
             {renderGroup("Today", today)}
             {renderGroup("Yesterday", yesterday)}
             {renderGroup("Older", older)}
+            
+            {hasMoreSessions && (
+              <div className="py-2 text-center mt-2 border-t border-slate-100 pt-3">
+                <button
+                  onClick={onLoadMoreSessions}
+                  disabled={isLoadingMoreSessions}
+                  className="text-[11px] font-medium text-slate-500 hover:text-slate-700 disabled:opacity-50 flex items-center justify-center gap-1.5 mx-auto"
+                >
+                  {isLoadingMoreSessions ? (
+                     <>
+                        <div className="h-3 w-3 animate-spin rounded-full border-2 border-slate-300 border-t-slate-600"></div>
+                        Đang tải...
+                     </>
+                  ) : (
+                     "Tải thêm"
+                  )}
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>

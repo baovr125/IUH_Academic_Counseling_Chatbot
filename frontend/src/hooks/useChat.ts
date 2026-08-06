@@ -15,6 +15,12 @@ interface UseChatReturn {
   renameSession: (sessionId: string, newTitle: string) => Promise<void>;
   deleteSession: (sessionId: string) => Promise<void>;
   abortStream: () => void;
+  hasMoreSessions: boolean;
+  isLoadingMoreSessions: boolean;
+  loadMoreSessions: () => Promise<void>;
+  hasMoreMessages: boolean;
+  isLoadingMoreMessages: boolean;
+  loadMoreMessages: () => Promise<void>;
 }
 
 /**
@@ -33,6 +39,11 @@ export function useChat(): UseChatReturn {
   const [isLoadingSessions, setIsLoadingSessions] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [abortController, setAbortController] = useState<AbortController | null>(null);
+  
+  const [hasMoreSessions, setHasMoreSessions] = useState(true);
+  const [isLoadingMoreSessions, setIsLoadingMoreSessions] = useState(false);
+  const [hasMoreMessages, setHasMoreMessages] = useState(true);
+  const [isLoadingMoreMessages, setIsLoadingMoreMessages] = useState(false);
 
   // Initial load of chat history sidebar.
   useEffect(() => {
@@ -45,22 +56,25 @@ export function useChat(): UseChatReturn {
         setError(result.error.message);
         return;
       }
-      setSessions(result.data);
+      setSessions(result.data || []);
+      setHasMoreSessions(result.data ? result.data.length === 20 : false);
       
       const storedId = localStorage.getItem("activeChatSessionId");
-      const matched = result.data.find(s => s.id === storedId);
+      const matched = (result.data || []).find(s => s.id === storedId);
       
       if (matched) {
         setActiveSessionId(matched.id);
         const msgsRes = await chatService.fetchSessionMessages(matched.id);
         setMessages(msgsRes.ok && msgsRes.data ? msgsRes.data : []);
+        setHasMoreMessages(msgsRes.ok && msgsRes.data ? msgsRes.data.length === 50 : false);
       } else {
-        const first = result.data[0];
+        const first = result.data ? result.data[0] : undefined;
         if (first) {
           setActiveSessionId(first.id);
           localStorage.setItem("activeChatSessionId", first.id);
           const msgsRes = await chatService.fetchSessionMessages(first.id);
           setMessages(msgsRes.ok && msgsRes.data ? msgsRes.data : []);
+          setHasMoreMessages(msgsRes.ok && msgsRes.data ? msgsRes.data.length === 50 : false);
         }
       }
     })();
@@ -72,9 +86,34 @@ export function useChat(): UseChatReturn {
       localStorage.setItem("activeChatSessionId", sessionId);
       const msgsRes = await chatService.fetchSessionMessages(sessionId);
       setMessages(msgsRes.ok && msgsRes.data ? msgsRes.data : []);
+      setHasMoreMessages(msgsRes.ok && msgsRes.data ? msgsRes.data.length === 50 : false);
     },
     []
   );
+
+  const loadMoreSessions = useCallback(async () => {
+    if (isLoadingMoreSessions || !hasMoreSessions) return;
+    setIsLoadingMoreSessions(true);
+    const result = await chatService.fetchSessions(20, sessions.length);
+    setIsLoadingMoreSessions(false);
+    if (result.ok && result.data) {
+      setSessions((prev) => [...prev, ...result.data]);
+      setHasMoreSessions(result.data.length === 20);
+    }
+  }, [isLoadingMoreSessions, hasMoreSessions, sessions.length]);
+
+  const loadMoreMessages = useCallback(async () => {
+    if (isLoadingMoreMessages || !hasMoreMessages || !activeSessionId) return;
+    setIsLoadingMoreMessages(true);
+    const msgsRes = await chatService.fetchSessionMessages(activeSessionId, 50, messages.length);
+    setIsLoadingMoreMessages(false);
+    if (msgsRes.ok && msgsRes.data) {
+      // New messages are older, so they should be prepended
+      setMessages((prev) => [...msgsRes.data, ...prev]);
+      setHasMoreMessages(msgsRes.data.length === 50);
+    }
+  }, [isLoadingMoreMessages, hasMoreMessages, activeSessionId, messages.length]);
+
 
   const startNewSession = useCallback(() => {
     setActiveSessionId(null);
@@ -115,6 +154,7 @@ export function useChat(): UseChatReturn {
       if (nextIdToLoad) {
         const msgsRes = await chatService.fetchSessionMessages(nextIdToLoad);
         setMessages(msgsRes.ok && msgsRes.data ? msgsRes.data : []);
+        setHasMoreMessages(msgsRes.ok && msgsRes.data ? msgsRes.data.length === 50 : false);
       }
       
       await chatService.deleteSession(sessionId);
@@ -260,5 +300,11 @@ export function useChat(): UseChatReturn {
     renameSession,
     deleteSession,
     abortStream,
+    hasMoreSessions,
+    isLoadingMoreSessions,
+    loadMoreSessions,
+    hasMoreMessages,
+    isLoadingMoreMessages,
+    loadMoreMessages,
   };
 }

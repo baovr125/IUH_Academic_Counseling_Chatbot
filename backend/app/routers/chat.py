@@ -48,8 +48,12 @@ router = APIRouter(prefix="/api/chat", tags=["chat"])
 # --- Chat Router Endpoints ---
 
 @router.get("/sessions")
-async def get_sessions(current_user_id: Optional[str] = Depends(get_optional_current_user_id)):
-    """Fetches all persistent sessions for the authenticated user from PostgreSQL."""
+async def get_sessions(
+    limit: int = 20,
+    offset: int = 0,
+    current_user_id: Optional[str] = Depends(get_optional_current_user_id)
+):
+    """Fetches paginated persistent sessions for the authenticated user from PostgreSQL."""
     try:
         supabase = get_supabase_client()
         if not supabase:
@@ -61,7 +65,7 @@ async def get_sessions(current_user_id: Optional[str] = Depends(get_optional_cur
         else:
             query = query.filter("user_id", "is", "null")
 
-        conv_res = query.order("updated_at", desc=True).execute()
+        conv_res = query.order("updated_at", desc=True).range(offset, offset + limit - 1).execute()
         conversations = conv_res.data or []
 
         result_sessions = []
@@ -82,17 +86,20 @@ async def get_sessions(current_user_id: Optional[str] = Depends(get_optional_cur
 @router.get("/sessions/{session_id}/messages")
 async def get_session_messages(
     session_id: str,
+    limit: int = 50,
+    offset: int = 0,
     current_user_id: Optional[str] = Depends(get_optional_current_user_id)
 ):
-    """Fetches all messages for a specific session from PostgreSQL."""
+    """Fetches paginated messages for a specific session from PostgreSQL."""
     clean_id = ensure_uuid(session_id)
     try:
         supabase = get_supabase_client()
         if not supabase:
             return ApiResult(ok=True, data=[])
 
-        msg_res = supabase.table("messages").select("*").eq("conversation_id", clean_id).order("created_at").execute()
+        msg_res = supabase.table("messages").select("*").eq("conversation_id", clean_id).order("created_at", desc=True).range(offset, offset + limit - 1).execute()
         msg_list = msg_res.data or []
+        msg_list.reverse()
 
         messages = [
             {
