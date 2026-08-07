@@ -8,9 +8,9 @@ interface ChatComposerProps {
 }
 
 const QUICK_ACTIONS = [
-  { label: "Tóm tắt quy chế", icon: "📄" },
-  { label: "Tìm kiếm biểu mẫu", icon: "🔍" },
-  { label: "Viết email xin phép", icon: "✉️" },
+  { label: "Giới thiệu về trường Đại học Công nghiệp tp.HCM", icon: "📄" },
+  { label: "Tìm kiếm biểu mẫu ", icon: "🔍" },
+  { label: "Viết email xin phép ", icon: "✉️" },
 ];
 
 export function ChatComposer({ onSend, isSending, onAbort }: ChatComposerProps) {

@@ -373,7 +373,7 @@ async def send_message_stream(
                             "system_instruction": system_instruction,
                             "temperature": 0.2,
                         }
-                        if "2.5" in model_name:
+                        if "3.5" in model_name:
                             cfg_kwargs["thinking_config"] = types.ThinkingConfig(thinking_budget=0)
 
                         def _start_stream_with_first_chunk(m_name=model_name, c_kwargs=cfg_kwargs):

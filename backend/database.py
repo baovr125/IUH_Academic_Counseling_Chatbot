@@ -49,8 +49,7 @@ class GUID(TypeDecorator):
 
 
 DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "postgresql://postgres.rsvwbkuqzksqfybvcwvl:Khoa%3Biam2026%40@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres"
+    "DATABASE_URL"
 )
 
 if DATABASE_URL.startswith("postgres://"):

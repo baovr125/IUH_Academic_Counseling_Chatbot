@@ -89,7 +89,7 @@ ACADEMIC_ABBREVIATIONS = [
     (r"\bhp\b", "học phần"),
     (r"\bbch\b", "ban chấp hành"),
     (r"\bkcq\b", "khiếu nại kết quả"),
-    (r"\bkktx\b", "ký túc xá"),
+    (r"\bktx\b", "ký túc xá"),
 ]
 
 COMPILED_ABBREVIATION_REGEX = [(re.compile(pattern, re.IGNORECASE), replacement) for pattern, replacement in ACADEMIC_ABBREVIATIONS]
