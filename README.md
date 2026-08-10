@@ -4,13 +4,48 @@ Hệ sinh thái Microservices AI phục vụ **Tư vấn Học tập IUH, Dịch
 
 ---
 
-## 🏛️ 1. Kiến Trúc Tổng Quan Hệ Thống (Microservices Architecture)
+## 🏛️ 1. Cấu Trúc Mã Nguồn Dự Án (Project Folder Structure)
+
+Dự án được phân chia thành 5 Microservices riêng biệt dưới thư mục `services/`, kết hợp với các thư mục tài nguyên chung (`db/`, `scripts/`, `gateway/`, `frontend/`):
+
+```text
+IUH_Academic_Counseling_Chatbot/
+├── .env / .env.example                  # Cấu hình biến môi trường chung
+├── docker-compose.yml                   # Orchestration 5 Microservices + Kong Gateway + Redis + RabbitMQ
+├── AGENTS.md / PROJECT_LOG.md / README.md
+│
+├── gateway/                             # Cấu hình Kong API Gateway
+│   └── kong.yml                         # Router điều hướng cổng 8000 -> Ports 8001..8005
+│
+├── frontend/                            # Web UI App (React 18 + TypeScript + Vite + Tailwind CSS)
+│
+├── db/                                  # Quản lý Schemas & Migrations SQL (PostgreSQL / Supabase)
+│   ├── schema_v2_hybrid_rag.sql
+│   ├── migration_v3_decks_and_docs.sql
+│   └── migration_v6_doc_vectors.sql     # Schema doc_vectors (embedding vector 1024d)
+│
+├── scripts/                             # Scripts nạp dữ liệu & Data Pipeline chung
+│   ├── data_pipeline/
+│   │   └── step2_chunk_embed_v2.py      # Script Hierarchical Chunking & Embedding BGE-M3
+│   └── eval/                            # Scripts đánh giá RAG Benchmark (Hit Rate@K, MRR)
+│
+└── services/                            # 5 STANDALONE MICROSERVICES (CÔ LẬP 100%)
+    ├── 1. auth_service/                 # Port 8001: Đăng ký, Đăng nhập & Xác thực Token JWT
+    ├── 2. academic_chatbot_service/    # Port 8002: Chatbot Hỏi đáp Học vụ RAG 2-Stage (Hybrid RRF + BGE)
+    ├── 3. realtime_translation_service/ # Port 8003: Dịch nhanh từ/cụm từ & Redis Semantic Cache
+    ├── 4. doc_translation_service/      # Port 8004: Dịch file PDF & Truy vấn RAG (BGE-M3 1024d + Hierarchical)
+    └── 5. flashcard_service/            # Port 8005: Quản lý Thẻ ghi nhớ & Thuật toán SM-2
+```
+
+---
+
+## 📐 2. Kiến Trúc Sơ Đồ Hệ Thống (System Architecture Diagram)
 
 ```mermaid
 flowchart TD
     Client["💻 Client Browser (React 18 + Vite)\nhttp://localhost:5173"] -->|HTTP / SSE Stream| Gateway["🚪 Kong API Gateway\nhttp://localhost:8000"]
     
-    subgraph Core_Microservices ["Hệ Sinh Thái Microservices AI (FastAPI / Python)"]
+    subgraph Core_Microservices ["Hệ Sinh Thái Microservices AI (FastAPI / Python 3.11+)"]
         Gateway -->|/api/v1/auth| AuthSvc["🔑 Auth Service\n(Port 8001)"]
         Gateway -->|/api/v1/chat| ChatSvc["🤖 Academic Chatbot Service\n(Port 8002)"]
         Gateway -->|/api/v1/translate| TransSvc["🌐 Real-time Translation Service\n(Port 8003)"]
@@ -20,85 +55,70 @@ flowchart TD
 
     subgraph Infrastructure ["Hạ Tầng Dữ Liệu & Event Bus"]
         AuthSvc --> Supabase[("🗄️ Auth DB\n(Supabase Postgres)")]
-        ChatSvc --> VectorDB[("🔍 Vector DB / FTS\n(pgvector / Qdrant)")]
+        ChatSvc --> VectorDB[("🔍 Vector DB / FTS\n(pgvector 1024d)")]
         TransSvc --> RedisCache[("⚡ Redis Semantic Cache\n(Port 6379)")]
         DocSvc --> RabbitMQ["🐇 RabbitMQ Event Bus\n(Port 5672)"]
-        DocSvc --> CeleryWorker["⚙️ Celery PDF Worker"]
+        DocSvc --> CeleryWorker["⚙️ Async PDF Worker"]
     end
 ```
 
 ---
 
-## 🔬 2. Nguyên Lý Hoạt Động Chi Tiết Của Từng Dịch Vụ (Detailed Service Operating Principles)
+## 🔬 3. Chi Tiết Từng Microservice Trong Hệ Thống
 
-### 🚪 2.0. Kong API Gateway (Port 8000)
-- **Nguyên lý hoạt động**: Tiếp nhận toàn bộ lưu lượng truy cập từ Frontend, đóng vai trò Reverse Proxy và Central Router.
-- **Tính năng nổi bật**:
-  - **Kích hoạt CORS Plugin toàn cục**: Tự động xử lý request Preflight `OPTIONS` từ trình duyệt, trả về đầy đủ các header `Access-Control-Allow-Origin: *` và `Access-Control-Allow-Credentials: true`.
-  - **Tự động cập nhật DNS Container**: Cấu hình `KONG_DNS_STALE_TTL: 0`, `KONG_DNS_VALID_TTL: 1` giúp Kong tự động cập nhật IP mới của Microservice ngay khi rebuild container mà không bị lỗi `502 Bad Gateway`.
-  - **Định tuyến linh hoạt (Dual Routing)**: Hỗ trợ đồng thời cả chuẩn prefix `/api/v1/*` và legacy prefix `/api/*`.
+### 🚪 3.0. Kong API Gateway (Port 8000)
+- **Vai trò**: Reverse Proxy & Central Router tập trung.
+- **Header CORS**: Tự động xử lý Preflight `OPTIONS`, cấu hình `Access-Control-Allow-Origin: *`.
+- **Định tuyến (Routing)**: Chuyển tiếp các request từ Frontend (`http://localhost:8000`) đến 5 microservices tương ứng.
 
 ---
 
-### 🔑 2.1. Authentication Service (`auth_service` - Port 8001)
-- **Cấu trúc 4 lớp**:
-  - `routers/auth.py`: Đón nhận HTTP request, xử lý đăng ký (`/register`), đăng nhập (`/login`), xác thực sinh viên (`/verify-student`) và lấy thông tin (`/me`).
-  - `schemas/auth.py`: Pydantic Model với `@model_validator(mode="before")` giúp tự động chuẩn hóa mọi định dạng dữ liệu đầu vào từ Frontend (hỗ trợ cả **camelCase** `identifier`, `fullName`, `studentCode` và **snake_case** `account`, `full_name`, `student_id`).
-  - `services/auth_service.py`: Xử lý băm mật khẩu Bcrypt an toàn (`safe_pwd = password[:72]`), mã hóa và giải mã JWT token (thời hạn 7 ngày).
-  - `utils/`: Log lỗi tập trung qua `python-json-logger`.
-- **Nguyên lý hoạt động**:
-  - Khi người dùng gửi yêu cầu đăng nhập, `auth_service` tra cứu thông tin trong CSDL `users`. Nếu CSDL tạm thời ngắt kết nối, service tự động chuyển sang chế độ **Development Fallback Protocol** cấp JWT Token hợp lệ giúp giao diện không bị ngắt quãng.
+### 🔑 3.1. Authentication Service (`services/auth_service` - Port 8001)
+- **Tính năng**: Đăng ký, đăng nhập, xác thực sinh viên IUH và cấp mã JWT Access Token.
+- **Cấu trúc**:
+  - `routers/auth.py`: Direct endpoints (`/login`, `/register`, `/verify-student`, `/me`).
+  - `schemas/auth.py`: Pydantic Models tự động tương thích cả camelCase và snake_case.
+  - `services/auth_service.py`: Mã hóa mật khẩu Bcrypt và ký JWT Token.
 
 ---
 
-### 🤖 2.2. Academic Counseling Chatbot Service (`academic_chatbot_service` - Port 8002)
-- **Tính năng trọng tâm**: Feature 1 — Chatbot Tư vấn Học tập IUH dựa trên **Kiến trúc 2-Stage Hybrid RAG & SSE Streaming**.
-- **Nguyên lý hoạt động chi tiết**:
-  1. **Stage 1 (Hybrid Retrieval RRF)**: Khi câu hỏi của sinh viên gửi đến, hệ thống thực hiện đồng thời **Vector Cosine Similarity** (`pgvector`/`Qdrant`) và **Full-Text Search (FTS)** trên dữ liệu Quy chế học tập IUH. Kết quả được hợp nhất bằng thuật toán **Reciprocal Rank Fusion (RRF)**.
-  2. **Stage 2 (Cross-Encoder Reranking)**: Đưa kết quả Top-K từ Stage 1 qua model `BAAI/bge-reranker-v2-m3` để chấm điểm tương quan ngữ cảnh chính xác tuyệt đối, loại bỏ nhiễu.
-  3. **Bảo vệ ngữ cảnh (Context Sandboxing & Anti-Prompt Injection)**: Dữ liệu quy chế trích xuất từ Vector DB được đóng gói nghiêm ngặt trong thẻ XML `<retrieved_context>...</retrieved_context>`. System prompt khẳng định dữ liệu trong thẻ là thụ động, ngăn chặn các cuộc tấn công Prompt Injection.
-  4. **Phản hồi thời gian thực (SSE Streaming)**: Dùng FastAPI `EventSourceResponse` trả về từng token và trích dẫn nguồn văn bản (Citations) thời gian thực cho Client.
-  5. **Tải Model Bất Đồng Bộ (Async RAM Preload)**: Model ML được tải ngầm vào RAM qua `asyncio.to_thread` giúp container sẵn sàng nhận request `/health` trong 0.5 giây.
+### 🤖 3.2. Academic Counseling Chatbot Service (`services/academic_chatbot_service` - Port 8002)
+- **Tính năng**: Chatbot Tư vấn Học tập IUH dựa trên **Kiến trúc 2-Stage Hybrid RAG & Streaming SSE**.
+- **Nguyên lý**:
+  1. **Stage 1 (Hybrid RRF)**: Kết hợp Cosine Similarity (pgvector) + Full-Text Search (FTS) qua thuật toán Reciprocal Rank Fusion (RRF).
+  2. **Stage 2 (Cross-Encoder Reranking)**: Dùng model `BAAI/bge-reranker-v2-m3` lọc Top-K ngữ cảnh chính xác nhất.
+  3. **Context Sandboxing**: Bọc ngữ cảnh trong thẻ XML `<retrieved_context>` chống Prompt Injection.
+  4. **Streaming SSE**: Trả về từng token và trích dẫn số trang/điều khoản quy chế thời gian thực.
 
 ---
 
-### 🌐 2.3. Real-time Translation Service (`realtime_translation_service` - Port 8003)
-- **Tính năng trọng tâm**: Feature 2.1 — Dịch thuật Từ & Đoạn văn ngắn thời gian thực.
-- **Nguyên lý hoạt động chi tiết**:
-  - Tích hợp **Redis Semantic Cache (Port 6379)**. Trước khi gọi API dịch thuật bên ngoài, service tra cứu SHA-256 hash của văn bản gốc trong Redis.
-  - Nếu đã từng dịch (**Cache Hit**), kết quả trả về trong **< 5ms**.
-  - Nếu chưa từng dịch (**Cache Miss**), service thực hiện dịch thuật, lưu vào Redis với TTL 24 giờ và trả kết quả cho sinh viên.
+### 🌐 3.3. Real-time Translation Service (`services/realtime_translation_service` - Port 8003)
+- **Tính năng**: Dịch thuật Từ & Đoạn văn ngắn nhanh lập tức.
+- **Tối ưu**: Tra cứu Redis Semantic Cache (Port 6379) qua mã SHA-256 Hash. Nếu đã từng dịch (**Cache Hit**), trả kết quả trong **< 5ms**.
 
 ---
 
-### 📄 2.4. Document Translation & RAG Service (`doc_translation_service` - Port 8004)
-- **Tính năng trọng tâm**: Feature 2.2 — Dịch thuật File PDF & Hỏi đáp trên tài liệu cá nhân.
-- **Nguyên lý hoạt động chi tiết**:
-  1. **Nạp & Phân tích PDF (PDF Parsing)**: Trích xuất cấu trúc văn bản, chia đoạn theo ngữ nghĩa (Semantic Chunking).
-  2. **Xử lý bất đồng bộ qua Celery & RabbitMQ (Port 5672)**: Việc dịch toàn bộ file PDF dung lượng lớn được offload thành task chạy ngầm dưới Celery Worker, tránh nghẽn thread chính.
-  3. **Lọc dữ liệu nghiêm ngặt (Hard Payload Filtering)**: Khi sinh viên hỏi đáp trên file PDF của mình, mọi truy vấn Vector DB **BẮT BUỘC** đính kèm filter:
-     $$\text{Filter} = (\text{user\_id} == \text{current\_user\_id}) \land (\text{doc\_id} == \text{current\_doc\_id})$$
-     Đảm bảo sinh viên không bao giờ truy cập được tài liệu cá nhân của người khác.
+### 📄 3.4. Document Translation & RAG Service (`services/doc_translation_service` - Port 8004)
+- **Tính năng**: Dịch file PDF/DOCX tài liệu bài báo khoa học & Hỏi đáp RAG trên nội dung file (Document-Bounded Q&A).
+- **Thuật toán cốt lõi**:
+  1. **PyMuPDF Extraction**: Trích xuất văn bản và chỉ số trang chính xác.
+  2. **Hierarchical Chunking v6.2 (Parent-Child)**: Nhận diện tiêu đề H1/H2 (`Parent`), phân tách câu an toàn qua `nltk.tokenize.sent_tokenize` (`Child` 5-350 từ).
+  3. **Metadata Injection (`inject_meta`)**: Bơm tiền tố mục `[Mục: Section > Subsection > Title]` trước khi tạo Vector Embedding.
+  4. **BAAI/bge-m3 Embedding (1024d)**: Nhúng vector 1024 chiều lưu vào bảng `doc_vectors` trên Supabase.
+  5. **Gemini Terminology-Aware Translation**: Dịch giữ nguyên thuật ngữ chuyên ngành học vụ IUH (*Credit system*, *Cumulative GPA*, *Academic Advisor*...).
+  6. **Hard Payload Filtering**: Tìm kiếm vector cô lập theo `doc_id` + `user_id` và trả về câu trả lời kèm trích dẫn số trang (`[Trang X]`).
 
 ---
 
-### 🃏 2.5. Flashcard & Spaced Repetition Service (`flashcard_service` - Port 8005)
-- **Tính năng trọng tâm**: Feature 3 — Quản lý Thẻ ghi nhớ & Thuật toán lặp lại ngắt quãng Anki SuperMemo 2 (SM-2).
-- **Nguyên lý hoạt động chi tiết**:
-  - Khi sinh viên đánh giá mức độ ghi nhớ thẻ (Đã thuộc / Cần ôn lại), service tính toán khoảng thời gian ôn tập tiếp theo theo công thức **SM-2**:
-    - **Ease Factor (EF)**: 
-      $$EF' = EF + (0.1 - (5 - q) \times (0.08 + (5 - q) \times 0.02))$$
-    - **Khoảng cách ngày ôn (Interval $I$)**:
-      - Lần 1: $I(1) = 1$ ngày
-      - Lần 2: $I(2) = 6$ ngày
-      - Lần $n$: $I(n) = I(n-1) \times EF'$
-  - Tự động cập nhật `next_review_date` và sắp xếp bộ thẻ cần ôn tập trong ngày cho sinh viên.
+### 🃏 3.5. Flashcard Service (`services/flashcard_service` - Port 8005)
+- **Tính năng**: Quản lý bộ thẻ ghi nhớ & Thuật toán lặp lại ngắt quãng Anki SuperMemo 2 (SM-2).
+- **Thuật toán SM-2**: Tự động tính toán Ease Factor ($EF'$) và khoảng cách ngày ôn tập tiếp theo dựa trên phản hồi mức độ thuộc bài của sinh viên.
 
 ---
 
-## 📌 3. Bảng Cổng Kết Nối & Tài Liệu API Swagger UI
+## 📌 4. Bảng Cổng Kết Nối & Tài Liệu API Swagger UI
 
-| Dịch Vụ (Service) | Cổng Nội Bộ (Container) | Cổng Gateway (Exposed) | Link Swagger UI API Docs |
+| Dịch Vụ (Microservice) | Cổng Container | Cổng Gateway (Exposed) | Link Swagger UI API Docs |
 | :--- | :--- | :--- | :--- |
 | **Kong API Gateway** | `8000` | `8000` | - |
 | **Auth Service** | `8001` | `8000/api/v1/auth` | [http://localhost:8001/docs](http://localhost:8001/docs) |
@@ -111,63 +131,84 @@ flowchart TD
 
 ---
 
-## 🚀 4. Hướng Dẫn Chạy & Khai Thác Hệ Thống
+## 🚀 5. Hướng Dẫn Chạy Dự Án Dành Cho Thành Viên Nhóm
 
-### 4.1. Khởi tạo File Cấu Hình `.env`
-Tạo file `.env` từ file mẫu `.env.example`:
+### ⚡ Cách 1: Khởi chạy toàn bộ hệ thống bằng Docker Compose (Khuyên dùng)
+
+1. **Khởi tạo file cấu hình `.env`**:
+   ```bash
+   cp .env.example .env
+   ```
+   *Điền các thông tin `SUPABASE_URL`, `SUPABASE_KEY` và `GEMINI_API_KEY` vào file `.env` vừa tạo.*
+
+2. **Chạy Docker Compose**:
+   ```bash
+   docker-compose up -d --build
+   ```
+
+3. **Truy cập ứng dụng**:
+   - Giao diện Web Client: [http://localhost:5173](http://localhost:5173)
+   - Cổng API Gateway: [http://localhost:8000](http://localhost:8000)
+
+4. **Xem Log của các Microservices**:
+   ```bash
+   # Xem log của tất cả services
+   docker-compose logs -f
+
+   # Xem log của service cụ thể (VD: Doc Translation Service)
+   docker logs -f iuh_doc_translation_service
+   ```
+
+---
+
+### 💻 Cách 2: Chạy độc lập từng Microservice dưới Local (Phục vụ Debug & Chỉnh sửa Code)
+
+Nếu bạn muốn chỉnh sửa hoặc debug riêng 1 service (ví dụ `doc_translation_service`) mà không cần bật lại toàn bộ Docker:
+
+1. Di chuyển vào thư mục dịch vụ:
+   ```bash
+   cd services/doc_translation_service
+   ```
+2. Khởi tạo môi trường ảo Python và cài đặt dependencies:
+   ```bash
+   python -m venv venv
+   # Trên Windows:
+   .\venv\Scripts\activate
+   # Trên Linux/macOS:
+   source venv/bin/activate
+
+   pip install -r requirements.txt
+   ```
+3. Chạy service với Uvicorn:
+   ```bash
+   uvicorn app.main:app --port 8004 --reload
+   ```
+4. Mở Swagger UI kiểm tra API: [http://localhost:8004/docs](http://localhost:8004/docs)
+
+---
+
+### 🧪 Cách 3: Chạy Script Hierarchical Chunking & Vector Embedding
+
+Khi muốn nạp thêm dữ liệu bài báo hoặc quy chế học vụ vào Supabase PostgreSQL:
+
 ```bash
-cp .env.example .env
-```
-
-### 4.2. Khởi Chạy Toàn Bộ Hệ Thống Với Docker Compose
-Chạy lệnh sau tại thư mục gốc `IUH_Academic_Counseling_Chatbot`:
-```bash
-docker-compose up -d --build
-```
-
-### 4.3. Theo Dõi Log Chi Tiết Từng Container
-- Log toàn bộ hệ thống:
-  ```bash
-  docker-compose logs -f
-  ```
-- Log từng Microservice cụ thể:
-  ```bash
-  docker logs -f iuh_auth_service
-  docker logs -f iuh_academic_chatbot_service
-  docker logs -f iuh_realtime_translation_service
-  docker logs -f iuh_doc_translation_service
-  docker logs -f iuh_flashcard_service
-  docker logs -f iuh_kong_gateway
-  ```
-
-### 4.4. Dừng Hệ Thống
-```bash
-docker-compose down
+python scripts/data_pipeline/step2_chunk_embed_v2.py
 ```
 
 ---
 
-## 🛠️ 5. Quy Trình Kiểm Thử & Verification Protocol
+## 🛡️ 6. Quy Tắc Phát Triển & Viết Mã Nguồn (Guidelines)
 
-Mọi chỉnh sửa trong mã nguồn đều phải tuân thủ chuẩn JSON API Response:
-```json
-{
-  "ok": true,
-  "data": { ... },
-  "error": null
-}
-```
-
-Có thể kiểm thử trực tiếp các service qua lệnh `curl`:
-```bash
-# 1. Kiểm thử Auth Login qua Gateway
-curl -i -X POST http://localhost:8000/api/auth/login \
-     -H "Content-Type: application/json" \
-     -d "{\"identifier\":\"20000001\",\"password\":\"123456\"}"
-
-# 2. Kiểm thử Health Check Chatbot Service
-curl -i http://localhost:8000/api/v1/chat/health
-```
+1. **Clean Architecture 4 Lớp**: Mọi code mới viết cho Microservice phải nằm đúng các thư mục `routers/`, `schemas/`, `services/`, `utils/`.
+2. **Không Dùng Type `any` Trên Frontend**: Tất cả API Contract và Props phải được định nghĩa rõ ràng trong `frontend/src/types/`.
+3. **Structured API Response**: Mọi API trả về đúng chuẩn JSON format:
+   ```json
+   {
+     "ok": true,
+     "data": { ... },
+     "error": null
+   }
+   ```
 
 ---
-*Dự án thuộc Đồ Án Khóa Luận Tốt Nghiệp — Hệ Sinh Thái Học Tập & Xử Lý Tài Liệu AI Microservices IUH.*
+*Dự án Khóa Luận Tốt Nghiệp — IUH AI Microservices Ecosystem.*
