@@ -21,12 +21,13 @@ async def upload_document(
     file: UploadFile = File(...),
     source_lang: Optional[str] = Form("en"),
     target_lang: Optional[str] = Form("vi"),
+    is_scanned: Optional[bool] = Form(False),
     x_user_id: Optional[str] = Header(None, alias="X-User-ID")
 ):
     """
-    1. Tiếp nhận file PDF/DOCX từ người dùng
+    1. Tiếp nhận file PDF/DOCX/PPTX từ người dùng
     2. Khởi tạo doc_id (UUIDv4)
-    3. Gửi tác vụ dịch & chunking ngầm qua asyncio background task
+    3. Gửi tác vụ dịch ngầm qua background worker
     4. Trả về HTTP 202 Accepted kèm doc_id
     """
     if not file.filename.endswith((".pdf", ".docx", ".doc", ".pptx", ".ppt")):
@@ -56,7 +57,8 @@ async def upload_document(
         file_path=file_path,
         user_id=user_id,
         source_lang=source_lang,
-        target_lang=target_lang
+        target_lang=target_lang,
+        is_scanned=is_scanned
     )
 
     return ApiResult(
@@ -122,15 +124,31 @@ async def download_translated_document(
     x_user_id: Optional[str] = Header(None, alias="X-User-ID")
 ):
     """
-    API Tải về file kết quả tài liệu đã dịch định dạng PDF.
+    API Tải về file kết quả tài liệu đã dịch (.pdf, .docx, .pptx).
     """
-    translated_file_path = os.path.join("temp_translated", f"translated_{doc_id}.pdf")
-    if not os.path.exists(translated_file_path):
+    temp_dir = "temp_translated"
+    target_file = None
+    media_type = "application/octet-stream"
+
+    for ext in [".pdf", ".docx", ".pptx"]:
+        possible_path = os.path.join(temp_dir, f"translated_{doc_id}{ext}")
+        if os.path.exists(possible_path):
+            target_file = possible_path
+            if ext == ".pdf":
+                media_type = "application/pdf"
+            elif ext == ".docx":
+                media_type = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            elif ext == ".pptx":
+                media_type = "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+            break
+
+    if not target_file:
         raise HTTPException(status_code=404, detail="Không tìm thấy file kết quả dịch thuật. Có thể đang trong quá trình xử lý.")
 
+    ext = os.path.splitext(target_file)[1]
     return FileResponse(
-        path=translated_file_path,
-        media_type="application/pdf",
+        path=target_file,
+        media_type=media_type,
         content_disposition_type="inline",
-        filename=f"Translated_Document_{doc_id[:8]}.pdf"
+        filename=f"Translated_Document_{doc_id[:8]}{ext}"
     )

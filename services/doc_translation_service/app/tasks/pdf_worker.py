@@ -1,11 +1,10 @@
 import os
 import asyncio
 from typing import Dict, Any, Optional
-# Bỏ qua import pdf_parser và vector_store để tránh crash thư viện transformers
-# from app.services.pdf_parser import parse_pdf_document, hierarchical_chunk_pages
-from app.services.glossary_service import scan_document_for_glossary
-from app.services.translator import translate_chunk_with_gemini, generate_document_summary_and_glossary
-# from app.services.vector_store import upsert_doc_vectors
+from app.services.markdown_pdf_service import extract_pdf_to_markdown, render_markdown_to_pdf
+from app.services.ollama_translator import translate_markdown_document_ollama
+from app.services.docx_pptx_service import translate_docx_document, translate_pptx_document
+from app.services.scanned_pdf_service import process_scanned_pdf_translation
 from app.utils.logger import logger
 
 # Store in-memory status dictionary for fast polling response
@@ -43,53 +42,87 @@ def update_job_status(
     })
     JOB_STATUS_STORE[doc_id] = current
 
-def process_pdf_translation_job_sync(
+def process_document_translation_job_sync(
     doc_id: str,
     file_path: str,
     user_id: str,
     source_lang: str = "en",
-    target_lang: str = "vi"
+    target_lang: str = "vi",
+    is_scanned: bool = False
 ) -> Dict[str, Any]:
     """
-    Tiến trình xử lý dịch file PDF giữ nguyên cấu trúc sử dụng luồng: PDF -> Markdown -> Translate -> PDF.
-    Phần Vector/RAG tạm thời được bỏ qua theo yêu cầu.
+    Dispatcher router xử lý dịch thuật đa định dạng:
+    1. .pdf -> Academic Paper Translation (PyMuPDF4LLM -> Markdown Batching -> Ollama -> PDF)
+    2. .pdf (Scan) -> PyMuPDF -> PaddleOCR -> Ollama -> DOCX
+    3. .docx -> Word In-place Translation
+    4. .pptx -> PowerPoint In-place Translation
     """
-    from app.services.markdown_pdf_service import extract_pdf_to_markdown, render_markdown_to_pdf
-    from app.services.translator import translate_markdown_document
-
     logger.info(f"🚀 [Job Started] doc_id={doc_id}, file={file_path}, user={user_id}")
-    update_job_status(doc_id, "processing", 10, "Đang đọc và phân tích cấu trúc file PDF...")
+    update_job_status(doc_id, "processing", 10, "Đang phân loại định dạng file và khởi tạo pipeline...")
+
+    ext = os.path.splitext(file_path)[1].lower()
+    temp_out_dir = "temp_translated"
+    os.makedirs(temp_out_dir, exist_ok=True)
 
     try:
-        # Step 1: Parse PDF to Markdown
-        update_job_status(doc_id, "processing", 20, "Đang bóc tách PDF thành Markdown và trích xuất hình ảnh...")
-        md_text, image_dir = extract_pdf_to_markdown(file_path, doc_id)
-        
-        # Step 2: Translate Markdown Document
-        update_job_status(doc_id, "processing", 50, "Đang dịch toàn văn tài liệu giữ nguyên cấu trúc...")
-        translated_md = translate_markdown_document(
-            md_text=md_text,
-            source_lang=source_lang,
-            target_lang=target_lang
-        )
+        translated_file_path = ""
+        translated_text = ""
 
-        # Step 3: Render translated Markdown to PDF
-        update_job_status(doc_id, "processing", 80, "Đang render lại bản dịch thành file PDF...")
-        translated_file_dir = "temp_translated"
-        os.makedirs(translated_file_dir, exist_ok=True)
-        translated_file_path = os.path.join(translated_file_dir, f"translated_{doc_id}.pdf")
-        
-        render_markdown_to_pdf(translated_md, translated_file_path)
+        # Giai đoạn 2.2 Routing
+        if ext == ".docx":
+            update_job_status(doc_id, "processing", 30, "Đang dịch file Word (.docx)...")
+            translated_file_path = os.path.join(temp_out_dir, f"translated_{doc_id}.docx")
+            translate_docx_document(
+                input_path=file_path,
+                output_path=translated_file_path,
+                source_lang=source_lang,
+                target_lang=target_lang
+            )
+
+        elif ext in [".pptx", ".ppt"]:
+            update_job_status(doc_id, "processing", 30, "Đang dịch file PowerPoint (.pptx)...")
+            translated_file_path = os.path.join(temp_out_dir, f"translated_{doc_id}.pptx")
+            translate_pptx_document(
+                input_path=file_path,
+                output_path=translated_file_path,
+                source_lang=source_lang,
+                target_lang=target_lang
+            )
+
+        elif ext == ".pdf" and is_scanned:
+            update_job_status(doc_id, "processing", 30, "Đang OCR & dịch file PDF Scan...")
+            translated_file_path = os.path.join(temp_out_dir, f"translated_{doc_id}.docx")
+            process_scanned_pdf_translation(
+                pdf_path=file_path,
+                output_docx_path=translated_file_path,
+                source_lang=source_lang,
+                target_lang=target_lang
+            )
+
+        else: # Default: Academic PDF Paper
+            update_job_status(doc_id, "processing", 20, "Đang bóc tách PDF bài báo khoa học thành Markdown...")
+            md_text, image_dir = extract_pdf_to_markdown(file_path, doc_id)
+            
+            update_job_status(doc_id, "processing", 50, "Đang dịch Batching qua Ollama (Qwen 2.5)...")
+            translated_text = translate_markdown_document_ollama(
+                md_text=md_text,
+                source_lang=source_lang,
+                target_lang=target_lang
+            )
+
+            update_job_status(doc_id, "processing", 80, "Đang render lại bản dịch Markdown thành PDF...")
+            translated_file_path = os.path.join(temp_out_dir, f"translated_{doc_id}.pdf")
+            render_markdown_to_pdf(translated_text, translated_file_path)
 
         translated_file_url = f"/api/v1/documents/{doc_id}/download"
 
         update_job_status(
-            doc_id, "completed", 100,
-            "Đã hoàn thành dịch thuật và tạo file PDF thành công!",
-            pages_processed=1, # Bypass page counting for now
+            doc_id, "COMPLETED", 100,
+            "Đã hoàn thành dịch thuật thành công!",
+            pages_processed=1,
             total_pages=1,
             translated_file_url=translated_file_url,
-            translated_text=translated_md,
+            translated_text=translated_text,
             summary_json={},
             glossary=[]
         )
@@ -97,8 +130,8 @@ def process_pdf_translation_job_sync(
         return JOB_STATUS_STORE[doc_id]
 
     except Exception as e:
-        logger.exception(f"❌ [Job Failed] Lỗi xử lý PDF translation cho doc_id={doc_id}: {e}")
-        update_job_status(doc_id, "failed", 0, f"Thất bại: {str(e)}", error=str(e))
+        logger.exception(f"❌ [Job Failed] Lỗi xử lý dịch thuật doc_id={doc_id}: {e}")
+        update_job_status(doc_id, "FAILED", 0, f"Thất bại: {str(e)}", error=str(e))
         return JOB_STATUS_STORE[doc_id]
 
 async def dispatch_pdf_translation_job(
@@ -106,19 +139,21 @@ async def dispatch_pdf_translation_job(
     file_path: str,
     user_id: str,
     source_lang: str = "en",
-    target_lang: str = "vi"
+    target_lang: str = "vi",
+    is_scanned: bool = False
 ):
     """
-    Offload CPU heavy job sang background thread qua asyncio.to_thread để không gây block FastAPI event loop.
+    Offload heavy job sang background thread để không block event loop.
     """
     update_job_status(doc_id, "processing", 5, "Khởi tạo tác vụ dịch ngầm...")
     asyncio.create_task(
         asyncio.to_thread(
-            process_pdf_translation_job_sync,
+            process_document_translation_job_sync,
             doc_id,
             file_path,
             user_id,
             source_lang,
-            target_lang
+            target_lang,
+            is_scanned
         )
     )
