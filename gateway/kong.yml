@@ -1,0 +1,64 @@
+_format_version: "3.0"
+
+plugins:
+  - name: cors
+    config:
+      origins:
+        - "*"
+      methods:
+        - GET
+        - POST
+        - PUT
+        - PATCH
+        - DELETE
+        - OPTIONS
+      headers:
+        - "*"
+      credentials: true
+      max_age: 3600
+
+services:
+  - name: auth-service
+    url: http://auth-service:8001
+    routes:
+      - name: auth-routes
+        paths:
+          - /api/v1/auth
+          - /api/auth
+        strip_path: false
+
+  - name: academic-chatbot-service
+    url: http://academic-chatbot-service:8002
+    routes:
+      - name: chat-routes
+        paths:
+          - /api/v1/chat
+          - /api/chat
+        strip_path: false
+
+  - name: realtime-translation-service
+    url: http://realtime-translation-service:8003
+    routes:
+      - name: translation-routes
+        paths:
+          - /api/v1/translate
+          - /api/translate
+        strip_path: false
+
+  - name: doc-translation-service
+    url: http://doc-translation-service:8004
+    routes:
+      - name: doc-routes
+        paths:
+          - /api/v1/documents
+          - /api/documents
+        strip_path: false
+
+  - name: flashcard-service
+    url: http://flashcard-service:8005
+    routes:
+      - name: flashcard-routes
+        paths:
+          - /api/v1/flashcards
+          - /api/flashcards
+        strip_path: false

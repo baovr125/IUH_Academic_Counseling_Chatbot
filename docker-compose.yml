@@ -1,43 +1,99 @@
 services:
-  backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    container_name: iuh_chatbot_backend
-    restart: always
+  kong-gateway:
+    image: kong:latest
+    container_name: iuh_kong_gateway
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /usr/local/kong/declarative/kong.yml
+      KONG_PROXY_LISTEN: 0.0.0.0:8000, 0.0.0.0:8443 ssl
+      KONG_DNS_STALE_TTL: 0
+      KONG_DNS_NOT_FOUND_TTL: 1
+      KONG_DNS_VALID_TTL: 1
     ports:
       - "8000:8000"
+      - "8443:8443"
+    volumes:
+      - ./gateway/kong.yml:/usr/local/kong/declarative/kong.yml
+    depends_on:
+      - auth-service
+      - academic-chatbot-service
+      - realtime-translation-service
+      - doc-translation-service
+      - flashcard-service
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: iuh_rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+
+  redis:
+    image: redis:7-alpine
+    container_name: iuh_redis
+    ports:
+      - "6379:6379"
+
+  auth-service:
+    build:
+      context: ./services/auth_service
+    container_name: iuh_auth_service
+    ports:
+      - "8001:8001"
     env_file:
       - .env
-    environment:
-      # - DATABASE_URL=${DATABASE_URL}
-      - SUPABASE_URL=${SUPABASE_URL}
-      - SUPABASE_KEY=${SUPABASE_KEY}
-      - JWT_SECRET=${JWT_SECRET}
-      - ALGORITHM=${ALGORITHM}
-      - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES}
-      - CHROMA_DB_DIR=${CHROMA_DB_DIR:-./data/chroma_db}
-      - DATA_JSON_DIR=${DATA_JSON_DIR:-./data/json_documents}
-      # - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://localhost:11434}
-    networks:
-      - iuh-network
+
+  academic-chatbot-service:
+    build:
+      context: ./services/academic_chatbot_service
+    container_name: iuh_academic_chatbot_service
+    ports:
+      - "8002:8002"
+    env_file:
+      - .env
+
+  realtime-translation-service:
+    build:
+      context: ./services/realtime_translation_service
+    container_name: iuh_realtime_translation_service
+    ports:
+      - "8003:8003"
+    env_file:
+      - .env
+    depends_on:
+      - redis
+
+  doc-translation-service:
+    build:
+      context: ./services/doc_translation_service
+    container_name: iuh_doc_translation_service
+    ports:
+      - "8004:8004"
+    env_file:
+      - .env
+    depends_on:
+      - rabbitmq
+      - redis
+
+  flashcard-service:
+    build:
+      context: ./services/flashcard_service
+    container_name: iuh_flashcard_service
+    ports:
+      - "8005:8005"
+    env_file:
+      - .env
 
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile
       args:
-        - VITE_API_BASE_URL=${VITE_API_BASE_URL:-}
-    container_name: iuh_chatbot_frontend
-    restart: always
+        VITE_API_BASE_URL: http://localhost:8000
+    container_name: iuh_frontend
     ports:
-      - "80:80"
       - "5173:80"
     depends_on:
-      - backend
-    networks:
-      - iuh-network
-
-networks:
-  iuh-network:
-    driver: bridge
+      - kong-gateway
