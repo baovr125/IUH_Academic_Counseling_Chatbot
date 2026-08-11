@@ -21,6 +21,7 @@ class DocumentStatusResponse(BaseModel):
     pages_processed: Optional[int] = 0
     total_pages: Optional[int] = 0
     translated_file_url: Optional[str] = None
+    translated_text: Optional[str] = None
     summary_json: Optional[Dict[str, Any]] = None
     glossary: Optional[List[GlossaryTerm]] = []
     error: Optional[str] = None

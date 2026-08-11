@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import {
   FileText,
   UploadCloud,
@@ -13,14 +13,14 @@ import {
   Loader2,
   Presentation,
   AlignLeft,
-  MessageSquare,
-  Send,
-  ExternalLink,
-  X,
-  Bot,
-  User,
+  Copy,
+  Check,
   BookMarked,
-  Info
+  FileCheck,
+  Search,
+  MessageSquare,
+  Eye,
+  AlertCircle
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { LANG_CONFIG, addCardToDeck } from "../services/deckStorage";
@@ -40,90 +40,35 @@ interface GlossaryItem {
   context?: string;
 }
 
-interface Citation {
-  page: number;
-  snippet: string;
-}
-
-interface ChatMessage {
-  id: string;
-  sender: "user" | "bot";
-  text: string;
-  citations?: Citation[];
-  timestamp: string;
-}
-
-const SAMPLE_DOCS: DocumentFile[] = [
-  {
-    id: "sample_doc_01",
-    name: "Quy_che_hoc_vu_tin_chi_2026.pdf",
-    type: "pdf",
-    size: "4.1 MB",
-    pagesOrSlides: "24 trang",
-    title: "Quy chế đào tạo theo hệ thống tín chỉ IUH",
-  },
-  {
-    id: "sample_doc_02",
-    name: "Bao_cao_thuc_tap_tot_nghiep_IUH.docx",
-    type: "docx",
-    size: "2.4 MB",
-    pagesOrSlides: "15 trang",
-    title: "Báo cáo thực tập tốt nghiệp chuyên ngành Kỹ thuật Phần mềm",
-  },
-  {
-    id: "sample_doc_03",
-    name: "Slide_gioi_thieu_Khoa_CNTT.pptx",
-    type: "pptx",
-    size: "6.8 MB",
-    pagesOrSlides: "18 slides",
-    title: "Giới thiệu chương trình đào tạo Khoa Công nghệ Thông tin",
-  },
-];
-
 export default function DocumentTranslationPage() {
   const navigate = useNavigate();
 
   // Language & Selection state
   const [sourceLang, setSourceLang] = useState("vi");
   const [targetLang, setTargetLang] = useState("en");
-  const [selectedFile, setSelectedFile] = useState<DocumentFile | null>(SAMPLE_DOCS[0]);
+  const [selectedFile, setSelectedFile] = useState<DocumentFile | null>(null);
+  const [actualFile, setActualFile] = useState<File | null>(null);
 
   // Processing state
-  const [docId, setDocId] = useState<string>("sample_doc_01");
+  const [docId, setDocId] = useState<string>("");
   const [isTranslating, setIsTranslating] = useState(false);
   const [progressPercent, setProgressPercent] = useState(0);
-  const [statusMessage, setStatusMessage] = useState("Sẵn sàng xử lý tài liệu");
-  const [isCompleted, setIsCompleted] = useState(true);
+  const [statusMessage, setStatusMessage] = useState("Vui lòng chọn tài liệu để bắt đầu");
+  const [isCompleted, setIsCompleted] = useState(false);
   const [savedKeywordsSuccess, setSavedKeywordsSuccess] = useState(false);
 
-  // Extracted Glossary
-  const [glossary, setGlossary] = useState<GlossaryItem[]>([
-    { term: "Academic Regulations", vi: "Quy chế học vụ", context: "Quy định đào tạo tín chỉ tại IUH" },
-    { term: "Credit System", vi: "Hệ thống tín chỉ", context: "Phương thức đào tạo theo tín chỉ" },
-    { term: "Cumulative GPA", vi: "Điểm trung bình tích lũy (CGPA)", context: "Điểm tổng kết tích lũy toàn khóa" },
-    { term: "Academic Advisor", vi: "Cố vấn học tập", context: "Giảng viên hỗ trợ sinh viên" },
-  ]);
+  // Translated Result Frame State
+  const [translatedText, setTranslatedText] = useState<string>("");
+  const [copied, setCopied] = useState(false);
+  const [activeTab, setActiveTab] = useState<"preview" | "summary" | "rag">("preview");
 
-  // Document RAG Chat state
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
-    {
-      id: "msg-1",
-      sender: "bot",
-      text: "Xin chào! Tôi là Trợ lý RAG Tài liệu. Bạn có thể hỏi bất kỳ thắc mắc nào liên quan đến nội dung tài liệu này.",
-      timestamp: "Vừa xong",
-    },
-  ]);
-  const [inputQuery, setInputQuery] = useState("");
-  const [isQuerying, setIsQuerying] = useState(false);
+  // RAG Query state within Result Frame
+  const [ragQuery, setRagQuery] = useState("");
+  const [ragAnswer, setRagAnswer] = useState<string | null>(null);
+  const [isRagQuerying, setIsRagQuerying] = useState(false);
 
-  // Citation Preview Modal State
-  const [activeCitation, setActiveCitation] = useState<Citation | null>(null);
-
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [chatMessages, isQuerying]);
+  // Extracted Glossary from real document processing
+  const [glossary, setGlossary] = useState<GlossaryItem[]>([]);
 
   const swapLanguages = () => {
     setSourceLang(targetLang);
@@ -140,102 +85,119 @@ export default function DocumentTranslationPage() {
 
     const newDocId = `doc_${Date.now()}`;
     setDocId(newDocId);
+    setActualFile(file);
     setSelectedFile({
       id: newDocId,
       name: file.name,
       type,
       size: `${(file.size / (1024 * 1024)).toFixed(1)} MB`,
-      pagesOrSlides: type === "pptx" ? "12 slides" : "10 trang",
+      pagesOrSlides: type === "pptx" ? "PowerPoint" : "Document",
       title: file.name.replace(/\.[^/.]+$/, ""),
     });
     setIsCompleted(false);
+    setProgressPercent(0);
+    setStatusMessage("Tài liệu đã sẵn sàng để dịch");
+    setTranslatedText("");
+    setGlossary([]);
+    setRagAnswer(null);
   };
 
-  const handleStartTranslate = () => {
-    if (!selectedFile) return;
+  const handleStartTranslate = async () => {
+    if (!actualFile) {
+      alert("Vui lòng tải lên một tài liệu (PDF, Word, PowerPoint) từ máy tính của bạn.");
+      return;
+    }
+
     setIsTranslating(true);
     setIsCompleted(false);
-    setProgressPercent(10);
-    setStatusMessage("1/5: Đang đọc và trích xuất cấu trúc văn bản qua PyMuPDF...");
+    setProgressPercent(5);
+    setStatusMessage("Đang tải tài liệu lên hệ thống AI...");
 
-    const t1 = setTimeout(() => {
-      setProgressPercent(35);
-      setStatusMessage("2/5: Phân cấp Hierarchical Chunking v6.2 (Parent-Child Sections)...");
-    }, 800);
+    try {
+      const formData = new FormData();
+      formData.append("file", actualFile);
+      formData.append("source_lang", sourceLang);
+      formData.append("target_lang", targetLang);
 
-    const t2 = setTimeout(() => {
-      setProgressPercent(60);
-      setStatusMessage("3/5: Dịch thuật ngữ văn cảnh lớn bằng Gemini 2.5 Flash & Từ điển IUH...");
-    }, 1800);
+      const baseUrl = (import.meta as any).env.VITE_API_BASE_URL || "http://localhost:8000";
+      
+      const uploadRes = await fetch(`${baseUrl}/api/v1/documents/upload`, {
+        method: "POST",
+        body: formData,
+      });
 
-    const t3 = setTimeout(() => {
-      setProgressPercent(85);
-      setStatusMessage("4/5: Tạo Vector BAAI/bge-m3 (1024 chiều) & Upsert vào Supabase pgvector...");
-    }, 2800);
+      if (!uploadRes.ok) {
+        throw new Error("Lỗi tải lên tài liệu: " + uploadRes.statusText);
+      }
 
-    const t4 = setTimeout(() => {
-      setProgressPercent(100);
+      const uploadData = await uploadRes.json();
+      const currentDocId = uploadData.data.doc_id;
+      setDocId(currentDocId);
+
+      // Polling real progress from backend worker
+      const pollInterval = setInterval(async () => {
+        try {
+          const statusRes = await fetch(`${baseUrl}/api/v1/documents/${currentDocId}/status`);
+          const statusData = await statusRes.json();
+          
+          if (!statusData.ok) return;
+          
+          const { status, progress, message, translated_text, glossary: fetchedGlossary } = statusData.data;
+          
+          setProgressPercent(progress);
+          setStatusMessage(message);
+
+          if (fetchedGlossary && fetchedGlossary.length > 0) {
+            setGlossary(fetchedGlossary);
+          }
+
+          if (translated_text) {
+            setTranslatedText(translated_text);
+          }
+
+          if (status === "completed") {
+            clearInterval(pollInterval);
+            setIsTranslating(false);
+            setIsCompleted(true);
+          } else if (status === "failed") {
+            clearInterval(pollInterval);
+            setIsTranslating(false);
+            setStatusMessage("Lỗi xử lý: " + message);
+          }
+        } catch (err) {
+          console.error("Lỗi khi kiểm tra tiến độ:", err);
+        }
+      }, 2500);
+
+    } catch (err: any) {
+      console.error(err);
       setIsTranslating(false);
-      setIsCompleted(true);
-      setStatusMessage("5/5: Hoàn tất dịch thuật & Indexed RAG Vector thành công!");
-
-      setChatMessages([
-        {
-          id: `msg-${Date.now()}`,
-          sender: "bot",
-          text: `Đã dịch thuật và indexed tài liệu "${selectedFile.title}" thành công với mô hình BAAI/bge-m3 (1024d). Bạn có thể bắt đầu hỏi đáp bên dưới!`,
-          timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-        },
-      ]);
-    }, 3800);
-
-    return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
-      clearTimeout(t3);
-      clearTimeout(t4);
-    };
+      setStatusMessage("Lỗi kết nối API: " + err.message);
+    }
   };
 
   const handleDownloadFile = () => {
-    if (!selectedFile) return;
-
-    const content = `================================================================
-TÀI LIỆU ĐÃ DỊCH: ${selectedFile.name}
-HỆ THỐNG: IUH Portal AI Document Service
-MODEL EMBEDDING: BAAI/bge-m3 (1024 chiều)
-NGÔN NGỮ: ${LANG_CONFIG[sourceLang]?.label || sourceLang} ➔ ${LANG_CONFIG[targetLang]?.label || targetLang}
-================================================================
-
-[TIÊU ĐỀ TÀI LIỆU]
-${selectedFile.title}
-
-[THUẬT NGỮ HỌC VỤ TRÍCH XUẤT]
-${glossary.map((g) => `- ${g.term}: ${g.vi}`).join("\n")}
-
-[NỘI DUNG DỊCH BAGE-M3 RAG INDEXED]
-- Trang 1: Tổng quan quy chế đào tạo tín chỉ Đại học Công nghiệp TP.HCM...
-- Trang 2-5: Quy định đăng ký học phần, điểm tích lũy CGPA và cố vấn học tập...
-- Trang 6-12: Tiêu chuẩn xét duyệt đồ án tốt nghiệp và thực tập công ty...
-
-================================================================
-Tài liệu được dịch và xác thực bởi IUH Portal AI Engine.
-================================================================
-`;
-
-    const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
+    if (!docId) return;
+    const baseUrl = (import.meta as any).env.VITE_API_BASE_URL || "http://localhost:8000";
+    const downloadUrl = `${baseUrl}/api/v1/documents/${docId}/download`;
+    
     const link = document.createElement("a");
-    link.href = url;
-    link.download = `[${targetLang.toUpperCase()}]_${selectedFile.name}.txt`;
+    link.href = downloadUrl;
+    link.target = "_blank";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+  };
+
+  const handleCopyText = () => {
+    if (!translatedText) return;
+    navigator.clipboard.writeText(translatedText);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   const handleSaveKeywordsToDeck = () => {
-    if (!selectedFile) return;
+    if (!selectedFile || glossary.length === 0) return;
 
     glossary.forEach((item) => {
       addCardToDeck(
@@ -251,51 +213,30 @@ Tài liệu được dịch và xác thực bởi IUH Portal AI Engine.
     setTimeout(() => setSavedKeywordsSuccess(false), 4000);
   };
 
-  const handleSendQuery = (customQuery?: string) => {
-    const query = customQuery || inputQuery;
-    if (!query.trim() || isQuerying) return;
+  const handleRagQuery = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!ragQuery.trim() || !docId) return;
 
-    const userMsg: ChatMessage = {
-      id: `user-${Date.now()}`,
-      sender: "user",
-      text: query,
-      timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-    };
+    setIsRagQuerying(true);
+    try {
+      const baseUrl = (import.meta as any).env.VITE_API_BASE_URL || "http://localhost:8000";
+      const res = await fetch(`${baseUrl}/api/v1/documents/${docId}/query`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query: ragQuery }),
+      });
 
-    setChatMessages((prev) => [...prev, userMsg]);
-    if (!customQuery) setInputQuery("");
-    setIsQuerying(true);
-
-    setTimeout(() => {
-      let botAnswer = `Dựa trên tài liệu "${selectedFile?.title}", điều kiện quy định như sau:`;
-      let citations: Citation[] = [
-        {
-          page: 3,
-          snippet: "Sinh viên phải tích lũy đủ tổng số tín chỉ tối thiểu theo chương trình đào tạo và đạt điểm trung bình tích lũy (CGPA) từ 2.0 trở lên.",
-        },
-        {
-          page: 7,
-          snippet: "Đồng thời phải hoàn tất báo cáo thực tập tốt nghiệp và đạt chuẩn đầu ra ngoại ngữ theo quy định của nhà trường.",
-        },
-      ];
-
-      if (query.includes("tốt nghiệp") || query.includes("điều kiện")) {
-        botAnswer = "Theo Quy chế Học vụ IUH (Trang 3 & Trang 7), điều kiện xét tốt nghiệp bao gồm:\n1. Tích lũy đủ số tín chỉ quy định của ngành học (CGPA >= 2.00).\n2. Đạt chuẩn đầu ra Ngoại ngữ và Tin học theo quy định.\n3. Hoàn thành Báo cáo Thực tập tốt nghiệp và không bị truy cứu kỷ luật.";
-      } else if (query.includes("tín chỉ") || query.includes("học phí")) {
-        botAnswer = "Tài liệu ghi rõ sinh viên đăng ký học phần theo Hệ thống Tín chỉ (Trang 4). Học phí được tính căn cứ theo số lượng tín chỉ của từng học phần đăng ký trong học kỳ.";
+      if (res.ok) {
+        const data = await res.json();
+        setRagAnswer(data.data.answer);
+      } else {
+        setRagAnswer("Không thể truy vấn thông tin từ tài liệu này. Vui lòng kiểm tra lại dịch thuật.");
       }
-
-      const botMsg: ChatMessage = {
-        id: `bot-${Date.now()}`,
-        sender: "bot",
-        text: botAnswer,
-        citations,
-        timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-      };
-
-      setChatMessages((prev) => [...prev, botMsg]);
-      setIsQuerying(false);
-    }, 1200);
+    } catch {
+      setRagAnswer("Không thể kết nối với dịch vụ RAG.");
+    } finally {
+      setIsRagQuerying(false);
+    }
   };
 
   const getFileIcon = (type: "pdf" | "docx" | "pptx") => {
@@ -316,7 +257,7 @@ Tài liệu được dịch và xác thực bởi IUH Portal AI Engine.
             </h1>
           </div>
           <p className="mt-1 text-xs text-slate-500">
-            Dịch tài liệu theo phân cấp ngữ cảnh, trích xuất thuật ngữ IUH và hỏi đáp RAG bảo mật với Vector BGE-M3 (1024d)
+            Dịch tài liệu giữ nguyên cấu trúc, xem trước kết quả trực tiếp và trích xuất từ điển học vụ IUH
           </p>
         </div>
 
@@ -392,7 +333,7 @@ Tài liệu được dịch và xác thực bởi IUH Portal AI Engine.
           {isTranslating ? (
             <>
               <Loader2 size={15} className="animate-spin" />
-              <span>Đang dịch & Indexed BGE-M3...</span>
+              <span>Đang dịch tài liệu...</span>
             </>
           ) : (
             <>
@@ -403,12 +344,13 @@ Tài liệu được dịch và xác thực bởi IUH Portal AI Engine.
         </button>
       </div>
 
-      {/* Main Workspace: 2-Column Layout */}
+      {/* Main Workspace: 2-Column Side-by-Side Layout */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 flex-1">
-        {/* Left Column: File Management, Upload, Progress, Glossary */}
-        <div className="space-y-4 lg:col-span-6">
+        
+        {/* LEFT COLUMN: Upload, Progress & Glossary */}
+        <div className="space-y-4 lg:col-span-5 flex flex-col">
           {/* Upload Dropzone */}
-          <div className="relative flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50/60 p-5 text-center hover:bg-slate-100/50 transition-colors">
+          <div className="relative flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50/60 p-5 text-center hover:bg-slate-100/50 transition-colors cursor-pointer">
             <input
               type="file"
               accept=".pdf,.docx,.doc,.pptx,.ppt"
@@ -421,9 +363,9 @@ Tài liệu được dịch và xác thực bởi IUH Portal AI Engine.
             <div className="text-xs font-bold text-slate-800">
               Nhấp hoặc kéo thả tài liệu (PDF, Word, PowerPoint)
             </div>
-            <p className="mt-1 text-[11px] text-slate-500">
-              Mô hình BAAI/bge-m3 1024d hỗ trợ ngữ cảnh lớn tới 8192 tokens
-            </p>
+            <div className="mt-1 text-[11px] text-slate-400">
+              Hỗ trợ file tối đa 50MB, giữ nguyên định dạng trang
+            </div>
           </div>
 
           {/* Selected File Card & Processing Progress */}
@@ -452,7 +394,7 @@ Tài liệu được dịch và xác thực bởi IUH Portal AI Engine.
               </div>
 
               {/* Progress Bar & Status text */}
-              {(isTranslating || isCompleted) && (
+              {(isTranslating || progressPercent > 0 || isCompleted) && (
                 <div className="mt-4 border-t border-slate-100 pt-3">
                   <div className="mb-1.5 flex items-center justify-between text-xs font-semibold">
                     <span className="text-slate-600">{statusMessage}</span>
@@ -466,276 +408,281 @@ Tài liệu được dịch và xác thực bởi IUH Portal AI Engine.
                   </div>
                 </div>
               )}
-
-              {/* Action Buttons */}
-              {isCompleted && (
-                <div className="mt-4 flex items-center justify-between gap-2 border-t border-slate-100 pt-3">
-                  <div className="flex items-center gap-1.5 text-xs text-green-600 font-semibold">
-                    <CheckCircle2 size={16} />
-                    <span>Đã Indexed Vector BGE-M3 (1024d)</span>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={handleDownloadFile}
-                    className="flex items-center gap-1.5 rounded-xl bg-green-600 px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-green-700 transition-all"
-                  >
-                    <Download size={15} />
-                    <span>Tải bản dịch</span>
-                  </button>
-                </div>
-              )}
             </div>
           )}
 
           {/* Academic Glossary Card */}
-          <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm flex-1 flex flex-col">
             <div className="mb-3 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <BookMarked size={18} className="text-indigo-600" />
                 <span className="text-xs font-bold text-slate-800">
-                  Từ Điển Thuật Ngữ Học Vụ IUH Trích Xuất ({glossary.length})
+                  Từ Điển Thuật Ngữ IUH ({glossary.length})
                 </span>
               </div>
 
-              <button
-                type="button"
-                onClick={handleSaveKeywordsToDeck}
-                className="flex items-center gap-1 rounded-lg bg-indigo-50 px-2.5 py-1 text-[11px] font-semibold text-indigo-700 hover:bg-indigo-100 transition-colors"
-              >
-                <BookmarkPlus size={13} />
-                <span>Lưu Thẻ Từ Vựng</span>
-              </button>
+              {glossary.length > 0 && (
+                <button
+                  type="button"
+                  onClick={handleSaveKeywordsToDeck}
+                  className="flex items-center gap-1 rounded-lg bg-indigo-50 px-2.5 py-1 text-[11px] font-semibold text-indigo-700 hover:bg-indigo-100 transition-colors"
+                >
+                  <BookmarkPlus size={13} />
+                  <span>Lưu Thẻ Flashcard</span>
+                </button>
+              )}
             </div>
 
             {savedKeywordsSuccess && (
               <div className="mb-3 flex items-center gap-2 rounded-xl bg-green-50 border border-green-200 p-2.5 text-xs font-medium text-green-800">
                 <CheckCircle2 size={15} className="text-green-600" />
-                <span>Đã lưu thành công danh sách thuật ngữ vào Sổ Flashcard!</span>
+                <span>Đã lưu thành công thuật ngữ vào Flashcard!</span>
               </div>
             )}
 
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-              {glossary.map((g, i) => (
-                <div key={i} className="rounded-xl border border-slate-100 bg-slate-50/70 p-2.5 text-xs">
-                  <div className="font-bold text-slate-800">{g.term}</div>
-                  <div className="text-blue-600 font-medium mt-0.5">{g.vi}</div>
-                  {g.context && <div className="text-[10px] text-slate-400 mt-0.5">{g.context}</div>}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Quick Select Sample Docs */}
-          <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-            <span className="mb-2.5 block text-xs font-bold text-slate-700">
-              ⚡ Tài liệu mẫu có sẵn của nhà trường:
-            </span>
-            <div className="space-y-2">
-              {SAMPLE_DOCS.map((doc) => (
-                <button
-                  type="button"
-                  key={doc.id}
-                  onClick={() => {
-                    setSelectedFile(doc);
-                    setDocId(doc.id || "sample_doc_01");
-                    setIsCompleted(true);
-                  }}
-                  className={`flex w-full items-center justify-between rounded-xl border p-2.5 text-left transition-all ${
-                    selectedFile?.name === doc.name
-                      ? "border-blue-500 bg-blue-50/60 ring-2 ring-blue-500/20"
-                      : "border-slate-200 bg-white hover:bg-slate-50"
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5">
-                    {getFileIcon(doc.type)}
-                    <div>
-                      <div className="text-xs font-semibold text-slate-800">{doc.title}</div>
-                      <div className="text-[10px] text-slate-500">{doc.name} • {doc.pagesOrSlides}</div>
-                    </div>
+            {glossary.length === 0 ? (
+              <div className="flex flex-1 flex-col items-center justify-center py-8 text-center text-slate-400">
+                <AlertCircle size={24} className="mb-1 text-slate-300" />
+                <span className="text-xs">Chưa có thuật ngữ trích xuất</span>
+                <span className="text-[11px] text-slate-400 mt-0.5">Thuật ngữ sẽ tự động xuất hiện khi dịch tài liệu</span>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 overflow-y-auto max-h-[220px] pr-1">
+                {glossary.map((g, i) => (
+                  <div key={i} className="rounded-xl border border-slate-100 bg-slate-50/70 p-2.5 text-xs">
+                    <div className="font-bold text-slate-800">{g.term}</div>
+                    <div className="text-blue-600 font-medium mt-0.5">{g.vi}</div>
+                    {g.context && <div className="text-[10px] text-slate-400 mt-0.5">{g.context}</div>}
                   </div>
-                </button>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Right Column: Interactive Document RAG Chat */}
-        <div className="flex flex-col rounded-2xl border border-slate-200 bg-white shadow-sm lg:col-span-6 h-[640px]">
-          {/* Chat Header */}
-          <div className="flex items-center justify-between border-b border-slate-200 px-5 py-3.5 bg-slate-50/70 rounded-t-2xl">
-            <div className="flex items-center gap-2.5">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white shadow-sm">
-                <Bot size={18} />
+        {/* RIGHT COLUMN: Dedicated Translated Document Result Frame (Khung Kết Quả Dịch) */}
+        <div className="lg:col-span-7 flex flex-col">
+          <div className="flex-1 rounded-2xl border border-slate-200 bg-white shadow-sm flex flex-col overflow-hidden min-h-[500px]">
+            
+            {/* Header of Result Frame */}
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 bg-slate-50/80 px-4 py-3">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 text-blue-700">
+                  <FileCheck size={18} />
+                </div>
+                <div>
+                  <h3 className="text-xs font-bold text-slate-800">
+                    Khung Hiển Thị Kết Quả Dịch
+                  </h3>
+                  <div className="flex items-center gap-2 text-[10px] text-slate-500">
+                    <span className="font-medium">{selectedFile?.title || "Chưa chọn tài liệu"}</span>
+                    {selectedFile && (
+                      <span className="rounded bg-blue-50 px-1.5 py-0.5 text-[9px] font-bold text-blue-600 uppercase">
+                        {sourceLang} ➔ {targetLang}
+                      </span>
+                    )}
+                  </div>
+                </div>
               </div>
-              <div>
-                <h3 className="text-xs font-bold text-slate-800">
-                  Document RAG Chat (Hard Payload Filtered)
-                </h3>
-                <span className="text-[10px] text-slate-500 block">
-                  Cô lập theo file: <b className="text-slate-700">{selectedFile?.name}</b>
-                </span>
+
+              {/* Top Action Buttons */}
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleCopyText}
+                  disabled={!translatedText}
+                  className="flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40 transition-colors shadow-sm"
+                  title="Sao chép nội dung dịch"
+                >
+                  {copied ? (
+                    <>
+                      <Check size={14} className="text-green-600" />
+                      <span className="text-green-600">Đã chép</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy size={14} />
+                      <span>Sao chép</span>
+                    </>
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleDownloadFile}
+                  disabled={!isCompleted}
+                  className="flex items-center gap-1.5 rounded-lg bg-green-600 px-3 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-green-700 disabled:opacity-40 transition-all"
+                >
+                  <Download size={14} />
+                  <span>Tải file PDF</span>
+                </button>
               </div>
             </div>
 
-            <span className="rounded-full bg-green-100 px-2.5 py-0.5 text-[10px] font-bold text-green-700">
-              Vector BGE-M3 1024d Active
-            </span>
-          </div>
-
-          {/* Messages Body */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-3.5 bg-slate-50/30">
-            {chatMessages.map((msg) => (
-              <div
-                key={msg.id}
-                className={`flex gap-2.5 ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
+            {/* Sub-Header Tabs */}
+            <div className="flex border-b border-slate-100 bg-white px-4 pt-2">
+              <button
+                type="button"
+                onClick={() => setActiveTab("preview")}
+                className={`flex items-center gap-1.5 border-b-2 px-3 py-2 text-xs font-bold transition-colors ${
+                  activeTab === "preview"
+                    ? "border-blue-600 text-blue-600"
+                    : "border-transparent text-slate-500 hover:text-slate-700"
+                }`}
               >
-                {msg.sender === "bot" && (
-                  <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-blue-600 text-white text-xs">
-                    <Bot size={14} />
+                <Eye size={14} />
+                <span>Xem Bản Dịch (Text Preview)</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab("summary")}
+                className={`flex items-center gap-1.5 border-b-2 px-3 py-2 text-xs font-bold transition-colors ${
+                  activeTab === "summary"
+                    ? "border-blue-600 text-blue-600"
+                    : "border-transparent text-slate-500 hover:text-slate-700"
+                }`}
+              >
+                <Sparkles size={14} />
+                <span>Tóm Tắt Nhanh</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab("rag")}
+                className={`flex items-center gap-1.5 border-b-2 px-3 py-2 text-xs font-bold transition-colors ${
+                  activeTab === "rag"
+                    ? "border-blue-600 text-blue-600"
+                    : "border-transparent text-slate-500 hover:text-slate-700"
+                }`}
+              >
+                <MessageSquare size={14} />
+                <span>Tra Cứu RAG</span>
+              </button>
+            </div>
+
+            {/* Body Content Area */}
+            <div className="flex-1 p-5 overflow-y-auto max-h-[520px] bg-slate-50/40">
+              
+              {/* LOADING STATE */}
+              {isTranslating && (
+                <div className="flex h-full flex-col items-center justify-center py-16 text-center">
+                  <Loader2 size={36} className="animate-spin text-blue-600 mb-3" />
+                  <div className="text-sm font-bold text-slate-800">Đang dịch tài liệu...</div>
+                  <div className="mt-1 text-xs text-slate-500 max-w-sm">
+                    {statusMessage} ({progressPercent}%)
                   </div>
-                )}
+                </div>
+              )}
 
-                <div
-                  className={`max-w-[85%] rounded-2xl p-3.5 text-xs ${
-                    msg.sender === "user"
-                      ? "bg-blue-600 text-white rounded-br-xs shadow-sm"
-                      : "bg-white border border-slate-200 text-slate-800 rounded-bl-xs shadow-sm"
-                  }`}
-                >
-                  <p className="whitespace-pre-line leading-relaxed">{msg.text}</p>
+              {/* EMPTY STATE */}
+              {!isTranslating && !translatedText && (
+                <div className="flex h-full flex-col items-center justify-center py-16 text-center">
+                  <FileText size={40} className="text-slate-300 mb-3" />
+                  <div className="text-sm font-bold text-slate-700">Chưa có bản dịch</div>
+                  <div className="mt-1 text-xs text-slate-400 max-w-xs">
+                    Vui lòng chọn tài liệu (PDF/Word/PPT) và nhấn "Bắt đầu dịch tài liệu" để xem kết quả tại khung này.
+                  </div>
+                </div>
+              )}
 
-                  {/* Citations Badges */}
-                  {msg.citations && msg.citations.length > 0 && (
-                    <div className="mt-3 border-t border-slate-100 pt-2 flex flex-wrap items-center gap-1.5">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                        Trích dẫn:
-                      </span>
-                      {msg.citations.map((cite, idx) => (
-                        <button
-                          key={idx}
-                          type="button"
-                          onClick={() => setActiveCitation(cite)}
-                          className="flex items-center gap-1 rounded-md bg-blue-50 border border-blue-200 px-2 py-0.5 text-[10px] font-bold text-blue-700 hover:bg-blue-100 transition-colors"
-                        >
-                          <span>[Trang {cite.page}]</span>
-                          <ExternalLink size={10} />
-                        </button>
-                      ))}
+              {/* COMPLETED TAB CONTENT */}
+              {!isTranslating && translatedText && (
+                <>
+                  {/* TAB 1: TEXT PREVIEW */}
+                  {activeTab === "preview" && (
+                    <div className="rounded-xl border border-slate-200 bg-white p-5 text-xs text-slate-800 shadow-sm leading-relaxed whitespace-pre-wrap font-sans">
+                      {translatedText}
                     </div>
                   )}
 
-                  <div
-                    className={`mt-1.5 text-[9px] text-right ${
-                      msg.sender === "user" ? "text-blue-200" : "text-slate-400"
-                    }`}
-                  >
-                    {msg.timestamp}
-                  </div>
+                  {/* TAB 2: SUMMARY */}
+                  {activeTab === "summary" && (
+                    <div className="space-y-4">
+                      <div className="rounded-xl border border-blue-100 bg-blue-50/60 p-4">
+                        <div className="flex items-center gap-2 font-bold text-blue-900 text-xs mb-1">
+                          <Sparkles size={16} className="text-blue-600" />
+                          <span>Tóm Tắt Tổng Quan Tài Liệu</span>
+                        </div>
+                        <p className="text-xs text-blue-800 leading-relaxed">
+                          Nội dung tài liệu đã được xử lý phân tích và tổng hợp thành công bởi mô hình AI.
+                        </p>
+                      </div>
+
+                      {glossary.length > 0 && (
+                        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm space-y-2">
+                          <div className="font-bold text-slate-800 text-xs mb-2">Từ vựng & Thuật ngữ phát hiện:</div>
+                          {glossary.slice(0, 5).map((g, i) => (
+                            <div key={i} className="flex items-start gap-2 text-xs text-slate-700">
+                              <CheckCircle2 size={15} className="text-green-600 flex-shrink-0 mt-0.5" />
+                              <span><strong>{g.term}</strong>: {g.vi}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* TAB 3: RAG QUERY */}
+                  {activeTab === "rag" && (
+                    <div className="space-y-4">
+                      <form onSubmit={handleRagQuery} className="flex gap-2">
+                        <input
+                          type="text"
+                          value={ragQuery}
+                          onChange={(e) => setRagQuery(e.target.value)}
+                          placeholder="Hỏi bất kỳ điều gì về nội dung tài liệu này..."
+                          className="flex-1 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs text-slate-800 focus:border-blue-500 focus:outline-none shadow-sm"
+                        />
+                        <button
+                          type="submit"
+                          disabled={isRagQuerying || !ragQuery.trim()}
+                          className="flex items-center gap-1.5 rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-bold text-white hover:bg-blue-700 disabled:opacity-50 transition-colors shadow-sm"
+                        >
+                          {isRagQuerying ? (
+                            <Loader2 size={15} className="animate-spin" />
+                          ) : (
+                            <Search size={15} />
+                          )}
+                          <span>Truy vấn</span>
+                        </button>
+                      </form>
+
+                      {ragAnswer && (
+                        <div className="rounded-xl border border-indigo-100 bg-indigo-50/50 p-4 text-xs text-indigo-950">
+                          <div className="flex items-center gap-2 font-bold text-indigo-900 mb-1">
+                            <MessageSquare size={15} className="text-indigo-600" />
+                            <span>Kết Quả Hỏi Đáp RAG:</span>
+                          </div>
+                          <p className="leading-relaxed">{ragAnswer}</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+
+            {/* Footer Bar of Result Frame */}
+            <div className="flex items-center justify-between border-t border-slate-100 bg-slate-50/80 px-4 py-2.5 text-[11px] text-slate-500">
+              <div className="flex items-center gap-3">
+                <span>Số từ: {translatedText ? translatedText.split(/\s+/).filter(Boolean).length : 0}</span>
+                <span>•</span>
+                <span>Ký tự: {translatedText.length}</span>
+              </div>
+
+              {isCompleted && (
+                <div className="flex items-center gap-2 text-green-700 font-semibold">
+                  <CheckCircle2 size={13} className="text-green-600" />
+                  <span>Vector Indexed</span>
                 </div>
+              )}
+            </div>
 
-                {msg.sender === "user" && (
-                  <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-slate-700 text-white text-xs">
-                    <User size={14} />
-                  </div>
-                )}
-              </div>
-            ))}
-
-            {isQuerying && (
-              <div className="flex items-center gap-2 text-xs text-slate-500 bg-white border border-slate-200 rounded-2xl p-3 w-fit">
-                <Loader2 size={14} className="animate-spin text-blue-600" />
-                <span>Đang tìm kiếm Vector BGE-M3 (1024d) & Gemini RAG...</span>
-              </div>
-            )}
-            <div ref={messagesEndRef} />
-          </div>
-
-          {/* Quick Questions Suggestions */}
-          <div className="border-t border-slate-100 bg-white px-3 py-2 flex items-center gap-1.5 overflow-x-auto text-[11px]">
-            <span className="text-slate-400 flex items-center gap-1 shrink-0">
-              <Info size={12} /> Gợi ý:
-            </span>
-            {[
-              "Điều kiện xét tốt nghiệp là gì?",
-              "Quy định tích lũy tín chỉ CGPA?",
-              "Quy trình nộp báo cáo thực tập?",
-            ].map((q, idx) => (
-              <button
-                key={idx}
-                type="button"
-                onClick={() => handleSendQuery(q)}
-                className="shrink-0 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-slate-600 hover:bg-blue-50 hover:text-blue-600 transition-colors"
-              >
-                {q}
-              </button>
-            ))}
-          </div>
-
-          {/* Input Box */}
-          <div className="border-t border-slate-200 p-3 bg-white rounded-b-2xl">
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleSendQuery();
-              }}
-              className="flex items-center gap-2"
-            >
-              <input
-                type="text"
-                value={inputQuery}
-                onChange={(e) => setInputQuery(e.target.value)}
-                placeholder="Hỏi đáp về nội dung tài liệu này..."
-                className="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs text-slate-800 focus:border-blue-500 focus:bg-white focus:outline-none"
-              />
-              <button
-                type="submit"
-                disabled={!inputQuery.trim() || isQuerying}
-                className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 text-white shadow-sm hover:bg-blue-700 disabled:opacity-50 transition-colors"
-              >
-                <Send size={15} />
-              </button>
-            </form>
           </div>
         </div>
+
       </div>
-
-      {/* Citation Preview Modal */}
-      {activeCitation && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-xs">
-          <div className="w-full max-w-lg rounded-2xl bg-white p-5 shadow-xl border border-slate-200">
-            <div className="mb-3 flex items-center justify-between border-b border-slate-100 pb-2.5">
-              <div className="flex items-center gap-2">
-                <FileText size={18} className="text-blue-600" />
-                <h3 className="text-sm font-bold text-slate-800">
-                  Xem Trích Đoạn Gốc (Trang {activeCitation.page})
-                </h3>
-              </div>
-              <button
-                type="button"
-                onClick={() => setActiveCitation(null)}
-                className="rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-xs leading-relaxed text-slate-700">
-              <p>"{activeCitation.snippet}"</p>
-            </div>
-
-            <div className="mt-4 flex justify-end">
-              <button
-                type="button"
-                onClick={() => setActiveCitation(null)}
-                className="rounded-xl bg-slate-800 px-4 py-2 text-xs font-semibold text-white hover:bg-slate-900 transition-colors"
-              >
-                Đóng
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

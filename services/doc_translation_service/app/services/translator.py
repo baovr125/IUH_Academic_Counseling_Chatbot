@@ -101,3 +101,47 @@ def generate_document_summary_and_glossary(full_text: str) -> Tuple[Dict[str, An
         logger.warning(f"Không thể sinh JSON tóm tắt từ Gemini, dùng fallback default: {e}")
 
     return summary_json, detected_glossary
+
+def translate_markdown_document(
+    md_text: str,
+    source_lang: str = "en",
+    target_lang: str = "vi"
+) -> str:
+    """
+    Dịch toàn bộ (hoặc chunk lớn) file Markdown, giữ nguyên cấu trúc (tags, tables, image links, LaTeX equations).
+    """
+    if not md_text.strip():
+        return ""
+
+    system_instruction = (
+        "Bạn là Chuyên gia Dịch thuật Báo cáo Khoa học và Tài liệu Học thuật đa ngôn ngữ.\n"
+        "Nhiệm vụ: Dịch văn bản Markdown từ ngôn ngữ nguồn sang ngôn ngữ đích được yêu cầu, giữ nguyên văn phong học thuật, chuyên nghiệp.\n"
+        "LƯU Ý CỰC KỲ QUAN TRỌNG:\n"
+        "1. GIỮ NGUYÊN BẤT DI BẤT DỊCH mọi cấu trúc định dạng Markdown: tiêu đề (#), danh sách, bảng biểu, in đậm/nghiêng.\n"
+        "2. TUYỆT ĐỐI KHÔNG DỊCH hoặc làm hỏng các liên kết ảnh (ví dụ: `![](images/...)`). Giữ nguyên y hệt.\n"
+        "3. GIỮ NGUYÊN các công thức toán học LaTeX hoặc mã nguồn code block.\n"
+        "4. Chỉ dịch các đoạn text nội dung, không thêm bớt ý, không kèm lời chào hay giải thích thừa."
+    )
+
+    prompt = (
+        f"Hãy dịch toàn bộ nội dung Markdown sau từ {source_lang.upper()} sang {target_lang.upper()}:\n\n"
+        f"--- NỘI DUNG GỐC ---\n"
+        f"{md_text}\n"
+        f"--- KẾT THÚC NỘI DUNG GỐC ---"
+    )
+
+    try:
+        client = get_gemini_client()
+        res = client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=prompt,
+            config={"system_instruction": system_instruction, "temperature": 0.2}
+        )
+        if res and res.text:
+            return res.text.strip()
+    except Exception as e:
+        logger.exception(f"Lỗi khi dịch toàn văn Markdown bằng Gemini API: {e}")
+
+    # Fallback return original text if API error
+    return md_text
+

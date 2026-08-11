@@ -4,13 +4,6 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "../hooks/useTranslation";
 import { LANG_CONFIG, addCardToDeck } from "../services/deckStorage";
 
-const SAMPLE_QUICK_PHRASES = [
-  "tôi muốn đăng ký tín chỉ",
-  "chào bạn",
-  "cảm ơn bạn",
-  "khoa công nghệ thông tin",
-];
-
 export default function TranslationPage() {
   const navigate = useNavigate();
   const {
@@ -60,9 +53,6 @@ export default function TranslationPage() {
             <Languages className="h-6 w-6 text-blue-600" />
             <h1 className="text-xl font-bold text-slate-800">Dịch thuật Đa Ngôn Ngữ (Translation Studio)</h1>
           </div>
-          <p className="mt-1 text-xs text-slate-500">
-            Dịch thuật hỗ trợ 10 ngôn ngữ và tự động lưu từ vựng vào các sổ thẻ riêng biệt theo ngôn ngữ đích
-          </p>
         </div>
 
         <div className="flex items-center gap-2">
@@ -176,21 +166,6 @@ export default function TranslationPage() {
           <Sparkles size={15} />
           <span>{isTranslating ? "Đang dịch..." : "Dịch ngay"}</span>
         </button>
-      </div>
-
-      {/* Quick Phrases for Demo */}
-      <div className="mb-4 flex flex-wrap items-center gap-2">
-        <span className="text-xs font-medium text-slate-400">Mẫu câu nhanh:</span>
-        {SAMPLE_QUICK_PHRASES.map((phrase) => (
-          <button
-            type="button"
-            key={phrase}
-            onClick={() => setSourceText(phrase)}
-            className="rounded-lg border border-slate-200 bg-white px-3 py-1 text-xs text-slate-600 hover:border-blue-300 hover:bg-blue-50/50 hover:text-blue-600 transition-colors"
-          >
-            "{phrase}"
-          </button>
-        ))}
       </div>
 
       {/* Translation Panels */}

@@ -89,6 +89,7 @@ async def get_document_status(
             pages_processed=status_info.get("pages_processed", 0),
             total_pages=status_info.get("total_pages", 0),
             translated_file_url=status_info.get("translated_file_url"),
+            translated_text=status_info.get("translated_text"),
             summary_json=status_info.get("summary_json"),
             glossary=status_info.get("glossary", []),
             error=status_info.get("error")
@@ -121,25 +122,14 @@ async def download_translated_document(
     x_user_id: Optional[str] = Header(None, alias="X-User-ID")
 ):
     """
-    API Tải về file kết quả tài liệu đã dịch.
+    API Tải về file kết quả tài liệu đã dịch định dạng PDF.
     """
-    translated_file_path = os.path.join("temp_translated", f"translated_{doc_id}.txt")
+    translated_file_path = os.path.join("temp_translated", f"translated_{doc_id}.pdf")
     if not os.path.exists(translated_file_path):
-        # Fallback generated text content
-        content = (
-            f"================================================================\n"
-            f"BẢN DỊCH TÀI LIỆU (IUH PORTAL AI SERVICE)\n"
-            f"ID Tài liệu: {doc_id}\n"
-            f"Mô hình nhúng Vector: BAAI/bge-m3 (1024 chiều)\n"
-            f"================================================================\n\n"
-            f"Bản dịch đã được hoàn tất và indexed thành công trên hệ thống.\n"
-        )
-        os.makedirs("temp_translated", exist_ok=True)
-        with open(translated_file_path, "w", encoding="utf-8") as f:
-            f.write(content)
+        raise HTTPException(status_code=404, detail="Không tìm thấy file kết quả dịch thuật. Có thể đang trong quá trình xử lý.")
 
     return FileResponse(
         path=translated_file_path,
-        media_type="text/plain; charset=utf-8",
-        filename=f"Translated_Document_{doc_id[:8]}.txt"
+        media_type="application/pdf",
+        filename=f"Translated_Document_{doc_id[:8]}.pdf"
     )
