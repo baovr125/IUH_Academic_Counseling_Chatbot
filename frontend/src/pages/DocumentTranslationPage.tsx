@@ -20,7 +20,9 @@ import {
   Search,
   MessageSquare,
   Eye,
-  AlertCircle
+  AlertCircle,
+  ExternalLink,
+  FileType
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { LANG_CONFIG, addCardToDeck } from "../services/deckStorage";
@@ -43,9 +45,9 @@ interface GlossaryItem {
 export default function DocumentTranslationPage() {
   const navigate = useNavigate();
 
-  // Language & Selection state
-  const [sourceLang, setSourceLang] = useState("vi");
-  const [targetLang, setTargetLang] = useState("en");
+  // Language & Selection state (Default: English -> Vietnamese)
+  const [sourceLang, setSourceLang] = useState("en");
+  const [targetLang, setTargetLang] = useState("vi");
   const [selectedFile, setSelectedFile] = useState<DocumentFile | null>(null);
   const [actualFile, setActualFile] = useState<File | null>(null);
 
@@ -60,7 +62,7 @@ export default function DocumentTranslationPage() {
   // Translated Result Frame State
   const [translatedText, setTranslatedText] = useState<string>("");
   const [copied, setCopied] = useState(false);
-  const [activeTab, setActiveTab] = useState<"preview" | "summary" | "rag">("preview");
+  const [activeTab, setActiveTab] = useState<"pdf" | "markdown" | "summary" | "rag">("pdf");
 
   // RAG Query state within Result Frame
   const [ragQuery, setRagQuery] = useState("");
@@ -159,6 +161,7 @@ export default function DocumentTranslationPage() {
             clearInterval(pollInterval);
             setIsTranslating(false);
             setIsCompleted(true);
+            setActiveTab("pdf"); // Switch directly to PDF view on completion
           } else if (status === "failed") {
             clearInterval(pollInterval);
             setIsTranslating(false);
@@ -176,13 +179,18 @@ export default function DocumentTranslationPage() {
     }
   };
 
+  const baseUrl = (import.meta as any).env.VITE_API_BASE_URL || "http://localhost:8000";
+  const pdfUrl = docId ? `${baseUrl}/api/v1/documents/${docId}/download` : "";
+
+  const handleOpenPdfNewTab = () => {
+    if (!pdfUrl) return;
+    window.open(pdfUrl, "_blank");
+  };
+
   const handleDownloadFile = () => {
-    if (!docId) return;
-    const baseUrl = (import.meta as any).env.VITE_API_BASE_URL || "http://localhost:8000";
-    const downloadUrl = `${baseUrl}/api/v1/documents/${docId}/download`;
-    
+    if (!pdfUrl) return;
     const link = document.createElement("a");
-    link.href = downloadUrl;
+    link.href = pdfUrl;
     link.target = "_blank";
     document.body.appendChild(link);
     link.click();
@@ -219,7 +227,6 @@ export default function DocumentTranslationPage() {
 
     setIsRagQuerying(true);
     try {
-      const baseUrl = (import.meta as any).env.VITE_API_BASE_URL || "http://localhost:8000";
       const res = await fetch(`${baseUrl}/api/v1/documents/${docId}/query`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -230,7 +237,7 @@ export default function DocumentTranslationPage() {
         const data = await res.json();
         setRagAnswer(data.data.answer);
       } else {
-        setRagAnswer("Không thể truy vấn thông tin từ tài liệu này. Vui lòng kiểm tra lại dịch thuật.");
+        setRagAnswer("Không thể truy vấn thông tin từ tài liệu này. Vui lòng kiểm tra lại bản dịch.");
       }
     } catch {
       setRagAnswer("Không thể kết nối với dịch vụ RAG.");
@@ -257,7 +264,7 @@ export default function DocumentTranslationPage() {
             </h1>
           </div>
           <p className="mt-1 text-xs text-slate-500">
-            Dịch tài liệu giữ nguyên cấu trúc, xem trước kết quả trực tiếp và trích xuất từ điển học vụ IUH
+            Dịch tài liệu giữ nguyên cấu trúc, hiển thị bản dịch PDF trực tiếp và trích xuất từ điển học vụ IUH
           </p>
         </div>
 
@@ -281,7 +288,7 @@ export default function DocumentTranslationPage() {
         </div>
       </div>
 
-      {/* Language Selector Bar */}
+      {/* Language Selector Bar (Default: EN -> VI) */}
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2">
@@ -460,9 +467,9 @@ export default function DocumentTranslationPage() {
           </div>
         </div>
 
-        {/* RIGHT COLUMN: Dedicated Translated Document Result Frame (Khung Kết Quả Dịch) */}
+        {/* RIGHT COLUMN: Dedicated Translated Document Result Frame (PDF Embedded Viewer) */}
         <div className="lg:col-span-7 flex flex-col">
-          <div className="flex-1 rounded-2xl border border-slate-200 bg-white shadow-sm flex flex-col overflow-hidden min-h-[500px]">
+          <div className="flex-1 rounded-2xl border border-slate-200 bg-white shadow-sm flex flex-col overflow-hidden min-h-[560px]">
             
             {/* Header of Result Frame */}
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 bg-slate-50/80 px-4 py-3">
@@ -472,7 +479,7 @@ export default function DocumentTranslationPage() {
                 </div>
                 <div>
                   <h3 className="text-xs font-bold text-slate-800">
-                    Khung Hiển Thị Kết Quả Dịch
+                    Khung Hiển Thị Kết Quả Dịch (PDF Viewer)
                   </h3>
                   <div className="flex items-center gap-2 text-[10px] text-slate-500">
                     <span className="font-medium">{selectedFile?.title || "Chưa chọn tài liệu"}</span>
@@ -487,12 +494,24 @@ export default function DocumentTranslationPage() {
 
               {/* Top Action Buttons */}
               <div className="flex items-center gap-2">
+                {isCompleted && pdfUrl && (
+                  <button
+                    type="button"
+                    onClick={handleOpenPdfNewTab}
+                    className="flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors shadow-sm"
+                    title="Mở PDF tab mới"
+                  >
+                    <ExternalLink size={14} />
+                    <span>Mở Tab mới</span>
+                  </button>
+                )}
+
                 <button
                   type="button"
                   onClick={handleCopyText}
                   disabled={!translatedText}
                   className="flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40 transition-colors shadow-sm"
-                  title="Sao chép nội dung dịch"
+                  title="Sao chép văn bản Markdown"
                 >
                   {copied ? (
                     <>
@@ -523,15 +542,28 @@ export default function DocumentTranslationPage() {
             <div className="flex border-b border-slate-100 bg-white px-4 pt-2">
               <button
                 type="button"
-                onClick={() => setActiveTab("preview")}
+                onClick={() => setActiveTab("pdf")}
                 className={`flex items-center gap-1.5 border-b-2 px-3 py-2 text-xs font-bold transition-colors ${
-                  activeTab === "preview"
+                  activeTab === "pdf"
+                    ? "border-blue-600 text-blue-600"
+                    : "border-transparent text-slate-500 hover:text-slate-700"
+                }`}
+              >
+                <FileType size={14} />
+                <span>📄 File PDF Bản Dịch</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab("markdown")}
+                className={`flex items-center gap-1.5 border-b-2 px-3 py-2 text-xs font-bold transition-colors ${
+                  activeTab === "markdown"
                     ? "border-blue-600 text-blue-600"
                     : "border-transparent text-slate-500 hover:text-slate-700"
                 }`}
               >
                 <Eye size={14} />
-                <span>Xem Bản Dịch (Text Preview)</span>
+                <span>📝 Văn Bản Markdown</span>
               </button>
 
               <button
@@ -544,7 +576,7 @@ export default function DocumentTranslationPage() {
                 }`}
               >
                 <Sparkles size={14} />
-                <span>Tóm Tắt Nhanh</span>
+                <span>📊 Tóm Tắt Nhanh</span>
               </button>
 
               <button
@@ -557,18 +589,18 @@ export default function DocumentTranslationPage() {
                 }`}
               >
                 <MessageSquare size={14} />
-                <span>Tra Cứu RAG</span>
+                <span>🔍 Tra Cứu RAG</span>
               </button>
             </div>
 
             {/* Body Content Area */}
-            <div className="flex-1 p-5 overflow-y-auto max-h-[520px] bg-slate-50/40">
+            <div className="flex-1 p-3 overflow-hidden bg-slate-100/60 flex flex-col">
               
               {/* LOADING STATE */}
               {isTranslating && (
-                <div className="flex h-full flex-col items-center justify-center py-16 text-center">
-                  <Loader2 size={36} className="animate-spin text-blue-600 mb-3" />
-                  <div className="text-sm font-bold text-slate-800">Đang dịch tài liệu...</div>
+                <div className="flex h-full flex-col items-center justify-center py-20 text-center">
+                  <Loader2 size={38} className="animate-spin text-blue-600 mb-3" />
+                  <div className="text-sm font-bold text-slate-800">Đang dịch & render file PDF...</div>
                   <div className="mt-1 text-xs text-slate-500 max-w-sm">
                     {statusMessage} ({progressPercent}%)
                   </div>
@@ -576,43 +608,73 @@ export default function DocumentTranslationPage() {
               )}
 
               {/* EMPTY STATE */}
-              {!isTranslating && !translatedText && (
-                <div className="flex h-full flex-col items-center justify-center py-16 text-center">
-                  <FileText size={40} className="text-slate-300 mb-3" />
-                  <div className="text-sm font-bold text-slate-700">Chưa có bản dịch</div>
-                  <div className="mt-1 text-xs text-slate-400 max-w-xs">
-                    Vui lòng chọn tài liệu (PDF/Word/PPT) và nhấn "Bắt đầu dịch tài liệu" để xem kết quả tại khung này.
+              {!isTranslating && !isCompleted && (
+                <div className="flex h-full flex-col items-center justify-center py-20 text-center">
+                  <FileText size={42} className="text-slate-300 mb-3" />
+                  <div className="text-sm font-bold text-slate-700">Chưa có bản dịch PDF</div>
+                  <div className="mt-1 text-xs text-slate-400 max-w-xs leading-relaxed">
+                    Vui lòng chọn tài liệu tiếng Anh (PDF/Word/PPT) và nhấn <strong>"Bắt đầu dịch tài liệu"</strong> để hiển thị file PDF bản dịch tại đây.
                   </div>
                 </div>
               )}
 
               {/* COMPLETED TAB CONTENT */}
-              {!isTranslating && translatedText && (
-                <>
-                  {/* TAB 1: TEXT PREVIEW */}
-                  {activeTab === "preview" && (
-                    <div className="rounded-xl border border-slate-200 bg-white p-5 text-xs text-slate-800 shadow-sm leading-relaxed whitespace-pre-wrap font-sans">
-                      {translatedText}
+              {!isTranslating && isCompleted && (
+                <div className="flex-1 flex flex-col overflow-hidden h-full">
+                  {/* TAB 1: EMBEDDED PDF VIEWER */}
+                  {activeTab === "pdf" && (
+                    <div className="flex-1 w-full h-full min-h-[500px] rounded-xl overflow-hidden border border-slate-200 bg-slate-900 shadow-inner flex flex-col">
+                      <object
+                        data={`${pdfUrl}#toolbar=1&navpanes=0&view=FitH`}
+                        type="application/pdf"
+                        className="w-full h-full min-h-[500px] flex-1"
+                      >
+                        <iframe
+                          src={`${pdfUrl}#toolbar=1&navpanes=0&view=FitH`}
+                          className="w-full h-full min-h-[500px] flex-1 border-0"
+                          title="PDF Viewer"
+                        >
+                          <div className="flex h-full flex-col items-center justify-center p-6 text-center text-white">
+                            <p className="text-xs mb-2">Trình duyệt không hỗ trợ nhúng trực tiếp PDF.</p>
+                            <button
+                              type="button"
+                              onClick={handleOpenPdfNewTab}
+                              className="rounded-lg bg-blue-600 px-3.5 py-2 text-xs font-bold text-white shadow hover:bg-blue-700 transition-all"
+                            >
+                              Xem PDF ở Tab Mới
+                            </button>
+                          </div>
+                        </iframe>
+                      </object>
                     </div>
                   )}
 
-                  {/* TAB 2: SUMMARY */}
+                  {/* TAB 2: MARKDOWN TEXT PREVIEW */}
+                  {activeTab === "markdown" && (
+                    <div className="flex-1 p-2 overflow-y-auto max-h-[520px]">
+                      <div className="rounded-xl border border-slate-200 bg-white p-5 text-xs text-slate-800 shadow-sm leading-relaxed whitespace-pre-wrap font-sans">
+                        {translatedText || "Không có văn bản Markdown."}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* TAB 3: SUMMARY */}
                   {activeTab === "summary" && (
-                    <div className="space-y-4">
+                    <div className="flex-1 p-2 space-y-4 overflow-y-auto max-h-[520px]">
                       <div className="rounded-xl border border-blue-100 bg-blue-50/60 p-4">
                         <div className="flex items-center gap-2 font-bold text-blue-900 text-xs mb-1">
                           <Sparkles size={16} className="text-blue-600" />
                           <span>Tóm Tắt Tổng Quan Tài Liệu</span>
                         </div>
                         <p className="text-xs text-blue-800 leading-relaxed">
-                          Nội dung tài liệu đã được xử lý phân tích và tổng hợp thành công bởi mô hình AI.
+                          Nội dung tài liệu đã được dịch thành công và render thành định dạng file PDF chuẩn giữ nguyên cấu trúc trình bày.
                         </p>
                       </div>
 
                       {glossary.length > 0 && (
                         <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm space-y-2">
-                          <div className="font-bold text-slate-800 text-xs mb-2">Từ vựng & Thuật ngữ phát hiện:</div>
-                          {glossary.slice(0, 5).map((g, i) => (
+                          <div className="font-bold text-slate-800 text-xs mb-2">Từ vựng & Thuật ngữ trích xuất:</div>
+                          {glossary.slice(0, 8).map((g, i) => (
                             <div key={i} className="flex items-start gap-2 text-xs text-slate-700">
                               <CheckCircle2 size={15} className="text-green-600 flex-shrink-0 mt-0.5" />
                               <span><strong>{g.term}</strong>: {g.vi}</span>
@@ -623,9 +685,9 @@ export default function DocumentTranslationPage() {
                     </div>
                   )}
 
-                  {/* TAB 3: RAG QUERY */}
+                  {/* TAB 4: RAG QUERY */}
                   {activeTab === "rag" && (
-                    <div className="space-y-4">
+                    <div className="flex-1 p-2 space-y-4 overflow-y-auto max-h-[520px]">
                       <form onSubmit={handleRagQuery} className="flex gap-2">
                         <input
                           type="text"
@@ -659,22 +721,22 @@ export default function DocumentTranslationPage() {
                       )}
                     </div>
                   )}
-                </>
+                </div>
               )}
             </div>
 
             {/* Footer Bar of Result Frame */}
             <div className="flex items-center justify-between border-t border-slate-100 bg-slate-50/80 px-4 py-2.5 text-[11px] text-slate-500">
               <div className="flex items-center gap-3">
-                <span>Số từ: {translatedText ? translatedText.split(/\s+/).filter(Boolean).length : 0}</span>
+                <span>Trình xem PDF Trực Tiếp</span>
                 <span>•</span>
-                <span>Ký tự: {translatedText.length}</span>
+                <span>File ID: {docId ? docId.slice(0, 12) : "N/A"}</span>
               </div>
 
               {isCompleted && (
                 <div className="flex items-center gap-2 text-green-700 font-semibold">
                   <CheckCircle2 size={13} className="text-green-600" />
-                  <span>Vector Indexed</span>
+                  <span>PDF Rendered & Indexed</span>
                 </div>
               )}
             </div>

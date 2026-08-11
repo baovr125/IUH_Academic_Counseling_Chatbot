@@ -131,5 +131,6 @@ async def download_translated_document(
     return FileResponse(
         path=translated_file_path,
         media_type="application/pdf",
+        content_disposition_type="inline",
         filename=f"Translated_Document_{doc_id[:8]}.pdf"
     )
