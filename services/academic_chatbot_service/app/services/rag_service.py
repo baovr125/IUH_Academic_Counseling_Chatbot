@@ -1,11 +1,8 @@
 import os
 import uuid
 import asyncio
-<<<<<<< HEAD:services/academic_chatbot_service/app/services/rag_service.py
-=======
 import logging
 import re
->>>>>>> f2eeb171 (add Semantic cache (first version)):backend/app/services/rag_service.py
 from typing import List, Optional
 from cachetools import TTLCache
 
@@ -61,15 +58,6 @@ def preload_models():
     get_reranker()
     get_gemini()
 
-<<<<<<< HEAD:services/academic_chatbot_service/app/services/rag_service.py
-async def retrieve_relevant_chunks(query_text: str, top_k: int = 5, candidate_count: int = 35):
-    if query_text in _embedding_cache:
-        query_vector = _embedding_cache[query_text]
-    else:
-        embedder = get_embedder()
-        query_vector = await asyncio.to_thread(lambda: embedder.encode(query_text).tolist())
-        _embedding_cache[query_text] = query_vector
-=======
 
 # --- 1.5 Semantic Cache (Phase 2) ---
 async def get_query_embedding(query_text: str) -> list:
@@ -199,7 +187,6 @@ async def retrieve_relevant_chunks(query_text: str, top_k: int = 5, candidate_co
     Offloads CPU-bound ML inference to background thread pool.
     """
     query_vector = await get_query_embedding(query_text)
->>>>>>> f2eeb171 (add Semantic cache (first version)):backend/app/services/rag_service.py
 
     supabase = get_supabase_client()
     if not supabase:
