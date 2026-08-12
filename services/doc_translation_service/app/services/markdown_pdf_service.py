@@ -49,7 +49,7 @@ def render_markdown_to_pdf(md_text: str, output_pdf_path: str):
     logger.info(f"Đang render Markdown thành PDF tại {output_pdf_path}...")
     try:
         pdf = MarkdownPdf(toc_level=2)
-        pdf.add_section(Section(md_text, css=TABLE_CSS))
+        pdf.add_section(Section(md_text), user_css=TABLE_CSS)
         pdf.meta["title"] = "Translated Document"
         pdf.save(output_pdf_path)
     except Exception as e:

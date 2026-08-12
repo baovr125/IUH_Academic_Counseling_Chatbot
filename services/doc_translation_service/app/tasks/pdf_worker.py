@@ -67,10 +67,17 @@ def process_document_translation_job_sync(
     try:
         translated_file_path = ""
         translated_text = ""
+        model_used = "Gemini 2.5 Flash"
+
+        def status_cb(progress: int, message: str, model_name: str = ""):
+            nonlocal model_used
+            if model_name:
+                model_used = model_name
+            update_job_status(doc_id, "processing", progress, message, model_used=model_used)
 
         # Giai đoạn 2.2 Routing
         if ext == ".docx":
-            update_job_status(doc_id, "processing", 30, "Đang dịch file Word (.docx)...")
+            update_job_status(doc_id, "processing", 30, "Đang dịch file Word (.docx)...", model_used=model_used)
             translated_file_path = os.path.join(temp_out_dir, f"translated_{doc_id}.docx")
             translate_docx_document(
                 input_path=file_path,
@@ -80,7 +87,7 @@ def process_document_translation_job_sync(
             )
 
         elif ext in [".pptx", ".ppt"]:
-            update_job_status(doc_id, "processing", 30, "Đang dịch file PowerPoint (.pptx)...")
+            update_job_status(doc_id, "processing", 30, "Đang dịch file PowerPoint (.pptx)...", model_used=model_used)
             translated_file_path = os.path.join(temp_out_dir, f"translated_{doc_id}.pptx")
             translate_pptx_document(
                 input_path=file_path,
@@ -90,7 +97,7 @@ def process_document_translation_job_sync(
             )
 
         elif ext == ".pdf" and is_scanned:
-            update_job_status(doc_id, "processing", 30, "Đang OCR & dịch file PDF Scan...")
+            update_job_status(doc_id, "processing", 30, "Đang OCR & dịch file PDF Scan...", model_used=model_used)
             translated_file_path = os.path.join(temp_out_dir, f"translated_{doc_id}.docx")
             process_scanned_pdf_translation(
                 pdf_path=file_path,
@@ -103,35 +110,36 @@ def process_document_translation_job_sync(
             update_job_status(doc_id, "processing", 20, "Đang bóc tách PDF bài báo khoa học thành Markdown...")
             md_text, image_dir = extract_pdf_to_markdown(file_path, doc_id)
             
-            update_job_status(doc_id, "processing", 50, "Đang dịch Batching qua Ollama (Qwen 2.5)...")
-            translated_text = translate_markdown_document_ollama(
+            translated_text, model_used = translate_markdown_document_ollama(
                 md_text=md_text,
                 source_lang=source_lang,
-                target_lang=target_lang
+                target_lang=target_lang,
+                status_callback=status_cb
             )
 
-            update_job_status(doc_id, "processing", 80, "Đang render lại bản dịch Markdown thành PDF...")
+            update_job_status(doc_id, "processing", 85, f"Đang render lại bản dịch ({model_used}) thành PDF...", model_used=model_used)
             translated_file_path = os.path.join(temp_out_dir, f"translated_{doc_id}.pdf")
             render_markdown_to_pdf(translated_text, translated_file_path)
 
         translated_file_url = f"/api/v1/documents/{doc_id}/download"
 
         update_job_status(
-            doc_id, "COMPLETED", 100,
-            "Đã hoàn thành dịch thuật thành công!",
+            doc_id, "completed", 100,
+            f"Đã hoàn thành dịch thuật thành công bằng {model_used}!",
             pages_processed=1,
             total_pages=1,
             translated_file_url=translated_file_url,
             translated_text=translated_text,
             summary_json={},
-            glossary=[]
+            glossary=[],
+            model_used=model_used
         )
         logger.info(f"✅ [Job Completed] doc_id={doc_id}, saved to {translated_file_path}")
         return JOB_STATUS_STORE[doc_id]
 
     except Exception as e:
         logger.exception(f"❌ [Job Failed] Lỗi xử lý dịch thuật doc_id={doc_id}: {e}")
-        update_job_status(doc_id, "FAILED", 0, f"Thất bại: {str(e)}", error=str(e))
+        update_job_status(doc_id, "failed", 0, f"Thất bại: {str(e)}", error=str(e))
         return JOB_STATUS_STORE[doc_id]
 
 async def dispatch_pdf_translation_job(

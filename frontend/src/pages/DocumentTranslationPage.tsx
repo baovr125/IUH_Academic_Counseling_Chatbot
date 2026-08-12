@@ -56,6 +56,7 @@ export default function DocumentTranslationPage() {
   const [isTranslating, setIsTranslating] = useState(false);
   const [progressPercent, setProgressPercent] = useState(0);
   const [statusMessage, setStatusMessage] = useState("Vui lòng chọn tài liệu để bắt đầu");
+  const [modelUsed, setModelUsed] = useState<string>("");
   const [isCompleted, setIsCompleted] = useState(false);
   const [savedKeywordsSuccess, setSavedKeywordsSuccess] = useState(false);
 
@@ -144,10 +145,13 @@ export default function DocumentTranslationPage() {
           
           if (!statusData.ok) return;
           
-          const { status, progress, message, translated_text, glossary: fetchedGlossary } = statusData.data;
+          const { status, progress, message, translated_text, glossary: fetchedGlossary, model_used } = statusData.data;
           
           setProgressPercent(progress);
           setStatusMessage(message);
+          if (model_used) {
+            setModelUsed(model_used);
+          }
 
           if (fetchedGlossary && fetchedGlossary.length > 0) {
             setGlossary(fetchedGlossary);
@@ -157,12 +161,13 @@ export default function DocumentTranslationPage() {
             setTranslatedText(translated_text);
           }
 
-          if (status === "completed") {
+          const statusLower = status ? String(status).toLowerCase() : "";
+          if (statusLower === "completed") {
             clearInterval(pollInterval);
             setIsTranslating(false);
             setIsCompleted(true);
             setActiveTab("pdf"); // Switch directly to PDF view on completion
-          } else if (status === "failed") {
+          } else if (statusLower === "failed") {
             clearInterval(pollInterval);
             setIsTranslating(false);
             setStatusMessage("Lỗi xử lý: " + message);
@@ -486,6 +491,11 @@ export default function DocumentTranslationPage() {
                     {selectedFile && (
                       <span className="rounded bg-blue-50 px-1.5 py-0.5 text-[9px] font-bold text-blue-600 uppercase">
                         {sourceLang} ➔ {targetLang}
+                      </span>
+                    )}
+                    {modelUsed && (
+                      <span className="rounded bg-purple-50 px-1.5 py-0.5 text-[9px] font-bold text-purple-700">
+                        🤖 {modelUsed}
                       </span>
                     )}
                   </div>

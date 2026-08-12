@@ -25,8 +25,13 @@ def translate_single_text(
         translated = call_ollama_generate(prompt=prompt, model=model)
         return translated if translated else text
     except Exception as e:
-        logger.warning(f"Lỗi dịch đoạn ngắn trong Office document: {e}")
-        return text
+        logger.warning(f"Lỗi dịch đoạn ngắn bằng Ollama ({e}), thử dùng Gemini API fallback...")
+        try:
+            from app.services.translator import translate_chunk_with_gemini
+            return translate_chunk_with_gemini(clean_text, source_lang=source_lang, target_lang=target_lang)
+        except Exception as gemini_err:
+            logger.error(f"Lỗi cả Gemini API fallback: {gemini_err}")
+            return text
 
 def translate_docx_document(
     input_path: str,

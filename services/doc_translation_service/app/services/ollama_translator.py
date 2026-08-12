@@ -110,29 +110,35 @@ def call_ollama_generate(
         logger.exception(f"Lỗi khi gọi Ollama API tại {url}: {e}")
         raise RuntimeError(f"Không thể kết nối dịch thuật Ollama API: {e}")
 
+from typing import List, Optional, Callable, Tuple
+
 def translate_markdown_document_ollama(
     md_text: str,
     source_lang: str = "en",
     target_lang: str = "vi",
     model: str = OLLAMA_DEFAULT_MODEL,
-    max_batch_tokens: int = 1200
-) -> str:
+    max_batch_tokens: int = 1200,
+    status_callback: Optional[Callable[[int, str, str], None]] = None
+) -> Tuple[str, str]:
     """
-    Thực hiện dịch Batching tài liệu Markdown qua Ollama API:
+    Thực hiện dịch Batching tài liệu Markdown qua Ollama API (kèm Gemini fallback):
     1. Tách md_text thành các Batches (1000 - 1500 tokens).
-    2. Gửi tuần tự các Batch lên Ollama qua REST API.
-    3. Ghép các Batch trả về thành file translated.md.
+    2. Gửi tuần tự các Batch lên Ollama/Gemini API.
+    3. Trả về (translated_md, model_used_name).
     """
     if not md_text.strip():
-        return ""
+        return "", "N/A"
 
     batches = split_text_into_batches(md_text, max_tokens=max_batch_tokens)
-    logger.info(f"Đã phân chia tài liệu Markdown thành {len(batches)} batches để dịch qua Ollama ({model}).")
+    total_batches = len(batches)
+    logger.info(f"Đã phân chia tài liệu Markdown thành {total_batches} batches để dịch.")
 
     translated_batches: List[str] = []
+    models_used = set()
 
     for idx, batch in enumerate(batches, 1):
-        logger.info(f"Đang dịch Batch {idx}/{len(batches)} ({estimate_tokens(batch)} tokens)...")
+        progress = 40 + int(40 * (idx / total_batches))
+        logger.info(f"Đang dịch Batch {idx}/{total_batches} ({estimate_tokens(batch)} tokens)...")
         
         prompt = (
             f"Hãy dịch đoạn văn bản Markdown sau từ tiếng {source_lang.upper()} sang tiếng {target_lang.upper()}.\n"
@@ -141,14 +147,34 @@ def translate_markdown_document_ollama(
         )
 
         try:
+            current_msg = f"Đang dịch Batch {idx}/{total_batches} qua Ollama ({model})..."
+            if status_callback:
+                status_callback(progress, current_msg, f"Ollama ({model})")
+            
             translated_text = call_ollama_generate(prompt=prompt, model=model)
             if translated_text:
                 translated_batches.append(translated_text)
+                models_used.add(f"Ollama ({model})")
             else:
-                translated_batches.append(batch) # Fallback if empty response
+                translated_batches.append(batch)
         except Exception as e:
-            logger.warning(f"Lỗi khi dịch batch {idx}, sử dụng văn bản gốc fallback: {e}")
-            translated_batches.append(batch)
+            fallback_msg = f"Đang dịch Batch {idx}/{total_batches} qua Gemini 2.5 Flash API..."
+            logger.warning(f"Lỗi khi dịch batch {idx} với Ollama ({e}). Tự động dùng Gemini 2.5 Flash API...")
+            if status_callback:
+                status_callback(progress, fallback_msg, "Gemini 2.5 Flash")
+            try:
+                from app.services.translator import translate_chunk_with_gemini
+                gemini_text = translate_chunk_with_gemini(
+                    text=batch,
+                    source_lang=source_lang,
+                    target_lang=target_lang
+                )
+                translated_batches.append(gemini_text)
+                models_used.add("Gemini 2.5 Flash")
+            except Exception as gemini_err:
+                logger.error(f"Lỗi cả Gemini API fallback: {gemini_err}")
+                translated_batches.append(batch)
 
     translated_md = "\n\n".join(translated_batches)
-    return translated_md
+    model_name = " & ".join(sorted(models_used)) if models_used else "Gemini 2.5 Flash"
+    return translated_md, model_name

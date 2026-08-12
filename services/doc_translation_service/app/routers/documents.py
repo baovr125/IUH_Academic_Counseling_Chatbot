@@ -94,6 +94,7 @@ async def get_document_status(
             translated_text=status_info.get("translated_text"),
             summary_json=status_info.get("summary_json"),
             glossary=status_info.get("glossary", []),
+            model_used=status_info.get("model_used"),
             error=status_info.get("error")
         ).model_dump()
     )
