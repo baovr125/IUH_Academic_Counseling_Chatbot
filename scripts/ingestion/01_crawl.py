@@ -10,7 +10,13 @@ import threading
 from datetime import datetime
 from bs4 import BeautifulSoup
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import io
 import urllib3
+
+try:
+    from PyPDF2 import PdfReader
+except ImportError:
+    PdfReader = None
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -57,6 +63,24 @@ def extract_published_date(soup):
     
     return datetime.now().isoformat()
 
+def extract_pdf_text(pdf_url):
+    """Tải và trích xuất text từ file PDF"""
+    if not PdfReader: 
+        return ""
+    try:
+        logging.info(f"Đang tải & trích xuất PDF: {pdf_url}")
+        res = requests.get(pdf_url, verify=False, timeout=20)
+        if res.status_code == 200:
+            reader = PdfReader(io.BytesIO(res.content))
+            text = ""
+            for page in reader.pages:
+                extracted = page.extract_text()
+                if extracted: text += extracted + "\n"
+            return text
+    except Exception as e:
+        logging.error(f"Lỗi đọc PDF {pdf_url}: {e}")
+    return ""
+
 def scrape_page(url):
     try:
         response = requests.get(url, verify=False, timeout=10)
@@ -78,6 +102,34 @@ def scrape_page(url):
         breadcrumbs = " > ".join([t.strip() for t in bc_node.stripped_strings if t.strip() not in ['>', '/', '»', '|']])
         
     published_date = extract_published_date(soup)
+    
+    # --- XỬ LÝ LƯỢT XEM & CHIA SẺ TRÁNH ĐỔI HASH ---
+    for span in soup.find_all('span'):
+        if span.string and "Chia sẻ:" in span.string:
+            # Tìm thẻ div cha bọc cả nút chia sẻ và lượt xem
+            parent_div = span.find_parent('div', class_=re.compile(r'border-t|justify-between|flex'))
+            if parent_div:
+                parent_div.decompose()
+                
+    # --- XỬ LÝ TRÍCH XUẤT FILE PDF ---
+    pdf_text = ""
+    # 1. Tìm các thẻ <a> trỏ tới file PDF
+    for a in soup.find_all('a', href=True):
+        href = a['href']
+        if href.lower().endswith('.pdf'):
+            full_pdf_url = urljoin(url, href)
+            extracted = extract_pdf_text(full_pdf_url)
+            if extracted:
+                pdf_text += f"\n\n--- NỘI DUNG FILE PDF ({href.split('/')[-1]}) ---\n{extracted}\n"
+    
+    # 2. Tìm các thẻ <object> nhúng PDF
+    for obj in soup.find_all('object', data=True):
+        data_url = obj['data']
+        if data_url.lower().endswith('.pdf'):
+            full_pdf_url = urljoin(url, data_url)
+            extracted = extract_pdf_text(full_pdf_url)
+            if extracted:
+                pdf_text += f"\n\n--- NỘI DUNG FILE PDF ({data_url.split('/')[-1]}) ---\n{extracted}\n"
         
     article_node = soup.find(class_='iuhArticleContent')
     if not article_node:
@@ -95,6 +147,10 @@ def scrape_page(url):
     if not clean_md:
         logging.warning(f"Không trích xuất được nội dung: {url}")
         return None
+        
+    # Nối nội dung PDF vào Markdown chính
+    if pdf_text:
+        clean_md += pdf_text
         
     content_hash = hashlib.md5(clean_md.encode('utf-8')).hexdigest()
     

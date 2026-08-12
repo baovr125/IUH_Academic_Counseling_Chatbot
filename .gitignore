@@ -37,3 +37,7 @@ frontend1/build/
 .Trashes
 ehthumbs.db
 Thumbs.db.agent/
+
+# log and data
+data/
+logs/
