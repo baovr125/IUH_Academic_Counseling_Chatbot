@@ -1,8 +1,11 @@
 import os
 import uuid
+import json
+import asyncio
 from typing import Optional
-from fastapi import APIRouter, UploadFile, File, Form, Header, HTTPException, status
+from fastapi import APIRouter, UploadFile, File, Form, Header, HTTPException, status, Request
 from fastapi.responses import FileResponse
+from sse_starlette.sse import EventSourceResponse
 from app.schemas.documents import (
     DocumentQueryRequest,
     DocumentQueryResponse,
@@ -11,7 +14,7 @@ from app.schemas.documents import (
     ApiResult
 )
 from app.services.rag_engine import query_document_rag
-from app.tasks.pdf_worker import dispatch_pdf_translation_job, get_job_status
+from app.tasks.pdf_worker import dispatch_pdf_translation_job, redis_client
 from app.utils.logger import logger
 
 router = APIRouter(tags=["Document Translation & RAG Service"])
@@ -34,6 +37,17 @@ async def upload_document(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Định dạng file không được hỗ trợ. Vui lòng tải file PDF, Word hoặc PowerPoint."
+        )
+
+    # Validate file size (Max 10MB)
+    MAX_FILE_SIZE = 10 * 1024 * 1024
+    file.file.seek(0, 2)
+    file_size = file.file.tell()
+    file.file.seek(0)
+    if file_size > MAX_FILE_SIZE:
+        raise HTTPException(
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            detail="Kích thước file vượt quá giới hạn 10MB."
         )
 
     doc_id = str(uuid.uuid4())
@@ -72,32 +86,51 @@ async def upload_document(
         ).model_dump()
     )
 
-@router.get("/{doc_id}/status")
-async def get_document_status(
+@router.get("/{doc_id}/stream")
+async def stream_document_status(
+    request: Request,
     doc_id: str,
     x_user_id: Optional[str] = Header(None, alias="X-User-ID")
 ):
     """
-    API Polling tiến độ xử lý dịch & indexed vector RAG (0% - 100%).
+    API Server-Sent Events (SSE) để stream tiến độ xử lý dịch & RAG.
     """
-    status_info = get_job_status(doc_id)
-    return ApiResult(
-        ok=True,
-        data=DocumentStatusResponse(
-            doc_id=doc_id,
-            status=status_info.get("status", "processing"),
-            progress=status_info.get("progress", 0),
-            message=status_info.get("message", "Đang xử lý..."),
-            pages_processed=status_info.get("pages_processed", 0),
-            total_pages=status_info.get("total_pages", 0),
-            translated_file_url=status_info.get("translated_file_url"),
-            translated_text=status_info.get("translated_text"),
-            summary_json=status_info.get("summary_json"),
-            glossary=status_info.get("glossary", []),
-            model_used=status_info.get("model_used"),
-            error=status_info.get("error")
-        ).model_dump()
-    )
+    async def event_generator():
+        # Lấy trạng thái hiện tại (nếu có) để gửi ngay
+        latest_state = redis_client.get(f"job_latest_{doc_id}")
+        if latest_state:
+            yield {
+                "event": "update",
+                "data": latest_state
+            }
+            
+        pubsub = redis_client.pubsub()
+        pubsub.subscribe(f"job_status_{doc_id}")
+        
+        try:
+            while True:
+                if await request.is_disconnected():
+                    break
+
+                # timeout=1.0 để không block hoàn toàn
+                message = pubsub.get_message(ignore_subscribe_messages=True, timeout=1.0)
+                if message and message["type"] == "message":
+                    data = message["data"]
+                    yield {
+                        "event": "update",
+                        "data": data
+                    }
+                    
+                    data_dict = json.loads(data)
+                    if data_dict.get("status") in ["completed", "failed"]:
+                        break
+                else:
+                    await asyncio.sleep(0.5)
+        finally:
+            pubsub.unsubscribe(f"job_status_{doc_id}")
+            pubsub.close()
+
+    return EventSourceResponse(event_generator())
 
 @router.post("/{doc_id}/query")
 async def query_document(

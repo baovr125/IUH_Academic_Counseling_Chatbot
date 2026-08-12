@@ -82,6 +82,11 @@ export default function DocumentTranslationPage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    if (file.size > 10 * 1024 * 1024) {
+      alert("Kích thước file vượt quá giới hạn 10MB. Vui lòng chọn file nhỏ hơn.");
+      return;
+    }
+
     let type: "pdf" | "docx" | "pptx" = "pdf";
     if (file.name.endsWith(".pptx") || file.name.endsWith(".ppt")) type = "pptx";
     else if (file.name.endsWith(".docx") || file.name.endsWith(".doc")) type = "docx";
@@ -137,45 +142,45 @@ export default function DocumentTranslationPage() {
       const currentDocId = uploadData.data.doc_id;
       setDocId(currentDocId);
 
-      // Polling real progress from backend worker
-      const pollInterval = setInterval(async () => {
+      // Nhận luồng SSE real progress từ backend
+      const eventSource = new EventSource(`${baseUrl}/api/v1/documents/${currentDocId}/stream`);
+
+      eventSource.addEventListener("update", (event) => {
         try {
-          const statusRes = await fetch(`${baseUrl}/api/v1/documents/${currentDocId}/status`);
-          const statusData = await statusRes.json();
+          const data = JSON.parse(event.data);
           
-          if (!statusData.ok) return;
-          
-          const { status, progress, message, translated_text, glossary: fetchedGlossary, model_used } = statusData.data;
-          
-          setProgressPercent(progress);
-          setStatusMessage(message);
-          if (model_used) {
-            setModelUsed(model_used);
-          }
+          if (data.progress !== undefined) setProgressPercent(data.progress);
+          if (data.message) setStatusMessage(data.message);
+          if (data.model_used) setModelUsed(data.model_used);
+          if (data.glossary && data.glossary.length > 0) setGlossary(data.glossary);
+          if (data.translated_text) setTranslatedText(data.translated_text);
 
-          if (fetchedGlossary && fetchedGlossary.length > 0) {
-            setGlossary(fetchedGlossary);
-          }
-
-          if (translated_text) {
-            setTranslatedText(translated_text);
-          }
-
-          const statusLower = status ? String(status).toLowerCase() : "";
+          const statusLower = data.status ? String(data.status).toLowerCase() : "";
           if (statusLower === "completed") {
-            clearInterval(pollInterval);
+            eventSource.close();
             setIsTranslating(false);
             setIsCompleted(true);
             setActiveTab("pdf"); // Switch directly to PDF view on completion
           } else if (statusLower === "failed") {
-            clearInterval(pollInterval);
+            eventSource.close();
             setIsTranslating(false);
-            setStatusMessage("Lỗi xử lý: " + message);
+            setStatusMessage("Lỗi xử lý: " + (data.message || data.error || ""));
           }
         } catch (err) {
-          console.error("Lỗi khi kiểm tra tiến độ:", err);
+          console.error("Lỗi khi parse dữ liệu SSE:", err);
         }
-      }, 2500);
+      });
+
+      eventSource.onerror = (err) => {
+        console.error("Lỗi kết nối SSE:", err);
+        eventSource.close();
+        // Không set lỗi ngay lập tức nếu tiến trình chưa hoàn thành,
+        // nhưng nếu ngắt kết nối thì báo lỗi.
+        if (progressPercent < 100 && !isCompleted) {
+          setIsTranslating(false);
+          setStatusMessage("Mất kết nối với máy chủ (SSE). Vui lòng thử lại.");
+        }
+      };
 
     } catch (err: any) {
       console.error(err);
@@ -376,7 +381,7 @@ export default function DocumentTranslationPage() {
               Nhấp hoặc kéo thả tài liệu (PDF, Word, PowerPoint)
             </div>
             <div className="mt-1 text-[11px] text-slate-400">
-              Hỗ trợ file tối đa 50MB, giữ nguyên định dạng trang
+              Hỗ trợ file tối đa 10MB, giữ nguyên định dạng trang
             </div>
           </div>
 

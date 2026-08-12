@@ -1,30 +1,15 @@
 import os
-import asyncio
+import json
+import redis
 from typing import Dict, Any, Optional
 from app.services.markdown_pdf_service import extract_pdf_to_markdown, render_markdown_to_pdf
 from app.services.ollama_translator import translate_markdown_document_ollama
 from app.services.docx_pptx_service import translate_docx_document, translate_pptx_document
 from app.services.scanned_pdf_service import process_scanned_pdf_translation
 from app.utils.logger import logger
+from app.celery_app import celery_app, REDIS_URL
 
-# Store in-memory status dictionary for fast polling response
-JOB_STATUS_STORE: Dict[str, Dict[str, Any]] = {}
-
-def get_job_status(doc_id: str) -> Dict[str, Any]:
-    if doc_id in JOB_STATUS_STORE:
-        return JOB_STATUS_STORE[doc_id]
-    return {
-        "doc_id": doc_id,
-        "status": "not_found",
-        "progress": 0,
-        "message": "Tài liệu chưa được xử lý.",
-        "pages_processed": 0,
-        "total_pages": 0,
-        "translated_file_url": None,
-        "translated_text": None,
-        "summary_json": {},
-        "glossary": []
-    }
+redis_client = redis.Redis.from_url(REDIS_URL, decode_responses=True)
 
 def update_job_status(
     doc_id: str,
@@ -33,16 +18,21 @@ def update_job_status(
     message: str,
     **kwargs
 ):
-    current = JOB_STATUS_STORE.get(doc_id, {"doc_id": doc_id})
-    current.update({
+    payload = {
+        "doc_id": doc_id,
         "status": status,
         "progress": progress,
         "message": message,
         **kwargs
-    })
-    JOB_STATUS_STORE[doc_id] = current
+    }
+    # Publish to Redis Pub/Sub channel
+    redis_client.publish(f"job_status_{doc_id}", json.dumps(payload))
+    # Optionally store the latest state in Redis so we can fetch it if needed
+    redis_client.set(f"job_latest_{doc_id}", json.dumps(payload), ex=3600*24) # expire in 24h
 
+@celery_app.task(bind=True, name="app.tasks.pdf_worker.process_document_translation_job_sync")
 def process_document_translation_job_sync(
+    self,
     doc_id: str,
     file_path: str,
     user_id: str,
@@ -51,7 +41,7 @@ def process_document_translation_job_sync(
     is_scanned: bool = False
 ) -> Dict[str, Any]:
     """
-    Dispatcher router xử lý dịch thuật đa định dạng:
+    Dispatcher router xử lý dịch thuật đa định dạng, chạy bằng Celery:
     1. .pdf -> Academic Paper Translation (PyMuPDF4LLM -> Markdown Batching -> Ollama -> PDF)
     2. .pdf (Scan) -> PyMuPDF -> PaddleOCR -> Ollama -> DOCX
     3. .docx -> Word In-place Translation
@@ -75,7 +65,6 @@ def process_document_translation_job_sync(
                 model_used = model_name
             update_job_status(doc_id, "processing", progress, message, model_used=model_used)
 
-        # Giai đoạn 2.2 Routing
         if ext == ".docx":
             update_job_status(doc_id, "processing", 30, "Đang dịch file Word (.docx)...", model_used=model_used)
             translated_file_path = os.path.join(temp_out_dir, f"translated_{doc_id}.docx")
@@ -135,12 +124,12 @@ def process_document_translation_job_sync(
             model_used=model_used
         )
         logger.info(f"✅ [Job Completed] doc_id={doc_id}, saved to {translated_file_path}")
-        return JOB_STATUS_STORE[doc_id]
+        return {"doc_id": doc_id, "status": "completed"}
 
     except Exception as e:
         logger.exception(f"❌ [Job Failed] Lỗi xử lý dịch thuật doc_id={doc_id}: {e}")
         update_job_status(doc_id, "failed", 0, f"Thất bại: {str(e)}", error=str(e))
-        return JOB_STATUS_STORE[doc_id]
+        return {"doc_id": doc_id, "status": "failed", "error": str(e)}
 
 async def dispatch_pdf_translation_job(
     doc_id: str,
@@ -151,17 +140,14 @@ async def dispatch_pdf_translation_job(
     is_scanned: bool = False
 ):
     """
-    Offload heavy job sang background thread để không block event loop.
+    Offload heavy job sang Celery background worker.
     """
-    update_job_status(doc_id, "processing", 5, "Khởi tạo tác vụ dịch ngầm...")
-    asyncio.create_task(
-        asyncio.to_thread(
-            process_document_translation_job_sync,
-            doc_id,
-            file_path,
-            user_id,
-            source_lang,
-            target_lang,
-            is_scanned
-        )
+    update_job_status(doc_id, "processing", 5, "Khởi tạo tác vụ dịch ngầm qua Celery...")
+    process_document_translation_job_sync.delay(
+        doc_id,
+        file_path,
+        user_id,
+        source_lang,
+        target_lang,
+        is_scanned
     )

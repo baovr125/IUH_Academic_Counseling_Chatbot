@@ -3,6 +3,7 @@ import re
 import httpx
 from typing import List, Optional
 from app.utils.logger import logger
+from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 
 OLLAMA_DEFAULT_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
 OLLAMA_DEFAULT_MODEL = os.getenv("OLLAMA_MODEL", "qwen2.5:7b")
@@ -70,6 +71,12 @@ def split_text_into_batches(text: str, max_tokens: int = 1200) -> List[str]:
 
     return batches
 
+@retry(
+    stop=stop_after_attempt(3),
+    wait=wait_exponential(multiplier=1, min=2, max=10),
+    retry=retry_if_exception_type((httpx.TimeoutException, httpx.RequestError)),
+    reraise=True
+)
 def call_ollama_generate(
     prompt: str,
     system_instruction: str = SYSTEM_TRANSLATION_PROMPT,
@@ -79,6 +86,7 @@ def call_ollama_generate(
 ) -> str:
     """
     Gửi request synchronous tới Ollama REST API (/api/generate).
+    Tự động thử lại (retry) tối đa 3 lần nếu gặp lỗi Timeout/Connection Error.
     """
     target_host = (host or get_ollama_host()).rstrip("/")
     url = f"{target_host}/api/generate"
