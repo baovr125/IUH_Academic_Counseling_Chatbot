@@ -374,7 +374,6 @@ async def send_message_stream(
                 if first_chunk and first_chunk.text:
                     accumulated_text += first_chunk.text
                     yield f"data: {json.dumps({'type': 'delta', 'text': first_chunk.text})}\n\n"
-                    await asyncio.sleep(0.01)
 
                 while True:
                     chunk = await asyncio.to_thread(lambda: next(stream_iter, None))
@@ -383,7 +382,6 @@ async def send_message_stream(
                     if chunk.text:
                         accumulated_text += chunk.text
                         yield f"data: {json.dumps({'type': 'delta', 'text': chunk.text})}\n\n"
-                        await asyncio.sleep(0.01)
             else:
                 err_str = str(last_err) if last_err else "Gemini client chưa khởi tạo"
                 fallback_txt = f"⚠️ Lỗi AI: {err_str}"
