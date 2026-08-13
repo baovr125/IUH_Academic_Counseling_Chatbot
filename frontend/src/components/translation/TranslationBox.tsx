@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { streamTranslation, extractFlashcard } from "../../services/translationService";
 import { FloatingMenu } from "./FloatingMenu";
 import { DomainSelector } from "./DomainSelector";
-import { BookmarkPlus, ArrowRightLeft, Volume2, X } from "lucide-react";
+import { BookmarkPlus, ArrowRightLeft, Volume2, X, Loader2 } from "lucide-react";
 import { LANG_CONFIG } from "../../services/deckStorage";
 
 export interface TranslationBoxProps {
@@ -43,9 +43,12 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
   
   // Toast state
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  
+  const [speakingId, setSpeakingId] = useState<"source" | "target" | "selection" | null>(null);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioCache = useRef<Map<string, string>>(new Map());
   
   // Debounce ref to handle real-time streaming
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -66,8 +69,27 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
     return map[langCode] || "en-US";
   };
 
+  // Prefetch audio and cache as Blob URL
+  const prefetchAudio = async (text: string, lang: string) => {
+    if (!text.trim()) return;
+    const cacheKey = `${lang}_${text}`;
+    if (audioCache.current.has(cacheKey)) return;
+
+    try {
+      const url = `/api/v1/translate/tts?text=${encodeURIComponent(text)}&lang=${lang}`;
+      const response = await fetch(url);
+      if (response.ok) {
+        const blob = await response.blob();
+        const objectUrl = URL.createObjectURL(blob);
+        audioCache.current.set(cacheKey, objectUrl);
+      }
+    } catch (e) {
+      console.error("Prefetch audio failed:", e);
+    }
+  };
+
   // Neural Edge TTS from Backend
-  const speakText = (text: string, lang: string = "vi-VN") => {
+  const speakText = async (text: string, lang: string = "vi-VN", id: "source" | "target" | "selection") => {
     if (!text) return;
     
     // Stop currently playing audio
@@ -75,11 +97,26 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
       audioRef.current.pause();
       audioRef.current = null;
     }
+    
+    setSpeakingId(id);
+    const cacheKey = `${lang}_${text}`;
+    
+    let audioUrl = audioCache.current.get(cacheKey);
+    
+    if (!audioUrl) {
+       // If not in cache, fallback to fetching it (though prefetch should have caught it)
+       audioUrl = `/api/v1/translate/tts?text=${encodeURIComponent(text)}&lang=${lang}`;
+    }
 
-    const url = `/api/v1/translate/tts?text=${encodeURIComponent(text)}&lang=${lang}`;
-    const audio = new Audio(url);
+    const audio = new Audio(audioUrl);
     audioRef.current = audio;
-    audio.play().catch(e => console.error("TTS Play Error:", e));
+    
+    audio.onended = () => setSpeakingId(null);
+    audio.onerror = () => setSpeakingId(null);
+    audio.play().catch(e => {
+       console.error("TTS Play Error:", e);
+       setSpeakingId(null);
+    });
   };
 
   const handleTranslate = (textToTranslate: string = sourceText) => {
@@ -145,6 +182,19 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
       if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
     };
   }, [sourceText, sourceLang, targetLang, domain]);
+
+  // TTS Prefetch Effect: Trigger when translation finishes
+  useEffect(() => {
+    if (!isTranslating) {
+      const translated = translatedTokens.join("");
+      if (translated.trim()) {
+         prefetchAudio(translated, getTTSLangCode(targetLang));
+      }
+      if (sourceText.trim()) {
+         prefetchAudio(sourceText, getTTSLangCode(sourceLang));
+      }
+    }
+  }, [isTranslating, translatedTokens, sourceText, sourceLang, targetLang]);
 
   const handleSwap = () => {
     const currentTranslated = translatedTokens.join("");
@@ -212,7 +262,7 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
   };
 
   const speakSelection = () => {
-    speakText(selectedWord, getTTSLangCode(targetLang));
+    speakText(selectedWord, getTTSLangCode(targetLang), "selection");
     setMenuPosition(null);
   };
 
@@ -260,8 +310,8 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
                  </button>
                )}
                {sourceText && (
-                  <button onClick={() => speakText(sourceText, getTTSLangCode(sourceLang))} className="hover:text-blue-500 transition-colors p-2 rounded-lg hover:bg-blue-50" title="Đọc văn bản">
-                    <Volume2 size={18} />
+                  <button onClick={() => speakText(sourceText, getTTSLangCode(sourceLang), "source")} className="hover:text-blue-500 transition-colors p-2 rounded-lg hover:bg-blue-50" title="Đọc văn bản">
+                    {speakingId === "source" ? <Loader2 size={18} className="animate-spin" /> : <Volume2 size={18} />}
                   </button>
                )}
              </div>
@@ -333,8 +383,8 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
           <div className="px-6 py-4 flex items-center justify-between border-t border-slate-200/50 bg-slate-50">
              <div className="flex items-center gap-2">
                {translatedTokens.length > 0 && (
-                  <button onClick={() => speakText(translatedTokens.join(''), getTTSLangCode(targetLang))} className="text-slate-500 hover:text-blue-600 transition-colors p-2 rounded-lg hover:bg-white border border-transparent hover:border-slate-200 shadow-sm" title="Đọc bản dịch">
-                    <Volume2 size={18} />
+                  <button onClick={() => speakText(translatedTokens.join(''), getTTSLangCode(targetLang), "target")} className="text-slate-500 hover:text-blue-600 transition-colors p-2 rounded-lg hover:bg-white border border-transparent hover:border-slate-200 shadow-sm" title="Đọc bản dịch">
+                    {speakingId === "target" ? <Loader2 size={18} className="animate-spin" /> : <Volume2 size={18} />}
                   </button>
                )}
              </div>

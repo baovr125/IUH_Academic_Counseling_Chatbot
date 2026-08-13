@@ -1,7 +1,8 @@
 from fastapi import APIRouter
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, Response
 from sse_starlette.sse import EventSourceResponse
 import edge_tts
+import hashlib
 from app.schemas.translation import (
     TranslateRequest, LookupRequest, TranslateResponse, ApiResult,
     StreamTranslateRequest, FlashcardExtractRequest
@@ -9,6 +10,7 @@ from app.schemas.translation import (
 from app.services.translation_service import translate_text
 from app.services.llm_service import stream_translation, extract_flashcard
 from app.services.dictionary_service import get_word_audio
+from app.services.cache_service import get_cached_audio, set_cached_audio
 
 router = APIRouter(tags=["Real-time Translation Service"])
 
@@ -28,14 +30,27 @@ TTS_VOICE_MAP = {
 @router.get("/tts")
 async def tts_endpoint(text: str, lang: str = "vi-VN"):
     voice = TTS_VOICE_MAP.get(lang, "en-US-JennyNeural")
-    communicate = edge_tts.Communicate(text, voice)
     
-    async def generate():
-        async for chunk in communicate.stream():
-            if chunk["type"] == "audio":
-                yield chunk["data"]
-                
-    return StreamingResponse(generate(), media_type="audio/mpeg")
+    # Check cache first
+    cache_key = hashlib.md5(f"{text.strip()}_{voice}".encode('utf-8')).hexdigest()
+    cached_audio = get_cached_audio(cache_key)
+    
+    if cached_audio:
+        return Response(content=cached_audio, media_type="audio/mpeg")
+        
+    # Generate audio
+    communicate = edge_tts.Communicate(text, voice)
+    audio_data = bytearray()
+    
+    async for chunk in communicate.stream():
+        if chunk["type"] == "audio":
+            audio_data.extend(chunk["data"])
+            
+    # Cache the fully generated audio byte string
+    complete_audio = bytes(audio_data)
+    set_cached_audio(cache_key, complete_audio)
+    
+    return Response(content=complete_audio, media_type="audio/mpeg")
 
 @router.post("/text")
 async def translate_endpoint(payload: TranslateRequest):
