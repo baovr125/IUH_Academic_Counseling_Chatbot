@@ -1,6 +1,12 @@
 from fastapi import APIRouter
-from app.schemas.translation import TranslateRequest, LookupRequest, TranslateResponse, ApiResult
+from sse_starlette.sse import EventSourceResponse
+from app.schemas.translation import (
+    TranslateRequest, LookupRequest, TranslateResponse, ApiResult,
+    StreamTranslateRequest, FlashcardExtractRequest
+)
 from app.services.translation_service import translate_text
+from app.services.llm_service import stream_translation, extract_flashcard
+from app.services.dictionary_service import get_word_audio
 
 router = APIRouter(tags=["Real-time Translation Service"])
 
@@ -20,6 +26,38 @@ async def translate_endpoint(payload: TranslateRequest):
             cached=cached,
             latency_ms=latency_ms
         )
+    )
+
+@router.post("/stream")
+async def stream_translate_endpoint(payload: StreamTranslateRequest):
+    return EventSourceResponse(
+        stream_translation(
+            text=payload.text,
+            source_lang=payload.source_lang,
+            target_lang=payload.target_lang,
+            domain=payload.domain
+        )
+    )
+
+@router.post("/flashcard")
+async def flashcard_endpoint(payload: FlashcardExtractRequest):
+    # 1. Extract vocabulary info using LLM (JSON Mode)
+    flashcard_data = await extract_flashcard(
+        word=payload.word,
+        context=payload.context,
+        domain=payload.domain
+    )
+    
+    # 2. Get audio from Free Dictionary API
+    audio_info = await get_word_audio(payload.word)
+    if audio_info:
+        flashcard_data["audio_url"] = audio_info.get("audio_url", "")
+        if not flashcard_data.get("phonetic"):
+            flashcard_data["phonetic"] = audio_info.get("phonetic", "")
+            
+    return ApiResult(
+        ok=True,
+        data=flashcard_data
     )
 
 @router.post("/lookup")

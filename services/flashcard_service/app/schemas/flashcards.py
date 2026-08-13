@@ -10,6 +10,7 @@ class CreateCardRequest(BaseModel):
     front_text: str = Field(..., min_length=1, max_length=500)
     back_text: str = Field(..., min_length=1, max_length=1000)
     phonetic: Optional[str] = None
+    audio_url: Optional[str] = None
     example_sentence: Optional[str] = None
 
 class ReviewCardRequest(BaseModel):
@@ -22,10 +23,15 @@ class CardResponse(BaseModel):
     front_text: str
     back_text: str
     phonetic: Optional[str] = None
+    audio_url: Optional[str] = None
     example_sentence: Optional[str] = None
+    # SM-2 / FSRS combined fields
     repetition: int
-    ease_factor: float
+    ease_factor: Optional[float] = 2.5
     interval_days: int
+    stability: Optional[float] = None
+    difficulty: Optional[float] = None
+    lapses: Optional[int] = 0
     next_review_date: str
 
 class ApiResult(BaseModel):
