@@ -1,5 +1,8 @@
 import os
 import json
+import asyncio
+import ctranslate2
+import transformers
 from typing import AsyncGenerator, Optional
 import httpx
 from google import genai
@@ -7,6 +10,28 @@ from groq import Groq, AsyncGroq
 from app.utils.logger import logger
 
 # Initialize Clients
+_translator = None
+_tokenizer = None
+
+def get_nllb_translator():
+    global _translator, _tokenizer
+    if _translator is not None and _tokenizer is not None:
+        return _translator, _tokenizer
+
+    model_dir = "/app/models/nllb-200-distilled-600M-ct2-int8"
+    if not os.path.exists(model_dir):
+        logger.warning(f"NLLB model directory {model_dir} not found. Cannot initialize CTranslate2.")
+        return None, None
+
+    try:
+        logger.info("Loading NLLB CTranslate2 model on CUDA...")
+        _translator = ctranslate2.Translator(model_dir, device="cuda", compute_type="int8")
+        logger.info("Loading NLLB Tokenizer...")
+        _tokenizer = transformers.AutoTokenizer.from_pretrained(model_dir)
+        return _translator, _tokenizer
+    except Exception as e:
+        logger.error(f"Failed to load NLLB model: {e}")
+        return None, None
 def get_groq_client() -> Optional[AsyncGroq]:
     api_key = os.getenv("GROQ_API_KEY", "")
     if not api_key:
@@ -27,8 +52,47 @@ def get_gemini_client():
         logger.error(f"Failed to initialize Gemini client: {e}")
         return None
 
+LANG_MAP = {
+    "en": "eng_Latn",
+    "de": "deu_Latn",
+    "zh": "zho_Hans",
+    "ja": "jpn_Jpan",
+    "ko": "kor_Hang",
+    "fr": "fra_Latn",
+    "es": "spa_Latn",
+    "ru": "rus_Cyrl",
+    "th": "tha_Thai",
+    "vi": "vie_Latn",
+}
+
 async def stream_translation(text: str, source_lang: str, target_lang: str, domain: str = "") -> AsyncGenerator[str, None]:
-    """Streams translation from Groq, falls back to Gemini if failed or rate limited."""
+    """Translates text using local NLLB model via CTranslate2. Falls back to Groq/Gemini."""
+    translator, tokenizer = get_nllb_translator()
+    
+    if translator and tokenizer:
+        nllb_src = LANG_MAP.get(source_lang, "eng_Latn")
+        nllb_tgt = LANG_MAP.get(target_lang, "vie_Latn")
+
+        try:
+            tokenizer.src_lang = nllb_src
+            source_tokens = tokenizer.convert_ids_to_tokens(tokenizer.encode(text))
+            target_prefix = [nllb_tgt]
+
+            results = await asyncio.to_thread(
+                translator.translate_batch,
+                [source_tokens],
+                target_prefix=[target_prefix]
+            )
+            
+            target_tokens = results[0].hypotheses[0][1:] 
+            translated_text = tokenizer.decode(tokenizer.convert_tokens_to_ids(target_tokens))
+            
+            yield json.dumps({'text': translated_text})
+            return
+        except Exception as e:
+            logger.error(f"NLLB translation failed: {e}. Falling back to LLM.")
+
+    # Fallback to LLMs if NLLB fails or is not available
     groq_client = get_groq_client()
     
     system_prompt = f"You are a professional translator."
@@ -46,7 +110,7 @@ async def stream_translation(text: str, source_lang: str, target_lang: str, doma
     if groq_client:
         try:
             stream = await groq_client.chat.completions.create(
-                model="llama3-8b-8192", # or llama3-70b-8192
+                model="llama-3.1-8b-instant", # or llama3-70b-8192
                 messages=messages,
                 stream=True,
                 temperature=0.3
@@ -98,7 +162,7 @@ async def extract_flashcard(word: str, context: str, domain: str = "") -> dict:
     if groq_client:
         try:
             response = await groq_client.chat.completions.create(
-                model="llama3-8b-8192",
+                model="llama-3.1-8b-instant",
                 messages=messages,
                 response_format={"type": "json_object"},
                 temperature=0.0

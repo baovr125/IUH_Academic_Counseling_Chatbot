@@ -45,19 +45,41 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const containerRef = useRef<HTMLDivElement>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   
   // Debounce ref to handle real-time streaming
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Web Speech API for reading full text
+  const getTTSLangCode = (langCode: string) => {
+    const map: Record<string, string> = {
+      en: "en-US",
+      de: "de-DE",
+      zh: "zh-CN",
+      ja: "ja-JP",
+      ko: "ko-KR",
+      fr: "fr-FR",
+      es: "es-ES",
+      ru: "ru-RU",
+      th: "th-TH",
+      vi: "vi-VN"
+    };
+    return map[langCode] || "en-US";
+  };
+
+  // Neural Edge TTS from Backend
   const speakText = (text: string, lang: string = "vi-VN") => {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel(); // stop current
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = lang;
-      utterance.rate = 0.9;
-      window.speechSynthesis.speak(utterance);
+    if (!text) return;
+    
+    // Stop currently playing audio
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
     }
+
+    const url = `/api/v1/translate/tts?text=${encodeURIComponent(text)}&lang=${lang}`;
+    const audio = new Audio(url);
+    audioRef.current = audio;
+    audio.play().catch(e => console.error("TTS Play Error:", e));
   };
 
   const handleTranslate = (textToTranslate: string = sourceText) => {
@@ -124,6 +146,16 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
     };
   }, [sourceText, sourceLang, targetLang, domain]);
 
+  const handleSwap = () => {
+    const currentTranslated = translatedTokens.join("");
+    setSourceLang(targetLang);
+    setTargetLang(sourceLang);
+    // Google Translate behavior: when swapping, the translated text becomes the new source text
+    if (currentTranslated.trim()) {
+      setSourceText(currentTranslated);
+    }
+  };
+
   const handleSelection = () => {
     const selection = window.getSelection();
     if (!selection || selection.isCollapsed || !containerRef.current) {
@@ -180,7 +212,7 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
   };
 
   const speakSelection = () => {
-    speakText(selectedWord);
+    speakText(selectedWord, getTTSLangCode(targetLang));
     setMenuPosition(null);
   };
 
@@ -228,7 +260,7 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
                  </button>
                )}
                {sourceText && (
-                  <button onClick={() => speakText(sourceText, sourceLang === 'en' ? 'en-US' : 'vi-VN')} className="hover:text-blue-500 transition-colors p-2 rounded-lg hover:bg-blue-50" title="Đọc văn bản">
+                  <button onClick={() => speakText(sourceText, getTTSLangCode(sourceLang))} className="hover:text-blue-500 transition-colors p-2 rounded-lg hover:bg-blue-50" title="Đọc văn bản">
                     <Volume2 size={18} />
                   </button>
                )}
@@ -242,7 +274,7 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
         {/* Desktop Swap Button */}
         <div className="hidden md:flex absolute left-1/2 top-[30px] -translate-x-1/2 -translate-y-1/2 z-10">
            <button
-             onClick={swapLanguages}
+             onClick={handleSwap}
              className="flex items-center justify-center w-10 h-10 bg-white border border-slate-200 rounded-full shadow-sm text-slate-500 hover:text-blue-600 hover:border-blue-200 transition-transform hover:scale-105 active:scale-95"
              title="Đổi ngôn ngữ"
            >
@@ -301,7 +333,7 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
           <div className="px-6 py-4 flex items-center justify-between border-t border-slate-200/50 bg-slate-50">
              <div className="flex items-center gap-2">
                {translatedTokens.length > 0 && (
-                  <button onClick={() => speakText(translatedTokens.join(''), targetLang === 'en' ? 'en-US' : 'vi-VN')} className="text-slate-500 hover:text-blue-600 transition-colors p-2 rounded-lg hover:bg-white border border-transparent hover:border-slate-200 shadow-sm" title="Đọc bản dịch">
+                  <button onClick={() => speakText(translatedTokens.join(''), getTTSLangCode(targetLang))} className="text-slate-500 hover:text-blue-600 transition-colors p-2 rounded-lg hover:bg-white border border-transparent hover:border-slate-200 shadow-sm" title="Đọc bản dịch">
                     <Volume2 size={18} />
                   </button>
                )}

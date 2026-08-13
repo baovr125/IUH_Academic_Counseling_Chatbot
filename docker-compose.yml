@@ -65,6 +65,13 @@ services:
       - .env
     depends_on:
       - redis
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
 
   doc-translation-service:
     build:
