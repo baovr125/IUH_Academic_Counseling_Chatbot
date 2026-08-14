@@ -71,7 +71,7 @@ def run_crawling(urls=None):
     crawler = ContentCrawler(output_dir=MARKDOWN_DIR, max_workers=5)
     crawler.run_crawl(urls)
 
-from data_pipeline.chunkers.markdown_chunker import MarkdownChunker
+from data_pipeline.chunkers.hybrid_chunker import HybridChunker
 
 def run_chunking():
     logger.info("========== BƯỚC 2: CẮT NHỎ MARKDOWN (CHUNKING) ==========")
@@ -79,15 +79,20 @@ def run_chunking():
         logger.error(f"Thư mục {MARKDOWN_DIR} trống. Vui lòng chạy bước cào (crawl) trước!")
         return []
         
-    chunker = MarkdownChunker(max_chunk_size=1500)
-    all_chunks = chunker.process_directory(MARKDOWN_DIR)
+    chunker = HybridChunker(max_child_size=600, overlap=100)
+    parents, children = chunker.process_directory(MARKDOWN_DIR)
     
-    output_file = os.path.join(DATA_DIR, "chunks.json")
-    with open(output_file, 'w', encoding='utf-8') as f:
-        json.dump(all_chunks, f, indent=4, ensure_ascii=False)
+    parents_file = os.path.join(DATA_DIR, "parents.json")
+    with open(parents_file, 'w', encoding='utf-8') as f:
+        json.dump(parents, f, indent=4, ensure_ascii=False)
         
-    logger.info(f"Đã cắt thành {len(all_chunks)} chunks và lưu vào {output_file}")
-    return all_chunks
+    children_file = os.path.join(DATA_DIR, "children.json")
+    with open(children_file, 'w', encoding='utf-8') as f:
+        json.dump(children, f, indent=4, ensure_ascii=False)
+        
+    logger.info(f"Đã cắt thành {len(parents)} Parent Chunks và {len(children)} Child Chunks.")
+    logger.info(f"Lưu tại {parents_file} và {children_file}")
+    return children
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="IUH Academic Counseling Data Pipeline")

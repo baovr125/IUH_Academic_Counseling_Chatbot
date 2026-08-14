@@ -1,0 +1,13 @@
+# Core Web Crawling
+requests>=2.34.2
+beautifulsoup4>=4.15.0
+lxml>=6.1.1
+trafilatura>=2.2.0
+
+# PDF & Image Processing
+PyMuPDF>=1.28.2
+Pillow>=12.3.0
+
+# AI & OCR
+google-genai>=2.16.0
+pytesseract>=0.3.13

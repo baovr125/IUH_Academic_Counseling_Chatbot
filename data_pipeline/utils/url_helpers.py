@@ -58,7 +58,7 @@ def clean_and_verify_url(url):
             "/hop-tac", "/tin-tuc-dao-tao", "/tin-tuc", "/tags", 
             "/guong-dien-hinh", "/nghien-cuu", "/su-kien", 
             "/thanh-tich-hoc-tap", "/ky-nang-mem", "/kham-pha-iuh", 
-            "/hoat-dong-phong-trao", "/en/"
+            "/hoat-dong-phong-trao", "/en/", "sinh-vien-tinh-nguyen"
         ]
         if any(b in parsed.path.lower() for b in iuh_blacklist):
             return None
