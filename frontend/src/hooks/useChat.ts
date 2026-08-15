@@ -235,6 +235,15 @@ export function useChat(): UseChatReturn {
             if (sessionId) {
               setActiveSessionId(sessionId);
               localStorage.setItem("activeChatSessionId", sessionId);
+              
+              setSessions((prev) =>
+                prev.map((s) =>
+                  s.id === currentSessionId
+                    ? { ...s, id: sessionId, updatedAt: new Date().toISOString() }
+                    : s
+                )
+              );
+              currentSessionId = sessionId;
             }
             setMessages((prev) =>
               prev.map((m) =>
@@ -243,8 +252,6 @@ export function useChat(): UseChatReturn {
                   : m
               )
             );
-            const refreshed = await chatService.fetchSessions();
-            if (refreshed.ok) setSessions(refreshed.data);
           },
           onDelta: (chunkText) => {
             setMessages((prev) =>
@@ -265,8 +272,13 @@ export function useChat(): UseChatReturn {
                   : m
               )
             );
-            const refreshed = await chatService.fetchSessions();
-            if (refreshed.ok) setSessions(refreshed.data);
+            
+            setSessions((prev) => {
+              const target = prev.find((s) => s.id === currentSessionId);
+              if (!target) return prev;
+              const filtered = prev.filter((s) => s.id !== currentSessionId);
+              return [{ ...target, updatedAt: new Date().toISOString() }, ...filtered];
+            });
           },
           onError: (errMsg) => {
             setIsSending(false);

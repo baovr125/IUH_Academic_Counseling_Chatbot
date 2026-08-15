@@ -37,7 +37,8 @@ export async function fetchSessions(limit: number = 20, offset: number = 0): Pro
   try {
     const url = getApiUrl(`/api/chat/sessions?limit=${limit}&offset=${offset}`);
     const res = await fetch(url, {
-      headers: getAuthHeaders()
+      headers: getAuthHeaders(),
+      cache: "no-store",
     });
     const contentType = res.headers.get("content-type") || "";
     if (contentType.includes("application/json")) {
@@ -63,7 +64,8 @@ export async function fetchSessionMessages(sessionId: string, limit: number = 50
   try {
     const url = getApiUrl(`/api/chat/sessions/${sessionId}/messages?limit=${limit}&offset=${offset}`);
     const res = await fetch(url, {
-      headers: getAuthHeaders()
+      headers: getAuthHeaders(),
+      cache: "no-store",
     });
     const contentType = res.headers.get("content-type") || "";
     if (contentType.includes("application/json")) {
