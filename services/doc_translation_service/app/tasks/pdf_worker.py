@@ -10,6 +10,9 @@ from app.services.scanned_pdf_service import process_scanned_pdf_translation
 from app.services.glossary_extractor import extract_glossary
 from app.utils.logger import logger
 from app.celery_app import celery_app, REDIS_URL
+from app.utils.minio_client import download_file, upload_file
+from app.utils.rabbitmq_publisher import publish_doc_translated_event
+import tempfile
 
 redis_client = redis.Redis.from_url(REDIS_URL, decode_responses=True)
 
@@ -53,11 +56,21 @@ def process_document_translation_job_sync(
     update_job_status(doc_id, "processing", 10, "Đang phân loại định dạng file và khởi tạo pipeline...")
 
     ext = os.path.splitext(file_path)[1].lower()
-    temp_out_dir = "temp_translated"
-    os.makedirs(temp_out_dir, exist_ok=True)
+    
+    # file_path is now object_name in MinIO (e.g. source/<doc_id>.pdf)
+    object_name = file_path
+    
+    # Download from MinIO to temp
+    local_input_file = os.path.join(tempfile.gettempdir(), f"input_{doc_id}{ext}")
+    try:
+        download_file(object_name, local_input_file)
+    except Exception as e:
+        logger.exception(f"Lỗi khi tải file từ MinIO: {e}")
+        update_job_status(doc_id, "failed", 0, f"Thất bại tải file: {str(e)}", error=str(e))
+        return {"doc_id": doc_id, "status": "failed", "error": str(e)}
 
     try:
-        translated_file_path = ""
+        translated_local_path = ""
         translated_text = ""
         model_used = "Gemini 2.5 Flash"
 
@@ -71,37 +84,40 @@ def process_document_translation_job_sync(
         
         if ext == ".docx":
             update_job_status(doc_id, "processing", 30, "Đang dịch file Word (.docx)...", model_used=model_used)
-            translated_file_path = os.path.join(temp_out_dir, f"translated_{doc_id}.docx")
+            translated_local_path = os.path.join(tempfile.gettempdir(), f"translated_{doc_id}.docx")
+            out_ext = ".docx"
             translate_docx_document(
-                input_path=file_path,
-                output_path=translated_file_path,
+                input_path=local_input_file,
+                output_path=translated_local_path,
                 source_lang=source_lang,
                 target_lang=target_lang
             )
 
         elif ext in [".pptx", ".ppt"]:
             update_job_status(doc_id, "processing", 30, "Đang dịch file PowerPoint (.pptx)...", model_used=model_used)
-            translated_file_path = os.path.join(temp_out_dir, f"translated_{doc_id}.pptx")
+            translated_local_path = os.path.join(tempfile.gettempdir(), f"translated_{doc_id}.pptx")
+            out_ext = ".pptx"
             translate_pptx_document(
-                input_path=file_path,
-                output_path=translated_file_path,
+                input_path=local_input_file,
+                output_path=translated_local_path,
                 source_lang=source_lang,
                 target_lang=target_lang
             )
 
         elif ext == ".pdf" and is_scanned:
             update_job_status(doc_id, "processing", 30, "Đang OCR & dịch file PDF Scan...", model_used=model_used)
-            translated_file_path = os.path.join(temp_out_dir, f"translated_{doc_id}.docx")
+            translated_local_path = os.path.join(tempfile.gettempdir(), f"translated_{doc_id}.docx")
+            out_ext = ".docx"
             process_scanned_pdf_translation(
-                pdf_path=file_path,
-                output_docx_path=translated_file_path,
+                pdf_path=local_input_file,
+                output_docx_path=translated_local_path,
                 source_lang=source_lang,
                 target_lang=target_lang
             )
 
         else: # Default: Academic PDF Paper
             update_job_status(doc_id, "processing", 20, "Đang bóc tách PDF bài báo khoa học thành Markdown...")
-            md_text, image_dir = extract_pdf_to_markdown(file_path, doc_id)
+            md_text, image_dir = extract_pdf_to_markdown(local_input_file, doc_id)
             md_text_for_glossary = md_text
             
             translated_text, model_used = translate_markdown_document_ollama(
@@ -112,15 +128,29 @@ def process_document_translation_job_sync(
             )
 
             update_job_status(doc_id, "processing", 85, f"Đang render lại bản dịch ({model_used}) thành PDF...", model_used=model_used)
-            translated_file_path = os.path.join(temp_out_dir, f"translated_{doc_id}.pdf")
-            render_markdown_to_pdf(translated_text, translated_file_path)
+            translated_local_path = os.path.join(tempfile.gettempdir(), f"translated_{doc_id}.pdf")
+            out_ext = ".pdf"
+            render_markdown_to_pdf(translated_text, translated_local_path)
 
+        # Upload translated file to MinIO
+        translated_object_name = f"translated/{doc_id}{out_ext}"
+        upload_file(translated_object_name, translated_local_path)
+        
         translated_file_url = f"/api/v1/documents/{doc_id}/download"
 
         update_job_status(doc_id, "processing", 95, "Đang trích xuất thuật ngữ chuyên ngành (Glossary)...", model_used=model_used)
         glossary_items = []
         if md_text_for_glossary:
             glossary_items = asyncio.run(extract_glossary(md_text_for_glossary, target_lang=target_lang))
+            
+            # Publish event to RabbitMQ for flashcard_service
+            if glossary_items:
+                publish_doc_translated_event(
+                    doc_id=doc_id,
+                    user_id=user_id,
+                    file_name=object_name.replace('source/', ''),
+                    glossary=glossary_items
+                )
 
         update_job_status(
             doc_id, "completed", 100,
@@ -133,7 +163,14 @@ def process_document_translation_job_sync(
             glossary=glossary_items,
             model_used=model_used
         )
-        logger.info(f"✅ [Job Completed] doc_id={doc_id}, saved to {translated_file_path}")
+        logger.info(f"✅ [Job Completed] doc_id={doc_id}, saved to MinIO {translated_object_name}")
+        
+        # Cleanup local files
+        if os.path.exists(local_input_file):
+            os.remove(local_input_file)
+        if os.path.exists(translated_local_path):
+            os.remove(translated_local_path)
+            
         return {"doc_id": doc_id, "status": "completed"}
 
     except Exception as e:

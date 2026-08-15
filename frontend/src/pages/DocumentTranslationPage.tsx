@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { LANG_CONFIG, getDecks, type FlashcardDeck } from "../services/deckStorage";
+import { getToken } from "../services/authService";
 
 interface DocumentFile {
   id?: string;
@@ -141,9 +142,16 @@ export default function DocumentTranslationPage() {
       formData.append("target_lang", targetLang);
 
       const baseUrl = (import.meta as any).env.VITE_API_BASE_URL || "http://localhost:8000";
+      const token = getToken();
       
+      const headers = new Headers();
+      if (token) {
+        headers.append("Authorization", `Bearer ${token}`);
+      }
+
       const uploadRes = await fetch(`${baseUrl}/api/v1/documents/upload`, {
         method: "POST",
+        headers: headers,
         body: formData,
       });
 
@@ -156,7 +164,11 @@ export default function DocumentTranslationPage() {
       setDocId(currentDocId);
 
       // Nhận luồng SSE real progress từ backend
-      const eventSource = new EventSource(`${baseUrl}/api/v1/documents/${currentDocId}/stream`);
+      const eventSourceUrl = new URL(`${baseUrl}/api/v1/documents/${currentDocId}/stream`);
+      if (token) {
+        eventSourceUrl.searchParams.append("token", token);
+      }
+      const eventSource = new EventSource(eventSourceUrl.toString());
 
       eventSource.addEventListener("update", (event) => {
         try {
@@ -203,7 +215,8 @@ export default function DocumentTranslationPage() {
   };
 
   const baseUrl = (import.meta as any).env.VITE_API_BASE_URL || "http://localhost:8000";
-  const pdfUrl = docId ? `${baseUrl}/api/v1/documents/${docId}/download` : "";
+  const token = getToken();
+  const pdfUrl = docId ? `${baseUrl}/api/v1/documents/${docId}/download${token ? `?token=${token}` : ""}` : "";
 
   const handleOpenPdfNewTab = () => {
     if (!pdfUrl) return;
@@ -244,10 +257,19 @@ export default function DocumentTranslationPage() {
     let targetDeckId = selectedDeckId;
 
     try {
+      const token = getToken();
+      const headers: Record<string, string> = { 
+        "Content-Type": "application/json",
+        "X-User-ID": "anonymous"
+      };
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
       if (deckOption === "new") {
         const res = await fetch(`${baseUrl}/api/v1/decks`, {
           method: "POST",
-          headers: { "Content-Type": "application/json", "X-User-ID": "anonymous" },
+          headers: headers,
           body: JSON.stringify({ title: newDeckTitle, description: `Tạo từ tài liệu: ${selectedFile?.name || "Bản dịch"}` })
         });
         const data = await res.json();
@@ -264,10 +286,7 @@ export default function DocumentTranslationPage() {
         const termTranslation = item.translation || item.vi || "";
         await fetch(`${baseUrl}/api/v1/cards`, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-User-ID": "anonymous"
-          },
+          headers: headers,
           body: JSON.stringify({
             deck_id: targetDeckId,
             front_text: item.term,
@@ -322,9 +341,13 @@ export default function DocumentTranslationPage() {
 
     setIsRagQuerying(true);
     try {
+      const token = getToken();
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+
       const res = await fetch(`${baseUrl}/api/v1/documents/${docId}/query`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: headers,
         body: JSON.stringify({ query: ragQuery }),
       });
 

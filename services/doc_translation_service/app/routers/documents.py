@@ -16,6 +16,8 @@ from app.schemas.documents import (
 from app.services.rag_engine import query_document_rag
 from app.tasks.pdf_worker import dispatch_pdf_translation_job, redis_client
 from app.utils.logger import logger
+from app.utils.minio_client import upload_file, download_file, get_presigned_url
+import tempfile
 
 router = APIRouter(tags=["Document Translation & RAG Service"])
 
@@ -51,24 +53,30 @@ async def upload_document(
         )
 
     doc_id = str(uuid.uuid4())
-    temp_dir = "temp_uploads"
-    os.makedirs(temp_dir, exist_ok=True)
-    file_path = os.path.join(temp_dir, f"{doc_id}_{file.filename}")
-
-    try:
-        with open(file_path, "wb") as f:
+    ext = os.path.splitext(file.filename)[1]
+    object_name = f"source/{doc_id}{ext}"
+    
+    with tempfile.NamedTemporaryFile(delete=False, suffix=ext) as temp_file:
+        file_path = temp_file.name
+        try:
             content = await file.read()
-            f.write(content)
-    except Exception as e:
-        logger.exception(f"Lỗi khi lưu file upload ({file.filename}): {e}")
-        raise HTTPException(status_code=500, detail="Không thể lưu trữ file tạm.")
+            temp_file.write(content)
+            temp_file.flush()
+            # Upload to MinIO
+            upload_file(object_name, file_path)
+        except Exception as e:
+            logger.exception(f"Lỗi khi lưu file upload ({file.filename}): {e}")
+            raise HTTPException(status_code=500, detail="Không thể lưu trữ file tạm.")
+        finally:
+            if os.path.exists(file_path):
+                os.remove(file_path)
 
     user_id = x_user_id or "anonymous"
 
     # Dispatch background worker
     await dispatch_pdf_translation_job(
         doc_id=doc_id,
-        file_path=file_path,
+        file_path=object_name, # Pass object_name instead of local file_path
         user_id=user_id,
         source_lang=source_lang,
         target_lang=target_lang,
@@ -160,29 +168,54 @@ async def download_translated_document(
     """
     API Tải về file kết quả tài liệu đã dịch (.pdf, .docx, .pptx).
     """
-    temp_dir = "temp_translated"
-    target_file = None
+    # Assuming the worker uploads translated file to translated/<doc_id>.pdf/docx/pptx
+    # First we check the DB to get the actual translated file name or try all extensions
     media_type = "application/octet-stream"
-
+    found_ext = None
+    
+    # Simple check for extension (could be optimized by checking DB status)
     for ext in [".pdf", ".docx", ".pptx"]:
-        possible_path = os.path.join(temp_dir, f"translated_{doc_id}{ext}")
-        if os.path.exists(possible_path):
-            target_file = possible_path
-            if ext == ".pdf":
-                media_type = "application/pdf"
-            elif ext == ".docx":
-                media_type = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-            elif ext == ".pptx":
-                media_type = "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+        object_name = f"translated/{doc_id}{ext}"
+        try:
+            # We don't have a direct "exists" method in minio python without stat_object, 
+            # let's try getting presigned URL or download to temp
+            url = get_presigned_url(object_name)
+            if url:
+                # Redirect to MinIO or download it
+                pass
+        except Exception:
+            continue
+            
+    # To keep it simple and secure, download from MinIO to temp file and serve
+    import tempfile
+    from starlette.background import BackgroundTask
+    
+    target_file = None
+    for ext in [".pdf", ".docx", ".pptx"]:
+        object_name = f"translated/{doc_id}{ext}"
+        temp_path = os.path.join(tempfile.gettempdir(), f"translated_{doc_id}{ext}")
+        try:
+            download_file(object_name, temp_path)
+            target_file = temp_path
+            found_ext = ext
             break
-
+        except Exception:
+            continue
+            
     if not target_file:
         raise HTTPException(status_code=404, detail="Không tìm thấy file kết quả dịch thuật. Có thể đang trong quá trình xử lý.")
 
-    ext = os.path.splitext(target_file)[1]
+    if found_ext == ".pdf":
+        media_type = "application/pdf"
+    elif found_ext == ".docx":
+        media_type = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    elif found_ext == ".pptx":
+        media_type = "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+
     return FileResponse(
         path=target_file,
         media_type=media_type,
         content_disposition_type="inline",
-        filename=f"Translated_Document_{doc_id[:8]}{ext}"
+        filename=f"Translated_Document_{doc_id[:8]}{found_ext}",
+        background=BackgroundTask(lambda: os.remove(target_file) if os.path.exists(target_file) else None)
     )

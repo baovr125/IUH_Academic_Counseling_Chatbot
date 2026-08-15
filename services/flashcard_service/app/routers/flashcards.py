@@ -7,12 +7,12 @@ router = APIRouter(tags=["Flashcard Spaced Repetition Service"])
 
 @router.post("/decks")
 async def create_deck_endpoint(payload: CreateDeckRequest, x_user_id: Optional[str] = Header(None, alias="X-User-ID")):
-    data = create_deck(payload.title, payload.description, x_user_id or "anonymous")
+    data = await create_deck(payload.title, payload.description, x_user_id or "anonymous")
     return ApiResult(ok=True, data=data)
 
 @router.post("/cards")
 async def create_card_endpoint(payload: CreateCardRequest):
-    data = create_card(
+    data = await create_card(
         deck_id=payload.deck_id,
         front_text=payload.front_text,
         back_text=payload.back_text,
@@ -24,5 +24,5 @@ async def create_card_endpoint(payload: CreateCardRequest):
 
 @router.post("/review")
 async def review_card_endpoint(payload: ReviewCardRequest):
-    updated_card = review_card(card_id=payload.card_id, grade=payload.grade)
+    updated_card = await review_card(card_id=payload.card_id, grade=payload.grade)
     return ApiResult(ok=True, data=updated_card)

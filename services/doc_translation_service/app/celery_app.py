@@ -14,8 +14,17 @@ celery_app = Celery(
     "doc_translation_worker",
     broker=RABBITMQ_URL,
     backend=REDIS_URL,
-    include=["app.tasks.pdf_worker"]
+    include=["app.tasks.pdf_worker", "app.tasks.cleanup_worker"]
 )
+
+# Setup Celery Beat schedule for the cleanup task
+from celery.schedules import crontab
+celery_app.conf.beat_schedule = {
+    "cleanup-old-files-every-day": {
+        "task": "app.tasks.cleanup_worker.cleanup_old_files",
+        "schedule": crontab(hour=0, minute=0), # Run every day at midnight UTC
+    },
+}
 
 celery_app.conf.update(
     task_serializer="json",

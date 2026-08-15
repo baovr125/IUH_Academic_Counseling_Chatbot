@@ -1,14 +1,28 @@
 import uuid
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
 from app.routers import flashcards
+from app.rabbitmq_consumer import start_rabbitmq_consumer
 from app.utils.logger import logger, request_id_var
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
+    logger.info("Flashcard Service is starting up...")
+    rabbitmq_conn = await start_rabbitmq_consumer()
+    yield
+    # Shutdown
+    logger.info("Flashcard Service is shutting down...")
+    if rabbitmq_conn:
+        await rabbitmq_conn.close()
 
 app = FastAPI(
     title="IUH Flashcard & Spaced Repetition Service",
     version="1.0.0",
     docs_url="/docs",
-    openapi_url="/openapi.json"
+    openapi_url="/openapi.json",
+    lifespan=lifespan
 )
 
 app.add_middleware(

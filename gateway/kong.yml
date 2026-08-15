@@ -1,6 +1,10 @@
 _format_version: "3.0"
 
 plugins:
+  - name: rate-limiting
+    config:
+      minute: 50
+      policy: local
   - name: cors
     config:
       origins:
@@ -16,6 +20,16 @@ plugins:
         - "*"
       credentials: true
       max_age: 3600
+
+consumers:
+  - username: auth-issuer
+    custom_id: auth-issuer
+    
+jwt_secrets:
+  - consumer: auth-issuer
+    key: "auth-issuer-key"
+    secret: "super-secret-key-iuh-chatbot-2026"
+    algorithm: HS256
 
 services:
   - name: auth-service
@@ -44,6 +58,16 @@ services:
           - /api/v1/translate
           - /api/translate
         strip_path: false
+        plugins:
+          - name: jwt
+            config:
+              uri_param_names:
+                - token
+          - name: request-transformer
+            config:
+              add:
+                headers:
+                  - "X-User-ID: anonymous" # Placeholder, Kong API needs proper consumer mapping for dynamic claims
 
   - name: doc-translation-service
     url: http://doc-translation-service:8004
@@ -53,6 +77,16 @@ services:
           - /api/v1/documents
           - /api/documents
         strip_path: false
+        plugins:
+          - name: jwt
+            config:
+              uri_param_names:
+                - token
+          - name: request-transformer
+            config:
+              add:
+                headers:
+                  - "X-User-ID: anonymous"
 
   - name: flashcard-service
     url: http://flashcard-service:8005
