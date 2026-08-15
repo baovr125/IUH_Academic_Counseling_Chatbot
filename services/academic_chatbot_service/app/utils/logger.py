@@ -11,8 +11,9 @@ class CustomJsonFormatter(jsonlogger.JsonFormatter):
         log_record['request_id'] = request_id_var.get()
 
 logger = logging.getLogger("academic_chatbot_service")
-handler = logging.StreamHandler()
-formatter = CustomJsonFormatter('%(timestamp)s %(level)s %(service)s %(request_id)s %(message)s')
-handler.setFormatter(formatter)
-logger.addHandler(handler)
+if not logger.handlers:
+    handler = logging.StreamHandler()
+    formatter = CustomJsonFormatter('%(timestamp)s %(level)s %(service)s %(request_id)s %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
 logger.setLevel(logging.INFO)

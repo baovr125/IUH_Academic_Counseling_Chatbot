@@ -4,6 +4,7 @@ import asyncio
 import logging
 import re
 import math
+import threading
 from typing import List, Optional
 import json
 import redis.asyncio as redis
@@ -32,6 +33,8 @@ from app.utils.logger import logger
 _gemini_client = None
 _embedder_model = None
 _reranker_model = None
+_embedder_lock = threading.Lock()
+_reranker_lock = threading.Lock()
 
 GEMINI_MODELS = [
     "gemini-3.5-flash-lite",
@@ -55,14 +58,16 @@ _embedding_cache = TTLCache(maxsize=500, ttl=1800)
 
 def get_embedder():
     global _embedder_model
-    if _embedder_model is None:
-        _embedder_model = SentenceTransformer("bkai-foundation-models/vietnamese-bi-encoder")
+    with _embedder_lock:
+        if _embedder_model is None:
+            _embedder_model = SentenceTransformer("bkai-foundation-models/vietnamese-bi-encoder", device="cpu", model_kwargs={"low_cpu_mem_usage": False})
     return _embedder_model
 
 def get_reranker():
     global _reranker_model
-    if _reranker_model is None:
-        _reranker_model = CrossEncoder("BAAI/bge-reranker-v2-m3")
+    with _reranker_lock:
+        if _reranker_model is None:
+            _reranker_model = CrossEncoder("BAAI/bge-reranker-v2-m3", device="cpu", model_kwargs={"low_cpu_mem_usage": False})
     return _reranker_model
 
 def preload_models():
@@ -384,14 +389,22 @@ async def build_rag_payload(session_id: str, content: str):
         breadcrumbs = meta.get("breadcrumbs")
         chapter = meta.get("chapter_parent")
 
+        headers = meta.get("headers", [])
         if page and str(page) != "None":
             page_or_section = f"Trang {page}"
+        elif headers and len(headers) > 0:
+            clean_header = headers[-1].replace('#', '').replace('*', '').replace('\n', ' ').strip()
+            page_or_section = clean_header if clean_header else "Quy định IUH"
         elif breadcrumbs and len(breadcrumbs) > 0:
-            page_or_section = " > ".join(breadcrumbs[:2])
+            if isinstance(breadcrumbs, str):
+                parts = [p.strip() for p in breadcrumbs.split(">")]
+                page_or_section = " > ".join(parts[-2:]) if len(parts) > 1 else parts[0]
+            else:
+                page_or_section = str(breadcrumbs)
         elif chapter:
             page_or_section = str(chapter)
         else:
-            page_or_section = "Quy định IUH"
+            page_or_section = "Thông tin chung"
 
         chunk_content = c.get('content', '')
         snippet = chunk_content[:140] + "..." if len(chunk_content) > 140 else chunk_content

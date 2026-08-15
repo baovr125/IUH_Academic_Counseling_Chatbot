@@ -43,7 +43,7 @@ def register_user(email: str, password: str, full_name: str, student_id: Optiona
         "email": email,
         "password_hash": hashed_pwd,
         "full_name": full_name,
-        "student_id": student_id,
+        "student_code": student_id,
         "is_verified": True if student_id else False,
         "created_at": datetime.datetime.now(datetime.timezone.utc).isoformat()
     }
@@ -70,7 +70,7 @@ def login_user(account: str, password: str) -> Optional[Dict[str, Any]]:
     user = None
     if supabase:
         try:
-            res = supabase.table("users").select("*").or_(f"email.eq.{account},student_id.eq.{account}").execute()
+            res = supabase.table("users").select("*").or_(f"email.eq.{account},student_code.eq.{account}").execute()
             if res.data and len(res.data) > 0:
                 user = res.data[0]
         except Exception as e:
@@ -94,13 +94,13 @@ def login_user(account: str, password: str) -> Optional[Dict[str, Any]]:
         if not verify_password(password, user["password_hash"]):
             return None
             
-    token = create_access_token({"sub": user["id"], "email": user.get("email"), "student_id": user.get("student_id")})
+    token = create_access_token({"sub": user["id"], "email": user.get("email"), "student_id": user.get("student_code")})
     return {
         "token": token,
         "user": {
             "id": user["id"],
             "email": user.get("email"),
             "fullName": user.get("full_name", "Sinh vien IUH"),
-            "studentId": user.get("student_id")
+            "studentId": user.get("student_code")
         }
     }

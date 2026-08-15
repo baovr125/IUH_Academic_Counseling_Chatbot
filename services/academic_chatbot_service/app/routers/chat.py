@@ -303,6 +303,7 @@ async def send_message_stream(
     async def event_generator():
         accumulated_text = ""
         chunk_ids = []
+        top_doc_score = 0.0
         try:
             safety_violation = check_safety_and_jailbreak(payload.content)
             if safety_violation:

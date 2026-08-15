@@ -11,6 +11,7 @@ DATA_DIR = os.path.join(BASE_DIR, "data")
 URL_LIST_FILE = os.path.join(DATA_DIR, "urls.json")
 GRAPH_FILE = os.path.join(DATA_DIR, "web_structure_graph.json")
 MARKDOWN_DIR = os.path.join(DATA_DIR, "crawled_markdown")
+CHILDREN_FILE = os.path.join(DATA_DIR, "children.json")
 
 logger = setup_logger("orchestrator", "pipeline.log")
 
@@ -94,10 +95,21 @@ def run_chunking():
     logger.info(f"Lưu tại {parents_file} và {children_file}")
     return children
 
+from data_pipeline.embedders.supabase_embedder import SupabaseEmbedder
+
+def run_embedding():
+    logger.info("========== BƯỚC 3: NHÚNG VÀ LƯU VÀO SUPABASE (EMBEDDING) ==========")
+    if not os.path.exists(CHILDREN_FILE):
+        logger.error(f"Không tìm thấy {CHILDREN_FILE}. Vui lòng chạy bước cắt (chunk) trước!")
+        return
+        
+    embedder = SupabaseEmbedder(model_name="bkai-foundation-models/vietnamese-bi-encoder")
+    embedder.run_embedding(CHILDREN_FILE)
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="IUH Academic Counseling Data Pipeline")
-    parser.add_argument('--step', type=str, choices=['all', 'extract', 'crawl', 'chunk'], default='all',
-                        help='Chọn bước để chạy (all, extract, crawl, chunk)')
+    parser.add_argument('--step', type=str, choices=['all', 'extract', 'crawl', 'chunk', 'embed'], default='all',
+                        help='Chọn bước để chạy (all, extract, crawl, chunk, embed)')
     args = parser.parse_args()
 
     logger.info(f"BẮT ĐẦU CHẠY PIPELINE (Chế độ: {args.step.upper()})...")
@@ -114,5 +126,8 @@ if __name__ == "__main__":
             
     if args.step in ['all', 'chunk']:
         run_chunking()
+        
+    if args.step in ['all', 'embed']:
+        run_embedding()
             
     logger.info("✅ HOÀN TẤT PIPELINE!")
