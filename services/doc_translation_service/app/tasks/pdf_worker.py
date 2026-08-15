@@ -138,20 +138,37 @@ def process_document_translation_job_sync(
         
         translated_file_url = f"/api/v1/documents/{doc_id}/download"
 
-        update_job_status(doc_id, "processing", 95, "Đang trích xuất thuật ngữ chuyên ngành (Glossary)...", model_used=model_used)
+        # 1. Thông báo PDF đã sẵn sàng (90%), đang trích xuất thuật ngữ
+        update_job_status(
+            doc_id, "processing", 90,
+            f"Đã render xong PDF! Đang trích xuất thuật ngữ chuyên ngành (Glossary)...",
+            pages_processed=1,
+            total_pages=1,
+            translated_file_url=translated_file_url,
+            translated_text=translated_text,
+            summary_json={},
+            glossary=[],
+            model_used=model_used
+        )
+        logger.info(f"✅ [Document Rendered] doc_id={doc_id}, PDF ready. Extracting glossary...")
+
+        # 2. Xử lý trích xuất Glossary
         glossary_items = []
         if md_text_for_glossary:
-            glossary_items = asyncio.run(extract_glossary(md_text_for_glossary, target_lang=target_lang))
-            
-            # Publish event to RabbitMQ for flashcard_service
-            if glossary_items:
-                publish_doc_translated_event(
-                    doc_id=doc_id,
-                    user_id=user_id,
-                    file_name=object_name.replace('source/', ''),
-                    glossary=glossary_items
-                )
+            try:
+                glossary_items = asyncio.run(extract_glossary(md_text_for_glossary, target_lang=target_lang))
+                if glossary_items:
+                    # Publish event to RabbitMQ for flashcard_service
+                    publish_doc_translated_event(
+                        doc_id=doc_id,
+                        user_id=user_id,
+                        file_name=object_name.replace('source/', ''),
+                        glossary=glossary_items
+                    )
+            except Exception as e:
+                logger.warning(f"Lỗi khi trích xuất glossary: {e}")
 
+        # 3. Hoàn tất toàn bộ 100% với danh sách Glossary đầy đủ
         update_job_status(
             doc_id, "completed", 100,
             f"Đã hoàn thành dịch thuật thành công bằng {model_used}!",
@@ -163,8 +180,8 @@ def process_document_translation_job_sync(
             glossary=glossary_items,
             model_used=model_used
         )
-        logger.info(f"✅ [Job Completed] doc_id={doc_id}, saved to MinIO {translated_object_name}")
-        
+        logger.info(f"✅ [Job Completed] doc_id={doc_id}, extracted {len(glossary_items)} glossary items.")
+
         # Cleanup local files
         if os.path.exists(local_input_file):
             os.remove(local_input_file)

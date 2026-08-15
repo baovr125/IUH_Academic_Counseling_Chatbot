@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   FileText,
   UploadCloud,
@@ -23,11 +23,14 @@ import {
   AlertCircle,
   ExternalLink,
   FileType,
-  Volume2
+  Volume2,
+  RotateCcw
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { LANG_CONFIG, getDecks, type FlashcardDeck } from "../services/deckStorage";
 import { getToken } from "../services/authService";
+
+const STORAGE_KEY = "iuh_doc_translation_session";
 
 interface DocumentFile {
   id?: string;
@@ -59,6 +62,7 @@ export default function DocumentTranslationPage() {
   // Processing state
   const [docId, setDocId] = useState<string>("");
   const [isTranslating, setIsTranslating] = useState(false);
+  const [isExtractingGlossary, setIsExtractingGlossary] = useState(false);
   const [progressPercent, setProgressPercent] = useState(0);
   const [statusMessage, setStatusMessage] = useState("Vui lòng chọn tài liệu để bắt đầu");
   const [modelUsed, setModelUsed] = useState<string>("");
@@ -86,9 +90,94 @@ export default function DocumentTranslationPage() {
   const [newDeckTitle, setNewDeckTitle] = useState("");
   const [availableDecks, setAvailableDecks] = useState<FlashcardDeck[]>([]);
 
+  // Ref to track latest state for async event listeners
+  const selectedFileRef = useRef(selectedFile);
+  selectedFileRef.current = selectedFile;
+
+  const persistSession = (dataToSave: Record<string, any>) => {
+    try {
+      const existing = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+      const merged = { ...existing, ...dataToSave, timestamp: Date.now() };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+    } catch (e) {
+      console.error("Error saving translation session:", e);
+    }
+  };
+
+  const handleResetTranslation = () => {
+    localStorage.removeItem(STORAGE_KEY);
+    setDocId("");
+    setSelectedFile(null);
+    setActualFile(null);
+    setIsTranslating(false);
+    setIsExtractingGlossary(false);
+    setIsCompleted(false);
+    setProgressPercent(0);
+    setStatusMessage("Vui lòng chọn tài liệu để bắt đầu");
+    setTranslatedText("");
+    setGlossary([]);
+    setSelectedGlossaryIndices(new Set());
+    setRagAnswer(null);
+    setModelUsed("");
+    setActiveTab("pdf");
+  };
+
+  // Restore translation state on page reload (F5)
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (!saved) return;
+      const data = JSON.parse(saved);
+      if (data && data.docId) {
+        setDocId(data.docId);
+        if (data.sourceLang) setSourceLang(data.sourceLang);
+        if (data.targetLang) setTargetLang(data.targetLang);
+        if (data.selectedFile) setSelectedFile(data.selectedFile);
+        if (data.translatedText) setTranslatedText(data.translatedText);
+        if (data.glossary) setGlossary(data.glossary);
+        if (data.modelUsed) setModelUsed(data.modelUsed);
+        if (data.statusMessage) setStatusMessage(data.statusMessage);
+        if (data.progressPercent !== undefined) setProgressPercent(data.progressPercent);
+        if (data.isCompleted !== undefined) setIsCompleted(data.isCompleted);
+        if (data.activeTab) setActiveTab(data.activeTab);
+
+        // Fetch fresh state from backend
+        const baseUrl = (import.meta as any).env.VITE_API_BASE_URL || "http://localhost:8000";
+        const token = getToken();
+        const headers: Record<string, string> = {};
+        if (token) headers["Authorization"] = `Bearer ${token}`;
+
+        fetch(`${baseUrl}/api/v1/documents/${data.docId}/status`, { headers })
+          .then((res) => (res.ok ? res.json() : null))
+          .then((resData) => {
+            if (resData?.data) {
+              const item = resData.data;
+              if (item.status === "completed") {
+                setIsCompleted(true);
+                setIsTranslating(false);
+                setIsExtractingGlossary(false);
+                setProgressPercent(100);
+                if (item.glossary_json && item.glossary_json.length > 0) setGlossary(item.glossary_json);
+                else if (item.glossary && item.glossary.length > 0) setGlossary(item.glossary);
+                if (item.translated_text) setTranslatedText(item.translated_text);
+                if (item.model_used) setModelUsed(item.model_used);
+                if (item.message) setStatusMessage(item.message);
+              }
+            }
+          })
+          .catch((e) => console.log("Status restore check:", e));
+      }
+    } catch (e) {
+      console.error("Lỗi khôi phục session dịch thuật:", e);
+    }
+  }, []);
+
   const swapLanguages = () => {
-    setSourceLang(targetLang);
-    setTargetLang(sourceLang);
+    const newSrc = targetLang;
+    const newTgt = sourceLang;
+    setSourceLang(newSrc);
+    setTargetLang(newTgt);
+    persistSession({ sourceLang: newSrc, targetLang: newTgt });
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -105,23 +194,36 @@ export default function DocumentTranslationPage() {
     else if (file.name.endsWith(".docx") || file.name.endsWith(".doc")) type = "docx";
 
     const newDocId = `doc_${Date.now()}`;
-    setDocId(newDocId);
-    setActualFile(file);
-    setSelectedFile({
+    const fileObj: DocumentFile = {
       id: newDocId,
       name: file.name,
       type,
       size: `${(file.size / (1024 * 1024)).toFixed(1)} MB`,
       pagesOrSlides: type === "pptx" ? "PowerPoint" : "Document",
       title: file.name.replace(/\.[^/.]+$/, ""),
-    });
+    };
+
+    setDocId(newDocId);
+    setActualFile(file);
+    setSelectedFile(fileObj);
     setIsCompleted(false);
+    setIsExtractingGlossary(false);
     setProgressPercent(0);
     setStatusMessage("Tài liệu đã sẵn sàng để dịch");
     setTranslatedText("");
     setGlossary([]);
     setSelectedGlossaryIndices(new Set());
     setRagAnswer(null);
+
+    persistSession({
+      docId: newDocId,
+      selectedFile: fileObj,
+      isCompleted: false,
+      progressPercent: 0,
+      statusMessage: "Tài liệu đã sẵn sàng để dịch",
+      translatedText: "",
+      glossary: []
+    });
   };
 
   const handleStartTranslate = async () => {
@@ -131,6 +233,7 @@ export default function DocumentTranslationPage() {
     }
 
     setIsTranslating(true);
+    setIsExtractingGlossary(false);
     setIsCompleted(false);
     setProgressPercent(5);
     setStatusMessage("Đang tải tài liệu lên hệ thống AI...");
@@ -163,6 +266,16 @@ export default function DocumentTranslationPage() {
       const currentDocId = uploadData.data.doc_id;
       setDocId(currentDocId);
 
+      persistSession({
+        docId: currentDocId,
+        sourceLang,
+        targetLang,
+        selectedFile: selectedFileRef.current,
+        isCompleted: false,
+        progressPercent: 10,
+        statusMessage: "Đang xử lý dịch thuật ngầm..."
+      });
+
       // Nhận luồng SSE real progress từ backend
       const eventSourceUrl = new URL(`${baseUrl}/api/v1/documents/${currentDocId}/stream`);
       if (token) {
@@ -177,19 +290,53 @@ export default function DocumentTranslationPage() {
           if (data.progress !== undefined) setProgressPercent(data.progress);
           if (data.message) setStatusMessage(data.message);
           if (data.model_used) setModelUsed(data.model_used);
-          if (data.glossary && data.glossary.length > 0) setGlossary(data.glossary);
-          if (data.translated_text) setTranslatedText(data.translated_text);
+          
+          // Khi đã có nội dung dịch hoặc PDF link, hiển thị ngay PDF view cho người dùng
+          if (data.translated_text || data.translated_file_url) {
+            if (data.translated_text) setTranslatedText(data.translated_text);
+            setIsCompleted(true);
+            setIsTranslating(false);
+            setActiveTab("pdf");
+          }
+
+          if (data.glossary && data.glossary.length > 0) {
+            setGlossary(data.glossary);
+            setIsExtractingGlossary(false);
+          } else if (data.progress >= 80 || (data.message && data.message.toLowerCase().includes("glossary"))) {
+            setIsExtractingGlossary(true);
+          }
 
           const statusLower = data.status ? String(data.status).toLowerCase() : "";
           if (statusLower === "completed") {
             eventSource.close();
             setIsTranslating(false);
             setIsCompleted(true);
+            setIsExtractingGlossary(false);
             setActiveTab("pdf"); // Switch directly to PDF view on completion
+
+            persistSession({
+              docId: currentDocId,
+              sourceLang,
+              targetLang,
+              selectedFile: selectedFileRef.current,
+              translatedText: data.translated_text || "",
+              glossary: data.glossary || [],
+              modelUsed: data.model_used || "",
+              statusMessage: data.message || "Đã hoàn thành dịch thuật",
+              progressPercent: 100,
+              isCompleted: true,
+              activeTab: "pdf"
+            });
           } else if (statusLower === "failed") {
             eventSource.close();
             setIsTranslating(false);
+            setIsExtractingGlossary(false);
             setStatusMessage("Lỗi xử lý: " + (data.message || data.error || ""));
+            persistSession({
+              docId: currentDocId,
+              isCompleted: false,
+              statusMessage: "Lỗi xử lý: " + (data.message || data.error || "")
+            });
           }
         } catch (err) {
           console.error("Lỗi khi parse dữ liệu SSE:", err);
@@ -199,8 +346,6 @@ export default function DocumentTranslationPage() {
       eventSource.onerror = (err) => {
         console.error("Lỗi kết nối SSE:", err);
         eventSource.close();
-        // Không set lỗi ngay lập tức nếu tiến trình chưa hoàn thành,
-        // nhưng nếu ngắt kết nối thì báo lỗi.
         if (progressPercent < 100 && !isCompleted) {
           setIsTranslating(false);
           setStatusMessage("Mất kết nối với máy chủ (SSE). Vui lòng thử lại.");
@@ -217,6 +362,7 @@ export default function DocumentTranslationPage() {
   const baseUrl = (import.meta as any).env.VITE_API_BASE_URL || "http://localhost:8000";
   const token = getToken();
   const pdfUrl = docId ? `${baseUrl}/api/v1/documents/${docId}/download${token ? `?token=${token}` : ""}` : "";
+
 
   const handleOpenPdfNewTab = () => {
     if (!pdfUrl) return;
@@ -259,15 +405,14 @@ export default function DocumentTranslationPage() {
     try {
       const token = getToken();
       const headers: Record<string, string> = { 
-        "Content-Type": "application/json",
-        "X-User-ID": "anonymous"
+        "Content-Type": "application/json"
       };
       if (token) {
         headers["Authorization"] = `Bearer ${token}`;
       }
 
       if (deckOption === "new") {
-        const res = await fetch(`${baseUrl}/api/v1/decks`, {
+        const res = await fetch(`${baseUrl}/api/v1/flashcards/decks`, {
           method: "POST",
           headers: headers,
           body: JSON.stringify({ title: newDeckTitle, description: `Tạo từ tài liệu: ${selectedFile?.name || "Bản dịch"}` })
@@ -284,7 +429,7 @@ export default function DocumentTranslationPage() {
 
       for (const item of selectedItems) {
         const termTranslation = item.translation || item.vi || "";
-        await fetch(`${baseUrl}/api/v1/cards`, {
+        await fetch(`${baseUrl}/api/v1/flashcards/cards`, {
           method: "POST",
           headers: headers,
           body: JSON.stringify({
@@ -309,16 +454,29 @@ export default function DocumentTranslationPage() {
   };
 
   const playAudio = (text: string, langCode: string, audioUrl?: string) => {
-    if (audioUrl) {
-      const audio = new Audio(audioUrl);
-      audio.play().catch(e => console.error("Error playing audio", e));
+    let resolvedUrl = "";
+    if (audioUrl && audioUrl.trim().length > 0) {
+      resolvedUrl = audioUrl.startsWith("http") ? audioUrl : `${baseUrl}${audioUrl.startsWith("/") ? "" : "/"}${audioUrl}`;
     } else {
-      // Fallback Web Speech API
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = langCode === "en" ? "en-US" : langCode;
-      window.speechSynthesis.speak(utterance);
+      const voiceLang = langCode === "en" ? "en-US" : (langCode === "vi" ? "vi-VN" : langCode);
+      resolvedUrl = `${baseUrl}/api/v1/translate/tts?text=${encodeURIComponent(text)}&lang=${voiceLang}`;
     }
+
+    const audio = new Audio(resolvedUrl);
+    audio.play().catch((e) => {
+      console.warn("Audio playback error, trying fallback Edge-TTS...", e);
+      const voiceLang = langCode === "en" ? "en-US" : (langCode === "vi" ? "vi-VN" : langCode);
+      const fallbackUrl = `${baseUrl}/api/v1/translate/tts?text=${encodeURIComponent(text)}&lang=${voiceLang}`;
+      const fallbackAudio = new Audio(fallbackUrl);
+      fallbackAudio.play().catch((err) => {
+        console.warn("Edge-TTS fallback failed, using Web Speech API", err);
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = langCode === "en" ? "en-US" : langCode;
+        window.speechSynthesis.speak(utterance);
+      });
+    });
   };
+
 
   const toggleGlossaryItem = (index: number) => {
     const newSet = new Set(selectedGlossaryIndices);
@@ -544,6 +702,12 @@ export default function DocumentTranslationPage() {
                 <span className="text-xs font-bold text-slate-800">
                   Từ Điển Thuật Ngữ IUH ({glossary.length})
                 </span>
+                {isExtractingGlossary && (
+                  <span className="flex items-center gap-1 rounded-full bg-indigo-50 border border-indigo-200 px-2 py-0.5 text-[10px] font-bold text-indigo-700 animate-pulse">
+                    <Loader2 size={11} className="animate-spin" />
+                    <span>Đang trích xuất...</span>
+                  </span>
+                )}
               </div>
 
               {glossary.length > 0 && (
@@ -571,7 +735,13 @@ export default function DocumentTranslationPage() {
               </div>
             )}
 
-            {glossary.length === 0 ? (
+            {isExtractingGlossary && glossary.length === 0 ? (
+              <div className="flex flex-1 flex-col items-center justify-center py-8 text-center bg-indigo-50/50 rounded-xl border border-dashed border-indigo-200 p-4 animate-pulse">
+                <Loader2 size={24} className="mb-2 animate-spin text-indigo-600" />
+                <span className="text-xs font-bold text-indigo-900">Đang phân tích & trích xuất thuật ngữ AI...</span>
+                <span className="text-[11px] text-indigo-500 mt-1">Đang tạo phiên âm IPA và giọng phát âm chuẩn</span>
+              </div>
+            ) : glossary.length === 0 ? (
               <div className="flex flex-1 flex-col items-center justify-center py-8 text-center text-slate-400">
                 <AlertCircle size={24} className="mb-1 text-slate-300" />
                 <span className="text-xs">Chưa có thuật ngữ trích xuất</span>
@@ -636,6 +806,18 @@ export default function DocumentTranslationPage() {
 
               {/* Top Action Buttons */}
               <div className="flex items-center gap-2">
+                {isCompleted && (
+                  <button
+                    type="button"
+                    onClick={handleResetTranslation}
+                    className="flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors shadow-sm"
+                    title="Dịch tài liệu khác"
+                  >
+                    <RotateCcw size={14} />
+                    <span>Dịch file mới</span>
+                  </button>
+                )}
+
                 {isCompleted && pdfUrl && (
                   <button
                     type="button"
@@ -739,7 +921,7 @@ export default function DocumentTranslationPage() {
             <div className="flex-1 p-3 overflow-hidden bg-slate-100/60 flex flex-col">
               
               {/* LOADING STATE */}
-              {isTranslating && (
+              {isTranslating && !isCompleted && (
                 <div className="flex h-full flex-col items-center justify-center py-20 text-center">
                   <Loader2 size={38} className="animate-spin text-blue-600 mb-3" />
                   <div className="text-sm font-bold text-slate-800">Đang dịch & render file PDF...</div>
@@ -761,7 +943,7 @@ export default function DocumentTranslationPage() {
               )}
 
               {/* COMPLETED TAB CONTENT */}
-              {!isTranslating && isCompleted && (
+              {isCompleted && (
                 <div className="flex-1 flex flex-col overflow-hidden h-full">
                   {/* TAB 1: EMBEDDED PDF VIEWER */}
                   {activeTab === "pdf" && (

@@ -43,6 +43,8 @@ async def request_id_middleware(request: Request, call_next):
 
 app.include_router(flashcards.router, prefix="/api/v1/flashcards")
 app.include_router(flashcards.router, prefix="/api/flashcards")
+app.include_router(flashcards.router, prefix="/api/v1")
+app.include_router(flashcards.router, prefix="/api")
 
 @app.get("/health", tags=["Health Check"])
 @app.get("/api/v1/flashcards/health", tags=["Health Check"])

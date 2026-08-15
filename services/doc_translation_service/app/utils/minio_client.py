@@ -29,6 +29,30 @@ def init_buckets():
 # Initialize bucket on module load
 init_buckets()
 
+from datetime import timedelta
+
+def upload_file_stream(object_name: str, data_stream, length: int, content_type: str = "application/octet-stream"):
+    """Tải trực tiếp luồng dữ liệu (Stream) từ bộ nhớ lên MinIO mà không cần lưu tạm ra ổ cứng máy chủ."""
+    try:
+        client.put_object(
+            bucket_name=DOCUMENTS_BUCKET,
+            object_name=object_name,
+            data=data_stream,
+            length=length,
+            content_type=content_type
+        )
+        logger.info(f"Successfully streamed {length} bytes to MinIO: {DOCUMENTS_BUCKET}/{object_name}")
+    except S3Error as e:
+        logger.error(f"Error streaming upload to {object_name}: {e}")
+        raise
+
+def object_exists(object_name: str) -> bool:
+    try:
+        client.stat_object(DOCUMENTS_BUCKET, object_name)
+        return True
+    except S3Error:
+        return False
+
 def upload_file(object_name: str, file_path: str):
     try:
         client.fput_object(DOCUMENTS_BUCKET, object_name, file_path)
@@ -45,14 +69,26 @@ def download_file(object_name: str, file_path: str):
         logger.error(f"Error downloading {object_name}: {e}")
         raise
 
-def get_presigned_url(object_name: str) -> str:
+def get_object_stream(object_name: str):
+    """Lấy luồng dữ liệu (Stream) từ MinIO để truyền thẳng về Client mà không lưu ra ổ cứng máy chủ."""
+    try:
+        response = client.get_object(DOCUMENTS_BUCKET, object_name)
+        return response
+    except S3Error as e:
+        logger.error(f"Error fetching object stream from MinIO {object_name}: {e}")
+        return None
+
+def get_presigned_url(object_name: str, expires_seconds: int = 3600) -> str:
     try:
         url = client.get_presigned_url(
             "GET",
             DOCUMENTS_BUCKET,
             object_name,
+            expires=timedelta(seconds=expires_seconds)
         )
         return url
     except S3Error as e:
         logger.error(f"Error generating presigned url: {e}")
         return ""
+
+

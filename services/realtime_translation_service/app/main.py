@@ -1,14 +1,26 @@
 import uuid
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import translation
 from app.utils.logger import logger, request_id_var
+from app.rabbitmq_consumer import start_rabbitmq_tts_consumer
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    logger.info("Starting up Real-time Translation Service...")
+    rabbitmq_conn = await start_rabbitmq_tts_consumer()
+    yield
+    logger.info("Shutting down Real-time Translation Service...")
+    if rabbitmq_conn:
+        await rabbitmq_conn.close()
 
 app = FastAPI(
     title="IUH Real-time Translation Service",
     version="1.0.0",
     docs_url="/docs",
-    openapi_url="/openapi.json"
+    openapi_url="/openapi.json",
+    lifespan=lifespan
 )
 
 app.add_middleware(

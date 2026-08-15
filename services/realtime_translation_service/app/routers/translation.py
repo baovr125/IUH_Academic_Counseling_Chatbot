@@ -10,7 +10,8 @@ from app.schemas.translation import (
 from app.services.translation_service import translate_text
 from app.services.llm_service import stream_translation, extract_flashcard
 from app.services.dictionary_service import get_word_audio
-from app.services.cache_service import get_cached_audio, set_cached_audio
+from app.services.cache_service import get_cached_audio_url, set_cached_audio_url
+from app.utils.minio_client import upload_audio_bytes, get_audio_bytes, audio_exists
 
 router = APIRouter(tags=["Real-time Translation Service"])
 
@@ -30,15 +31,20 @@ TTS_VOICE_MAP = {
 @router.get("/tts")
 async def tts_endpoint(text: str, lang: str = "vi-VN"):
     voice = TTS_VOICE_MAP.get(lang, "en-US-JennyNeural")
-    
-    # Check cache first
     cache_key = hashlib.md5(f"{text.strip()}_{voice}".encode('utf-8')).hexdigest()
-    cached_audio = get_cached_audio(cache_key)
+    object_name = f"tts/{cache_key}.mp3"
     
-    if cached_audio:
-        return Response(content=cached_audio, media_type="audio/mpeg")
+    # 1. Check MinIO / Redis cache URL first
+    if audio_exists(object_name):
+        audio_content = get_audio_bytes(object_name)
+        if audio_content:
+            return Response(
+                content=audio_content,
+                media_type="audio/mpeg",
+                headers={"Cache-Control": "public, max-age=604800"}
+            )
         
-    # Generate audio
+    # 2. Generate audio via Edge-TTS
     communicate = edge_tts.Communicate(text, voice)
     audio_data = bytearray()
     
@@ -46,11 +52,34 @@ async def tts_endpoint(text: str, lang: str = "vi-VN"):
         if chunk["type"] == "audio":
             audio_data.extend(chunk["data"])
             
-    # Cache the fully generated audio byte string
     complete_audio = bytes(audio_data)
-    set_cached_audio(cache_key, complete_audio)
     
-    return Response(content=complete_audio, media_type="audio/mpeg")
+    # 3. Store in MinIO (Persistent Object Storage) and Cache URL in Redis
+    try:
+        audio_url = upload_audio_bytes(object_name, complete_audio)
+        set_cached_audio_url(cache_key, audio_url)
+    except Exception as e:
+        # Fallback if MinIO is temporarily unavailable
+        pass
+    
+    return Response(
+        content=complete_audio,
+        media_type="audio/mpeg",
+        headers={"Cache-Control": "public, max-age=604800"}
+    )
+
+@router.get("/audio/{object_name:path}")
+async def get_audio_endpoint(object_name: str):
+    """Lấy file âm thanh phát âm trực tiếp từ MinIO Object Storage"""
+    audio_content = get_audio_bytes(object_name)
+    if not audio_content:
+        return Response(status_code=404, content="Audio file not found")
+    return Response(
+        content=audio_content,
+        media_type="audio/mpeg",
+        headers={"Cache-Control": "public, max-age=604800"}
+    )
+
 
 @router.post("/text")
 async def translate_endpoint(payload: TranslateRequest):

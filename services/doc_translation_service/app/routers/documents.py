@@ -3,8 +3,8 @@ import uuid
 import json
 import asyncio
 from typing import Optional
-from fastapi import APIRouter, UploadFile, File, Form, Header, HTTPException, status, Request
-from fastapi.responses import FileResponse
+from fastapi import APIRouter, UploadFile, File, Form, Header, HTTPException, status, Request, Depends
+from fastapi.responses import RedirectResponse, StreamingResponse
 from sse_starlette.sse import EventSourceResponse
 from app.schemas.documents import (
     DocumentQueryRequest,
@@ -16,8 +16,8 @@ from app.schemas.documents import (
 from app.services.rag_engine import query_document_rag
 from app.tasks.pdf_worker import dispatch_pdf_translation_job, redis_client
 from app.utils.logger import logger
-from app.utils.minio_client import upload_file, download_file, get_presigned_url
-import tempfile
+from app.utils.minio_client import upload_file_stream, object_exists, get_object_stream, get_presigned_url
+from app.utils.security import get_current_user_id, get_optional_user_id
 
 router = APIRouter(tags=["Document Translation & RAG Service"])
 
@@ -27,11 +27,11 @@ async def upload_document(
     source_lang: Optional[str] = Form("en"),
     target_lang: Optional[str] = Form("vi"),
     is_scanned: Optional[bool] = Form(False),
-    x_user_id: Optional[str] = Header(None, alias="X-User-ID")
+    user_id: str = Depends(get_current_user_id)
 ):
     """
     1. Tiếp nhận file PDF/DOCX/PPTX từ người dùng
-    2. Khởi tạo doc_id (UUIDv4)
+    2. Stream trực tiếp vào MinIO (không tốn đĩa cứng máy chủ)
     3. Gửi tác vụ dịch ngầm qua background worker
     4. Trả về HTTP 202 Accepted kèm doc_id
     """
@@ -56,27 +56,22 @@ async def upload_document(
     ext = os.path.splitext(file.filename)[1]
     object_name = f"source/{doc_id}{ext}"
     
-    with tempfile.NamedTemporaryFile(delete=False, suffix=ext) as temp_file:
-        file_path = temp_file.name
-        try:
-            content = await file.read()
-            temp_file.write(content)
-            temp_file.flush()
-            # Upload to MinIO
-            upload_file(object_name, file_path)
-        except Exception as e:
-            logger.exception(f"Lỗi khi lưu file upload ({file.filename}): {e}")
-            raise HTTPException(status_code=500, detail="Không thể lưu trữ file tạm.")
-        finally:
-            if os.path.exists(file_path):
-                os.remove(file_path)
-
-    user_id = x_user_id or "anonymous"
+    try:
+        # Stream directly from memory to MinIO
+        upload_file_stream(
+            object_name=object_name,
+            data_stream=file.file,
+            length=file_size,
+            content_type=file.content_type or "application/octet-stream"
+        )
+    except Exception as e:
+        logger.exception(f"Lỗi khi lưu stream file upload ({file.filename}) lên MinIO: {e}")
+        raise HTTPException(status_code=500, detail="Không thể lưu trữ file tài liệu.")
 
     # Dispatch background worker
     await dispatch_pdf_translation_job(
         doc_id=doc_id,
-        file_path=object_name, # Pass object_name instead of local file_path
+        file_path=object_name,
         user_id=user_id,
         source_lang=source_lang,
         target_lang=target_lang,
@@ -94,11 +89,31 @@ async def upload_document(
         ).model_dump()
     )
 
+@router.get("/{doc_id}/status")
+async def get_document_status(
+    doc_id: str,
+    user_id: str = Depends(get_optional_user_id)
+):
+    """
+    API Lấy trạng thái & kết quả dịch thuật của doc_id từ Redis cache.
+    Hỗ trợ khôi phục dữ liệu khi người dùng reload trang (F5).
+    """
+    latest_state = redis_client.get(f"job_latest_{doc_id}")
+    if not latest_state:
+        raise HTTPException(
+            status_code=404,
+            detail="Không tìm thấy thông tin tài liệu hoặc phiên dịch đã hết hạn."
+        )
+    return ApiResult(
+        ok=True,
+        data=json.loads(latest_state)
+    )
+
 @router.get("/{doc_id}/stream")
 async def stream_document_status(
     request: Request,
     doc_id: str,
-    x_user_id: Optional[str] = Header(None, alias="X-User-ID")
+    user_id: str = Depends(get_optional_user_id)
 ):
     """
     API Server-Sent Events (SSE) để stream tiến độ xử lý dịch & RAG.
@@ -144,12 +159,11 @@ async def stream_document_status(
 async def query_document(
     doc_id: str,
     payload: DocumentQueryRequest,
-    x_user_id: Optional[str] = Header(None, alias="X-User-ID")
+    user_id: str = Depends(get_optional_user_id)
 ):
     """
     API Hỏi đáp Document RAG cô lập theo doc_id và user_id (Hard Payload Filtering).
     """
-    user_id = x_user_id or "anonymous"
     res = query_document_rag(
         doc_id=doc_id,
         user_id=user_id,
@@ -163,59 +177,53 @@ async def query_document(
 @router.get("/{doc_id}/download")
 async def download_translated_document(
     doc_id: str,
-    x_user_id: Optional[str] = Header(None, alias="X-User-ID")
+    user_id: str = Depends(get_optional_user_id)
 ):
     """
-    API Tải về file kết quả tài liệu đã dịch (.pdf, .docx, .pptx).
+    API Tải về/Xem file kết quả tài liệu đã dịch (.pdf, .docx, .pptx).
+    Stream trực tiếp từ MinIO qua Gateway về Client (In-memory Chunk Streaming),
+    giải quyết triệt để lỗi DNS hostname nội bộ của Docker (minio:9000).
     """
-    # Assuming the worker uploads translated file to translated/<doc_id>.pdf/docx/pptx
-    # First we check the DB to get the actual translated file name or try all extensions
-    media_type = "application/octet-stream"
+    found_object = None
     found_ext = None
-    
-    # Simple check for extension (could be optimized by checking DB status)
     for ext in [".pdf", ".docx", ".pptx"]:
         object_name = f"translated/{doc_id}{ext}"
-        try:
-            # We don't have a direct "exists" method in minio python without stat_object, 
-            # let's try getting presigned URL or download to temp
-            url = get_presigned_url(object_name)
-            if url:
-                # Redirect to MinIO or download it
-                pass
-        except Exception:
-            continue
-            
-    # To keep it simple and secure, download from MinIO to temp file and serve
-    import tempfile
-    from starlette.background import BackgroundTask
-    
-    target_file = None
-    for ext in [".pdf", ".docx", ".pptx"]:
-        object_name = f"translated/{doc_id}{ext}"
-        temp_path = os.path.join(tempfile.gettempdir(), f"translated_{doc_id}{ext}")
-        try:
-            download_file(object_name, temp_path)
-            target_file = temp_path
+        if object_exists(object_name):
+            found_object = object_name
             found_ext = ext
             break
-        except Exception:
-            continue
             
-    if not target_file:
-        raise HTTPException(status_code=404, detail="Không tìm thấy file kết quả dịch thuật. Có thể đang trong quá trình xử lý.")
+    if not found_object:
+        raise HTTPException(
+            status_code=404,
+            detail="Không tìm thấy file kết quả dịch thuật. Có thể đang trong quá trình xử lý hoặc đã hết hạn."
+        )
 
-    if found_ext == ".pdf":
-        media_type = "application/pdf"
-    elif found_ext == ".docx":
+    media_type = "application/pdf"
+    if found_ext == ".docx":
         media_type = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
     elif found_ext == ".pptx":
         media_type = "application/vnd.openxmlformats-officedocument.presentationml.presentation"
 
-    return FileResponse(
-        path=target_file,
+    minio_resp = get_object_stream(found_object)
+    if not minio_resp:
+        raise HTTPException(status_code=500, detail="Không thể đọc luồng dữ liệu file từ MinIO.")
+
+    def iterfile():
+        try:
+            for chunk in minio_resp.stream(32 * 1024):
+                yield chunk
+        finally:
+            minio_resp.close()
+            minio_resp.release_conn()
+
+    return StreamingResponse(
+        iterfile(),
         media_type=media_type,
-        content_disposition_type="inline",
-        filename=f"Translated_Document_{doc_id[:8]}{found_ext}",
-        background=BackgroundTask(lambda: os.remove(target_file) if os.path.exists(target_file) else None)
+        headers={
+            "Content-Disposition": f'inline; filename="Translated_{doc_id[:8]}{found_ext}"',
+            "Content-Type": media_type
+        }
     )
+
+
