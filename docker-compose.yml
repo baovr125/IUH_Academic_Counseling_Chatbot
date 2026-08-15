@@ -67,6 +67,8 @@ services:
       - "8002:8002"
     env_file:
       - .env
+    depends_on:
+      - redis
 
   realtime-translation-service:
     build:
