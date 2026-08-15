@@ -1,11 +1,13 @@
 import os
 import json
 import redis
+import asyncio
 from typing import Dict, Any, Optional
 from app.services.markdown_pdf_service import extract_pdf_to_markdown, render_markdown_to_pdf
 from app.services.ollama_translator import translate_markdown_document_ollama
 from app.services.docx_pptx_service import translate_docx_document, translate_pptx_document
 from app.services.scanned_pdf_service import process_scanned_pdf_translation
+from app.services.glossary_extractor import extract_glossary
 from app.utils.logger import logger
 from app.celery_app import celery_app, REDIS_URL
 
@@ -65,6 +67,8 @@ def process_document_translation_job_sync(
                 model_used = model_name
             update_job_status(doc_id, "processing", progress, message, model_used=model_used)
 
+        md_text_for_glossary = ""
+        
         if ext == ".docx":
             update_job_status(doc_id, "processing", 30, "Đang dịch file Word (.docx)...", model_used=model_used)
             translated_file_path = os.path.join(temp_out_dir, f"translated_{doc_id}.docx")
@@ -98,6 +102,7 @@ def process_document_translation_job_sync(
         else: # Default: Academic PDF Paper
             update_job_status(doc_id, "processing", 20, "Đang bóc tách PDF bài báo khoa học thành Markdown...")
             md_text, image_dir = extract_pdf_to_markdown(file_path, doc_id)
+            md_text_for_glossary = md_text
             
             translated_text, model_used = translate_markdown_document_ollama(
                 md_text=md_text,
@@ -112,6 +117,11 @@ def process_document_translation_job_sync(
 
         translated_file_url = f"/api/v1/documents/{doc_id}/download"
 
+        update_job_status(doc_id, "processing", 95, "Đang trích xuất thuật ngữ chuyên ngành (Glossary)...", model_used=model_used)
+        glossary_items = []
+        if md_text_for_glossary:
+            glossary_items = asyncio.run(extract_glossary(md_text_for_glossary, target_lang=target_lang))
+
         update_job_status(
             doc_id, "completed", 100,
             f"Đã hoàn thành dịch thuật thành công bằng {model_used}!",
@@ -120,7 +130,7 @@ def process_document_translation_job_sync(
             translated_file_url=translated_file_url,
             translated_text=translated_text,
             summary_json={},
-            glossary=[],
+            glossary=glossary_items,
             model_used=model_used
         )
         logger.info(f"✅ [Job Completed] doc_id={doc_id}, saved to {translated_file_path}")

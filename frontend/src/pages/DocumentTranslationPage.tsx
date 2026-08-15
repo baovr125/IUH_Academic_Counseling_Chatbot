@@ -22,10 +22,11 @@ import {
   Eye,
   AlertCircle,
   ExternalLink,
-  FileType
+  FileType,
+  Volume2
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { LANG_CONFIG, addCardToDeck } from "../services/deckStorage";
+import { LANG_CONFIG, getDecks, type FlashcardDeck } from "../services/deckStorage";
 
 interface DocumentFile {
   id?: string;
@@ -38,8 +39,11 @@ interface DocumentFile {
 
 interface GlossaryItem {
   term: string;
-  vi: string;
+  translation?: string;
+  vi?: string; // Fallback
   context?: string;
+  phonetic?: string;
+  audio_url?: string;
 }
 
 export default function DocumentTranslationPage() {
@@ -72,6 +76,14 @@ export default function DocumentTranslationPage() {
 
   // Extracted Glossary from real document processing
   const [glossary, setGlossary] = useState<GlossaryItem[]>([]);
+  const [selectedGlossaryIndices, setSelectedGlossaryIndices] = useState<Set<number>>(new Set());
+
+  // Deck Modal State
+  const [isDeckModalOpen, setIsDeckModalOpen] = useState(false);
+  const [deckOption, setDeckOption] = useState<"existing" | "new">("existing");
+  const [selectedDeckId, setSelectedDeckId] = useState<string>("");
+  const [newDeckTitle, setNewDeckTitle] = useState("");
+  const [availableDecks, setAvailableDecks] = useState<FlashcardDeck[]>([]);
 
   const swapLanguages = () => {
     setSourceLang(targetLang);
@@ -107,6 +119,7 @@ export default function DocumentTranslationPage() {
     setStatusMessage("Tài liệu đã sẵn sàng để dịch");
     setTranslatedText("");
     setGlossary([]);
+    setSelectedGlossaryIndices(new Set());
     setRagAnswer(null);
   };
 
@@ -214,21 +227,93 @@ export default function DocumentTranslationPage() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleSaveKeywordsToDeck = () => {
-    if (!selectedFile || glossary.length === 0) return;
+  const handleOpenDeckModal = () => {
+    if (selectedGlossaryIndices.size === 0) {
+      alert("Vui lòng chọn ít nhất một thuật ngữ để lưu.");
+      return;
+    }
+    const decks = getDecks();
+    setAvailableDecks(decks);
+    if (decks.length > 0) setSelectedDeckId(decks[0].id);
+    setIsDeckModalOpen(true);
+  };
 
-    glossary.forEach((item) => {
-      addCardToDeck(
-        targetLang,
-        item.term,
-        item.vi,
-        `Trích xuất từ tài liệu: ${selectedFile.name}`,
-        "noun"
-      );
-    });
+  const handleSaveKeywordsToDeck = async () => {
+    if (selectedGlossaryIndices.size === 0) return;
 
-    setSavedKeywordsSuccess(true);
-    setTimeout(() => setSavedKeywordsSuccess(false), 4000);
+    let targetDeckId = selectedDeckId;
+
+    try {
+      if (deckOption === "new") {
+        const res = await fetch(`${baseUrl}/api/v1/decks`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "X-User-ID": "anonymous" },
+          body: JSON.stringify({ title: newDeckTitle, description: `Tạo từ tài liệu: ${selectedFile?.name || "Bản dịch"}` })
+        });
+        const data = await res.json();
+        if (data.ok && data.data?.id) {
+          targetDeckId = data.data.id;
+        } else {
+          targetDeckId = `deck-custom-${Date.now()}`;
+        }
+      }
+
+      const selectedItems = Array.from(selectedGlossaryIndices).map(i => glossary[i]);
+
+      for (const item of selectedItems) {
+        const termTranslation = item.translation || item.vi || "";
+        await fetch(`${baseUrl}/api/v1/cards`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-User-ID": "anonymous"
+          },
+          body: JSON.stringify({
+            deck_id: targetDeckId,
+            front_text: item.term,
+            back_text: termTranslation,
+            phonetic: item.phonetic || null,
+            audio_url: item.audio_url || null,
+            example_sentence: `Trích xuất từ tài liệu: ${selectedFile?.name || "Bản dịch"}`
+          })
+        });
+      }
+
+      setSavedKeywordsSuccess(true);
+      setTimeout(() => setSavedKeywordsSuccess(false), 4000);
+      setIsDeckModalOpen(false);
+      setSelectedGlossaryIndices(new Set()); // Reset selections
+    } catch (e) {
+      console.error("Error saving cards", e);
+      alert("Đã xảy ra lỗi khi lưu thẻ.");
+    }
+  };
+
+  const playAudio = (text: string, langCode: string, audioUrl?: string) => {
+    if (audioUrl) {
+      const audio = new Audio(audioUrl);
+      audio.play().catch(e => console.error("Error playing audio", e));
+    } else {
+      // Fallback Web Speech API
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = langCode === "en" ? "en-US" : langCode;
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
+  const toggleGlossaryItem = (index: number) => {
+    const newSet = new Set(selectedGlossaryIndices);
+    if (newSet.has(index)) newSet.delete(index);
+    else newSet.add(index);
+    setSelectedGlossaryIndices(newSet);
+  };
+
+  const toggleAllGlossary = () => {
+    if (selectedGlossaryIndices.size === glossary.length) {
+      setSelectedGlossaryIndices(new Set());
+    } else {
+      setSelectedGlossaryIndices(new Set(glossary.map((_, i) => i)));
+    }
   };
 
   const handleRagQuery = async (e: React.FormEvent) => {
@@ -439,14 +524,20 @@ export default function DocumentTranslationPage() {
               </div>
 
               {glossary.length > 0 && (
-                <button
-                  type="button"
-                  onClick={handleSaveKeywordsToDeck}
-                  className="flex items-center gap-1 rounded-lg bg-indigo-50 px-2.5 py-1 text-[11px] font-semibold text-indigo-700 hover:bg-indigo-100 transition-colors"
-                >
-                  <BookmarkPlus size={13} />
-                  <span>Lưu Thẻ Flashcard</span>
-                </button>
+                <div className="flex items-center gap-3">
+                  <button onClick={toggleAllGlossary} className="text-[11px] text-slate-500 hover:text-blue-600 font-medium transition-colors">
+                    {selectedGlossaryIndices.size === glossary.length ? "Bỏ chọn tất cả" : "Chọn tất cả"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleOpenDeckModal}
+                    disabled={selectedGlossaryIndices.size === 0}
+                    className="flex items-center gap-1 rounded-lg bg-indigo-50 px-2.5 py-1.5 text-[11px] font-bold text-indigo-700 hover:bg-indigo-100 disabled:opacity-50 transition-all active:scale-95"
+                  >
+                    <BookmarkPlus size={14} />
+                    <span>Lưu thẻ ({selectedGlossaryIndices.size})</span>
+                  </button>
+                </div>
               )}
             </div>
 
@@ -466,10 +557,23 @@ export default function DocumentTranslationPage() {
             ) : (
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 overflow-y-auto max-h-[220px] pr-1">
                 {glossary.map((g, i) => (
-                  <div key={i} className="rounded-xl border border-slate-100 bg-slate-50/70 p-2.5 text-xs">
-                    <div className="font-bold text-slate-800">{g.term}</div>
-                    <div className="text-blue-600 font-medium mt-0.5">{g.vi}</div>
-                    {g.context && <div className="text-[10px] text-slate-400 mt-0.5">{g.context}</div>}
+                  <div key={i} className={`relative rounded-xl border ${selectedGlossaryIndices.has(i) ? 'border-blue-400 bg-blue-50/50' : 'border-slate-200 bg-slate-50/70'} p-2.5 text-xs transition-all cursor-pointer group hover:border-blue-300 shadow-sm`} onClick={() => toggleGlossaryItem(i)}>
+                    <div className="flex items-start justify-between mb-1.5">
+                      <div className="flex items-start gap-2 max-w-[80%]">
+                        <input type="checkbox" checked={selectedGlossaryIndices.has(i)} readOnly className="mt-0.5 rounded text-blue-600 border-slate-300 focus:ring-0 shrink-0" />
+                        <div>
+                           <div className="font-bold text-slate-800 break-words">{g.term}</div>
+                           {g.phonetic && <div className="text-[10.5px] text-slate-500 font-mono mt-0.5">{g.phonetic}</div>}
+                        </div>
+                      </div>
+                      
+                      <button onClick={(e) => { e.stopPropagation(); playAudio(g.term, sourceLang, g.audio_url); }} className="text-blue-600 hover:text-blue-800 hover:bg-blue-100/80 p-1.5 rounded-full transition-colors shrink-0 flex items-center justify-center bg-blue-50/50" title="Phát âm">
+                        <Volume2 size={15} />
+                      </button>
+                    </div>
+                    
+                    <div className="text-blue-700 font-medium ml-[22px]">{g.translation || g.vi}</div>
+                    {g.context && <div className="text-[10px] text-slate-400 ml-[22px] mt-1">{g.context}</div>}
                   </div>
                 ))}
               </div>
@@ -692,7 +796,7 @@ export default function DocumentTranslationPage() {
                           {glossary.slice(0, 8).map((g, i) => (
                             <div key={i} className="flex items-start gap-2 text-xs text-slate-700">
                               <CheckCircle2 size={15} className="text-green-600 flex-shrink-0 mt-0.5" />
-                              <span><strong>{g.term}</strong>: {g.vi}</span>
+                              <span><strong>{g.term}</strong>: {g.translation || g.vi}</span>
                             </div>
                           ))}
                         </div>
@@ -760,6 +864,73 @@ export default function DocumentTranslationPage() {
         </div>
 
       </div>
+      {/* Deck Selection Modal */}
+      {isDeckModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-2xl bg-white p-5 shadow-2xl">
+            <h3 className="mb-1 text-lg font-bold text-slate-800 flex items-center gap-2">
+              <BookmarkPlus size={20} className="text-blue-600"/>
+              Lưu Thẻ Flashcard
+            </h3>
+            <p className="mb-5 text-xs text-slate-500 leading-relaxed">
+              Bạn đang lưu <strong className="text-slate-700">{selectedGlossaryIndices.size} thuật ngữ</strong>. Vui lòng chọn sổ thẻ đích:
+            </p>
+
+            <div className="space-y-4">
+              <label className="flex flex-col gap-2 cursor-pointer group">
+                <div className="flex items-center gap-2 text-sm font-semibold text-slate-700 group-hover:text-blue-600 transition-colors">
+                  <input type="radio" name="deckOption" value="existing" checked={deckOption === "existing"} onChange={() => setDeckOption("existing")} className="text-blue-600 focus:ring-0 border-slate-300 w-4 h-4" />
+                  Lưu vào sổ thẻ hiện có
+                </div>
+                {deckOption === "existing" && (
+                  <select
+                    value={selectedDeckId}
+                    onChange={(e) => setSelectedDeckId(e.target.value)}
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs font-medium text-slate-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none ml-6 max-w-[90%] shadow-sm transition-all"
+                  >
+                    {availableDecks.map(d => (
+                      <option key={d.id} value={d.id}>{d.iconFlag} {d.title}</option>
+                    ))}
+                    {availableDecks.length === 0 && <option value="" disabled>Chưa có sổ thẻ nào</option>}
+                  </select>
+                )}
+              </label>
+
+              <label className="flex flex-col gap-2 cursor-pointer group mt-2">
+                <div className="flex items-center gap-2 text-sm font-semibold text-slate-700 group-hover:text-blue-600 transition-colors">
+                  <input type="radio" name="deckOption" value="new" checked={deckOption === "new"} onChange={() => setDeckOption("new")} className="text-blue-600 focus:ring-0 border-slate-300 w-4 h-4" />
+                  Tạo sổ thẻ mới
+                </div>
+                {deckOption === "new" && (
+                  <input
+                    type="text"
+                    placeholder="Nhập tên sổ thẻ mới... (VD: Chương 1)"
+                    value={newDeckTitle}
+                    onChange={(e) => setNewDeckTitle(e.target.value)}
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs font-medium text-slate-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none ml-6 max-w-[90%] shadow-sm transition-all placeholder:text-slate-400"
+                  />
+                )}
+              </label>
+            </div>
+
+            <div className="mt-7 flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+              <button
+                onClick={() => setIsDeckModalOpen(false)}
+                className="rounded-xl px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors"
+              >
+                Hủy bỏ
+              </button>
+              <button
+                onClick={handleSaveKeywordsToDeck}
+                disabled={(deckOption === "existing" && !selectedDeckId) || (deckOption === "new" && !newDeckTitle.trim())}
+                className="rounded-xl bg-blue-600 px-5 py-2.5 text-xs font-bold text-white hover:bg-blue-700 disabled:opacity-50 disabled:hover:bg-blue-600 transition-colors shadow-sm"
+              >
+                Lưu Thẻ
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

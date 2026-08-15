@@ -29,23 +29,24 @@ def create_deck(title: str, description: Optional[str], user_id: str) -> Dict[st
     supabase = get_supabase()
     if supabase:
         try:
-            supabase.table("decks").insert(deck_data).execute()
+            supabase.table("flashcard_decks").insert(deck_data).execute()
         except Exception as e:
             logger.warning(f"Failed to insert deck into Supabase: {e}")
             
     in_memory_decks[deck_id] = deck_data
     return deck_data
 
-def create_card(deck_id: str, front_text: str, back_text: str, phonetic: Optional[str] = None, example_sentence: Optional[str] = None) -> Dict[str, Any]:
+def create_card(deck_id: str, front_text: str, back_text: str, phonetic: Optional[str] = None, audio_url: Optional[str] = None, example_sentence: Optional[str] = None) -> Dict[str, Any]:
     card_id = str(uuid.uuid4())
     now_iso = datetime.datetime.now(datetime.timezone.utc).isoformat()
     card_data = {
         "id": card_id,
         "deck_id": deck_id,
-        "front_text": front_text,
-        "back_text": back_text,
+        "term": front_text,
+        "definition": back_text,
         "phonetic": phonetic,
-        "example_sentence": example_sentence,
+        "audio_url": audio_url,
+        "example": example_sentence,
         "repetition": 0,
         "ease_factor": 2.5,
         "interval_days": 1,
@@ -54,7 +55,7 @@ def create_card(deck_id: str, front_text: str, back_text: str, phonetic: Optiona
     supabase = get_supabase()
     if supabase:
         try:
-            supabase.table("cards").insert(card_data).execute()
+            supabase.table("flashcards").insert(card_data).execute()
         except Exception as e:
             logger.warning(f"Failed to insert card into Supabase: {e}")
             

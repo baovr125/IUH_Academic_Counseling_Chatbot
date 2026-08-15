@@ -17,6 +17,7 @@ async def create_card_endpoint(payload: CreateCardRequest):
         front_text=payload.front_text,
         back_text=payload.back_text,
         phonetic=payload.phonetic,
+        audio_url=payload.audio_url,
         example_sentence=payload.example_sentence
     )
     return ApiResult(ok=True, data=data)
