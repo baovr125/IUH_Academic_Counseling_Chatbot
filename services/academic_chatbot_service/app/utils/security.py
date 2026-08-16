@@ -45,3 +45,6 @@ def get_optional_user_id(
         return get_current_user_id(authorization, x_user_id)
     except HTTPException:
         return "anonymous"
+
+get_optional_current_user_id = get_optional_user_id
+
