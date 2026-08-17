@@ -2,6 +2,7 @@ import os
 import re
 import json
 import httpx
+import hashlib
 import urllib.parse
 from typing import List, Dict, Any
 from app.utils.logger import logger
@@ -40,11 +41,25 @@ async def get_word_audio(word: str) -> Dict[str, str]:
             
     return {"phonetic": "", "audio_url": ""}
 
-def heuristic_extract_terms(text: str) -> List[Dict[str, Any]]:
+def get_tts_lang_code(lang: str) -> str:
+    cleaned = (lang or "en").strip().lower()
+    mapping = {
+        "en": "en-US",
+        "vi": "vi-VN",
+        "de": "de-DE",
+        "zh": "zh-CN",
+        "ja": "ja-JP",
+        "ko": "ko-KR",
+        "fr": "fr-FR",
+        "es": "es-ES",
+        "ru": "ru-RU",
+        "th": "th-TH"
+    }
+    return mapping.get(cleaned, mapping.get(cleaned[:2], "en-US"))
+
+def heuristic_extract_terms(text: str, source_lang: str = "en") -> List[Dict[str, Any]]:
     """Phương thức dự phòng trích xuất thuật ngữ chuyên ngành dựa trên Markdown syntax."""
-    # 1. Tìm các từ in đậm **Từ Khóa**
     bold_matches = re.findall(r'\*\*([A-Za-z0-9\s\-]{3,35})\*\*', text)
-    # 2. Tìm các tiêu đề heading ## Tiêu đề
     heading_matches = re.findall(r'#+\s+([A-Za-z0-9\s\-]{3,35})', text)
     
     candidates = bold_matches + heading_matches
@@ -59,17 +74,21 @@ def heuristic_extract_terms(text: str) -> List[Dict[str, Any]]:
             if len(unique_terms) >= 6:
                 break
                 
+    clean_lang = (source_lang or "en").strip().lower()[:2]
     results = []
     for term in unique_terms:
+        term_clean = term.strip().lower()
+        term_hash = hashlib.md5(f"{clean_lang}_{term_clean}".encode('utf-8')).hexdigest()
         results.append({
             "term": term,
             "translation": f"Thuật ngữ: {term}",
             "phonetic": "",
-            "audio_url": f"/api/v1/translate/tts?text={urllib.parse.quote(term)}&lang=en-US"
+            "audio_url": f"/api/v1/translate/audio/terms/{clean_lang}_{term_hash}.mp3",
+            "lang_code": source_lang
         })
     return results
 
-async def extract_glossary(text: str, target_lang: str = "vi") -> List[Dict[str, Any]]:
+async def extract_glossary(text: str, target_lang: str = "vi", source_lang: str = "en") -> List[Dict[str, Any]]:
     """
     Trích xuất từ khóa và thuật ngữ chuyên ngành từ văn bản bằng LLM với cơ chế fallback tự động.
     """
@@ -77,6 +96,7 @@ async def extract_glossary(text: str, target_lang: str = "vi") -> List[Dict[str,
         return []
         
     sample_text = text[:4000]
+    clean_lang = (source_lang or "en").strip().lower()[:2]
     
     prompt = f"""
     You are an expert linguist. Extract a glossary of 5 to 8 important domain-specific terms or keywords from the following text.
@@ -126,7 +146,10 @@ async def extract_glossary(text: str, target_lang: str = "vi") -> List[Dict[str,
                 for item in glossary_items:
                     full_term = str(item.get("term", "")).strip()
                     if full_term:
-                        item["audio_url"] = f"/api/v1/translate/tts?text={urllib.parse.quote(full_term)}&lang=en-US"
+                        term_clean = full_term.lower()
+                        term_hash = hashlib.md5(f"{clean_lang}_{term_clean}".encode('utf-8')).hexdigest()
+                        item["audio_url"] = f"/api/v1/translate/audio/terms/{clean_lang}_{term_hash}.mp3"
+                        item["lang_code"] = source_lang
                         if not item.get("phonetic"):
                             first_word = full_term.split()[0]
                             try:
@@ -140,4 +163,4 @@ async def extract_glossary(text: str, target_lang: str = "vi") -> List[Dict[str,
             logger.warning(f"Failed to parse LLM glossary JSON ({parse_err}). Falling back to heuristic extractor.")
             
     # 4. Fallback trích xuất Heuristic nếu các LLM không phản hồi
-    return heuristic_extract_terms(text)
+    return heuristic_extract_terms(text, source_lang=source_lang)

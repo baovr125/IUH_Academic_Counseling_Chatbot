@@ -31,11 +31,8 @@ def get_current_user_id(
     if x_user_id and x_user_id.strip() and x_user_id != "anonymous":
         return x_user_id.strip()
 
-    raise HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Không thể xác thực danh tính người dùng. Vui lòng đăng nhập lại.",
-        headers={"WWW-Authenticate": "Bearer"}
-    )
+    # 3. Default demo/guest student user ID to ensure smooth experience
+    return "default_student_user"
 
 def get_optional_user_id(
     authorization: Optional[str] = Header(None, alias="Authorization"),

@@ -1,8 +1,7 @@
-import { useState } from "react";
-import { Languages, BookOpen, FileText, AlignLeft, CheckCircle2 } from "lucide-react";
+import { Languages, BookOpen, FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "../hooks/useTranslation";
-import { LANG_CONFIG, addCardToDeck } from "../services/deckStorage";
+import { LANG_CONFIG } from "../services/deckStorage";
 import { TranslationBox } from "../components/translation/TranslationBox";
 
 export default function TranslationPage() {
@@ -16,8 +15,6 @@ export default function TranslationPage() {
     setSourceText,
     swapLanguages,
   } = useTranslation();
-
-  const [savedMessage, setSavedMessage] = useState<string | null>(null);
 
   const targetLangMeta = LANG_CONFIG[targetLang] || {
     label: targetLang.toUpperCase(),
@@ -37,7 +34,7 @@ export default function TranslationPage() {
               </div>
               <h1 className="text-2xl font-bold tracking-tight text-slate-800">Translation Studio</h1>
             </div>
-            <p className="mt-2 text-sm text-slate-500 font-medium">Dịch thuật đa ngôn ngữ chuyên ngành với AI</p>
+            <p className="mt-2 text-sm text-slate-500 font-medium">Dịch thuật đa ngôn ngữ chuyên ngành với AI & Lưu Flashcard thông minh</p>
           </div>
 
           <div className="flex items-center gap-3">
@@ -56,29 +53,10 @@ export default function TranslationPage() {
               className="group flex items-center gap-2 rounded-xl border border-slate-200 bg-white/80 px-4 py-2.5 text-sm font-semibold text-slate-700 backdrop-blur-sm transition-all hover:bg-slate-50 hover:shadow-sm"
             >
               <BookOpen size={18} className="transition-transform group-hover:scale-110" />
-              <span>Sổ Thẻ</span>
+              <span>Sổ Thẻ Flashcard</span>
             </button>
           </div>
         </div>
-
-
-
-        {/* Success Notification Banner */}
-        {savedMessage && (
-          <div className="mb-6 flex items-center justify-between rounded-xl border border-green-200 bg-green-50/90 p-4 text-sm font-medium text-green-800 shadow-sm backdrop-blur-sm animate-in fade-in slide-in-from-top-2">
-            <div className="flex items-center gap-3">
-              <CheckCircle2 size={20} className="text-green-600 flex-shrink-0" />
-              <span>{savedMessage}</span>
-            </div>
-            <button
-              type="button"
-              onClick={() => navigate("/flashcards")}
-              className="rounded-lg bg-green-600 px-4 py-2 text-xs font-semibold text-white transition-all hover:bg-green-700 hover:shadow-md hover:shadow-green-600/20 active:scale-95"
-            >
-              Mở Sổ thẻ ngay
-            </button>
-          </div>
-        )}
 
         {/* Translation Box Area */}
         <div className="flex-1">
@@ -90,18 +68,6 @@ export default function TranslationPage() {
             setTargetLang={setTargetLang}
             setSourceText={setSourceText}
             swapLanguages={swapLanguages}
-            onSaveFullTranslation={(text) => {
-              if (!sourceText.trim() || !text.trim()) return;
-              const result = addCardToDeck(
-                targetLang,
-                sourceText,
-                text,
-                `Dịch từ ${LANG_CONFIG[sourceLang]?.label || sourceLang} -> ${LANG_CONFIG[targetLang]?.label || targetLang}`,
-                "phrase"
-              );
-              setSavedMessage(`Đã lưu "${sourceText.slice(0, 25)}..." vào sổ thẻ '${result.deck.title}' (${result.deck.iconFlag})`);
-              setTimeout(() => setSavedMessage(null), 5000);
-            }}
             targetLangMeta={targetLangMeta}
           />
         </div>

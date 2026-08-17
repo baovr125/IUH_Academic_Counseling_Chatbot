@@ -6,6 +6,7 @@ services:
       KONG_DATABASE: "off"
       KONG_DECLARATIVE_CONFIG: /usr/local/kong/declarative/kong.yml
       KONG_PROXY_LISTEN: 0.0.0.0:8000, 0.0.0.0:8443 ssl
+      KONG_NGINX_WORKER_PROCESSES: "2"
       KONG_DNS_STALE_TTL: 0
       KONG_DNS_NOT_FOUND_TTL: 1
       KONG_DNS_VALID_TTL: 1
@@ -20,6 +21,11 @@ services:
       - realtime-translation-service
       - doc-translation-service
       - flashcard-service
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
 
   rabbitmq:
     image: rabbitmq:3-management-alpine
@@ -30,12 +36,22 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
 
   redis:
     image: redis:7-alpine
     container_name: iuh_redis
     ports:
       - "6379:6379"
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
 
   minio:
     image: minio/minio:latest
@@ -49,6 +65,11 @@ services:
     command: server /data --console-address ":9001"
     volumes:
       - minio_data:/data
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 1G
 
   auth-service:
     build:
@@ -58,6 +79,11 @@ services:
       - "8001:8001"
     env_file:
       - .env
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
 
   academic-chatbot-service:
     build:
@@ -69,6 +95,11 @@ services:
       - .env
     depends_on:
       - redis
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 3.5G
 
   realtime-translation-service:
     build:
@@ -84,6 +115,9 @@ services:
       - rabbitmq
     deploy:
       resources:
+        limits:
+          cpus: '1.5'
+          memory: 2G
         reservations:
           devices:
             - driver: nvidia
@@ -102,6 +136,11 @@ services:
       - rabbitmq
       - redis
       - minio
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 1G
 
   doc-translation-worker:
     build:
@@ -114,6 +153,13 @@ services:
       - rabbitmq
       - redis
       - minio
+    deploy:
+      resources:
+        limits:
+          cpus: '2.5'
+          memory: 4G
+        reservations:
+          memory: 512M
 
   flashcard-service:
     build:
@@ -125,6 +171,11 @@ services:
       - .env
     depends_on:
       - rabbitmq
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
 
 
   frontend:
@@ -137,6 +188,11 @@ services:
       - "5173:80"
     depends_on:
       - kong-gateway
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
 
 volumes:
   minio_data:

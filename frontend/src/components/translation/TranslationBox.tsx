@@ -4,6 +4,7 @@ import { FloatingMenu } from "./FloatingMenu";
 import { DomainSelector } from "./DomainSelector";
 import { BookmarkPlus, ArrowRightLeft, Volume2, X, Loader2 } from "lucide-react";
 import { LANG_CONFIG } from "../../services/deckStorage";
+import { SaveFlashcardModal } from "./SaveFlashcardModal";
 
 export interface TranslationBoxProps {
   sourceLang: string;
@@ -13,7 +14,7 @@ export interface TranslationBoxProps {
   setTargetLang: (lang: string) => void;
   setSourceText: (text: string) => void;
   swapLanguages: () => void;
-  onSaveFullTranslation: (translatedText: string) => void;
+  onSaveFullTranslation?: (translatedText: string) => void;
   targetLangMeta: { flag: string; label: string; defaultTitle: string };
 }
 
@@ -41,6 +42,14 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
   const [selectedContext, setSelectedContext] = useState("");
   const [isSavingFlashcard, setIsSavingFlashcard] = useState(false);
   
+  // Save Flashcard Modal State
+  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
+  const [modalTerm, setModalTerm] = useState("");
+  const [modalDef, setModalDef] = useState("");
+  const [modalLang, setModalLang] = useState("en");
+  const [modalContext, setModalContext] = useState("");
+  const [modalPhonetic, setModalPhonetic] = useState("");
+
   // Toast state
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   
@@ -66,7 +75,14 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
       th: "th-TH",
       vi: "vi-VN"
     };
-    return map[langCode] || "en-US";
+    const clean = (langCode || "en").toLowerCase().replace("_", "-");
+    return map[clean] || map[clean.slice(0, 2)] || "en-US";
+  };
+
+  const getApiBaseUrl = (): string => {
+    const env = (import.meta as any).env || {};
+    const base = env.VITE_API_BASE_URL !== undefined ? env.VITE_API_BASE_URL : "http://localhost:8000";
+    return String(base).replace(/\/+$/, "");
   };
 
   // Prefetch audio and cache as Blob URL
@@ -76,7 +92,8 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
     if (audioCache.current.has(cacheKey)) return;
 
     try {
-      const url = `/api/v1/translate/tts?text=${encodeURIComponent(text)}&lang=${lang}`;
+      const baseUrl = getApiBaseUrl();
+      const url = `${baseUrl}/api/v1/translate/tts?text=${encodeURIComponent(text)}&lang=${lang}`;
       const response = await fetch(url);
       if (response.ok) {
         const blob = await response.blob();
@@ -102,10 +119,10 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
     const cacheKey = `${lang}_${text}`;
     
     let audioUrl = audioCache.current.get(cacheKey);
+    const baseUrl = getApiBaseUrl();
     
     if (!audioUrl) {
-       // If not in cache, fallback to fetching it (though prefetch should have caught it)
-       audioUrl = `/api/v1/translate/tts?text=${encodeURIComponent(text)}&lang=${lang}`;
+       audioUrl = `${baseUrl}/api/v1/translate/tts?text=${encodeURIComponent(text)}&lang=${lang}`;
     }
 
     const audio = new Audio(audioUrl);
@@ -139,44 +156,31 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
         targetLang: targetLang as any,
         domain: domain
       },
-      (chunk) => {
-        // Simple Tokenizer: buffer chunks and split by space to keep words together
-        currentBuffer += chunk;
-        const words = currentBuffer.split(/(\s+)/);
-        
-        // Keep the last incomplete part in the buffer, push the rest
-        if (words.length > 1) {
-          const completeWords = words.slice(0, -1);
-          setTranslatedTokens(prev => [...prev, ...completeWords]);
-          currentBuffer = words[words.length - 1];
-        }
+      (token: string) => {
+        currentBuffer += token;
+        setTranslatedTokens((prev) => [...prev, token]);
       },
-      (err) => {
-        setError(err);
+      (err: string) => {
         setIsTranslating(false);
+        setError(err || "Đã xảy ra lỗi trong quá trình dịch thuật.");
       },
       () => {
-        if (currentBuffer) {
-          setTranslatedTokens(prev => [...prev, currentBuffer]);
-        }
         setIsTranslating(false);
       }
     );
   };
 
-  // Real-time Translation Effect (Debounce)
+  // Debounced input change translation
   useEffect(() => {
-    if (debounceTimerRef.current) {
-      clearTimeout(debounceTimerRef.current);
-    }
+    if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+    
     if (sourceText.trim()) {
       debounceTimerRef.current = setTimeout(() => {
         handleTranslate(sourceText);
-      }, 800);
+      }, 500); // 500ms debounce
     } else {
       setTranslatedTokens([]);
       setIsTranslating(false);
-      setError(null);
     }
     return () => {
       if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
@@ -246,23 +250,54 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
     setIsSavingFlashcard(true);
     setToastMessage(`Đang phân tích từ vựng "${selectedWord}"...`);
     
-    const res = await extractFlashcard(selectedWord, selectedContext, domain);
-    
-    setIsSavingFlashcard(false);
-    setMenuPosition(null);
-    
-    if (res.ok) {
-      setToastMessage(`Đã lưu "${selectedWord}" vào bộ thẻ!`);
-      // Hide toast after 3s
-      setTimeout(() => setToastMessage(null), 3000);
-    } else {
-      setToastMessage(`Lỗi khi lưu thẻ: ${res.error?.message}`);
-      setTimeout(() => setToastMessage(null), 3000);
+    try {
+      const res = await extractFlashcard(selectedWord, selectedContext, domain);
+      setIsSavingFlashcard(false);
+      setMenuPosition(null);
+      setToastMessage(null);
+      
+      const extractedDef = res.ok && res.data?.definition ? res.data.definition : "";
+      const extractedPhonetic = res.ok && res.data?.phonetic ? res.data.phonetic : "";
+      
+      setModalTerm(selectedWord.trim());
+      setModalDef(extractedDef || selectedWord.trim());
+      setModalLang(targetLang === "vi" ? sourceLang : targetLang);
+      setModalContext(selectedContext);
+      setModalPhonetic(extractedPhonetic);
+      setIsSaveModalOpen(true);
+    } catch {
+      setIsSavingFlashcard(false);
+      setMenuPosition(null);
+      setToastMessage(null);
+      setModalTerm(selectedWord.trim());
+      setModalDef("");
+      setModalLang(targetLang === "vi" ? sourceLang : targetLang);
+      setModalContext(selectedContext);
+      setModalPhonetic("");
+      setIsSaveModalOpen(true);
     }
   };
 
+  const handleOpenFullSaveModal = () => {
+    const translated = translatedTokens.join("");
+    if (!sourceText.trim() || !translated.trim()) return;
+
+    if (targetLang === "vi") {
+      setModalTerm(sourceText.trim());
+      setModalDef(translated.trim());
+      setModalLang(sourceLang);
+    } else {
+      setModalTerm(translated.trim());
+      setModalDef(sourceText.trim());
+      setModalLang(targetLang);
+    }
+    setModalContext(sourceText.trim());
+    setModalPhonetic("");
+    setIsSaveModalOpen(true);
+  };
+
   const speakSelection = () => {
-    speakText(selectedWord, getTTSLangCode(targetLang), "selection");
+    speakText(selectedWord, getTTSLangCode(targetLang === "vi" ? sourceLang : targetLang), "selection");
     setMenuPosition(null);
   };
 
@@ -278,7 +313,7 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
             <select
               value={sourceLang}
               onChange={(e) => setSourceLang(e.target.value)}
-              className="bg-transparent text-sm font-semibold text-slate-700 hover:text-blue-600 focus:outline-none cursor-pointer"
+              className="bg-transparent text-sm font-semibold text-slate-700 focus:outline-none cursor-pointer"
             >
               {Object.entries(LANG_CONFIG).map(([code, meta]) => (
                 <option key={code} value={code}>
@@ -286,14 +321,6 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
                 </option>
               ))}
             </select>
-            <div className="md:hidden ml-auto">
-               <button
-                 onClick={swapLanguages}
-                 className="p-2 text-slate-500 hover:text-blue-600 bg-slate-50 rounded-full border border-slate-200"
-               >
-                 <ArrowRightLeft size={16} />
-               </button>
-            </div>
           </div>
           
           <textarea
@@ -390,7 +417,7 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
              </div>
              <button
               type="button"
-              onClick={() => onSaveFullTranslation(translatedTokens.join(""))}
+              onClick={handleOpenFullSaveModal}
               disabled={translatedTokens.length === 0 || isTranslating}
               className="group flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:scale-[1.02] active:scale-[0.98]"
              >
@@ -412,6 +439,21 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
           isSaving={isSavingFlashcard}
         />
       )}
+
+      {/* Save to Flashcard Modal */}
+      <SaveFlashcardModal
+        isOpen={isSaveModalOpen}
+        onClose={() => setIsSaveModalOpen(false)}
+        initialTerm={modalTerm}
+        initialDefinition={modalDef}
+        initialLangCode={modalLang}
+        initialContext={modalContext}
+        initialPhonetic={modalPhonetic}
+        onSuccess={(deckTitle, term) => {
+          setToastMessage(`Đã lưu "${term}" vào sổ thẻ "${deckTitle}" thành công! 🎉`);
+          setTimeout(() => setToastMessage(null), 4000);
+        }}
+      />
 
       {/* Toast Notification */}
       {toastMessage && (

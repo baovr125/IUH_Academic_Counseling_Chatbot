@@ -16,22 +16,48 @@ from app.utils.minio_client import upload_audio_bytes, get_audio_bytes, audio_ex
 router = APIRouter(tags=["Real-time Translation Service"])
 
 TTS_VOICE_MAP = {
-    "vi-VN": "vi-VN-HoaiMyNeural",
-    "en-US": "en-US-JennyNeural",
-    "de-DE": "de-DE-KatjaNeural",
-    "zh-CN": "zh-CN-XiaoxiaoNeural",
-    "ja-JP": "ja-JP-NanamiNeural",
-    "ko-KR": "ko-KR-SunHiNeural",
-    "fr-FR": "fr-FR-DeniseNeural",
-    "es-ES": "es-ES-ElviraNeural",
-    "ru-RU": "ru-RU-SvetlanaNeural",
-    "th-TH": "th-TH-PremwadeeNeural"
+    # Short 2-letter codes
+    "vi": "vi-VN-HoaiMyNeural",
+    "en": "en-US-JennyNeural",
+    "de": "de-DE-KatjaNeural",
+    "zh": "zh-CN-XiaoxiaoNeural",
+    "ja": "ja-JP-NanamiNeural",
+    "ko": "ko-KR-SunHiNeural",
+    "fr": "fr-FR-DeniseNeural",
+    "es": "es-ES-ElviraNeural",
+    "ru": "ru-RU-SvetlanaNeural",
+    "th": "th-TH-PremwadeeNeural",
+    # Locale codes
+    "vi-vn": "vi-VN-HoaiMyNeural",
+    "en-us": "en-US-JennyNeural",
+    "en-gb": "en-GB-SoniaNeural",
+    "de-de": "de-DE-KatjaNeural",
+    "zh-cn": "zh-CN-XiaoxiaoNeural",
+    "ja-jp": "ja-JP-NanamiNeural",
+    "ko-kr": "ko-KR-SunHiNeural",
+    "fr-fr": "fr-FR-DeniseNeural",
+    "es-es": "es-ES-ElviraNeural",
+    "ru-ru": "ru-RU-SvetlanaNeural",
+    "th-th": "th-TH-PremwadeeNeural"
 }
 
+def resolve_voice(lang: str) -> str:
+    cleaned = (lang or "en").strip().lower().replace("_", "-")
+    if cleaned in TTS_VOICE_MAP:
+        return TTS_VOICE_MAP[cleaned]
+    prefix = cleaned[:2]
+    return TTS_VOICE_MAP.get(prefix, "en-US-JennyNeural")
+
 @router.get("/tts")
-async def tts_endpoint(text: str, lang: str = "vi-VN"):
-    voice = TTS_VOICE_MAP.get(lang, "en-US-JennyNeural")
-    cache_key = hashlib.md5(f"{text.strip()}_{voice}".encode('utf-8')).hexdigest()
+async def tts_endpoint(text: str, lang: str = "en"):
+    """
+    Sinh file âm thanh phát âm chuẩn phòng thu (Microsoft Neural TTS):
+    - Tự động chuẩn hóa ngôn ngữ (vi, en, de, ja, ko, zh...)
+    - Tốc độ phát âm chuẩn ngữ điệu tự nhiên
+    - Lưu cache tự động trên MinIO S3 & Redis
+    """
+    voice = resolve_voice(lang)
+    cache_key = hashlib.md5(f"{text.strip().lower()}_{voice}".encode('utf-8')).hexdigest()
     object_name = f"tts/{cache_key}.mp3"
     
     # 1. Check MinIO / Redis cache URL first
@@ -41,32 +67,42 @@ async def tts_endpoint(text: str, lang: str = "vi-VN"):
             return Response(
                 content=audio_content,
                 media_type="audio/mpeg",
-                headers={"Cache-Control": "public, max-age=604800"}
+                headers={
+                    "Cache-Control": "public, max-age=604800",
+                    "X-TTS-Voice": voice,
+                    "X-Cache": "HIT"
+                }
             )
         
-    # 2. Generate audio via Edge-TTS
-    communicate = edge_tts.Communicate(text, voice)
-    audio_data = bytearray()
-    
-    async for chunk in communicate.stream():
-        if chunk["type"] == "audio":
-            audio_data.extend(chunk["data"])
-            
-    complete_audio = bytes(audio_data)
-    
-    # 3. Store in MinIO (Persistent Object Storage) and Cache URL in Redis
+    # 2. Generate audio via Edge-TTS (Rate -4% for crystal clear learning pronunciation)
     try:
-        audio_url = upload_audio_bytes(object_name, complete_audio)
-        set_cached_audio_url(cache_key, audio_url)
+        communicate = edge_tts.Communicate(text.strip(), voice, rate="-4%")
+        audio_data = bytearray()
+        
+        async for chunk in communicate.stream():
+            if chunk["type"] == "audio":
+                audio_data.extend(chunk["data"])
+                
+        complete_audio = bytes(audio_data)
+        
+        # 3. Store in MinIO (Persistent Object Storage) and Cache URL in Redis
+        try:
+            audio_url = upload_audio_bytes(object_name, complete_audio)
+            set_cached_audio_url(cache_key, audio_url)
+        except Exception:
+            pass
+        
+        return Response(
+            content=complete_audio,
+            media_type="audio/mpeg",
+            headers={
+                "Cache-Control": "public, max-age=604800",
+                "X-TTS-Voice": voice,
+                "X-Cache": "MISS"
+            }
+        )
     except Exception as e:
-        # Fallback if MinIO is temporarily unavailable
-        pass
-    
-    return Response(
-        content=complete_audio,
-        media_type="audio/mpeg",
-        headers={"Cache-Control": "public, max-age=604800"}
-    )
+        return Response(status_code=500, content=f"TTS generation failed: {e}")
 
 @router.get("/audio/{object_name:path}")
 async def get_audio_endpoint(object_name: str):

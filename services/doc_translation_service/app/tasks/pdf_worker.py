@@ -156,14 +156,15 @@ def process_document_translation_job_sync(
         glossary_items = []
         if md_text_for_glossary:
             try:
-                glossary_items = asyncio.run(extract_glossary(md_text_for_glossary, target_lang=target_lang))
+                glossary_items = asyncio.run(extract_glossary(md_text_for_glossary, target_lang=target_lang, source_lang=source_lang))
                 if glossary_items:
                     # Publish event to RabbitMQ for flashcard_service
                     publish_doc_translated_event(
                         doc_id=doc_id,
                         user_id=user_id,
                         file_name=object_name.replace('source/', ''),
-                        glossary=glossary_items
+                        glossary=glossary_items,
+                        source_lang=source_lang
                     )
             except Exception as e:
                 logger.warning(f"Lỗi khi trích xuất glossary: {e}")

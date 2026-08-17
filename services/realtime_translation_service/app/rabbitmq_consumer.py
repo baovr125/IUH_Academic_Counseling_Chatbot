@@ -16,6 +16,7 @@ RABBITMQ_PASS = os.environ.get("RABBITMQ_DEFAULT_PASS", "guest")
 RABBITMQ_URL = f"amqp://{RABBITMQ_USER}:{RABBITMQ_PASS}@{RABBITMQ_HOST}:{RABBITMQ_PORT}/"
 
 VOICE_MAP = {
+    # Short 2-letter codes
     "vi": "vi-VN-HoaiMyNeural",
     "en": "en-US-JennyNeural",
     "de": "de-DE-KatjaNeural",
@@ -25,21 +26,39 @@ VOICE_MAP = {
     "fr": "fr-FR-DeniseNeural",
     "es": "es-ES-ElviraNeural",
     "ru": "ru-RU-SvetlanaNeural",
-    "th": "th-TH-PremwadeeNeural"
+    "th": "th-TH-PremwadeeNeural",
+    # Full Locale codes
+    "vi-vn": "vi-VN-HoaiMyNeural",
+    "en-us": "en-US-JennyNeural",
+    "en-gb": "en-GB-SoniaNeural",
+    "de-de": "de-DE-KatjaNeural",
+    "zh-cn": "zh-CN-XiaoxiaoNeural",
+    "ja-jp": "ja-JP-NanamiNeural",
+    "ko-kr": "ko-KR-SunHiNeural",
+    "fr-fr": "fr-FR-DeniseNeural",
+    "es-es": "es-ES-ElviraNeural",
+    "ru-ru": "ru-RU-SvetlanaNeural",
+    "th-th": "th-TH-PremwadeeNeural"
 }
 
 _channel: aio_pika.Channel = None
 _exchange: aio_pika.Exchange = None
 
 async def generate_and_upload_tts(term: str, lang_code: str, card_id: str) -> str:
-    voice = VOICE_MAP.get(lang_code.lower()[:2], "en-US-JennyNeural")
-    object_name = f"terms/{card_id}.mp3"
+    cleaned_lang = (lang_code or "en").strip().lower().replace("_", "-")
+    voice = VOICE_MAP.get(cleaned_lang) or VOICE_MAP.get(cleaned_lang[:2], "en-US-JennyNeural")
+    lang_prefix = cleaned_lang[:2]
+    clean_term = term.strip().lower()
+    term_hash = hashlib.md5(f"{lang_prefix}_{clean_term}".encode('utf-8')).hexdigest()
+    object_name = f"terms/{lang_prefix}_{term_hash}.mp3"
     
-    # Check if object already exists
+    # 1. Deduplication: Check if audio object already exists in MinIO
     if audio_exists(object_name):
+        logger.info(f"Deduplication HIT: Audio already exists in MinIO for '{term}' [{lang_prefix}] -> {object_name}")
         return f"/api/v1/translate/audio/{object_name}"
         
-    communicate = edge_tts.Communicate(term, voice)
+    # 2. Synthesize using Edge-TTS with -4% rate
+    communicate = edge_tts.Communicate(term.strip(), voice, rate="-4%")
     audio_data = bytearray()
     
     async for chunk in communicate.stream():

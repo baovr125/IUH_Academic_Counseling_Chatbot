@@ -8,7 +8,7 @@ RABBITMQ_PORT = int(os.environ.get("RABBITMQ_PORT", "5672"))
 RABBITMQ_USER = os.environ.get("RABBITMQ_DEFAULT_USER", "guest")
 RABBITMQ_PASS = os.environ.get("RABBITMQ_DEFAULT_PASS", "guest")
 
-def publish_doc_translated_event(doc_id: str, user_id: str, file_name: str, glossary: list):
+def publish_doc_translated_event(doc_id: str, user_id: str, file_name: str, glossary: list, source_lang: str = "en"):
     try:
         credentials = pika.PlainCredentials(RABBITMQ_USER, RABBITMQ_PASS)
         connection = pika.BlockingConnection(pika.ConnectionParameters(
@@ -23,7 +23,8 @@ def publish_doc_translated_event(doc_id: str, user_id: str, file_name: str, glos
             "doc_id": doc_id,
             "user_id": user_id,
             "file_name": file_name,
-            "glossary_json": glossary
+            "glossary_json": glossary,
+            "source_lang": source_lang
         }
         
         channel.basic_publish(

@@ -46,35 +46,58 @@ async def process_doc_translated_event(message: aio_pika.IncomingMessage):
             glossary = data.get("glossary_json", [])
             user_id = data.get("user_id", "anonymous")
             file_name = data.get("file_name", "Tài liệu")
-            source_lang = data.get("source_lang", "en")
+            source_lang = (data.get("source_lang") or "en").strip().lower()
+            doc_id = data.get("doc_id", "")
             
             if not glossary:
                 logger.info("No glossary found in DocTranslated event. Skipping flashcard creation.")
                 return
 
             deck_title = f"Thuật ngữ: {file_name}"
-            deck_description = "Được tự động trích xuất từ tài liệu đã dịch."
+            deck_description = f"Được tự động trích xuất từ tài liệu đã dịch (ID: {doc_id})."
             
-            logger.info(f"Creating Flashcard Deck: {deck_title} for user {user_id}")
-            deck = await create_deck(deck_title, deck_description, user_id)
-            deck_id = deck.get("id")
+            # Idempotency Check: Kiểm tra xem Deck đã được tạo cho tài liệu này trước đó chưa
+            existing_decks = await get_decks(user_id)
+            existing_deck = next((d for d in existing_decks if d.get("title") == deck_title), None)
+            
+            if existing_deck:
+                logger.info(f"Deck '{deck_title}' already exists (ID: {existing_deck.get('id')}). Reusing existing deck.")
+                deck_id = existing_deck.get("id")
+            else:
+                logger.info(f"Creating Flashcard Deck: {deck_title} for user {user_id}")
+                deck = await create_deck(deck_title, deck_description, user_id, lang_code=source_lang)
+                deck_id = deck.get("id")
+                
             if not deck_id:
-                logger.error("Failed to create Deck.")
+                logger.error("Failed to acquire Deck ID.")
                 return
             
+            # Lấy các thẻ hiện có trong deck để tránh trùng lặp từ
+            existing_cards = await get_deck_cards(deck_id, user_id)
+            existing_terms = {c.get("term", "").strip().lower() for c in existing_cards}
+            
+            created_count = 0
             for item in glossary:
                 term = item.get("term", "")
                 definition = item.get("definition", "")
                 phonetic = item.get("phonetic")
                 example = item.get("example")
-                if term and definition:
+                part_of_speech = item.get("part_of_speech")
+                
+                if term and definition and term.strip().lower() not in existing_terms:
                     card = await create_card(
                         deck_id=deck_id,
                         front_text=term,
                         back_text=definition,
+                        user_id=user_id,
                         phonetic=phonetic,
-                        example_sentence=example
+                        example_sentence=example,
+                        part_of_speech=part_of_speech,
+                        lang_code=source_lang
                     )
+                    existing_terms.add(term.strip().lower())
+                    created_count += 1
+                    
                     # Trigger async event to request TTS audio synthesis
                     card_id = card.get("id")
                     if card_id:
@@ -85,7 +108,7 @@ async def process_doc_translated_event(message: aio_pika.IncomingMessage):
                             user_id=user_id
                         )
             
-            logger.info(f"Successfully processed {len(glossary)} flashcards for deck {deck_title} and requested TTS audio.")
+            logger.info(f"Successfully processed {created_count} new flashcards for deck '{deck_title}' and requested TTS audio.")
             
         except Exception as e:
             logger.exception(f"Error processing DocTranslated event: {e}")
