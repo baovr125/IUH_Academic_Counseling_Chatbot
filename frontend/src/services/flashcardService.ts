@@ -256,3 +256,55 @@ export async function rateFlashcard(
   await submitFSRSReview(cardId, gradeMap[rating] || 3);
   return { ok: true, data: { cardId, rating } };
 }
+
+// ---- Excel & CSV Bulk Import -----------------------------------------------
+
+export interface BulkImportResult {
+  total_in_file: number;
+  inserted: number;
+  skipped_duplicates: number;
+  cards: BackendCardItem[];
+}
+
+export async function importDeckCardsFromExcel(
+  deckId: string,
+  file: File,
+  langCode?: string
+): Promise<ApiResult<BulkImportResult>> {
+  const queryParam = langCode ? `?lang_code=${encodeURIComponent(langCode)}` : "";
+  const url = getApiUrl(`/api/v1/flashcards/decks/${deckId}/import-excel${queryParam}`);
+  const token = getToken();
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const headers: Record<string, string> = {};
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers,
+      body: formData
+    });
+    const data = await response.json();
+    if (!response.ok || data.ok === false) {
+      return {
+        ok: false,
+        error: { message: data?.detail || data?.error?.message || "Lỗi tải lên file Excel" }
+      };
+    }
+    return { ok: true, data: data.data !== undefined ? data.data : data };
+  } catch (error: any) {
+    return {
+      ok: false,
+      error: { message: error?.message || "Không thể kết nối tới dịch vụ Flashcard." }
+    };
+  }
+}
+
+export function getExcelTemplateDownloadUrl(): string {
+  return getApiUrl("/api/v1/flashcards/template");
+}
+

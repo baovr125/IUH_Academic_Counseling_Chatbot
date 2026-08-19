@@ -176,3 +176,32 @@ Trong [rabbitmq_consumer.py](file:///g:/Khoa_Luan/IUH_Academic_Counseling_Chatbo
   * `Escape`: Đóng Modal hoặc quay lại trang danh sách Sổ thẻ.
 * **Cơ chế Anti-Conflict (Input Guard)**: Tự động kiểm tra `document.activeElement`, bỏ qua bắt phím tắt nếu con trỏ đang nằm trong `<input>`, `<textarea>` hoặc `<select>` (giúp sinh viên gõ phím `Space` và các số trong câu trả lời Spelling bình thường).
 
+---
+
+## 9. Tính Năng Nạp Dữ Liệu Hàng Loạt qua Excel/CSV (Bulk Import & Batch Processing)
+
+Để đáp ứng nhu cầu học từ vựng khối lượng lớn (TOEIC, IELTS, Tiếng Đức A1-B1, Thuật ngữ chuyên ngành), hệ thống đã xây dựng pipeline Import từ file Excel/CSV đạt chuẩn công nghiệp:
+
+### 9.1. Smart Header Mapping (Nhận Diện Tiêu Đề Linh Hoạt)
+* Module `excel_importer.py` tích hợp bộ từ điển nhận diện tiêu đề thông minh:
+  * Cột Từ vựng: `Term`, `Từ vựng`, `Word`, `Vocabulary`, `Front`, `Từ gốc`.
+  * Cột Định nghĩa: `Definition`, `Nghĩa`, `Nghĩa tiếng Việt`, `Meaning`, `Back`, `Dịch nghĩa`.
+  * Cột Phiên âm: `Phonetic`, `Phiên âm`, `IPA`, `Pronunciation`.
+  * Cột Từ loại: `PartOfSpeech`, `Từ loại`, `Type`, `Pos` (tự động chuẩn hóa sang `noun`, `verb`, `adjective`, `phrase`).
+  * Cột Ví dụ: `Example`, `Ví dụ`, `Example Sentence`, `Context`.
+* Nếu file không có tiêu đề, thuật toán tự động ánh xạ theo thứ tự vị trí (Positional Mapping: Cột 1 $\rightarrow$ Term, Cột 2 $\rightarrow$ Definition, Cột 3 $\rightarrow$ IPA, Cột 4 $\rightarrow$ Pos, Cột 5 $\rightarrow$ Ví dụ).
+
+### 9.2. Tối Ưu I/O Cơ Sở Dữ Liệu (Batch Chunking & Deduplication)
+* **Deduplication Hai Cấp**:
+  1. *Cấp 1*: Lọc bỏ các từ vựng trùng nhau trong cùng file Excel tải lên.
+  2. *Cấp 2*: Quét danh sách từ đã có sẵn trong Sổ thẻ trên DB (`flashcards.deck_id`), tự động bỏ qua các từ đã tồn tại để tránh rác dữ liệu.
+* **Batch Chunking (200 records / query)**: Thay vì thực hiện hàng trăm lệnh `INSERT` đơn lẻ gây nghẽn kết nối và chậm DB, hệ thống chia nhỏ thành từng lô 200 bản ghi để `bulk_insert` vào Supabase PostgreSQL.
+
+### 9.3. Kiến Trúc Hướng Sự Kiện Sinh Âm Thanh Phát Âm (Event-Driven TTS)
+* Với mỗi thẻ từ vựng mới được import thành công, Backend tự động sinh đường dẫn âm thanh tĩnh CAS (`/api/v1/translate/audio/terms/{lang}_{hash}.mp3`) và đẩy sự kiện `flashcard.created` vào **RabbitMQ Broker**.
+* Worker (`realtime_translation_service`) sẽ nhận message và gọi Microsoft Edge Neural TTS để sinh file MP3 lưu trữ dài hạn trên MinIO S3 mà không làm treo hoặc trễ response HTTP của người dùng.
+
+### 9.4. File Excel Mẫu Chuẩn (`GET /api/v1/flashcards/template`)
+* Tự động sinh file `flashcard_template.xlsx` được định dạng tiêu chuẩn (Header màu xanh thương hiệu, font chữ rõ ràng, 3 dòng ví dụ minh họa và tự động căn chỉnh độ rộng cột).
+
+

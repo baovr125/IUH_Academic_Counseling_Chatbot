@@ -5,8 +5,10 @@ import {
   deleteBackendCard,
   submitFSRSReview,
   verifyCardSpelling,
+  importDeckCardsFromExcel,
   type BackendCardItem,
-  type VerifySpellingResult
+  type VerifySpellingResult,
+  type BulkImportResult
 } from "../../services/flashcardService";
 import {
   getDecks as getLocalDecks,
@@ -221,6 +223,48 @@ export function useCardMutations(deckId?: string) {
     }
   });
 
+  // Mutation: Bulk Import Excel / CSV
+  const importExcelMutation = useMutation({
+    mutationFn: async ({ deckId: targetDeckId, file, langCode }: { deckId: string; file: File; langCode?: string }): Promise<BulkImportResult> => {
+      const res = await importDeckCardsFromExcel(targetDeckId, file, langCode);
+      if (!res.ok) {
+        throw new Error(res.error?.message || "Lỗi nhập file Excel");
+      }
+      if (!res.data) {
+        throw new Error("Không nhận được dữ liệu phản hồi từ máy chủ");
+      }
+
+      // Sync imported cards to local storage fallback
+      if (res.data.cards && res.data.cards.length > 0) {
+        const localDecks = getLocalDecks();
+        const targetDeck = localDecks.find((d) => d.id === targetDeckId);
+        if (targetDeck) {
+          if (!targetDeck.cards) targetDeck.cards = [];
+          for (const c of res.data.cards) {
+            if (!targetDeck.cards.some((tc) => tc.id === c.id || tc.term.toLowerCase() === c.term.toLowerCase())) {
+              targetDeck.cards.push({
+                id: c.id,
+                term: c.term,
+                definition: c.definition,
+                phonetic: c.phonetic,
+                audio_url: c.audio_url,
+                example: c.example_sentence || c.example,
+                partOfSpeech: c.part_of_speech
+              });
+            }
+          }
+          saveLocalDecks(localDecks);
+        }
+      }
+
+      return res.data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: getCardsQueryKey(variables.deckId) });
+      queryClient.invalidateQueries({ queryKey: DECKS_QUERY_KEY });
+    }
+  });
+
   return {
     createCard: createCardMutation.mutateAsync,
     isCreatingCard: createCardMutation.isPending,
@@ -231,6 +275,9 @@ export function useCardMutations(deckId?: string) {
     rateFSRS: rateFSRSMutation.mutateAsync,
     isRatingFSRS: rateFSRSMutation.isPending,
     verifySpelling: verifySpellingMutation.mutateAsync,
-    isVerifyingSpelling: verifySpellingMutation.isPending
+    isVerifyingSpelling: verifySpellingMutation.isPending,
+    importExcel: importExcelMutation.mutateAsync,
+    isImportingExcel: importExcelMutation.isPending
   };
 }
+

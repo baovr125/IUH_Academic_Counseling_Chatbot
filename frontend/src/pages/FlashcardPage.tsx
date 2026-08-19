@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { ArrowLeft, Sparkles, List, Plus } from "lucide-react";
+import { useState, useEffect } from "react";
+import { ArrowLeft, Sparkles, List, Plus, FileSpreadsheet } from "lucide-react";
 import { LANG_CONFIG } from "../services/deckStorage";
 import type { BackendDeck, BackendCardItem } from "../services/flashcardService";
 import { useDecks } from "../hooks/flashcards/useDecks";
@@ -14,6 +14,7 @@ import { EditDeckModal } from "../components/flashcards/modals/EditDeckModal";
 import { DeleteDeckModal } from "../components/flashcards/modals/DeleteDeckModal";
 import { AddCardModal } from "../components/flashcards/modals/AddCardModal";
 import { EditCardModal } from "../components/flashcards/modals/EditCardModal";
+import { ImportExcelModal } from "../components/flashcards/modals/ImportExcelModal";
 
 export default function FlashcardPage() {
   // 1. Core State
@@ -26,6 +27,7 @@ export default function FlashcardPage() {
   const [deletingDeck, setDeletingDeck] = useState<BackendDeck | null>(null);
   const [showAddCardModal, setShowAddCardModal] = useState(false);
   const [editingCard, setEditingCard] = useState<BackendCardItem | null>(null);
+  const [importingDeck, setImportingDeck] = useState<BackendDeck | null>(null);
 
   // 3. Custom Hooks
   const {
@@ -51,7 +53,9 @@ export default function FlashcardPage() {
     isUpdatingCard,
     deleteCard,
     rateFSRS,
-    verifySpelling
+    verifySpelling,
+    importExcel,
+    isImportingExcel
   } = useCardMutations(selectedDeck?.id);
 
   const {
@@ -71,6 +75,15 @@ export default function FlashcardPage() {
     stopAudio();
     setSelectedDeck(null);
   };
+
+  useEffect(() => {
+    const handleReset = () => {
+      stopAudio();
+      setSelectedDeck(null);
+    };
+    window.addEventListener("reset-flashcard-view", handleReset);
+    return () => window.removeEventListener("reset-flashcard-view", handleReset);
+  }, [stopAudio]);
 
   const handleConfirmDeleteDeck = async () => {
     if (!deletingDeck) return;
@@ -133,6 +146,17 @@ export default function FlashcardPage() {
               </button>
             </div>
 
+            {/* Import Excel Button */}
+            <button
+              type="button"
+              onClick={() => setImportingDeck(selectedDeck)}
+              className="flex items-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-50 px-3.5 py-2 text-xs font-semibold text-emerald-700 hover:bg-emerald-100 transition-colors shadow-sm"
+              title="Nhập từ vựng hàng loạt từ file Excel (.xlsx) hoặc CSV (.csv)"
+            >
+              <FileSpreadsheet size={15} />
+              <span>Nhập Excel</span>
+            </button>
+
             <button
               type="button"
               onClick={() => setShowAddCardModal(true)}
@@ -158,6 +182,7 @@ export default function FlashcardPage() {
             onPrefetchAudio={prefetchAudio}
             isPlayingAudio={isPlayingAudio}
             onOpenAddCard={() => setShowAddCardModal(true)}
+            onOpenImportExcel={() => setImportingDeck(selectedDeck)}
             onBackToDecks={handleBackToDecks}
           />
         ) : (
@@ -174,6 +199,7 @@ export default function FlashcardPage() {
               }
             }}
             onOpenAddCard={() => setShowAddCardModal(true)}
+            onOpenImportExcel={() => setImportingDeck(selectedDeck)}
           />
         )}
 
@@ -198,6 +224,23 @@ export default function FlashcardPage() {
           }}
           isLoading={isUpdatingCard}
         />
+
+        {/* Import Excel Modal */}
+        {importingDeck && (
+          <ImportExcelModal
+            isOpen={true}
+            deck={importingDeck}
+            onClose={() => setImportingDeck(null)}
+            onImport={async (file) => {
+              return await importExcel({
+                deckId: importingDeck.id,
+                file,
+                langCode: importingDeck.lang_code || importingDeck.langCode || "en"
+              });
+            }}
+            isLoading={isImportingExcel}
+          />
+        )}
       </div>
     );
   }
@@ -214,6 +257,7 @@ export default function FlashcardPage() {
         onOpenCreateDeck={() => setShowCreateDeckModal(true)}
         onOpenEditDeck={(deck) => setEditingDeck(deck)}
         onOpenDeleteDeck={(deck) => setDeletingDeck(deck)}
+        onOpenImportExcel={(deck) => setImportingDeck(deck)}
       />
 
       {/* Create Deck Modal */}
@@ -243,6 +287,23 @@ export default function FlashcardPage() {
         onConfirm={handleConfirmDeleteDeck}
         isLoading={isDeletingDeck}
       />
+
+      {/* Import Excel Modal (from Dashboard) */}
+      {importingDeck && (
+        <ImportExcelModal
+          isOpen={true}
+          deck={importingDeck}
+          onClose={() => setImportingDeck(null)}
+          onImport={async (file) => {
+            return await importExcel({
+              deckId: importingDeck.id,
+              file,
+              langCode: importingDeck.lang_code || importingDeck.langCode || "en"
+            });
+          }}
+          isLoading={isImportingExcel}
+        />
+      )}
     </>
   );
 }

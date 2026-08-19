@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { Virtuoso } from "react-virtuoso";
-import { Volume2, Pencil, Trash2, Search, RefreshCw, Plus } from "lucide-react";
+import { Volume2, Pencil, Trash2, Search, RefreshCw, Plus, FileSpreadsheet } from "lucide-react";
 import type { BackendCardItem, BackendDeck } from "../../services/flashcardService";
 
 interface CardListViewProps {
@@ -11,6 +11,7 @@ interface CardListViewProps {
   onOpenEditCard: (card: BackendCardItem) => void;
   onDeleteCard: (cardId: string) => Promise<void>;
   onOpenAddCard: () => void;
+  onOpenImportExcel?: () => void;
 }
 
 export const CardListView: React.FC<CardListViewProps> = ({
@@ -20,7 +21,8 @@ export const CardListView: React.FC<CardListViewProps> = ({
   onPlayAudio,
   onOpenEditCard,
   onDeleteCard,
-  onOpenAddCard
+  onOpenAddCard,
+  onOpenImportExcel
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const deckLang = deck.lang_code || deck.langCode || "en";
@@ -49,15 +51,27 @@ export const CardListView: React.FC<CardListViewProps> = ({
     return (
       <div className="rounded-3xl border border-dashed border-slate-200 p-12 text-center bg-white min-h-[300px] flex flex-col items-center justify-center">
         <p className="text-sm font-semibold text-slate-700">Chưa có thẻ từ vựng nào trong danh sách</p>
-        <p className="text-xs text-slate-400 mt-1">Bấm nút "Thêm từ" ở góc trên để tạo thẻ mới cho sổ này.</p>
-        <button
-          type="button"
-          onClick={onOpenAddCard}
-          className="mt-5 flex items-center gap-2 rounded-2xl bg-blue-600 px-4 py-2.5 text-xs font-bold text-white shadow-sm hover:bg-blue-700 transition-colors"
-        >
-          <Plus size={15} />
-          <span>Thêm thẻ đầu tiên</span>
-        </button>
+        <p className="text-xs text-slate-400 mt-1">Bấm nút "Thêm từ" hoặc "Nhập Excel" để tạo danh sách từ vựng cho sổ này.</p>
+        <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
+          <button
+            type="button"
+            onClick={onOpenAddCard}
+            className="flex items-center gap-2 rounded-2xl bg-blue-600 px-4 py-2.5 text-xs font-bold text-white shadow-sm hover:bg-blue-700 transition-colors"
+          >
+            <Plus size={15} />
+            <span>Thêm thẻ mới</span>
+          </button>
+          {onOpenImportExcel && (
+            <button
+              type="button"
+              onClick={onOpenImportExcel}
+              className="flex items-center gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-xs font-bold text-emerald-700 shadow-sm hover:bg-emerald-100 transition-colors"
+            >
+              <FileSpreadsheet size={15} />
+              <span>Nhập từ Excel / CSV</span>
+            </button>
+          )}
+        </div>
       </div>
     );
   }

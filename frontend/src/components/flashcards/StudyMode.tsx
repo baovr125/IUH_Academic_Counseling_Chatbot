@@ -11,7 +11,8 @@ import {
   Send,
   ArrowLeft,
   Plus,
-  Languages
+  Languages,
+  FileSpreadsheet
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import type { BackendDeck, BackendCardItem, VerifySpellingResult } from "../../services/flashcardService";
@@ -35,6 +36,7 @@ interface StudyModeProps {
   onPrefetchAudio: (text?: string, lang?: string) => void;
   isPlayingAudio: boolean;
   onOpenAddCard: () => void;
+  onOpenImportExcel?: () => void;
   onBackToDecks: () => void;
 }
 
@@ -48,6 +50,7 @@ export const StudyMode: React.FC<StudyModeProps> = ({
   onPrefetchAudio,
   isPlayingAudio,
   onOpenAddCard,
+  onOpenImportExcel,
   onBackToDecks
 }) => {
   const navigate = useNavigate();
@@ -164,7 +167,7 @@ export const StudyMode: React.FC<StudyModeProps> = ({
         <p className="mt-1 max-w-sm text-xs text-slate-500">
           Bạn có thể thêm từ mới ngay tại đây hoặc sử dụng tính năng Dịch tài liệu để AI tự động trích xuất bảng từ vựng vào sổ này.
         </p>
-        <div className="mt-6 flex gap-3">
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
           <button
             type="button"
             onClick={onOpenAddCard}
@@ -173,6 +176,16 @@ export const StudyMode: React.FC<StudyModeProps> = ({
             <Plus size={15} />
             <span>Thêm thẻ mới ngay</span>
           </button>
+          {onOpenImportExcel && (
+            <button
+              type="button"
+              onClick={onOpenImportExcel}
+              className="flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-100 transition-colors shadow-sm"
+            >
+              <FileSpreadsheet size={15} />
+              <span>Nhập từ Excel / CSV</span>
+            </button>
+          )}
           <button
             type="button"
             onClick={() => navigate("/translation")}

@@ -1,5 +1,5 @@
 import React from "react";
-import { Plus, BookOpen, Pencil, Trash2, RefreshCw } from "lucide-react";
+import { Plus, BookOpen, Pencil, Trash2, RefreshCw, FileSpreadsheet } from "lucide-react";
 import { LANG_CONFIG } from "../../services/deckStorage";
 import type { BackendDeck } from "../../services/flashcardService";
 
@@ -10,6 +10,7 @@ interface DeckDashboardProps {
   onOpenCreateDeck: () => void;
   onOpenEditDeck: (deck: BackendDeck) => void;
   onOpenDeleteDeck: (deck: BackendDeck) => void;
+  onOpenImportExcel: (deck: BackendDeck) => void;
 }
 
 export const DeckDashboard: React.FC<DeckDashboardProps> = ({
@@ -18,7 +19,8 @@ export const DeckDashboard: React.FC<DeckDashboardProps> = ({
   onSelectDeck,
   onOpenCreateDeck,
   onOpenEditDeck,
-  onOpenDeleteDeck
+  onOpenDeleteDeck,
+  onOpenImportExcel
 }) => {
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col p-8">
@@ -84,7 +86,18 @@ export const DeckDashboard: React.FC<DeckDashboardProps> = ({
                       <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600">
                         {deck.cards_count !== undefined ? deck.cards_count : 0} thẻ
                       </span>
-                      {/* Edit & Delete Action Buttons */}
+                      {/* Import Excel, Edit & Delete Action Buttons */}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onOpenImportExcel(deck);
+                        }}
+                        className="rounded-full p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors"
+                        title="Nhập từ vựng từ Excel / CSV"
+                      >
+                        <FileSpreadsheet size={15} />
+                      </button>
                       <button
                         type="button"
                         onClick={(e) => {

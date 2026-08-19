@@ -6,7 +6,7 @@ services:
       KONG_DATABASE: "off"
       KONG_DECLARATIVE_CONFIG: /usr/local/kong/declarative/kong.yml
       KONG_PROXY_LISTEN: 0.0.0.0:8000, 0.0.0.0:8443 ssl
-      KONG_NGINX_WORKER_PROCESSES: "2"
+      KONG_NGINX_WORKER_PROCESSES: "1"
       KONG_DNS_STALE_TTL: 0
       KONG_DNS_NOT_FOUND_TTL: 1
       KONG_DNS_VALID_TTL: 1
@@ -24,8 +24,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '2.0'
-          memory: 2G
+          cpus: '0.5'
+          memory: 256M
 
   rabbitmq:
     image: rabbitmq:3-management-alpine
@@ -39,8 +39,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1.0'
-          memory: 1G
+          cpus: '0.5'
+          memory: 256M
 
   redis:
     image: redis:7-alpine
@@ -50,8 +50,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1.0'
-          memory: 512M
+          cpus: '0.3'
+          memory: 128M
 
   minio:
     image: minio/minio:latest
@@ -68,8 +68,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1.5'
-          memory: 1G
+          cpus: '0.5'
+          memory: 256M
 
   auth-service:
     build:
@@ -82,8 +82,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1.0'
-          memory: 512M
+          cpus: '0.4'
+          memory: 256M
 
   academic-chatbot-service:
     build:
@@ -98,8 +98,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '2.0'
-          memory: 3.5G
+          cpus: '1.5'
+          memory: 2.0G
 
   realtime-translation-service:
     build:
@@ -116,13 +116,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1.5'
-          memory: 2G
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
+          cpus: '1.0'
+          memory: 1.2G
 
   doc-translation-service:
     build:
@@ -139,14 +134,14 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1.5'
-          memory: 1G
+          cpus: '0.5'
+          memory: 384M
 
   doc-translation-worker:
     build:
       context: ./services/doc_translation_service
     container_name: iuh_doc_translation_worker
-    command: celery -A app.celery_app worker --loglevel=info
+    command: celery -A app.celery_app worker --loglevel=info --concurrency=2
     env_file:
       - .env
     depends_on:
@@ -156,10 +151,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '2.5'
-          memory: 4G
-        reservations:
-          memory: 512M
+          cpus: '1.5'
+          memory: 1.8G
 
   flashcard-service:
     build:
@@ -174,9 +167,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1.0'
-          memory: 512M
-
+          cpus: '0.4'
+          memory: 256M
 
   frontend:
     build:
@@ -191,8 +183,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 256M
+          cpus: '0.2'
+          memory: 128M
 
 volumes:
   minio_data:

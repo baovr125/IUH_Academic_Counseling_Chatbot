@@ -1,6 +1,6 @@
 from typing import Optional, List
-from fastapi import APIRouter, Header, Depends, HTTPException
-from fastapi.responses import Response
+from fastapi import APIRouter, Header, Depends, HTTPException, UploadFile, File
+from fastapi.responses import Response, StreamingResponse
 import edge_tts
 from app.schemas.flashcards import (
     CreateDeckRequest,
@@ -25,6 +25,11 @@ from app.services.flashcard_service import (
     get_study_queue,
     verify_spelling,
     delete_card
+)
+from app.services.excel_importer import (
+    parse_excel_or_csv,
+    generate_excel_template,
+    bulk_insert_cards
 )
 from app.rabbitmq_consumer import publish_flashcard_created_event
 from app.utils.security import get_current_user_id
@@ -252,3 +257,72 @@ async def delete_card_endpoint(
     """Xóa thẻ với kiểm tra quyền sở hữu."""
     success = await delete_card(card_id, user_id)
     return ApiResult(ok=True, data={"deleted": success})
+
+@router.get("/template")
+async def download_excel_template_endpoint():
+    """
+    Tải file mẫu Excel (.xlsx) chuẩn cho tính năng Import từ vựng hàng loạt:
+    - Bao gồm tiêu đề cột rõ ràng và 3 dòng ví dụ mẫu.
+    """
+    try:
+        excel_bytes = generate_excel_template()
+        return Response(
+            content=excel_bytes,
+            media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            headers={
+                "Content-Disposition": "attachment; filename=flashcard_template.xlsx",
+                "Cache-Control": "no-cache"
+            }
+        )
+    except Exception as e:
+        logger.error(f"Failed to generate template: {e}")
+        raise HTTPException(status_code=500, detail=f"Lỗi tạo file mẫu Excel: {str(e)}")
+
+@router.post("/decks/{deck_id}/import-excel", response_model=ApiResult)
+async def import_excel_endpoint(
+    deck_id: str,
+    file: UploadFile = File(...),
+    lang_code: Optional[str] = None,
+    user_id: str = Depends(get_current_user_id)
+):
+    """
+    Import từ vựng hàng loạt từ file Excel (.xlsx, .xls) hoặc CSV:
+    - Tự động nhận diện và chuẩn hóa tên cột
+    - Lọc bỏ dòng trống, kiểm tra bắt buộc Term + Definition
+    - Loại bỏ trùng lặp trong file và trong sổ thẻ
+    - Batch insert 200 thẻ/lần để tối ưu I/O DB
+    - Bắn event RabbitMQ để sinh âm thanh phát âm ở chế độ nền
+    """
+    if not file.filename:
+        raise HTTPException(status_code=400, detail="Không nhận được file tải lên.")
+
+    filename_lower = file.filename.lower()
+    if not (filename_lower.endswith((".xlsx", ".xls", ".csv", ".xlsm"))):
+        raise HTTPException(
+            status_code=400,
+            detail="Định dạng file không hợp lệ. Vui lòng tải lên file Excel (.xlsx, .xls) hoặc CSV (.csv)."
+        )
+
+    # Đọc nội dung file
+    try:
+        content = await file.read()
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Không thể đọc file: {str(e)}")
+
+    if len(content) > 5 * 1024 * 1024: # 5MB limit
+        raise HTTPException(status_code=400, detail="Dung lượng file vượt quá giới hạn 5MB.")
+
+    # 1. Parse Excel / CSV
+    cards_data = parse_excel_or_csv(content, file.filename)
+
+    # 2. Bulk Insert vào DB
+    result = await bulk_insert_cards(
+        deck_id=deck_id,
+        user_id=user_id,
+        cards_data=cards_data,
+        lang_code=lang_code or "en"
+    )
+
+    return ApiResult(ok=True, data=result)
+
+
