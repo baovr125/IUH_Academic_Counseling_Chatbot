@@ -7,7 +7,7 @@ interface CardListViewProps {
   deck: BackendDeck;
   cards: BackendCardItem[];
   isLoading: boolean;
-  onPlayAudio: (audioUrl?: string, text?: string, lang?: string) => void;
+  onPlayAudio: (audioUrl?: string, text?: string, lang?: string, phonetic?: string) => void;
   onOpenEditCard: (card: BackendCardItem) => void;
   onDeleteCard: (cardId: string) => Promise<void>;
   onOpenAddCard: () => void;
@@ -121,7 +121,7 @@ export const CardListView: React.FC<CardListViewProps> = ({
                         <div className="flex items-center gap-1">
                           <button
                             type="button"
-                            onClick={() => onPlayAudio(card.audio_url, card.term, cardLang)}
+                            onClick={() => onPlayAudio(card.audio_url, card.term, cardLang, card.phonetic)}
                             className="rounded-full p-1.5 text-blue-600 hover:bg-blue-50 transition-colors"
                             title="Nghe phát âm"
                           >

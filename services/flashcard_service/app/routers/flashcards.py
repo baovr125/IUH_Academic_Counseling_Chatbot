@@ -195,7 +195,8 @@ async def create_card_endpoint(
                 card_id=card_id,
                 term=payload.front_text,
                 lang_code=payload.lang_code or "en",
-                user_id=user_id
+                user_id=user_id,
+                phonetic=payload.phonetic
             )
         except Exception as e:
             logger.warning(f"Could not publish flashcard.created event: {e}")

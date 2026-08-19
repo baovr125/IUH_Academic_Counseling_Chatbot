@@ -29,16 +29,17 @@ export function useFlashcardAudio() {
   const audioCache = useRef<Map<string, string>>(new Map());
 
   // Prefetch audio and cache as in-memory Blob URL for zero-latency instant playback
-  const prefetchAudio = useCallback(async (text?: string, lang: string = "en") => {
+  const prefetchAudio = useCallback(async (text?: string, lang: string = "en", phonetic?: string) => {
     const targetText = text?.trim();
     if (!targetText) return;
     const ttsLang = getTTSLangCode(lang);
-    const cacheKey = `${ttsLang}_${targetText}`;
+    const cacheKey = `${ttsLang}_${targetText}_${phonetic || ""}`;
     if (audioCache.current.has(cacheKey)) return;
 
     try {
       const baseUrl = getApiBaseUrl();
-      const url = `${baseUrl}/api/v1/translate/tts?text=${encodeURIComponent(targetText)}&lang=${encodeURIComponent(ttsLang)}`;
+      const phoneticParam = phonetic ? `&phonetic=${encodeURIComponent(phonetic)}` : "";
+      const url = `${baseUrl}/api/v1/translate/tts?text=${encodeURIComponent(targetText)}&lang=${encodeURIComponent(ttsLang)}${phoneticParam}`;
       const response = await fetch(url);
       if (response.ok) {
         const blob = await response.blob();
@@ -90,22 +91,23 @@ export function useFlashcardAudio() {
     };
   }, [speakBrowserTTS]);
 
-  const playStreamNeuralTTS = useCallback((text: string, ttsLang: string) => {
+  const playStreamNeuralTTS = useCallback((text: string, ttsLang: string, phonetic?: string) => {
     if (!text) {
       setIsPlayingAudio(false);
       return;
     }
-    const cacheKey = `${ttsLang}_${text}`;
+    const cacheKey = `${ttsLang}_${text}_${phonetic || ""}`;
     const cachedBlobUrl = audioCache.current.get(cacheKey);
     const baseUrl = getApiBaseUrl();
-    const ttsUrl = cachedBlobUrl || `${baseUrl}/api/v1/translate/tts?text=${encodeURIComponent(text)}&lang=${encodeURIComponent(ttsLang)}`;
+    const phoneticParam = phonetic ? `&phonetic=${encodeURIComponent(phonetic)}` : "";
+    const ttsUrl = cachedBlobUrl || `${baseUrl}/api/v1/translate/tts?text=${encodeURIComponent(text)}&lang=${encodeURIComponent(ttsLang)}${phoneticParam}`;
 
     const audio = new Audio(ttsUrl);
     audioRef.current = audio;
     audio.play().then(() => {
       audio.onended = () => setIsPlayingAudio(false);
       if (!cachedBlobUrl) {
-        prefetchAudio(text, ttsLang);
+        prefetchAudio(text, ttsLang, phonetic);
       }
     }).catch(() => {
       playFlashcardServiceTTSFallback(text, ttsLang);
@@ -115,8 +117,8 @@ export function useFlashcardAudio() {
     };
   }, [playFlashcardServiceTTSFallback, prefetchAudio]);
 
-  // Play Audio Pronunciation (Studio-quality Neural Voice via Backend TTS)
-  const playAudio = useCallback((audioUrl?: string, text?: string, lang: string = "en") => {
+  // Play Audio Pronunciation (Studio-quality Neural Voice via Backend TTS with IPA SSML support)
+  const playAudio = useCallback((audioUrl?: string, text?: string, lang: string = "en", phonetic?: string) => {
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current = null;
@@ -137,17 +139,17 @@ export function useFlashcardAudio() {
       audio.play().then(() => {
         audio.onended = () => setIsPlayingAudio(false);
       }).catch(() => {
-        playStreamNeuralTTS(targetText, ttsLang);
+        playStreamNeuralTTS(targetText, ttsLang, phonetic);
       });
       audio.onerror = () => {
-        playStreamNeuralTTS(targetText, ttsLang);
+        playStreamNeuralTTS(targetText, ttsLang, phonetic);
       };
       return;
     }
 
     // Priority 2: Stream Microsoft Edge Neural TTS directly from backend API (or from Blob Cache)
     if (targetText) {
-      playStreamNeuralTTS(targetText, ttsLang);
+      playStreamNeuralTTS(targetText, ttsLang, phonetic);
     } else {
       setIsPlayingAudio(false);
     }

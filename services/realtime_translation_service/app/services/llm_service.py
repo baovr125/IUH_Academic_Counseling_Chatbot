@@ -151,7 +151,11 @@ async def stream_translation(text: str, source_lang: str, target_lang: str, doma
 async def extract_flashcard(word: str, context: str, domain: str = "") -> dict:
     """Extracts flashcard info returning JSON."""
     groq_client = get_groq_client()
-    system_prompt = "You are a linguist. Extract vocabulary info. Return EXACT JSON with keys: word, phonetic, part_of_speech, meaning. No extra text."
+    system_prompt = (
+        "You are an expert lexicographer and linguist. Extract vocabulary info. "
+        "For English and German words, provide an exact standard IPA phonetic transcription including primary/secondary stress marks (e.g. /əˈsɪŋkrənəs/ or /ˈkʁaŋkn̩ˌhaʊ̯s/). "
+        "Return EXACT JSON with keys: word, phonetic, part_of_speech, meaning. No extra text."
+    )
     user_prompt = f"Word: '{word}'. Context: '{context}'. Domain: '{domain}'."
 
     messages = [

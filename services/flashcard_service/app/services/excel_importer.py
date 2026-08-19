@@ -507,7 +507,8 @@ async def bulk_insert_cards(
                 card_id=c["id"],
                 term=c["term"],
                 lang_code=c["lang_code"],
-                user_id=user_id
+                user_id=user_id,
+                phonetic=c.get("phonetic")
             )
         except Exception as e:
             logger.warning(f"Could not publish event for imported card {c['id']}: {e}")

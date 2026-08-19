@@ -32,8 +32,8 @@ interface StudyModeProps {
     fallbackAudio?: string;
     langCode?: string;
   }) => Promise<VerifySpellingResult>;
-  onPlayAudio: (audioUrl?: string, text?: string, lang?: string) => void;
-  onPrefetchAudio: (text?: string, lang?: string) => void;
+  onPlayAudio: (audioUrl?: string, text?: string, lang?: string, phonetic?: string) => void;
+  onPrefetchAudio: (text?: string, lang?: string, phonetic?: string) => void;
   isPlayingAudio: boolean;
   onOpenAddCard: () => void;
   onOpenImportExcel?: () => void;
@@ -121,7 +121,7 @@ export const StudyMode: React.FC<StudyModeProps> = ({
 
       setSpellingResult(res);
       if (res.is_correct) {
-        onPlayAudio(res.audio_url || currentCard.audio_url, currentCard.term, cardLang);
+        onPlayAudio(res.audio_url || currentCard.audio_url, currentCard.term, cardLang, currentCard.phonetic);
       }
     } catch (err) {
       console.warn("verify error:", err);
@@ -132,7 +132,7 @@ export const StudyMode: React.FC<StudyModeProps> = ({
 
   const handleReplayCurrentAudio = () => {
     if (currentCard) {
-      onPlayAudio(currentCard.audio_url, currentCard.term, cardLang);
+      onPlayAudio(currentCard.audio_url, currentCard.term, cardLang, currentCard.phonetic);
     }
   };
 

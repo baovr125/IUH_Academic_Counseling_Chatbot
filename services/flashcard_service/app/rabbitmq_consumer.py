@@ -14,9 +14,9 @@ RABBITMQ_PASS = os.environ.get("RABBITMQ_DEFAULT_PASS", "guest")
 RABBITMQ_URL = f"amqp://{RABBITMQ_USER}:{RABBITMQ_PASS}@{RABBITMQ_HOST}:{RABBITMQ_PORT}/"
 
 _channel: aio_pika.Channel = None
-_exchange: aio_pika.Exchange = None
+from typing import Optional
 
-async def publish_flashcard_created_event(card_id: str, term: str, lang_code: str = "en", user_id: str = "anonymous"):
+async def publish_flashcard_created_event(card_id: str, term: str, lang_code: str = "en", user_id: str = "anonymous", phonetic: Optional[str] = None):
     global _exchange
     if not _exchange:
         return
@@ -25,7 +25,8 @@ async def publish_flashcard_created_event(card_id: str, term: str, lang_code: st
             "card_id": card_id,
             "term": term,
             "lang_code": lang_code,
-            "user_id": user_id
+            "user_id": user_id,
+            "phonetic": phonetic
         }
         message = aio_pika.Message(
             body=json.dumps(payload).encode(),
@@ -33,7 +34,7 @@ async def publish_flashcard_created_event(card_id: str, term: str, lang_code: st
             delivery_mode=aio_pika.DeliveryMode.PERSISTENT
         )
         await _exchange.publish(message, routing_key="flashcard.created")
-        logger.info(f"Published flashcard.created event for card_id={card_id}, term='{term}'")
+        logger.info(f"Published flashcard.created event for card_id={card_id}, term='{term}', phonetic='{phonetic}'")
     except Exception as e:
         logger.error(f"Failed to publish flashcard.created event: {e}")
 
@@ -105,7 +106,8 @@ async def process_doc_translated_event(message: aio_pika.IncomingMessage):
                             card_id=card_id,
                             term=term,
                             lang_code=source_lang,
-                            user_id=user_id
+                            user_id=user_id,
+                            phonetic=phonetic
                         )
             
             logger.info(f"Successfully processed {created_count} new flashcards for deck '{deck_title}' and requested TTS audio.")
