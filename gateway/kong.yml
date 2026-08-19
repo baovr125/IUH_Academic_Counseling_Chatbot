@@ -1,6 +1,10 @@
 _format_version: "3.0"
 
 plugins:
+  - name: rate-limiting
+    config:
+      minute: 50
+      policy: local
   - name: cors
     config:
       origins:
@@ -16,6 +20,16 @@ plugins:
         - "*"
       credentials: true
       max_age: 3600
+
+consumers:
+  - username: auth-issuer
+    custom_id: auth-issuer
+    
+jwt_secrets:
+  - consumer: auth-issuer
+    key: "auth-issuer-key"
+    secret: "super-secret-key-iuh-chatbot-2026"
+    algorithm: HS256
 
 services:
   - name: auth-service
@@ -61,4 +75,6 @@ services:
         paths:
           - /api/v1/flashcards
           - /api/flashcards
+          - /api/v1/decks
+          - /api/v1/cards
         strip_path: false

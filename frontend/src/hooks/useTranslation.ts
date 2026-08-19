@@ -23,8 +23,8 @@ interface UseTranslationReturn {
 }
 
 export function useTranslation(): UseTranslationReturn {
-  const [sourceLang, setSourceLang] = useState<LanguageCode>("vi");
-  const [targetLang, setTargetLang] = useState<LanguageCode>("de");
+  const [sourceLang, setSourceLang] = useState<LanguageCode>("en");
+  const [targetLang, setTargetLang] = useState<LanguageCode>("vi");
   const [sourceText, setSourceText] = useState("");
   const [translatedText, setTranslatedText] = useState("");
   const [isTranslating, setIsTranslating] = useState(false);

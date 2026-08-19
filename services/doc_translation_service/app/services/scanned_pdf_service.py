@@ -88,8 +88,14 @@ def process_scanned_pdf_translation(
                 translated_block = call_ollama_generate(prompt=prompt, model=model)
                 doc_out.add_paragraph(translated_block if translated_block else block)
             except Exception as e:
-                logger.warning(f"Lỗi dịch block OCR: {e}")
-                doc_out.add_paragraph(block)
+                logger.warning(f"Lỗi dịch block OCR với Ollama ({e}), thử dùng Gemini API fallback...")
+                try:
+                    from app.services.translator import translate_chunk_with_gemini
+                    g_text = translate_chunk_with_gemini(block, source_lang=source_lang, target_lang=target_lang)
+                    doc_out.add_paragraph(g_text)
+                except Exception as gemini_err:
+                    logger.error(f"Lỗi cả Gemini API fallback: {gemini_err}")
+                    doc_out.add_paragraph(block)
 
     os.makedirs(os.path.dirname(output_docx_path), exist_ok=True)
     doc_out.save(output_docx_path)

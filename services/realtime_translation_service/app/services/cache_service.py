@@ -36,3 +36,21 @@ def set_cached_translation(key: str, value: str, ttl: int = 86400):
             r.setex(f"trans:{key}", ttl, value)
         except Exception as e:
             logger.warning(f"Redis set error: {e}")
+
+def get_cached_audio_url(key: str) -> Optional[str]:
+    r = get_redis()
+    if r:
+        try:
+            return r.get(f"tts_url:{key}")
+        except Exception as e:
+            logger.warning(f"Redis get audio url error: {e}")
+    return None
+
+def set_cached_audio_url(key: str, audio_url: str, ttl: int = 604800): # Cache URL string for 7 days
+    r = get_redis()
+    if r:
+        try:
+            r.setex(f"tts_url:{key}", ttl, audio_url)
+        except Exception as e:
+            logger.warning(f"Redis set audio url error: {e}")
+

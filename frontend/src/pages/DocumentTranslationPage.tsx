@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   FileText,
   UploadCloud,
@@ -22,10 +22,15 @@ import {
   Eye,
   AlertCircle,
   ExternalLink,
-  FileType
+  FileType,
+  Volume2,
+  RotateCcw
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { LANG_CONFIG, addCardToDeck } from "../services/deckStorage";
+import { LANG_CONFIG, getDecks, type FlashcardDeck } from "../services/deckStorage";
+import { getToken } from "../services/authService";
+
+const STORAGE_KEY = "iuh_doc_translation_session";
 
 interface DocumentFile {
   id?: string;
@@ -38,8 +43,11 @@ interface DocumentFile {
 
 interface GlossaryItem {
   term: string;
-  vi: string;
+  translation?: string;
+  vi?: string; // Fallback
   context?: string;
+  phonetic?: string;
+  audio_url?: string;
 }
 
 export default function DocumentTranslationPage() {
@@ -54,8 +62,10 @@ export default function DocumentTranslationPage() {
   // Processing state
   const [docId, setDocId] = useState<string>("");
   const [isTranslating, setIsTranslating] = useState(false);
+  const [isExtractingGlossary, setIsExtractingGlossary] = useState(false);
   const [progressPercent, setProgressPercent] = useState(0);
   const [statusMessage, setStatusMessage] = useState("Vui lòng chọn tài liệu để bắt đầu");
+  const [modelUsed, setModelUsed] = useState<string>("");
   const [isCompleted, setIsCompleted] = useState(false);
   const [savedKeywordsSuccess, setSavedKeywordsSuccess] = useState(false);
 
@@ -71,37 +81,149 @@ export default function DocumentTranslationPage() {
 
   // Extracted Glossary from real document processing
   const [glossary, setGlossary] = useState<GlossaryItem[]>([]);
+  const [selectedGlossaryIndices, setSelectedGlossaryIndices] = useState<Set<number>>(new Set());
+
+  // Deck Modal State
+  const [isDeckModalOpen, setIsDeckModalOpen] = useState(false);
+  const [deckOption, setDeckOption] = useState<"existing" | "new">("existing");
+  const [selectedDeckId, setSelectedDeckId] = useState<string>("");
+  const [newDeckTitle, setNewDeckTitle] = useState("");
+  const [availableDecks, setAvailableDecks] = useState<FlashcardDeck[]>([]);
+
+  // Ref to track latest state for async event listeners
+  const selectedFileRef = useRef(selectedFile);
+  selectedFileRef.current = selectedFile;
+
+  const persistSession = (dataToSave: Record<string, any>) => {
+    try {
+      const existing = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+      const merged = { ...existing, ...dataToSave, timestamp: Date.now() };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+    } catch (e) {
+      console.error("Error saving translation session:", e);
+    }
+  };
+
+  const handleResetTranslation = () => {
+    localStorage.removeItem(STORAGE_KEY);
+    setDocId("");
+    setSelectedFile(null);
+    setActualFile(null);
+    setIsTranslating(false);
+    setIsExtractingGlossary(false);
+    setIsCompleted(false);
+    setProgressPercent(0);
+    setStatusMessage("Vui lòng chọn tài liệu để bắt đầu");
+    setTranslatedText("");
+    setGlossary([]);
+    setSelectedGlossaryIndices(new Set());
+    setRagAnswer(null);
+    setModelUsed("");
+    setActiveTab("pdf");
+  };
+
+  // Restore translation state on page reload (F5)
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (!saved) return;
+      const data = JSON.parse(saved);
+      if (data && data.docId) {
+        setDocId(data.docId);
+        if (data.sourceLang) setSourceLang(data.sourceLang);
+        if (data.targetLang) setTargetLang(data.targetLang);
+        if (data.selectedFile) setSelectedFile(data.selectedFile);
+        if (data.translatedText) setTranslatedText(data.translatedText);
+        if (data.glossary) setGlossary(data.glossary);
+        if (data.modelUsed) setModelUsed(data.modelUsed);
+        if (data.statusMessage) setStatusMessage(data.statusMessage);
+        if (data.progressPercent !== undefined) setProgressPercent(data.progressPercent);
+        if (data.isCompleted !== undefined) setIsCompleted(data.isCompleted);
+        if (data.activeTab) setActiveTab(data.activeTab);
+
+        // Fetch fresh state from backend
+        const baseUrl = (import.meta as any).env.VITE_API_BASE_URL || "http://localhost:8000";
+        const token = getToken();
+        const headers: Record<string, string> = {};
+        if (token) headers["Authorization"] = `Bearer ${token}`;
+
+        fetch(`${baseUrl}/api/v1/documents/${data.docId}/status`, { headers })
+          .then((res) => (res.ok ? res.json() : null))
+          .then((resData) => {
+            if (resData?.data) {
+              const item = resData.data;
+              if (item.status === "completed") {
+                setIsCompleted(true);
+                setIsTranslating(false);
+                setIsExtractingGlossary(false);
+                setProgressPercent(100);
+                if (item.glossary_json && item.glossary_json.length > 0) setGlossary(item.glossary_json);
+                else if (item.glossary && item.glossary.length > 0) setGlossary(item.glossary);
+                if (item.translated_text) setTranslatedText(item.translated_text);
+                if (item.model_used) setModelUsed(item.model_used);
+                if (item.message) setStatusMessage(item.message);
+              }
+            }
+          })
+          .catch((e) => console.log("Status restore check:", e));
+      }
+    } catch (e) {
+      console.error("Lỗi khôi phục session dịch thuật:", e);
+    }
+  }, []);
 
   const swapLanguages = () => {
-    setSourceLang(targetLang);
-    setTargetLang(sourceLang);
+    const newSrc = targetLang;
+    const newTgt = sourceLang;
+    setSourceLang(newSrc);
+    setTargetLang(newTgt);
+    persistSession({ sourceLang: newSrc, targetLang: newTgt });
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    if (file.size > 10 * 1024 * 1024) {
+      alert("Kích thước file vượt quá giới hạn 10MB. Vui lòng chọn file nhỏ hơn.");
+      return;
+    }
+
     let type: "pdf" | "docx" | "pptx" = "pdf";
     if (file.name.endsWith(".pptx") || file.name.endsWith(".ppt")) type = "pptx";
     else if (file.name.endsWith(".docx") || file.name.endsWith(".doc")) type = "docx";
 
     const newDocId = `doc_${Date.now()}`;
-    setDocId(newDocId);
-    setActualFile(file);
-    setSelectedFile({
+    const fileObj: DocumentFile = {
       id: newDocId,
       name: file.name,
       type,
       size: `${(file.size / (1024 * 1024)).toFixed(1)} MB`,
       pagesOrSlides: type === "pptx" ? "PowerPoint" : "Document",
       title: file.name.replace(/\.[^/.]+$/, ""),
-    });
+    };
+
+    setDocId(newDocId);
+    setActualFile(file);
+    setSelectedFile(fileObj);
     setIsCompleted(false);
+    setIsExtractingGlossary(false);
     setProgressPercent(0);
     setStatusMessage("Tài liệu đã sẵn sàng để dịch");
     setTranslatedText("");
     setGlossary([]);
+    setSelectedGlossaryIndices(new Set());
     setRagAnswer(null);
+
+    persistSession({
+      docId: newDocId,
+      selectedFile: fileObj,
+      isCompleted: false,
+      progressPercent: 0,
+      statusMessage: "Tài liệu đã sẵn sàng để dịch",
+      translatedText: "",
+      glossary: []
+    });
   };
 
   const handleStartTranslate = async () => {
@@ -111,6 +233,7 @@ export default function DocumentTranslationPage() {
     }
 
     setIsTranslating(true);
+    setIsExtractingGlossary(false);
     setIsCompleted(false);
     setProgressPercent(5);
     setStatusMessage("Đang tải tài liệu lên hệ thống AI...");
@@ -122,9 +245,16 @@ export default function DocumentTranslationPage() {
       formData.append("target_lang", targetLang);
 
       const baseUrl = (import.meta as any).env.VITE_API_BASE_URL || "http://localhost:8000";
+      const token = getToken();
       
+      const headers = new Headers();
+      if (token) {
+        headers.append("Authorization", `Bearer ${token}`);
+      }
+
       const uploadRes = await fetch(`${baseUrl}/api/v1/documents/upload`, {
         method: "POST",
+        headers: headers,
         body: formData,
       });
 
@@ -136,41 +266,91 @@ export default function DocumentTranslationPage() {
       const currentDocId = uploadData.data.doc_id;
       setDocId(currentDocId);
 
-      // Polling real progress from backend worker
-      const pollInterval = setInterval(async () => {
+      persistSession({
+        docId: currentDocId,
+        sourceLang,
+        targetLang,
+        selectedFile: selectedFileRef.current,
+        isCompleted: false,
+        progressPercent: 10,
+        statusMessage: "Đang xử lý dịch thuật ngầm..."
+      });
+
+      // Nhận luồng SSE real progress từ backend
+      const eventSourceUrl = new URL(`${baseUrl}/api/v1/documents/${currentDocId}/stream`);
+      if (token) {
+        eventSourceUrl.searchParams.append("token", token);
+      }
+      const eventSource = new EventSource(eventSourceUrl.toString());
+
+      eventSource.addEventListener("update", (event) => {
         try {
-          const statusRes = await fetch(`${baseUrl}/api/v1/documents/${currentDocId}/status`);
-          const statusData = await statusRes.json();
+          const data = JSON.parse(event.data);
           
-          if (!statusData.ok) return;
+          if (data.progress !== undefined) setProgressPercent(data.progress);
+          if (data.message) setStatusMessage(data.message);
+          if (data.model_used) setModelUsed(data.model_used);
           
-          const { status, progress, message, translated_text, glossary: fetchedGlossary } = statusData.data;
-          
-          setProgressPercent(progress);
-          setStatusMessage(message);
-
-          if (fetchedGlossary && fetchedGlossary.length > 0) {
-            setGlossary(fetchedGlossary);
+          // Khi đã có nội dung dịch hoặc PDF link, hiển thị ngay PDF view cho người dùng
+          if (data.translated_text || data.translated_file_url) {
+            if (data.translated_text) setTranslatedText(data.translated_text);
+            setIsCompleted(true);
+            setIsTranslating(false);
+            setActiveTab("pdf");
           }
 
-          if (translated_text) {
-            setTranslatedText(translated_text);
+          if (data.glossary && data.glossary.length > 0) {
+            setGlossary(data.glossary);
+            setIsExtractingGlossary(false);
+          } else if (data.progress >= 80 || (data.message && data.message.toLowerCase().includes("glossary"))) {
+            setIsExtractingGlossary(true);
           }
 
-          if (status === "completed") {
-            clearInterval(pollInterval);
+          const statusLower = data.status ? String(data.status).toLowerCase() : "";
+          if (statusLower === "completed") {
+            eventSource.close();
             setIsTranslating(false);
             setIsCompleted(true);
+            setIsExtractingGlossary(false);
             setActiveTab("pdf"); // Switch directly to PDF view on completion
-          } else if (status === "failed") {
-            clearInterval(pollInterval);
+
+            persistSession({
+              docId: currentDocId,
+              sourceLang,
+              targetLang,
+              selectedFile: selectedFileRef.current,
+              translatedText: data.translated_text || "",
+              glossary: data.glossary || [],
+              modelUsed: data.model_used || "",
+              statusMessage: data.message || "Đã hoàn thành dịch thuật",
+              progressPercent: 100,
+              isCompleted: true,
+              activeTab: "pdf"
+            });
+          } else if (statusLower === "failed") {
+            eventSource.close();
             setIsTranslating(false);
-            setStatusMessage("Lỗi xử lý: " + message);
+            setIsExtractingGlossary(false);
+            setStatusMessage("Lỗi xử lý: " + (data.message || data.error || ""));
+            persistSession({
+              docId: currentDocId,
+              isCompleted: false,
+              statusMessage: "Lỗi xử lý: " + (data.message || data.error || "")
+            });
           }
         } catch (err) {
-          console.error("Lỗi khi kiểm tra tiến độ:", err);
+          console.error("Lỗi khi parse dữ liệu SSE:", err);
         }
-      }, 2500);
+      });
+
+      eventSource.onerror = (err) => {
+        console.error("Lỗi kết nối SSE:", err);
+        eventSource.close();
+        if (progressPercent < 100 && !isCompleted) {
+          setIsTranslating(false);
+          setStatusMessage("Mất kết nối với máy chủ (SSE). Vui lòng thử lại.");
+        }
+      };
 
     } catch (err: any) {
       console.error(err);
@@ -180,7 +360,9 @@ export default function DocumentTranslationPage() {
   };
 
   const baseUrl = (import.meta as any).env.VITE_API_BASE_URL || "http://localhost:8000";
-  const pdfUrl = docId ? `${baseUrl}/api/v1/documents/${docId}/download` : "";
+  const token = getToken();
+  const pdfUrl = docId ? `${baseUrl}/api/v1/documents/${docId}/download${token ? `?token=${token}` : ""}` : "";
+
 
   const handleOpenPdfNewTab = () => {
     if (!pdfUrl) return;
@@ -204,21 +386,111 @@ export default function DocumentTranslationPage() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleSaveKeywordsToDeck = () => {
-    if (!selectedFile || glossary.length === 0) return;
+  const handleOpenDeckModal = () => {
+    if (selectedGlossaryIndices.size === 0) {
+      alert("Vui lòng chọn ít nhất một thuật ngữ để lưu.");
+      return;
+    }
+    const decks = getDecks();
+    setAvailableDecks(decks);
+    if (decks.length > 0) setSelectedDeckId(decks[0].id);
+    setIsDeckModalOpen(true);
+  };
 
-    glossary.forEach((item) => {
-      addCardToDeck(
-        targetLang,
-        item.term,
-        item.vi,
-        `Trích xuất từ tài liệu: ${selectedFile.name}`,
-        "noun"
-      );
+  const handleSaveKeywordsToDeck = async () => {
+    if (selectedGlossaryIndices.size === 0) return;
+
+    let targetDeckId = selectedDeckId;
+
+    try {
+      const token = getToken();
+      const headers: Record<string, string> = { 
+        "Content-Type": "application/json"
+      };
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
+      if (deckOption === "new") {
+        const res = await fetch(`${baseUrl}/api/v1/flashcards/decks`, {
+          method: "POST",
+          headers: headers,
+          body: JSON.stringify({ title: newDeckTitle, description: `Tạo từ tài liệu: ${selectedFile?.name || "Bản dịch"}` })
+        });
+        const data = await res.json();
+        if (data.ok && data.data?.id) {
+          targetDeckId = data.data.id;
+        } else {
+          targetDeckId = `deck-custom-${Date.now()}`;
+        }
+      }
+
+      const selectedItems = Array.from(selectedGlossaryIndices).map(i => glossary[i]);
+
+      for (const item of selectedItems) {
+        const termTranslation = item.translation || item.vi || "";
+        await fetch(`${baseUrl}/api/v1/flashcards/cards`, {
+          method: "POST",
+          headers: headers,
+          body: JSON.stringify({
+            deck_id: targetDeckId,
+            front_text: item.term,
+            back_text: termTranslation,
+            phonetic: item.phonetic || null,
+            audio_url: item.audio_url || null,
+            example_sentence: `Trích xuất từ tài liệu: ${selectedFile?.name || "Bản dịch"}`
+          })
+        });
+      }
+
+      setSavedKeywordsSuccess(true);
+      setTimeout(() => setSavedKeywordsSuccess(false), 4000);
+      setIsDeckModalOpen(false);
+      setSelectedGlossaryIndices(new Set()); // Reset selections
+    } catch (e) {
+      console.error("Error saving cards", e);
+      alert("Đã xảy ra lỗi khi lưu thẻ.");
+    }
+  };
+
+  const playAudio = (text: string, langCode: string, audioUrl?: string) => {
+    let resolvedUrl = "";
+    if (audioUrl && audioUrl.trim().length > 0) {
+      resolvedUrl = audioUrl.startsWith("http") ? audioUrl : `${baseUrl}${audioUrl.startsWith("/") ? "" : "/"}${audioUrl}`;
+    } else {
+      const voiceLang = langCode === "en" ? "en-US" : (langCode === "vi" ? "vi-VN" : langCode);
+      resolvedUrl = `${baseUrl}/api/v1/translate/tts?text=${encodeURIComponent(text)}&lang=${voiceLang}`;
+    }
+
+    const audio = new Audio(resolvedUrl);
+    audio.play().catch((e) => {
+      console.warn("Audio playback error, trying fallback Edge-TTS...", e);
+      const voiceLang = langCode === "en" ? "en-US" : (langCode === "vi" ? "vi-VN" : langCode);
+      const fallbackUrl = `${baseUrl}/api/v1/translate/tts?text=${encodeURIComponent(text)}&lang=${voiceLang}`;
+      const fallbackAudio = new Audio(fallbackUrl);
+      fallbackAudio.play().catch((err) => {
+        console.warn("Edge-TTS fallback failed, using Web Speech API", err);
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = langCode === "en" ? "en-US" : langCode;
+        window.speechSynthesis.speak(utterance);
+      });
     });
+  };
 
-    setSavedKeywordsSuccess(true);
-    setTimeout(() => setSavedKeywordsSuccess(false), 4000);
+
+  const toggleGlossaryItem = (index: number) => {
+    const newSet = new Set(selectedGlossaryIndices);
+    if (newSet.has(index)) newSet.delete(index);
+    else newSet.add(index);
+    setSelectedGlossaryIndices(newSet);
+  };
+
+  const toggleAllGlossary = () => {
+    if (selectedGlossaryIndices.size === glossary.length) {
+      setSelectedGlossaryIndices(new Set());
+    } else {
+      setSelectedGlossaryIndices(new Set(glossary.map((_, i) => i)));
+    }
   };
 
   const handleRagQuery = async (e: React.FormEvent) => {
@@ -227,9 +499,13 @@ export default function DocumentTranslationPage() {
 
     setIsRagQuerying(true);
     try {
+      const token = getToken();
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+
       const res = await fetch(`${baseUrl}/api/v1/documents/${docId}/query`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: headers,
         body: JSON.stringify({ query: ragQuery }),
       });
 
@@ -371,7 +647,7 @@ export default function DocumentTranslationPage() {
               Nhấp hoặc kéo thả tài liệu (PDF, Word, PowerPoint)
             </div>
             <div className="mt-1 text-[11px] text-slate-400">
-              Hỗ trợ file tối đa 50MB, giữ nguyên định dạng trang
+              Hỗ trợ file tối đa 10MB, giữ nguyên định dạng trang
             </div>
           </div>
 
@@ -426,17 +702,29 @@ export default function DocumentTranslationPage() {
                 <span className="text-xs font-bold text-slate-800">
                   Từ Điển Thuật Ngữ IUH ({glossary.length})
                 </span>
+                {isExtractingGlossary && (
+                  <span className="flex items-center gap-1 rounded-full bg-indigo-50 border border-indigo-200 px-2 py-0.5 text-[10px] font-bold text-indigo-700 animate-pulse">
+                    <Loader2 size={11} className="animate-spin" />
+                    <span>Đang trích xuất...</span>
+                  </span>
+                )}
               </div>
 
               {glossary.length > 0 && (
-                <button
-                  type="button"
-                  onClick={handleSaveKeywordsToDeck}
-                  className="flex items-center gap-1 rounded-lg bg-indigo-50 px-2.5 py-1 text-[11px] font-semibold text-indigo-700 hover:bg-indigo-100 transition-colors"
-                >
-                  <BookmarkPlus size={13} />
-                  <span>Lưu Thẻ Flashcard</span>
-                </button>
+                <div className="flex items-center gap-3">
+                  <button onClick={toggleAllGlossary} className="text-[11px] text-slate-500 hover:text-blue-600 font-medium transition-colors">
+                    {selectedGlossaryIndices.size === glossary.length ? "Bỏ chọn tất cả" : "Chọn tất cả"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleOpenDeckModal}
+                    disabled={selectedGlossaryIndices.size === 0}
+                    className="flex items-center gap-1 rounded-lg bg-indigo-50 px-2.5 py-1.5 text-[11px] font-bold text-indigo-700 hover:bg-indigo-100 disabled:opacity-50 transition-all active:scale-95"
+                  >
+                    <BookmarkPlus size={14} />
+                    <span>Lưu thẻ ({selectedGlossaryIndices.size})</span>
+                  </button>
+                </div>
               )}
             </div>
 
@@ -447,7 +735,13 @@ export default function DocumentTranslationPage() {
               </div>
             )}
 
-            {glossary.length === 0 ? (
+            {isExtractingGlossary && glossary.length === 0 ? (
+              <div className="flex flex-1 flex-col items-center justify-center py-8 text-center bg-indigo-50/50 rounded-xl border border-dashed border-indigo-200 p-4 animate-pulse">
+                <Loader2 size={24} className="mb-2 animate-spin text-indigo-600" />
+                <span className="text-xs font-bold text-indigo-900">Đang phân tích & trích xuất thuật ngữ AI...</span>
+                <span className="text-[11px] text-indigo-500 mt-1">Đang tạo phiên âm IPA và giọng phát âm chuẩn</span>
+              </div>
+            ) : glossary.length === 0 ? (
               <div className="flex flex-1 flex-col items-center justify-center py-8 text-center text-slate-400">
                 <AlertCircle size={24} className="mb-1 text-slate-300" />
                 <span className="text-xs">Chưa có thuật ngữ trích xuất</span>
@@ -456,10 +750,23 @@ export default function DocumentTranslationPage() {
             ) : (
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 overflow-y-auto max-h-[220px] pr-1">
                 {glossary.map((g, i) => (
-                  <div key={i} className="rounded-xl border border-slate-100 bg-slate-50/70 p-2.5 text-xs">
-                    <div className="font-bold text-slate-800">{g.term}</div>
-                    <div className="text-blue-600 font-medium mt-0.5">{g.vi}</div>
-                    {g.context && <div className="text-[10px] text-slate-400 mt-0.5">{g.context}</div>}
+                  <div key={i} className={`relative rounded-xl border ${selectedGlossaryIndices.has(i) ? 'border-blue-400 bg-blue-50/50' : 'border-slate-200 bg-slate-50/70'} p-2.5 text-xs transition-all cursor-pointer group hover:border-blue-300 shadow-sm`} onClick={() => toggleGlossaryItem(i)}>
+                    <div className="flex items-start justify-between mb-1.5">
+                      <div className="flex items-start gap-2 max-w-[80%]">
+                        <input type="checkbox" checked={selectedGlossaryIndices.has(i)} readOnly className="mt-0.5 rounded text-blue-600 border-slate-300 focus:ring-0 shrink-0" />
+                        <div>
+                           <div className="font-bold text-slate-800 break-words">{g.term}</div>
+                           {g.phonetic && <div className="text-[10.5px] text-slate-500 font-mono mt-0.5">{g.phonetic}</div>}
+                        </div>
+                      </div>
+                      
+                      <button onClick={(e) => { e.stopPropagation(); playAudio(g.term, sourceLang, g.audio_url); }} className="text-blue-600 hover:text-blue-800 hover:bg-blue-100/80 p-1.5 rounded-full transition-colors shrink-0 flex items-center justify-center bg-blue-50/50" title="Phát âm">
+                        <Volume2 size={15} />
+                      </button>
+                    </div>
+                    
+                    <div className="text-blue-700 font-medium ml-[22px]">{g.translation || g.vi}</div>
+                    {g.context && <div className="text-[10px] text-slate-400 ml-[22px] mt-1">{g.context}</div>}
                   </div>
                 ))}
               </div>
@@ -488,12 +795,29 @@ export default function DocumentTranslationPage() {
                         {sourceLang} ➔ {targetLang}
                       </span>
                     )}
+                    {modelUsed && (
+                      <span className="rounded bg-purple-50 px-1.5 py-0.5 text-[9px] font-bold text-purple-700">
+                        🤖 {modelUsed}
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
 
               {/* Top Action Buttons */}
               <div className="flex items-center gap-2">
+                {isCompleted && (
+                  <button
+                    type="button"
+                    onClick={handleResetTranslation}
+                    className="flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors shadow-sm"
+                    title="Dịch tài liệu khác"
+                  >
+                    <RotateCcw size={14} />
+                    <span>Dịch file mới</span>
+                  </button>
+                )}
+
                 {isCompleted && pdfUrl && (
                   <button
                     type="button"
@@ -597,7 +921,7 @@ export default function DocumentTranslationPage() {
             <div className="flex-1 p-3 overflow-hidden bg-slate-100/60 flex flex-col">
               
               {/* LOADING STATE */}
-              {isTranslating && (
+              {isTranslating && !isCompleted && (
                 <div className="flex h-full flex-col items-center justify-center py-20 text-center">
                   <Loader2 size={38} className="animate-spin text-blue-600 mb-3" />
                   <div className="text-sm font-bold text-slate-800">Đang dịch & render file PDF...</div>
@@ -619,7 +943,7 @@ export default function DocumentTranslationPage() {
               )}
 
               {/* COMPLETED TAB CONTENT */}
-              {!isTranslating && isCompleted && (
+              {isCompleted && (
                 <div className="flex-1 flex flex-col overflow-hidden h-full">
                   {/* TAB 1: EMBEDDED PDF VIEWER */}
                   {activeTab === "pdf" && (
@@ -677,7 +1001,7 @@ export default function DocumentTranslationPage() {
                           {glossary.slice(0, 8).map((g, i) => (
                             <div key={i} className="flex items-start gap-2 text-xs text-slate-700">
                               <CheckCircle2 size={15} className="text-green-600 flex-shrink-0 mt-0.5" />
-                              <span><strong>{g.term}</strong>: {g.vi}</span>
+                              <span><strong>{g.term}</strong>: {g.translation || g.vi}</span>
                             </div>
                           ))}
                         </div>
@@ -745,6 +1069,73 @@ export default function DocumentTranslationPage() {
         </div>
 
       </div>
+      {/* Deck Selection Modal */}
+      {isDeckModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-2xl bg-white p-5 shadow-2xl">
+            <h3 className="mb-1 text-lg font-bold text-slate-800 flex items-center gap-2">
+              <BookmarkPlus size={20} className="text-blue-600"/>
+              Lưu Thẻ Flashcard
+            </h3>
+            <p className="mb-5 text-xs text-slate-500 leading-relaxed">
+              Bạn đang lưu <strong className="text-slate-700">{selectedGlossaryIndices.size} thuật ngữ</strong>. Vui lòng chọn sổ thẻ đích:
+            </p>
+
+            <div className="space-y-4">
+              <label className="flex flex-col gap-2 cursor-pointer group">
+                <div className="flex items-center gap-2 text-sm font-semibold text-slate-700 group-hover:text-blue-600 transition-colors">
+                  <input type="radio" name="deckOption" value="existing" checked={deckOption === "existing"} onChange={() => setDeckOption("existing")} className="text-blue-600 focus:ring-0 border-slate-300 w-4 h-4" />
+                  Lưu vào sổ thẻ hiện có
+                </div>
+                {deckOption === "existing" && (
+                  <select
+                    value={selectedDeckId}
+                    onChange={(e) => setSelectedDeckId(e.target.value)}
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs font-medium text-slate-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none ml-6 max-w-[90%] shadow-sm transition-all"
+                  >
+                    {availableDecks.map(d => (
+                      <option key={d.id} value={d.id}>{d.iconFlag} {d.title}</option>
+                    ))}
+                    {availableDecks.length === 0 && <option value="" disabled>Chưa có sổ thẻ nào</option>}
+                  </select>
+                )}
+              </label>
+
+              <label className="flex flex-col gap-2 cursor-pointer group mt-2">
+                <div className="flex items-center gap-2 text-sm font-semibold text-slate-700 group-hover:text-blue-600 transition-colors">
+                  <input type="radio" name="deckOption" value="new" checked={deckOption === "new"} onChange={() => setDeckOption("new")} className="text-blue-600 focus:ring-0 border-slate-300 w-4 h-4" />
+                  Tạo sổ thẻ mới
+                </div>
+                {deckOption === "new" && (
+                  <input
+                    type="text"
+                    placeholder="Nhập tên sổ thẻ mới... (VD: Chương 1)"
+                    value={newDeckTitle}
+                    onChange={(e) => setNewDeckTitle(e.target.value)}
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs font-medium text-slate-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none ml-6 max-w-[90%] shadow-sm transition-all placeholder:text-slate-400"
+                  />
+                )}
+              </label>
+            </div>
+
+            <div className="mt-7 flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+              <button
+                onClick={() => setIsDeckModalOpen(false)}
+                className="rounded-xl px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors"
+              >
+                Hủy bỏ
+              </button>
+              <button
+                onClick={handleSaveKeywordsToDeck}
+                disabled={(deckOption === "existing" && !selectedDeckId) || (deckOption === "new" && !newDeckTitle.trim())}
+                className="rounded-xl bg-blue-600 px-5 py-2.5 text-xs font-bold text-white hover:bg-blue-700 disabled:opacity-50 disabled:hover:bg-blue-600 transition-colors shadow-sm"
+              >
+                Lưu Thẻ
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

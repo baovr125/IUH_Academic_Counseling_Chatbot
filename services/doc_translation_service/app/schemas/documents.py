@@ -24,6 +24,7 @@ class DocumentStatusResponse(BaseModel):
     translated_text: Optional[str] = None
     summary_json: Optional[Dict[str, Any]] = None
     glossary: Optional[List[GlossaryTerm]] = []
+    model_used: Optional[str] = None
     error: Optional[str] = None
 
 class CitationItem(BaseModel):

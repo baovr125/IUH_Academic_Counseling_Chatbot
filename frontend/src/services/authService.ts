@@ -3,15 +3,15 @@ import type { ApiResult, AuthResponse, LoginPayload, RegisterPayload, User } fro
 const TOKEN_KEY = "iuh_portal_ai_token";
 
 export function getToken(): string | null {
-  return localStorage.getItem(TOKEN_KEY);
+  return sessionStorage.getItem(TOKEN_KEY);
 }
 
 export function setToken(token: string): void {
-  localStorage.setItem(TOKEN_KEY, token);
+  sessionStorage.setItem(TOKEN_KEY, token);
 }
 
 export function removeToken(): void {
-  localStorage.removeItem(TOKEN_KEY);
+  sessionStorage.removeItem(TOKEN_KEY);
 }
 
 const getApiUrl = (endpoint: string): string => {
