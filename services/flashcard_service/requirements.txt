@@ -4,12 +4,3 @@ pydantic>=2.6.0
 supabase>=2.3.0
 python-json-logger>=2.0.7
 httpx>=0.27.0
-edge-tts>=0.4.0
-openpyxl>=3.1.2
-python-multipart>=0.0.9
-
-fsrs
-aio-pika
-python-jose[cryptography]>=3.3.0
-
-

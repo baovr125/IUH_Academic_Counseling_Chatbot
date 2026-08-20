@@ -27,10 +27,10 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
  */
 export function useAuthState(): AuthContextValue {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(() => !!authService.getToken());
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Khôi phục phiên làm việc từ JWT token trong sessionStorage khi khởi động
+  // Khôi phục phiên làm việc từ JWT token trong localStorage khi khởi động
   useEffect(() => {
     const token = authService.getToken();
     if (token && !user) {

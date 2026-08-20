@@ -140,7 +140,6 @@ export interface TranslateRequest {
   sourceLang: LanguageCode;
   targetLang: LanguageCode;
   sourceText: string;
-  domain?: string;
 }
 
 export interface TranslateResponse {
@@ -167,8 +166,6 @@ export interface Flashcard {
   id: string;
   term: string;
   partOfSpeech?: string;
-  phonetic?: string;
-  audio_url?: string;
   definition: string;
   example?: string;
 }

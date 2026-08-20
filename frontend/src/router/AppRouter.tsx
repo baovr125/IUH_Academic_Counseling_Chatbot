@@ -12,11 +12,7 @@ import AnalyticsPage from "../pages/AnalyticsPage";
 import { useAuth } from "../hooks/useAuth";
 
 function RequireAuth({ children }: { children: React.ReactElement }) {
-  const { isAuthenticated, isLoading } = useAuth();
-  
-  // Tránh việc điều hướng khi vẫn đang kiểm tra token
-  if (isLoading) return null; // Hoặc một component Loading spinner nhỏ nếu cần
-
+  const { isAuthenticated } = useAuth();
   if (!isAuthenticated) return <Navigate to="/login" replace />;
   return children;
 }

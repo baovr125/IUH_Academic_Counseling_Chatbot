@@ -1,50 +1,55 @@
 import os
-from typing import Optional
-from fastapi import Header, HTTPException, status
-from jose import jwt, JWTError
+from datetime import datetime, timedelta, timezone
+from typing import Optional, Any, Dict
+from jose import JWTError, jwt
+from fastapi import HTTPException, status, Security, Header
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from app.utils.logger import logger
 
-JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "super-secret-key-iuh-chatbot-2026")
-ALGORITHM = os.getenv("ALGORITHM", "HS256")
+SECRET_KEY = os.getenv("JWT_SECRET_KEY", "super-secret-key-iuh-chatbot-2026")
+ALGORITHM = "HS256"
 
-def extract_user_id_from_token(token: str) -> Optional[str]:
+security_scheme = HTTPBearer(auto_error=True)
+optional_security_scheme = HTTPBearer(auto_error=False)
+
+def verify_access_token(token: str) -> Dict[str, Any]:
     try:
-        payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=[ALGORITHM], options={"verify_aud": False})
-        user_id = payload.get("sub") or payload.get("user_id")
-        return str(user_id) if user_id else None
-    except JWTError as e:
-        logger.warning(f"Invalid JWT Token: {e}")
-        return None
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return payload
+    except JWTError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token không hợp lệ hoặc đã hết hạn.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
 def get_current_user_id(
-    authorization: Optional[str] = Header(None, alias="Authorization"),
+    credentials: HTTPAuthorizationCredentials = Security(security_scheme),
     x_user_id: Optional[str] = Header(None, alias="X-User-ID")
 ) -> str:
-    # 1. Check Authorization header
-    if authorization and authorization.startswith("Bearer "):
-        token = authorization.split(" ")[1]
-        user_id = extract_user_id_from_token(token)
-        if user_id:
-            return user_id
+    if x_user_id:
+        return x_user_id
+    token = credentials.credentials
+    payload = verify_access_token(token)
+    user_id: Optional[str] = payload.get("sub")
+    if not user_id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token thiếu định danh người dùng (sub).",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return str(user_id)
 
-    # 2. Check X-User-ID header (for direct inter-service communication)
-    if x_user_id and x_user_id.strip() and x_user_id != "anonymous":
-        return x_user_id.strip()
-
-    raise HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Không thể xác thực danh tính người dùng. Vui lòng đăng nhập lại.",
-        headers={"WWW-Authenticate": "Bearer"}
-    )
-
-def get_optional_user_id(
-    authorization: Optional[str] = Header(None, alias="Authorization"),
+def get_optional_current_user_id(
+    credentials: Optional[HTTPAuthorizationCredentials] = Security(optional_security_scheme),
     x_user_id: Optional[str] = Header(None, alias="X-User-ID")
-) -> str:
+) -> Optional[str]:
+    if x_user_id:
+        return x_user_id
+    if not credentials or not credentials.credentials:
+        return None
     try:
-        return get_current_user_id(authorization, x_user_id)
-    except HTTPException:
-        return "anonymous"
-
-get_optional_current_user_id = get_optional_user_id
-
+        payload = verify_access_token(credentials.credentials)
+        return str(payload.get("sub")) if payload.get("sub") else None
+    except Exception:
+        return None
