@@ -1,14 +1,16 @@
-FROM pytorch/pytorch:2.2.1-cuda12.1-cudnn8-runtime
+FROM python:3.10-slim
 
 WORKDIR /app
+
+RUN pip install --no-cache-dir --default-timeout=1000 --retries 10 torch --extra-index-url https://download.pytorch.org/whl/cpu
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir --default-timeout=1000 --retries 10 -r requirements.txt
 
 COPY . .
 
-# Download the NLLB model during image build
-RUN python download_model.py
+# Download the NLLB model during image build and clean HuggingFace cache
+RUN python download_model.py && rm -rf /root/.cache/huggingface
 
 EXPOSE 8003
 

@@ -2,17 +2,12 @@ import os
 import json
 import redis
 import asyncio
+import tempfile
 from typing import Dict, Any, Optional
-from app.services.markdown_pdf_service import extract_pdf_to_markdown, render_markdown_to_pdf
-from app.services.ollama_translator import translate_markdown_document_ollama
-from app.services.docx_pptx_service import translate_docx_document, translate_pptx_document
-from app.services.scanned_pdf_service import process_scanned_pdf_translation
-from app.services.glossary_extractor import extract_glossary
 from app.utils.logger import logger
 from app.celery_app import celery_app, REDIS_URL
 from app.utils.minio_client import download_file, upload_file
 from app.utils.rabbitmq_publisher import publish_doc_translated_event
-import tempfile
 
 redis_client = redis.Redis.from_url(REDIS_URL, decode_responses=True)
 
@@ -53,15 +48,10 @@ def process_document_translation_job_sync(
     4. .pptx -> PowerPoint In-place Translation
     """
     logger.info(f"🚀 [Job Started] doc_id={doc_id}, file={file_path}, user={user_id}")
-    update_job_status(doc_id, "processing", 10, "Đang phân loại định dạng file và khởi tạo pipeline...")
+    update_job_status(doc_id, "processing", 10, "Đang khởi tạo pipeline dịch thuật PDF học thuật...")
 
-    ext = os.path.splitext(file_path)[1].lower()
-    
-    # file_path is now object_name in MinIO (e.g. source/<doc_id>.pdf)
     object_name = file_path
-    
-    # Download from MinIO to temp
-    local_input_file = os.path.join(tempfile.gettempdir(), f"input_{doc_id}{ext}")
+    local_input_file = os.path.join(tempfile.gettempdir(), f"input_{doc_id}.pdf")
     try:
         download_file(object_name, local_input_file)
     except Exception as e:
@@ -70,6 +60,10 @@ def process_document_translation_job_sync(
         return {"doc_id": doc_id, "status": "failed", "error": str(e)}
 
     try:
+        from app.services.markdown_pdf_service import extract_pdf_to_markdown, render_markdown_to_pdf
+        from app.services.ollama_translator import translate_markdown_document_ollama
+        from app.services.glossary_extractor import extract_glossary
+
         translated_local_path = ""
         translated_text = ""
         model_used = "Gemini 2.5 Flash"
@@ -80,57 +74,21 @@ def process_document_translation_job_sync(
                 model_used = model_name
             update_job_status(doc_id, "processing", progress, message, model_used=model_used)
 
-        md_text_for_glossary = ""
+        update_job_status(doc_id, "processing", 20, "Đang bóc tách PDF bài báo khoa học thành cấu trúc Markdown...")
+        md_text, image_dir = extract_pdf_to_markdown(local_input_file, doc_id)
+        md_text_for_glossary = md_text
         
-        if ext == ".docx":
-            update_job_status(doc_id, "processing", 30, "Đang dịch file Word (.docx)...", model_used=model_used)
-            translated_local_path = os.path.join(tempfile.gettempdir(), f"translated_{doc_id}.docx")
-            out_ext = ".docx"
-            translate_docx_document(
-                input_path=local_input_file,
-                output_path=translated_local_path,
-                source_lang=source_lang,
-                target_lang=target_lang
-            )
+        translated_text, model_used = translate_markdown_document_ollama(
+            md_text=md_text,
+            source_lang=source_lang,
+            target_lang=target_lang,
+            status_callback=status_cb
+        )
 
-        elif ext in [".pptx", ".ppt"]:
-            update_job_status(doc_id, "processing", 30, "Đang dịch file PowerPoint (.pptx)...", model_used=model_used)
-            translated_local_path = os.path.join(tempfile.gettempdir(), f"translated_{doc_id}.pptx")
-            out_ext = ".pptx"
-            translate_pptx_document(
-                input_path=local_input_file,
-                output_path=translated_local_path,
-                source_lang=source_lang,
-                target_lang=target_lang
-            )
-
-        elif ext == ".pdf" and is_scanned:
-            update_job_status(doc_id, "processing", 30, "Đang OCR & dịch file PDF Scan...", model_used=model_used)
-            translated_local_path = os.path.join(tempfile.gettempdir(), f"translated_{doc_id}.docx")
-            out_ext = ".docx"
-            process_scanned_pdf_translation(
-                pdf_path=local_input_file,
-                output_docx_path=translated_local_path,
-                source_lang=source_lang,
-                target_lang=target_lang
-            )
-
-        else: # Default: Academic PDF Paper
-            update_job_status(doc_id, "processing", 20, "Đang bóc tách PDF bài báo khoa học thành Markdown...")
-            md_text, image_dir = extract_pdf_to_markdown(local_input_file, doc_id)
-            md_text_for_glossary = md_text
-            
-            translated_text, model_used = translate_markdown_document_ollama(
-                md_text=md_text,
-                source_lang=source_lang,
-                target_lang=target_lang,
-                status_callback=status_cb
-            )
-
-            update_job_status(doc_id, "processing", 85, f"Đang render lại bản dịch ({model_used}) thành PDF...", model_used=model_used)
-            translated_local_path = os.path.join(tempfile.gettempdir(), f"translated_{doc_id}.pdf")
-            out_ext = ".pdf"
-            render_markdown_to_pdf(translated_text, translated_local_path)
+        update_job_status(doc_id, "processing", 85, f"Đang render lại bản dịch ({model_used}) thành PDF chất lượng cao...", model_used=model_used)
+        translated_local_path = os.path.join(tempfile.gettempdir(), f"translated_{doc_id}.pdf")
+        out_ext = ".pdf"
+        render_markdown_to_pdf(translated_text, translated_local_path)
 
         # Upload translated file to MinIO
         translated_object_name = f"translated/{doc_id}{out_ext}"

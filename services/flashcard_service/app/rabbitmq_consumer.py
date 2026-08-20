@@ -79,13 +79,13 @@ async def process_doc_translated_event(message: aio_pika.IncomingMessage):
             
             created_count = 0
             for item in glossary:
-                term = item.get("term", "")
-                definition = item.get("definition", "")
+                term = (item.get("term") or "").strip()
+                definition = (item.get("definition") or item.get("translation") or item.get("vi") or "").strip()
                 phonetic = item.get("phonetic")
-                example = item.get("example")
-                part_of_speech = item.get("part_of_speech")
+                example = item.get("example") or item.get("context")
+                part_of_speech = item.get("part_of_speech") or "phrase"
                 
-                if term and definition and term.strip().lower() not in existing_terms:
+                if term and definition and term.lower() not in existing_terms:
                     card = await create_card(
                         deck_id=deck_id,
                         front_text=term,
@@ -96,7 +96,7 @@ async def process_doc_translated_event(message: aio_pika.IncomingMessage):
                         part_of_speech=part_of_speech,
                         lang_code=source_lang
                     )
-                    existing_terms.add(term.strip().lower())
+                    existing_terms.add(term.lower())
                     created_count += 1
                     
                     # Trigger async event to request TTS audio synthesis

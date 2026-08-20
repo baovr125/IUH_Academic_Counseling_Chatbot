@@ -24,8 +24,14 @@ def get_nllb_translator():
         return None, None
 
     try:
-        logger.info("Loading NLLB CTranslate2 model on CUDA...")
-        _translator = ctranslate2.Translator(model_dir, device="cuda", compute_type="int8")
+        logger.info("Loading NLLB CTranslate2 model on CPU (INT8)...")
+        _translator = ctranslate2.Translator(
+            model_dir,
+            device="cpu",
+            compute_type="int8",
+            inter_threads=2,
+            intra_threads=2
+        )
         logger.info("Loading NLLB Tokenizer...")
         _tokenizer = transformers.AutoTokenizer.from_pretrained(model_dir)
         return _translator, _tokenizer

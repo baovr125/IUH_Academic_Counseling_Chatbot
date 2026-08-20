@@ -72,6 +72,7 @@ services:
           memory: 256M
 
   auth-service:
+    image: auth-service:latest
     build:
       context: ./services/auth_service
     container_name: iuh_auth_service
@@ -86,6 +87,7 @@ services:
           memory: 256M
 
   academic-chatbot-service:
+    image: academic-chatbot-service:latest
     build:
       context: ./services/academic_chatbot_service
     container_name: iuh_academic_chatbot_service
@@ -102,6 +104,7 @@ services:
           memory: 2.0G
 
   realtime-translation-service:
+    image: realtime-translation-service:latest
     build:
       context: ./services/realtime_translation_service
     container_name: iuh_realtime_translation_service
@@ -120,6 +123,7 @@ services:
           memory: 1.2G
 
   doc-translation-service:
+    image: doc-translation-service:latest
     build:
       context: ./services/doc_translation_service
     container_name: iuh_doc_translation_service
@@ -138,6 +142,7 @@ services:
           memory: 384M
 
   doc-translation-worker:
+    image: doc-translation-worker:latest
     build:
       context: ./services/doc_translation_service
     container_name: iuh_doc_translation_worker
@@ -155,6 +160,7 @@ services:
           memory: 1.8G
 
   flashcard-service:
+    image: flashcard-service:latest
     build:
       context: ./services/flashcard_service
     container_name: iuh_flashcard_service
@@ -171,6 +177,7 @@ services:
           memory: 256M
 
   frontend:
+    image: frontend:latest
     build:
       context: ./frontend
       args:

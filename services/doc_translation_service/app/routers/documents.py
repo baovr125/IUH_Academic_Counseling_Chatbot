@@ -7,13 +7,10 @@ from fastapi import APIRouter, UploadFile, File, Form, Header, HTTPException, st
 from fastapi.responses import RedirectResponse, StreamingResponse
 from sse_starlette.sse import EventSourceResponse
 from app.schemas.documents import (
-    DocumentQueryRequest,
-    DocumentQueryResponse,
     DocumentStatusResponse,
     DocumentUploadResponse,
     ApiResult
 )
-from app.services.rag_engine import query_document_rag
 from app.tasks.pdf_worker import dispatch_pdf_translation_job, redis_client
 from app.utils.logger import logger
 from app.utils.minio_client import upload_file_stream, object_exists, get_object_stream, get_presigned_url
@@ -30,15 +27,15 @@ async def upload_document(
     user_id: str = Depends(get_current_user_id)
 ):
     """
-    1. Tiếp nhận file PDF/DOCX/PPTX từ người dùng
+    1. Tiếp nhận file PDF từ người dùng
     2. Stream trực tiếp vào MinIO (không tốn đĩa cứng máy chủ)
     3. Gửi tác vụ dịch ngầm qua background worker
     4. Trả về HTTP 202 Accepted kèm doc_id
     """
-    if not file.filename.endswith((".pdf", ".docx", ".doc", ".pptx", ".ppt")):
+    if not file.filename.lower().endswith(".pdf"):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Định dạng file không được hỗ trợ. Vui lòng tải file PDF, Word hoặc PowerPoint."
+            detail="Định dạng file không được hỗ trợ. Hệ thống chuyên biệt dịch tài liệu học thuật định dạng PDF (.pdf)."
         )
 
     # Validate file size (Max 10MB)
@@ -53,8 +50,7 @@ async def upload_document(
         )
 
     doc_id = str(uuid.uuid4())
-    ext = os.path.splitext(file.filename)[1]
-    object_name = f"source/{doc_id}{ext}"
+    object_name = f"source/{doc_id}.pdf"
     
     try:
         # Stream directly from memory to MinIO
@@ -62,7 +58,7 @@ async def upload_document(
             object_name=object_name,
             data_stream=file.file,
             length=file_size,
-            content_type=file.content_type or "application/octet-stream"
+            content_type=file.content_type or "application/pdf"
         )
     except Exception as e:
         logger.exception(f"Lỗi khi lưu stream file upload ({file.filename}) lên MinIO: {e}")
@@ -83,9 +79,9 @@ async def upload_document(
         data=DocumentUploadResponse(
             doc_id=doc_id,
             filename=file.filename,
-            file_type=file.filename.split(".")[-1],
+            file_type="pdf",
             status="processing",
-            message="File đã được tải lên thành công và đang được xử lý dịch thuật ngầm."
+            message="File PDF đã được tải lên thành công và đang được xử lý dịch thuật ngầm."
         ).model_dump()
     )
 
@@ -116,7 +112,7 @@ async def stream_document_status(
     user_id: str = Depends(get_optional_user_id)
 ):
     """
-    API Server-Sent Events (SSE) để stream tiến độ xử lý dịch & RAG.
+    API Server-Sent Events (SSE) để stream tiến độ xử lý dịch & trích xuất glossary.
     """
     async def event_generator():
         # Lấy trạng thái hiện tại (nếu có) để gửi ngay
@@ -154,25 +150,6 @@ async def stream_document_status(
             pubsub.close()
 
     return EventSourceResponse(event_generator())
-
-@router.post("/{doc_id}/query")
-async def query_document(
-    doc_id: str,
-    payload: DocumentQueryRequest,
-    user_id: str = Depends(get_optional_user_id)
-):
-    """
-    API Hỏi đáp Document RAG cô lập theo doc_id và user_id (Hard Payload Filtering).
-    """
-    res = query_document_rag(
-        doc_id=doc_id,
-        user_id=user_id,
-        query_text=payload.query
-    )
-    return ApiResult(
-        ok=True,
-        data=res.model_dump()
-    )
 
 @router.get("/{doc_id}/download")
 async def download_translated_document(
