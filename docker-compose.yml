@@ -45,6 +45,7 @@ services:
   redis:
     image: redis:7-alpine
     container_name: iuh_redis
+    command: redis-server --maxmemory 128mb --maxmemory-policy allkeys-lru
     ports:
       - "6379:6379"
     deploy:

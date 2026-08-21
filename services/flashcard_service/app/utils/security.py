@@ -31,8 +31,11 @@ def get_current_user_id(
     if x_user_id and x_user_id.strip() and x_user_id != "anonymous":
         return x_user_id.strip()
 
-    # 3. Default demo/guest student user ID to ensure smooth experience
-    return "default_student_user"
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Vui lòng đăng nhập để sử dụng tính năng Flashcard.",
+        headers={"WWW-Authenticate": "Bearer"}
+    )
 
 def get_optional_user_id(
     authorization: Optional[str] = Header(None, alias="Authorization"),

@@ -30,7 +30,12 @@ def update_job_status(
     # Optionally store the latest state in Redis so we can fetch it if needed
     redis_client.set(f"job_latest_{doc_id}", json.dumps(payload), ex=3600*24) # expire in 24h
 
-@celery_app.task(bind=True, name="app.tasks.pdf_worker.process_document_translation_job_sync")
+@celery_app.task(
+    bind=True, 
+    name="app.tasks.pdf_worker.process_document_translation_job_sync",
+    acks_late=True,
+    reject_on_worker_lost=True
+)
 def process_document_translation_job_sync(
     self,
     doc_id: str,

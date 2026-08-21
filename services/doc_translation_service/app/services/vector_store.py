@@ -106,9 +106,11 @@ def upsert_doc_vectors(
         })
 
     try:
-        # Clear existing chunks for this doc_id if re-uploading
-        supabase.table("doc_vectors").delete().eq("doc_id", doc_id).eq("user_id", user_id).execute()
-        res = supabase.table("doc_vectors").insert(records).execute()
+        # Use UPSERT to avoid index bloat
+        res = supabase.table("doc_vectors").upsert(
+            records, 
+            on_conflict="doc_id,user_id,chunk_index"
+        ).execute()
         inserted_count = len(res.data) if res.data else 0
         logger.info(f"✅ Đã upsert thành công {inserted_count} vector chunks (1024d) vào Supabase.")
         return inserted_count

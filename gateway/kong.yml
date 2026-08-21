@@ -36,6 +36,29 @@ jwt_secrets:
     secret: "super-secret-key-iuh-chatbot-2026"
     algorithm: HS256
 
+upstreams:
+  - name: chatbot-upstream
+    algorithm: least-connections
+    healthchecks:
+      active:
+        http_path: /health
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+      passive:
+        healthy:
+          successes: 5
+        unhealthy:
+          http_failures: 3
+
+targets:
+  - upstream: chatbot-upstream
+    target: "academic-chatbot-service:8002"
+    weight: 100
+
 services:
   - name: auth-service
     url: http://auth-service:8001
@@ -50,16 +73,19 @@ services:
         strip_path: false
 
   - name: academic-chatbot-service
-    url: http://academic-chatbot-service:8002
+    host: chatbot-upstream
+    port: 8002
     connect_timeout: 60000
-    read_timeout: 180000
-    write_timeout: 180000
+    read_timeout: 600000
+    write_timeout: 600000
     routes:
       - name: chat-routes
         paths:
           - /api/v1/chat
           - /api/chat
         strip_path: false
+        plugins:
+          - name: jwt
 
   - name: realtime-translation-service
     url: http://realtime-translation-service:8003
@@ -89,6 +115,8 @@ services:
           - /api/v1/documents
           - /api/documents
         strip_path: false
+        plugins:
+          - name: jwt
 
   - name: flashcard-service
     url: http://flashcard-service:8005
@@ -103,3 +131,5 @@ services:
           - /api/v1/decks
           - /api/v1/cards
         strip_path: false
+        plugins:
+          - name: jwt

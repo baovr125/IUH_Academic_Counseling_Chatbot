@@ -232,7 +232,7 @@ async def async_cache_writeback(query_text: str, answer: str, top_doc_score: flo
             return
             
         from datetime import datetime, timedelta, timezone
-        expires_at = datetime.now(timezone.utc) + timedelta(days=30)
+        expires_at = datetime.now(timezone.utc) + timedelta(days=7)
         
         def _insert():
             return supabase.table("semantic_cache").insert({
@@ -247,6 +247,25 @@ async def async_cache_writeback(query_text: str, answer: str, top_doc_score: flo
         logger.info(f"Cache writeback success for query: '{query_text}'")
     except Exception as e:
         logger.exception(f"Cache writeback failed: {e}")
+
+async def invalidate_semantic_cache():
+    """
+    Gọi khi pipeline re-index document_chunks để xóa cache cũ.
+    """
+    try:
+        redis_client = get_redis()
+        keys = await redis_client.keys("semantic_cache:*")
+        if keys:
+            await redis_client.delete(*keys)
+            
+        supabase = get_supabase_client()
+        if supabase:
+            def _delete():
+                return supabase.table("semantic_cache").delete().neq("id", "00000000").execute()
+            await asyncio.to_thread(_delete)
+        logger.info("Đã xóa hoàn toàn Semantic Cache (Redis + Supabase).")
+    except Exception as e:
+        logger.exception(f"Lỗi khi xóa Semantic Cache: {e}")
 
 
 # --- 2. Hybrid Retrieval & Reranking ---
