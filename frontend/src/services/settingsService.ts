@@ -83,7 +83,7 @@ async function request<T>(
 }
 
 export async function fetchUserSettings(): Promise<ApiResult<UserSettings>> {
-  return await request<UserSettings>("/api/settings", {
+  return await request<UserSettings>("/api/auth/settings", {
     method: "GET",
   });
 }
@@ -91,8 +91,9 @@ export async function fetchUserSettings(): Promise<ApiResult<UserSettings>> {
 export async function updateUserSettings(
   payload: UpdateSettingsPayload
 ): Promise<ApiResult<UserSettings>> {
-  return await request<UserSettings>("/api/settings", {
+  return await request<UserSettings>("/api/auth/settings", {
     method: "PUT",
     body: JSON.stringify(payload),
   });
 }
+

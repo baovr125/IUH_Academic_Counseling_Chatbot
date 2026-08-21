@@ -130,3 +130,52 @@ async def get_me(authorization: Optional[str] = Header(None, alias="Authorizatio
 
     return ApiResult(ok=True, data=user)
 
+
+@router.get("/settings", status_code=status.HTTP_200_OK, response_model=ApiResult)
+async def get_settings(authorization: Optional[str] = Header(None, alias="Authorization")):
+    if not authorization:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail={"message": "Thiếu Authorization header trong yêu cầu."},
+        )
+
+    token = authorization
+    if token.startswith("Bearer "):
+        token = token[7:].strip()
+
+    user = get_user_by_token(token)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail={"message": "Token không hợp lệ hoặc đã hết hạn."},
+        )
+    
+    from app.services.auth_service import get_user_settings
+    settings = get_user_settings(user["id"])
+    return ApiResult(ok=True, data=settings)
+
+
+from app.schemas.auth import UpdateSettingsRequest
+
+@router.put("/settings", status_code=status.HTTP_200_OK, response_model=ApiResult)
+async def update_settings(payload: UpdateSettingsRequest, authorization: Optional[str] = Header(None, alias="Authorization")):
+    if not authorization:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail={"message": "Thiếu Authorization header trong yêu cầu."},
+        )
+
+    token = authorization
+    if token.startswith("Bearer "):
+        token = token[7:].strip()
+
+    user = get_user_by_token(token)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail={"message": "Token không hợp lệ hoặc đã hết hạn."},
+        )
+    
+    from app.services.auth_service import update_user_settings
+    updated = update_user_settings(user["id"], payload.model_dump(exclude_unset=True))
+    return ApiResult(ok=True, data=updated)
