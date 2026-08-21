@@ -149,7 +149,16 @@ async def stream_document_status(
             pubsub.unsubscribe(f"job_status_{doc_id}")
             pubsub.close()
 
-    return EventSourceResponse(event_generator())
+    # FIX-AGENT: Bổ sung các Headers chuẩn để giữ kết nối SSE và tránh buffering proxy
+    return EventSourceResponse(
+        event_generator(),
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "Content-Type": "text/event-stream",
+            "X-Accel-Buffering": "no"
+        }
+    )
 
 @router.get("/{doc_id}/download")
 async def download_translated_document(

@@ -309,81 +309,104 @@ export default function DocumentTranslationPage() {
         statusMessage: "Đang xử lý dịch thuật PDF ngầm..."
       });
 
-      // Nhận luồng SSE real progress từ backend
-      const eventSourceUrl = new URL(`${baseUrl}/api/v1/documents/${currentDocId}/stream`);
-      if (token) {
-        eventSourceUrl.searchParams.append("token", token);
-      }
-      const eventSource = new EventSource(eventSourceUrl.toString());
+      // FIX-AGENT: Thêm cơ chế tự động kết nối lại (Auto-reconnect) cho EventSource
+      let retryCount = 0;
+      const MAX_RETRIES = 5;
+      let eventSource: EventSource | null = null;
+      let currentProgress = 10;
+      let currentIsCompleted = false;
 
-      eventSource.addEventListener("update", (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          
-          if (data.progress !== undefined) setProgressPercent(data.progress);
-          if (data.message) setStatusMessage(data.message);
-          if (data.model_used) setModelUsed(data.model_used);
-          
-          // Khi đã có nội dung dịch hoặc PDF link, hiển thị ngay PDF view cho người dùng
-          if (data.translated_text || data.translated_file_url) {
-            if (data.translated_text) setTranslatedText(data.translated_text);
-            setIsCompleted(true);
-            setIsTranslating(false);
-            setActiveTab("pdf");
-          }
-
-          if (data.glossary && data.glossary.length > 0) {
-            setGlossary(data.glossary);
-            setIsExtractingGlossary(false);
-          } else if (data.progress >= 80 || (data.message && data.message.toLowerCase().includes("glossary"))) {
-            setIsExtractingGlossary(true);
-          }
-
-          const statusLower = data.status ? String(data.status).toLowerCase() : "";
-          if (statusLower === "completed") {
-            eventSource.close();
-            setIsTranslating(false);
-            setIsCompleted(true);
-            setIsExtractingGlossary(false);
-            setActiveTab("pdf"); // Switch directly to PDF view on completion
-
-            persistSession({
-              docId: currentDocId,
-              sourceLang,
-              targetLang,
-              selectedFile: selectedFileRef.current,
-              translatedText: data.translated_text || "",
-              glossary: data.glossary || [],
-              modelUsed: data.model_used || "",
-              statusMessage: data.message || "Đã hoàn thành dịch thuật PDF",
-              progressPercent: 100,
-              isCompleted: true,
-              activeTab: "pdf"
-            });
-          } else if (statusLower === "failed") {
-            eventSource.close();
-            setIsTranslating(false);
-            setIsExtractingGlossary(false);
-            setStatusMessage("Lỗi xử lý: " + (data.message || data.error || ""));
-            persistSession({
-              docId: currentDocId,
-              isCompleted: false,
-              statusMessage: "Lỗi xử lý: " + (data.message || data.error || "")
-            });
-          }
-        } catch (err) {
-          console.error("Lỗi khi parse dữ liệu SSE:", err);
+      const connectSSE = () => {
+        const eventSourceUrl = new URL(`${baseUrl}/api/v1/documents/${currentDocId}/stream`);
+        if (token) {
+          eventSourceUrl.searchParams.append("token", token);
         }
-      });
+        eventSource = new EventSource(eventSourceUrl.toString());
 
-      eventSource.onerror = (err) => {
-        console.error("Lỗi kết nối SSE:", err);
-        eventSource.close();
-        if (progressPercent < 100 && !isCompleted) {
-          setIsTranslating(false);
-          setStatusMessage("Mất kết nối với máy chủ (SSE). Vui lòng thử lại.");
-        }
+        eventSource.addEventListener("update", (event) => {
+          retryCount = 0; // Reset số lần thử khi nhận tin nhắn thành công
+          try {
+            const data = JSON.parse(event.data);
+            
+            if (data.progress !== undefined) {
+              setProgressPercent(data.progress);
+              currentProgress = data.progress;
+            }
+            if (data.message) setStatusMessage(data.message);
+            if (data.model_used) setModelUsed(data.model_used);
+            
+            // Khi đã có nội dung dịch hoặc PDF link, hiển thị ngay PDF view cho người dùng
+            if (data.translated_text || data.translated_file_url) {
+              if (data.translated_text) setTranslatedText(data.translated_text);
+              setIsCompleted(true);
+              currentIsCompleted = true;
+              setIsTranslating(false);
+              setActiveTab("pdf");
+            }
+
+            if (data.glossary && data.glossary.length > 0) {
+              setGlossary(data.glossary);
+              setIsExtractingGlossary(false);
+            } else if (data.progress >= 80 || (data.message && data.message.toLowerCase().includes("glossary"))) {
+              setIsExtractingGlossary(true);
+            }
+
+            const statusLower = data.status ? String(data.status).toLowerCase() : "";
+            if (statusLower === "completed") {
+              eventSource?.close();
+              setIsTranslating(false);
+              setIsCompleted(true);
+              currentIsCompleted = true;
+              setIsExtractingGlossary(false);
+              setActiveTab("pdf");
+
+              persistSession({
+                docId: currentDocId,
+                sourceLang,
+                targetLang,
+                selectedFile: selectedFileRef.current,
+                translatedText: data.translated_text || "",
+                glossary: data.glossary || [],
+                modelUsed: data.model_used || "",
+                statusMessage: data.message || "Đã hoàn thành dịch thuật PDF",
+                progressPercent: 100,
+                isCompleted: true,
+                activeTab: "pdf"
+              });
+            } else if (statusLower === "failed") {
+              eventSource?.close();
+              setIsTranslating(false);
+              setIsExtractingGlossary(false);
+              setStatusMessage("Lỗi xử lý: " + (data.message || data.error || ""));
+              persistSession({
+                docId: currentDocId,
+                isCompleted: false,
+                statusMessage: "Lỗi xử lý: " + (data.message || data.error || "")
+              });
+            }
+          } catch (err) {
+            console.error("Lỗi khi parse dữ liệu SSE:", err);
+          }
+        });
+
+        eventSource.onerror = (err) => {
+          console.error("Lỗi kết nối SSE:", err);
+          eventSource?.close();
+          
+          if (currentProgress < 100 && !currentIsCompleted) {
+            if (retryCount < MAX_RETRIES) {
+              retryCount++;
+              setStatusMessage(`Mất kết nối. Đang thử kết nối lại... (${retryCount}/${MAX_RETRIES})`);
+              setTimeout(connectSSE, 3000);
+            } else {
+              setIsTranslating(false);
+              setStatusMessage("Mất kết nối với máy chủ (SSE). Vui lòng thử lại.");
+            }
+          }
+        };
       };
+
+      connectSSE();
 
     } catch (err: any) {
       console.error(err);
