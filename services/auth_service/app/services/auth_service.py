@@ -320,3 +320,36 @@ def get_user_by_token(token: str) -> Optional[Dict[str, Any]]:
         logger.error(f"Unexpected error in get_user_by_token: {e}")
         return None
 
+
+def get_user_settings(user_id: str) -> Dict[str, Any]:
+    supabase = get_supabase()
+    if not supabase:
+        return {"theme": "light", "language": "vi"}
+    try:
+        res = supabase.table("users").select("settings").eq("id", user_id).execute()
+        if res.data and len(res.data) > 0:
+            return res.data[0].get("settings") or {"theme": "light", "language": "vi"}
+    except Exception as e:
+        logger.error(f"Error fetching user settings: {e}")
+    return {"theme": "light", "language": "vi"}
+
+
+def update_user_settings(user_id: str, new_settings: Dict[str, Any]) -> Dict[str, Any]:
+    supabase = get_supabase()
+    if not supabase:
+        raise DatabaseConnectionException("Không thể kết nối đến cơ sở dữ liệu hệ thống")
+    try:
+        # Lấy settings hiện tại
+        current_settings = get_user_settings(user_id)
+        # Hợp nhất
+        for k, v in new_settings.items():
+            if v is not None:
+                current_settings[k] = v
+        
+        supabase.table("users").update({"settings": current_settings}).eq("id", user_id).execute()
+        return current_settings
+    except Exception as e:
+        logger.error(f"Error updating user settings: {e}")
+        raise RuntimeError(f"Lỗi khi cập nhật cài đặt: {e}")
+
+

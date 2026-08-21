@@ -174,6 +174,13 @@ class VerifyStudentRequest(BaseModel):
         return data
 
 
+class UpdateSettingsRequest(BaseModel):
+    theme: Optional[str] = Field(None, description="Giao diện (light/dark/system)")
+    language: Optional[str] = Field(None, description="Ngôn ngữ (vi/en)")
+    notifications_enabled: Optional[bool] = Field(None, description="Bật thông báo")
+
+
+
 class UserResponse(BaseModel):
     id: str
     email: str
