@@ -78,11 +78,16 @@ async function request<T>(
         errorMessage = data.message;
       }
 
+      const field = data?.error?.field || (typeof data?.field === "string" ? data.field : undefined);
+      const details = data?.error?.details || (Array.isArray(data?.detail) ? data.detail : undefined);
+
       return {
         ok: false,
         error: {
           message: errorMessage,
           code: String(response.status),
+          field,
+          details,
         },
       };
     }
@@ -115,16 +120,10 @@ export async function login(payload: LoginPayload): Promise<ApiResult<AuthRespon
 }
 
 export async function register(payload: RegisterPayload): Promise<ApiResult<AuthResponse>> {
-  const result = await request<AuthResponse>("/api/auth/register", {
+  return await request<AuthResponse>("/api/auth/register", {
     method: "POST",
     body: JSON.stringify(payload),
   });
-
-  if (result.ok && result.data?.token) {
-    setToken(result.data.token);
-  }
-
-  return result;
 }
 
 export async function logout(): Promise<ApiResult<null>> {

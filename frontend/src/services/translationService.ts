@@ -56,7 +56,8 @@ export async function streamTranslation(
   req: TranslateRequest,
   onChunk: (text: string) => void,
   onError: (error: string) => void,
-  onComplete: () => void
+  onComplete: () => void,
+  signal?: AbortSignal
 ): Promise<void> {
   if (!req.sourceText.trim()) {
     onError("Vui lòng nhập văn bản cần dịch.");
@@ -77,9 +78,13 @@ export async function streamTranslation(
         target_lang: req.targetLang || "vi",
         domain: req.domain || ""
       }),
+      signal,
     });
 
     if (!res.ok || !res.body) {
+      if (res.status === 429) {
+        throw new Error("Hệ thống đang bận, vui lòng thử lại sau giây lát (429).");
+      }
       throw new Error(`HTTP error! status: ${res.status}`);
     }
 
@@ -111,9 +116,13 @@ export async function streamTranslation(
       }
     }
     onComplete();
-  } catch (error) {
+  } catch (error: any) {
+    if (error?.name === "AbortError") {
+      // Ignored: request was cancelled intentionally by new user keystroke
+      return;
+    }
     console.error("Stream translation error:", error);
-    onError("Không thể kết nối đến dịch vụ dịch thuật.");
+    onError(error?.message || "Không thể kết nối đến dịch vụ dịch thuật.");
   }
 }
 

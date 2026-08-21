@@ -18,17 +18,38 @@ def get_nllb_translator():
     if _translator is not None and _tokenizer is not None:
         return _translator, _tokenizer
 
-    model_dir = "/app/models/nllb-200-distilled-600M-ct2-int8"
-    if not os.path.exists(model_dir):
-        logger.warning(f"NLLB model directory {model_dir} not found. Cannot initialize CTranslate2.")
+    candidate_paths = [
+        "/app/models/nllb-200-distilled-600M-ct2-int8",
+        os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../models/nllb-200-distilled-600M-ct2-int8")),
+        os.path.abspath(os.path.join(os.path.dirname(__file__), "../../models/nllb-200-distilled-600M-ct2-int8")),
+        "./models/nllb-200-distilled-600M-ct2-int8"
+    ]
+    model_dir = None
+    for p in candidate_paths:
+        if os.path.exists(p):
+            model_dir = p
+            break
+
+    if not model_dir:
+        logger.warning(f"NLLB model directory not found in candidate paths: {candidate_paths}. Cannot initialize CTranslate2.")
         return None, None
 
     try:
-        logger.info("Loading NLLB CTranslate2 model on CPU (INT8)...")
+        cuda_available = False
+        try:
+            if ctranslate2.get_cuda_device_count() > 0:
+                cuda_available = True
+        except Exception:
+            pass
+
+        device = "cuda" if cuda_available else "cpu"
+        compute_type = "float16" if device == "cuda" else "int8"
+
+        logger.info(f"Loading NLLB CTranslate2 model on {device.upper()} ({compute_type})...")
         _translator = ctranslate2.Translator(
             model_dir,
-            device="cpu",
-            compute_type="int8",
+            device=device,
+            compute_type=compute_type,
             inter_threads=2,
             intra_threads=2
         )
@@ -36,8 +57,20 @@ def get_nllb_translator():
         _tokenizer = transformers.AutoTokenizer.from_pretrained(model_dir)
         return _translator, _tokenizer
     except Exception as e:
-        logger.error(f"Failed to load NLLB model: {e}")
-        return None, None
+        logger.error(f"Failed to load NLLB model on {device}: {e}. Retrying on CPU INT8 fallback...")
+        try:
+            _translator = ctranslate2.Translator(
+                model_dir,
+                device="cpu",
+                compute_type="int8",
+                inter_threads=2,
+                intra_threads=2
+            )
+            _tokenizer = transformers.AutoTokenizer.from_pretrained(model_dir)
+            return _translator, _tokenizer
+        except Exception as cpu_err:
+            logger.error(f"Failed to load NLLB model on CPU fallback: {cpu_err}")
+            return None, None
 def get_groq_client() -> Optional[AsyncGroq]:
     api_key = os.getenv("GROQ_API_KEY", "")
     if not api_key:

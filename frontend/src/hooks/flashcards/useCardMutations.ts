@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "../useAuth";
 import {
   createBackendCard,
   updateBackendCard,
@@ -20,6 +21,8 @@ import { getCardsQueryKey } from "./useCards";
 
 export function useCardMutations(deckId?: string) {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
+  const userId = user?.id;
 
   // Mutation: Create Card
   const createCardMutation = useMutation({
@@ -60,14 +63,15 @@ export function useCardMutations(deckId?: string) {
         console.warn("createBackendCard error:", e);
       }
 
-      // Always sync to local storage
+      // Always sync to local storage for this user
       const localResult = addCardToDeck(
         langCode,
         term.trim(),
         definition.trim(),
         example?.trim() || undefined,
         partOfSpeech,
-        targetDeckId
+        targetDeckId,
+        userId
       );
 
       if (!createdCard) {
@@ -89,7 +93,8 @@ export function useCardMutations(deckId?: string) {
       return createdCard;
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: getCardsQueryKey(variables.deckId) });
+      queryClient.invalidateQueries({ queryKey: ["flashcard_cards", variables.deckId] });
+      queryClient.invalidateQueries({ queryKey: ["flashcard_cards"] });
       queryClient.invalidateQueries({ queryKey: DECKS_QUERY_KEY });
     }
   });
@@ -128,8 +133,8 @@ export function useCardMutations(deckId?: string) {
         console.warn("updateBackendCard error:", e);
       }
 
-      // Sync to local storage
-      const localDecks = getLocalDecks();
+      // Sync to local storage for this user
+      const localDecks = getLocalDecks(userId);
       const targetDeck = localDecks.find((d) => d.id === targetDeckId);
       if (targetDeck && targetDeck.cards) {
         const cIdx = targetDeck.cards.findIndex((c) => c.id === cardId);
@@ -142,14 +147,16 @@ export function useCardMutations(deckId?: string) {
             example: example?.trim() || undefined,
             partOfSpeech
           };
-          saveLocalDecks(localDecks);
+          saveLocalDecks(localDecks, userId);
         }
       }
 
       return { cardId, term, definition, phonetic, example, partOfSpeech, langCode };
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: getCardsQueryKey(variables.deckId) });
+      queryClient.invalidateQueries({ queryKey: ["flashcard_cards", variables.deckId] });
+      queryClient.invalidateQueries({ queryKey: ["flashcard_cards"] });
+      queryClient.invalidateQueries({ queryKey: DECKS_QUERY_KEY });
     }
   });
 
@@ -162,18 +169,19 @@ export function useCardMutations(deckId?: string) {
         console.warn("deleteBackendCard error:", e);
       }
 
-      // Sync to local storage
-      const localDecks = getLocalDecks();
+      // Sync to local storage for this user
+      const localDecks = getLocalDecks(userId);
       const targetDeck = localDecks.find((d) => d.id === targetDeckId);
       if (targetDeck && targetDeck.cards) {
         targetDeck.cards = targetDeck.cards.filter((c) => c.id !== cardId);
-        saveLocalDecks(localDecks);
+        saveLocalDecks(localDecks, userId);
       }
 
       return { cardId, deckId: targetDeckId };
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: getCardsQueryKey(variables.deckId) });
+      queryClient.invalidateQueries({ queryKey: ["flashcard_cards", variables.deckId] });
+      queryClient.invalidateQueries({ queryKey: ["flashcard_cards"] });
       queryClient.invalidateQueries({ queryKey: DECKS_QUERY_KEY });
     }
   });
@@ -185,8 +193,9 @@ export function useCardMutations(deckId?: string) {
     },
     onSuccess: () => {
       if (deckId) {
-        queryClient.invalidateQueries({ queryKey: getCardsQueryKey(deckId) });
+        queryClient.invalidateQueries({ queryKey: ["flashcard_cards", deckId] });
       }
+      queryClient.invalidateQueries({ queryKey: ["flashcard_cards"] });
     }
   });
 
@@ -234,9 +243,9 @@ export function useCardMutations(deckId?: string) {
         throw new Error("Không nhận được dữ liệu phản hồi từ máy chủ");
       }
 
-      // Sync imported cards to local storage fallback
+      // Sync imported cards to local storage fallback for this user
       if (res.data.cards && res.data.cards.length > 0) {
-        const localDecks = getLocalDecks();
+        const localDecks = getLocalDecks(userId);
         const targetDeck = localDecks.find((d) => d.id === targetDeckId);
         if (targetDeck) {
           if (!targetDeck.cards) targetDeck.cards = [];
@@ -253,14 +262,15 @@ export function useCardMutations(deckId?: string) {
               });
             }
           }
-          saveLocalDecks(localDecks);
+          saveLocalDecks(localDecks, userId);
         }
       }
 
       return res.data;
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: getCardsQueryKey(variables.deckId) });
+      queryClient.invalidateQueries({ queryKey: ["flashcard_cards", variables.deckId] });
+      queryClient.invalidateQueries({ queryKey: ["flashcard_cards"] });
       queryClient.invalidateQueries({ queryKey: DECKS_QUERY_KEY });
     }
   });

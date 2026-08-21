@@ -61,6 +61,8 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
   
   // Debounce ref to handle real-time streaming
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const ttsDebounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const getTTSLangCode = (langCode: string) => {
     const map: Record<string, string> = {
@@ -87,7 +89,7 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
 
   // Prefetch audio and cache as Blob URL
   const prefetchAudio = async (text: string, lang: string) => {
-    if (!text.trim()) return;
+    if (!text.trim() || text.trim().length < 2) return;
     const cacheKey = `${lang}_${text}`;
     if (audioCache.current.has(cacheKey)) return;
 
@@ -138,10 +140,22 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
 
   const handleTranslate = (textToTranslate: string = sourceText) => {
     if (!textToTranslate.trim()) {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+        abortControllerRef.current = null;
+      }
       setTranslatedTokens([]);
+      setIsTranslating(false);
       return;
     }
     
+    // Cancel any pending translation stream before starting a new one
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    const newAbortController = new AbortController();
+    abortControllerRef.current = newAbortController;
+
     setIsTranslating(true);
     setError(null);
     setTranslatedTokens([]);
@@ -166,19 +180,24 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
       },
       () => {
         setIsTranslating(false);
-      }
+      },
+      newAbortController.signal
     );
   };
 
-  // Debounced input change translation
+  // Debounced input change translation (200ms fast real-time typing)
   useEffect(() => {
     if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
     
     if (sourceText.trim()) {
       debounceTimerRef.current = setTimeout(() => {
         handleTranslate(sourceText);
-      }, 500); // 500ms debounce
+      }, 200); // 200ms fast debounce
     } else {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+        abortControllerRef.current = null;
+      }
       setTranslatedTokens([]);
       setIsTranslating(false);
     }
@@ -187,17 +206,34 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
     };
   }, [sourceText, sourceLang, targetLang, domain]);
 
-  // TTS Prefetch Effect: Trigger when translation finishes
+  // TTS Prefetch Effect: Trigger with 900ms (0.9s) debounce when translation finishes
   useEffect(() => {
+    if (ttsDebounceTimerRef.current) {
+      clearTimeout(ttsDebounceTimerRef.current);
+    }
+
     if (!isTranslating) {
       const translated = translatedTokens.join("");
-      if (translated.trim()) {
-         prefetchAudio(translated, getTTSLangCode(targetLang));
-      }
-      if (sourceText.trim()) {
-         prefetchAudio(sourceText, getTTSLangCode(sourceLang));
+      const hasValidTarget = translated.trim().length >= 2;
+      const hasValidSource = sourceText.trim().length >= 2;
+
+      if (hasValidTarget || hasValidSource) {
+        ttsDebounceTimerRef.current = setTimeout(() => {
+          if (hasValidTarget) {
+            prefetchAudio(translated.trim(), getTTSLangCode(targetLang));
+          }
+          if (hasValidSource) {
+            prefetchAudio(sourceText.trim(), getTTSLangCode(sourceLang));
+          }
+        }, 900); // 900ms (0.9s) debounce for TTS
       }
     }
+
+    return () => {
+      if (ttsDebounceTimerRef.current) {
+        clearTimeout(ttsDebounceTimerRef.current);
+      }
+    };
   }, [isTranslating, translatedTokens, sourceText, sourceLang, targetLang]);
 
   const handleSwap = () => {

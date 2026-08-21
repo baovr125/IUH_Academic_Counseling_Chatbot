@@ -9,13 +9,27 @@ from app.utils.logger import logger
 MODEL_NAME = "BAAI/bge-m3"
 EMBEDDING_DIM = 1024
 
-_model_instance: Optional[SentenceTransformer] = None
+def get_device() -> str:
+    try:
+        import torch
+        if torch.cuda.is_available():
+            return "cuda"
+    except Exception:
+        pass
+    return "cpu"
 
 def get_embedding_model() -> SentenceTransformer:
     global _model_instance
     if _model_instance is None:
-        logger.info(f"🔄 Đang khởi tạo mô hình nhúng BAAI/bge-m3 ({EMBEDDING_DIM}d)...")
-        _model_instance = SentenceTransformer(MODEL_NAME)
+        dev = get_device()
+        logger.info(f"🔄 Đang khởi tạo mô hình nhúng BAAI/bge-m3 ({EMBEDDING_DIM}d) trên thiết bị: {dev.upper()}...")
+        kwargs = {}
+        if dev == "cuda":
+            import torch
+            kwargs["model_kwargs"] = {"torch_dtype": torch.float16}
+        else:
+            kwargs["model_kwargs"] = {"low_cpu_mem_usage": True}
+        _model_instance = SentenceTransformer(MODEL_NAME, device=dev, **kwargs)
     return _model_instance
 
 def get_supabase() -> Optional[Client]:

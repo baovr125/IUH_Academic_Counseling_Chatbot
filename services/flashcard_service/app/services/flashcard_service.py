@@ -70,33 +70,40 @@ async def get_decks(user_id: str) -> List[Dict[str, Any]]:
     """Lấy danh sách các bộ thẻ của người dùng hiện tại."""
     decks_map: Dict[str, Dict[str, Any]] = {}
     
-    # 1. In-memory
+    # 1. In-memory: Chỉ lấy bộ thẻ thuộc quyền sở hữu của user_id
     for d in in_memory_decks.values():
-        d_copy = dict(d)
-        d_copy["cards_count"] = len([c for c in in_memory_cards.values() if str(c.get("deck_id")) == str(d.get("id"))])
-        decks_map[d["id"]] = d_copy
+        if str(d.get("user_id", "")) == str(user_id):
+            d_copy = dict(d)
+            d_copy["cards_count"] = len([c for c in in_memory_cards.values() if str(c.get("deck_id")) == str(d.get("id"))])
+            decks_map[d["id"]] = d_copy
 
-    # 2. Supabase
+    # 2. Supabase: Lọc chính xác theo user_id
     supabase = get_supabase()
     if supabase:
         try:
-            res = await run_in_threadpool(
-                lambda: supabase.table("flashcard_decks").select("*").execute()
-            )
-            if res.data:
-                for d in res.data:
-                    did = str(d.get("id"))
-                    if did not in decks_map:
-                        try:
-                            cards_res = await run_in_threadpool(
-                                lambda: supabase.table("flashcards").select("id", count="exact").eq("deck_id", did).execute()
-                            )
-                            d["cards_count"] = cards_res.count if cards_res.count is not None else 0
-                        except Exception:
-                            d["cards_count"] = 0
-                        decks_map[did] = d
-                    else:
-                        decks_map[did]["title"] = d.get("title", decks_map[did]["title"])
+            valid_user_id = to_valid_uuid(user_id)
+            if valid_user_id:
+                res = await run_in_threadpool(
+                    lambda: supabase.table("flashcard_decks")
+                        .select("*")
+                        .eq("user_id", valid_user_id)
+                        .order("created_at", desc=True)
+                        .execute()
+                )
+                if res.data:
+                    for d in res.data:
+                        did = str(d.get("id"))
+                        if did not in decks_map:
+                            try:
+                                cards_res = await run_in_threadpool(
+                                    lambda: supabase.table("flashcards").select("id", count="exact").eq("deck_id", did).execute()
+                                )
+                                d["cards_count"] = cards_res.count if cards_res.count is not None else 0
+                            except Exception:
+                                d["cards_count"] = 0
+                            decks_map[did] = d
+                        else:
+                            decks_map[did]["title"] = d.get("title", decks_map[did]["title"])
         except Exception as e:
             logger.warning(f"Failed to fetch decks from Supabase: {e}")
             
@@ -259,15 +266,13 @@ async def create_card(
         # Standard FSRS Fields
         "state": 0, # 0: New
         "reps": 0,
-        "repetition": 0,
         "lapses": 0,
         "stability": 0.0,
         "difficulty": 0.0,
         "elapsed_days": 0,
         "scheduled_days": 0,
         "last_review": None,
-        "due": now_iso,
-        "next_review_date": now_iso # Legacy alias
+        "due": now_iso
     }
     
     in_memory_cards[card_id] = card_data
@@ -282,10 +287,19 @@ async def create_card(
                 "id": card_id,
                 "term": front_text,
                 "definition": back_text,
+                "phonetic": phonetic,
+                "audio_url": audio_url,
                 "example": example_sentence,
                 "part_of_speech": part_of_speech or "phrase",
                 "lang_code": lang_code,
-                "status": "learning"
+                "state": 0,
+                "reps": 0,
+                "lapses": 0,
+                "stability": 0.0,
+                "difficulty": 0.0,
+                "elapsed_days": 0,
+                "scheduled_days": 0,
+                "due": now_iso
             }
             if valid_deck_id:
                 sb_card_payload["deck_id"] = valid_deck_id
@@ -354,7 +368,6 @@ async def review_card(card_id: str, grade: int, user_id: str) -> Dict[str, Any]:
             "definition": "Mẫu",
             "state": 0,
             "reps": 0,
-            "repetition": 0,
             "lapses": 0,
             "stability": 0.0,
             "difficulty": 0.0,
@@ -374,11 +387,10 @@ async def review_card(card_id: str, grade: int, user_id: str) -> Dict[str, Any]:
     supabase = get_supabase()
     if supabase:
         try:
+            valid_uid = to_valid_uuid(user_id)
             review_log_data = {
                 "card_id": card_id,
-                "user_id": user_id,
                 "grade": grade,
-                "rating": grade,
                 "state": fsrs_results.get("state", 0),
                 "stability": fsrs_results.get("stability", 0.0),
                 "difficulty": fsrs_results.get("difficulty", 0.0),
@@ -386,6 +398,9 @@ async def review_card(card_id: str, grade: int, user_id: str) -> Dict[str, Any]:
                 "scheduled_days": fsrs_results.get("scheduled_days", 0),
                 "reviewed_at": datetime.datetime.now(datetime.timezone.utc).isoformat()
             }
+            if valid_uid:
+                review_log_data["user_id"] = valid_uid
+
             await run_in_threadpool(lambda: [
                 supabase.table("flashcards").update(fsrs_results).eq("id", card_id).execute(),
                 supabase.table("review_logs").insert(review_log_data).execute()
@@ -515,7 +530,11 @@ async def get_deck_cards(deck_id: str, user_id: str) -> List[Dict[str, Any]]:
             valid_deck_id = to_valid_uuid(deck_id)
             if valid_deck_id:
                 res = await run_in_threadpool(
-                    lambda: supabase.table("flashcards").select("*").eq("deck_id", valid_deck_id).execute()
+                    lambda: supabase.table("flashcards")
+                        .select("*")
+                        .eq("deck_id", valid_deck_id)
+                        .order("created_at", desc=False)
+                        .execute()
                 )
                 if res.data:
                     for c in res.data:
@@ -532,10 +551,15 @@ async def get_deck_cards(deck_id: str, user_id: str) -> List[Dict[str, Any]]:
                                 "example": c.get("example"),
                                 "part_of_speech": c.get("part_of_speech", "phrase"),
                                 "lang_code": c.get("lang_code", "en"),
-                                "state": 0,
-                                "stability": 0.0,
-                                "difficulty": 0.0,
-                                "due": datetime.datetime.now(datetime.timezone.utc).isoformat()
+                                "state": c.get("state", 0),
+                                "reps": c.get("reps", 0),
+                                "lapses": c.get("lapses", 0),
+                                "stability": c.get("stability", 0.0),
+                                "difficulty": c.get("difficulty", 0.0),
+                                "elapsed_days": c.get("elapsed_days", 0),
+                                "scheduled_days": c.get("scheduled_days", 0),
+                                "last_review": c.get("last_review"),
+                                "due": c.get("due") or datetime.datetime.now(datetime.timezone.utc).isoformat()
                             }
         except Exception as e:
             logger.warning(f"Failed to fetch cards from Supabase: {e}")

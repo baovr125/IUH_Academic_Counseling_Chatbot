@@ -27,13 +27,13 @@ if not SUPABASE_URL or not SUPABASE_KEY:
     print("❌ Error: SUPABASE_URL or SUPABASE_KEY environment variables not set.")
     sys.exit(1)
 
-print("⚡ Initializing Supabase client & SentenceTransformer embedder ('paraphrase-multilingual-MiniLM-L12-v2')...")
+print("⚡ Initializing Supabase client & SentenceTransformer embedder ('bkai-foundation-models/vietnamese-bi-encoder')...")
 from supabase import create_client
 from sentence_transformers import SentenceTransformer, CrossEncoder
 
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
-embedder = SentenceTransformer("sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
-print("✅ First-Stage Embedder loaded.")
+embedder = SentenceTransformer("bkai-foundation-models/vietnamese-bi-encoder")
+print("✅ First-Stage Embedder loaded (768d).")
 
 # Lazy-loaded reranker
 _reranker_instance = None

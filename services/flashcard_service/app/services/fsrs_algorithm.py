@@ -29,22 +29,20 @@ def calculate_fsrs(
         return {
             "state": 1 if grade <= 1 else 2,
             "reps": new_reps,
-            "repetition": new_reps,
             "lapses": 1 if grade <= 1 else 0,
             "stability": round(stability or 2.5, 4),
             "difficulty": round(difficulty or 1.0, 4),
             "elapsed_days": 1,
             "scheduled_days": new_interval,
             "last_review": now.isoformat(),
-            "due": next_due.isoformat(),
-            "next_review_date": next_due.isoformat()
+            "due": next_due.isoformat()
         }
 
     f = FSRS()
     card = Card()
     
     if card_dict:
-        card.reps = card_dict.get("reps", card_dict.get("repetition", repetition))
+        card.reps = card_dict.get("reps", repetition)
         card.lapses = card_dict.get("lapses", 0)
         card.elapsed_days = card_dict.get("elapsed_days", 0)
         card.scheduled_days = card_dict.get("scheduled_days", 0)
@@ -102,13 +100,11 @@ def calculate_fsrs(
     return {
         "state": state_int,
         "reps": new_card.reps,
-        "repetition": new_card.reps, # Legacy alias for backwards compatibility
         "lapses": new_card.lapses,
         "stability": round(float(new_card.stability), 4),
         "difficulty": round(float(new_card.difficulty), 4),
         "elapsed_days": new_card.elapsed_days,
         "scheduled_days": new_card.scheduled_days,
         "last_review": new_card.last_review.isoformat() if new_card.last_review else now.isoformat(),
-        "due": new_card.due.isoformat(),
-        "next_review_date": new_card.due.isoformat() # Legacy alias for backwards compatibility
+        "due": new_card.due.isoformat()
     }

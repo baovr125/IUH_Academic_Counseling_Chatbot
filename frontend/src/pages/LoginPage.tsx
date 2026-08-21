@@ -8,9 +8,9 @@ import {
   KeyRound,
   CheckCircle2,
   AlertCircle,
-  Sparkles,
   GraduationCap,
   Globe,
+  Sparkles,
 } from "lucide-react";
 
 
@@ -39,6 +39,32 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [clientError, setClientError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+
+  // Helper cập nhật giá trị và xóa lỗi của field đó
+  const handleFieldChange = (field: string, value: string, setter: (val: string) => void) => {
+    setter(value);
+    if (fieldErrors[field]) {
+      setFieldErrors((prev) => {
+        const next = { ...prev };
+        delete next[field];
+        return next;
+      });
+    }
+    if (clientError) setClientError(null);
+  };
+
+  const switchMode = (registering: boolean) => {
+    setIsRegistering(registering);
+    setFieldErrors({});
+    setClientError(null);
+  };
+
+  const switchUserType = (type: "student" | "public") => {
+    setUserType(type);
+    setFieldErrors({});
+    setClientError(null);
+  };
 
   // Forgot Password Modal state
   const [showForgotModal, setShowForgotModal] = useState(false);
@@ -58,32 +84,75 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setClientError(null);
+    const newFieldErrors: Record<string, string> = {};
 
     if (isRegistering) {
-      if (!fullName || fullName.trim().length < 2) {
-        setClientError("Họ và tên phải chứa ít nhất 2 ký tự.");
-        return;
+      // 1. Kiểm tra Họ và tên
+      if (!fullName.trim()) {
+        newFieldErrors.fullName = "Họ và tên không được để trống.";
+      } else if (fullName.trim().length < 2 || fullName.trim().length > 100) {
+        newFieldErrors.fullName = "Họ và tên bắt buộc từ 2 đến 100 ký tự.";
       }
-      if (userType === "student" && (!studentCode || !studentCode.trim())) {
-        setClientError("Mã số sinh viên (MSSV) là bắt buộc đối với tài khoản Sinh viên.");
-        return;
+
+      // 2. Kiểm tra Email
+      if (!identifier.trim()) {
+        newFieldErrors.identifier = "Email đăng ký không được để trống.";
+      } else if (!/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)+$/.test(identifier.trim())) {
+        newFieldErrors.identifier = "Email không đúng định dạng tiêu chuẩn (VD: ten@gmail.com).";
+      } else if (userType === "student") {
+        const emLower = identifier.trim().toLowerCase();
+        if (!emLower.endsWith("@student.iuh.edu.vn") && !emLower.endsWith("@iuh.edu.vn")) {
+          newFieldErrors.identifier = "Email sinh viên / GV IUH phải có đuôi @student.iuh.edu.vn hoặc @iuh.edu.vn.";
+        }
       }
-      if (!identifier || !identifier.includes("@")) {
-        setClientError("Vui lòng nhập Email hợp lệ (chứa ký tự '@').");
-        return;
+
+      // 3. Kiểm tra thông tin Sinh viên IUH
+      if (userType === "student") {
+        if (!studentCode.trim()) {
+          newFieldErrors.studentCode = "Mã số sinh viên (MSSV) không được để trống.";
+        } else if (!/^\d{8}$/.test(studentCode.trim())) {
+          newFieldErrors.studentCode = "Mã số sinh viên phải chứa đúng 8 chữ số (VD: 20045211).";
+        }
+
+        if (!department.trim()) {
+          newFieldErrors.department = "Khoa / Viện không được để trống.";
+        }
+
+        if (!major.trim()) {
+          newFieldErrors.major = "Ngành học không được để trống.";
+        }
       }
-      if (!password || password.length < 6) {
-        setClientError("Mật khẩu phải có ít nhất 6 ký tự.");
-        return;
+
+      // 4. Kiểm tra Mật khẩu
+      if (!password) {
+        newFieldErrors.password = "Mật khẩu không được để trống.";
+      } else if (password.length < 8) {
+        newFieldErrors.password = "Mật khẩu phải có tối thiểu 8 ký tự.";
+      } else if (!/[A-Za-z]/.test(password)) {
+        newFieldErrors.password = "Mật khẩu phải bao gồm ít nhất một chữ cái.";
+      } else if (!/\d/.test(password)) {
+        newFieldErrors.password = "Mật khẩu phải bao gồm ít nhất một chữ số.";
       }
-      if (password !== confirmPassword) {
-        setClientError("Mật khẩu xác nhận không trùng khớp.");
+
+      // 5. Kiểm tra Xác nhận mật khẩu
+      if (!confirmPassword) {
+        newFieldErrors.confirmPassword = "Vui lòng xác nhận lại mật khẩu.";
+      } else if (password !== confirmPassword) {
+        newFieldErrors.confirmPassword = "Mật khẩu xác nhận không trùng khớp.";
+      }
+
+      // Nếu có lỗi Client-side validation, chặn submit ngay lập tức
+      if (Object.keys(newFieldErrors).length > 0) {
+        setFieldErrors(newFieldErrors);
+        setClientError("Vui lòng kiểm tra và điền đầy đủ các thông tin bị lỗi bên dưới.");
         return;
       }
 
-      const ok = await register({
+      setFieldErrors({});
+      const regIdentifier = identifier.trim();
+      const result = await register({
         fullName: fullName.trim(),
-        identifier: identifier.trim(),
+        identifier: regIdentifier,
         password,
         confirmPassword,
         userType,
@@ -91,17 +160,81 @@ export default function LoginPage() {
         department: userType === "student" ? department.trim() : undefined,
         major: userType === "student" ? major.trim() : undefined,
       });
-      if (ok) navigate("/dashboard");
+
+      if (result.ok) {
+        setIsRegistering(false);
+        setIdentifier(regIdentifier);
+        setPassword("");
+        setConfirmPassword("");
+        setFieldErrors({});
+        setResetSuccessMsg("Đăng ký tài khoản thành công! Vui lòng đăng nhập.");
+        setTimeout(() => setResetSuccessMsg(null), 8000);
+      } else {
+        const serverFieldErrors: Record<string, string> = {};
+        const mapField: Record<string, string> = {
+          email: "identifier",
+          identifier: "identifier",
+          student_code: "studentCode",
+          studentCode: "studentCode",
+          full_name: "fullName",
+          fullName: "fullName",
+          department: "department",
+          major: "major",
+          password: "password",
+          confirm_password: "confirmPassword",
+        };
+
+        if (result.field) {
+          const uiField = mapField[result.field] || result.field;
+          serverFieldErrors[uiField] = result.message || "Thông tin không hợp lệ.";
+        }
+
+        if (result.details && Array.isArray(result.details)) {
+          result.details.forEach((item) => {
+            const uiField = mapField[item.field] || item.field;
+            serverFieldErrors[uiField] = item.message;
+          });
+        }
+
+        // Tự động phân tích message nếu chưa có mapping
+        if (Object.keys(serverFieldErrors).length === 0 && result.message) {
+          const msgLower = result.message.toLowerCase();
+          if (msgLower.includes("email")) {
+            serverFieldErrors.identifier = result.message;
+          } else if (msgLower.includes("sinh viên") || msgLower.includes("mssv")) {
+            serverFieldErrors.studentCode = result.message;
+          } else if (msgLower.includes("mật khẩu")) {
+            serverFieldErrors.password = result.message;
+          } else if (msgLower.includes("khoa") || msgLower.includes("viện")) {
+            serverFieldErrors.department = result.message;
+          } else if (msgLower.includes("ngành")) {
+            serverFieldErrors.major = result.message;
+          } else if (msgLower.includes("họ và tên")) {
+            serverFieldErrors.fullName = result.message;
+          }
+        }
+
+        if (Object.keys(serverFieldErrors).length > 0) {
+          setFieldErrors(serverFieldErrors);
+        }
+        setClientError(result.message || "Đăng ký không thành công. Vui lòng thử lại.");
+      }
     } else {
-      if (!identifier || !identifier.trim()) {
-        setClientError("Vui lòng nhập Email hoặc Mã số sinh viên.");
-        return;
+      // Đăng nhập
+      if (!identifier.trim()) {
+        newFieldErrors.identifier = "Vui lòng nhập Email hoặc Mã số sinh viên.";
       }
       if (!password) {
-        setClientError("Vui lòng nhập mật khẩu.");
+        newFieldErrors.password = "Vui lòng nhập mật khẩu.";
+      }
+
+      if (Object.keys(newFieldErrors).length > 0) {
+        setFieldErrors(newFieldErrors);
+        setClientError("Vui lòng nhập đầy đủ tài khoản và mật khẩu.");
         return;
       }
 
+      setFieldErrors({});
       const ok = await login({ identifier: identifier.trim(), password });
       if (ok) navigate("/dashboard");
     }
@@ -140,17 +273,15 @@ export default function LoginPage() {
     setForgotErr(null);
 
     if (!forgotOtp) {
-      setForgotErr("Vui lòng nhập mã OTP 6 số.");
+      setForgotErr("Vui lòng nhập mã OTP.");
       return;
     }
-
     if (!forgotNewPassword || forgotNewPassword.length < 6) {
       setForgotErr("Mật khẩu mới phải có ít nhất 6 ký tự.");
       return;
     }
-
     if (forgotNewPassword !== forgotConfirmPassword) {
-      setForgotErr("Mật khẩu xác nhận không khớp.");
+      setForgotErr("Mật khẩu xác nhận không trùng khớp.");
       return;
     }
 
@@ -164,31 +295,51 @@ export default function LoginPage() {
     setIsForgotLoading(false);
 
     if (!result.ok) {
-      setForgotErr(result.message || "Xác nhận mã OTP hoặc đổi mật khẩu thất bại.");
+      setForgotErr(result.message || "Đặt lại mật khẩu thất bại.");
     } else {
       setShowForgotModal(false);
-      setIdentifier(forgotEmail);
-      setPassword("");
-      setResetSuccessMsg("Đặt lại mật khẩu thành công! Vui lòng đăng nhập bằng mật khẩu mới.");
-      setTimeout(() => setResetSuccessMsg(null), 6000);
+      setForgotStep(1);
+      setForgotEmail("");
+      setForgotOtp("");
+      setForgotNewPassword("");
+      setForgotConfirmPassword("");
+      setDevOtpHint(null);
+      setResetSuccessMsg("Mật khẩu đã được đặt lại thành công! Bạn có thể đăng nhập ngay.");
+      setTimeout(() => setResetSuccessMsg(null), 8000);
     }
   };
 
   return (
-    <div className="flex h-screen w-full">
+    <div className="flex min-h-screen">
       {/* Left side banner */}
-      <div className="hidden w-1/2 flex-col justify-between bg-[#152a6e] p-10 text-white lg:flex">
-        <span className="font-semibold text-lg flex items-center gap-2">
-          <Sparkles className="w-5 h-5 text-amber-300" />
-          IUH Portal AI
-        </span>
-        <div>
-          <h1 className="mb-3 text-3xl font-bold leading-tight">
-            Hệ thống Trợ lý Học vụ Thông minh IUH
+      <div className="hidden lg:flex lg:w-1/2 flex-col justify-between bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-950 p-12 text-white relative overflow-hidden">
+        {/* Background glow effects */}
+        <div className="absolute -top-24 -left-24 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 backdrop-blur-sm border border-white/20">
+            <Sparkles className="h-5 w-5 text-blue-300" />
+          </div>
+          <div>
+            <span className="font-bold text-lg tracking-tight">IUH Portal AI</span>
+            <p className="text-[10px] text-blue-300">Đại học Công nghiệp TP. Hồ Chí Minh</p>
+          </div>
+        </div>
+
+        <div className="space-y-4 my-auto py-12">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-xs font-medium">
+            <GraduationCap size={14} />
+            <span>Trợ lý Học vụ & Học tập Đa tác vụ</span>
+          </div>
+          <h1 className="text-3xl font-extrabold leading-tight text-white lg:text-4xl">
+            Tối ưu hóa học tập <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-indigo-200 to-white">
+              và tư vấn học vụ thông minh
+            </span>
           </h1>
-          <p className="text-blue-200 text-sm leading-relaxed">
-            Tra cứu quy chế, dịch thuật tài liệu học thuật trong vài giây. Một giải pháp AI đột phá
-            dành cho cộng đồng Trường Đại học Công nghiệp TP.HCM.
+          <p className="text-sm text-blue-100/80 max-w-md leading-relaxed">
+            Hỏi đáp quy chế đào tạo, dịch thuật tài liệu chuyên ngành, ghi nhớ kiến thức với Flashcard FSRS thông minh và theo dõi tiến độ học tập toàn diện.
           </p>
         </div>
         <span className="w-fit rounded-full bg-white/10 px-3.5 py-1.5 text-xs font-medium">
@@ -198,12 +349,12 @@ export default function LoginPage() {
 
       {/* Right side form */}
       <div className="flex w-full items-center justify-center bg-slate-50 p-6 lg:w-1/2 overflow-y-auto">
-        <form onSubmit={handleSubmit} className="w-full max-w-md rounded-2xl bg-white p-8 shadow-sm my-auto">
+        <form onSubmit={handleSubmit} noValidate className="w-full max-w-md rounded-2xl bg-white p-8 shadow-sm my-auto">
           {/* Tab chuyển đổi Đăng nhập / Đăng ký */}
           <div className="mb-6 flex rounded-xl bg-slate-100 p-1">
             <button
               type="button"
-              onClick={() => setIsRegistering(false)}
+              onClick={() => switchMode(false)}
               className={`flex-1 rounded-lg py-2 text-xs font-semibold transition-all ${
                 !isRegistering
                   ? "bg-white text-blue-700 shadow-sm"
@@ -214,7 +365,7 @@ export default function LoginPage() {
             </button>
             <button
               type="button"
-              onClick={() => setIsRegistering(true)}
+              onClick={() => switchMode(true)}
               className={`flex-1 rounded-lg py-2 text-xs font-semibold transition-all ${
                 isRegistering
                   ? "bg-white text-blue-700 shadow-sm"
@@ -250,7 +401,7 @@ export default function LoginPage() {
               <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
-                  onClick={() => setUserType("student")}
+                  onClick={() => switchUserType("student")}
                   className={`flex items-center justify-center gap-2 rounded-xl border p-2.5 text-xs font-semibold transition-all ${
                     userType === "student"
                       ? "border-blue-600 bg-blue-50/80 text-blue-700 shadow-sm"
@@ -263,7 +414,7 @@ export default function LoginPage() {
 
                 <button
                   type="button"
-                  onClick={() => setUserType("public")}
+                  onClick={() => switchUserType("public")}
                   className={`flex items-center justify-center gap-2 rounded-xl border p-2.5 text-xs font-semibold transition-all ${
                     userType === "public"
                       ? "border-blue-600 bg-blue-50/80 text-blue-700 shadow-sm"
@@ -275,17 +426,28 @@ export default function LoginPage() {
                 </button>
               </div>
 
-              {/* Các ô thông tin theo chế độ */}
+              {/* Ô Họ và tên */}
               <div>
-                <label className="mb-1 block text-xs font-medium text-slate-600">Họ và tên</label>
+                <label className="mb-1 block text-xs font-medium text-slate-600">
+                  Họ và tên <span className="text-red-500">*</span>
+                </label>
                 <input
                   type="text"
                   value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  placeholder="Nhập họ và tên của bạn..."
-                  required={isRegistering}
-                  className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs focus:border-blue-400 focus:outline-none"
+                  onChange={(e) => handleFieldChange("fullName", e.target.value, setFullName)}
+                  placeholder="Ví dụ: Nguyễn Văn Bảo..."
+                  className={`w-full rounded-lg border px-3 py-2 text-xs transition-colors focus:outline-none ${
+                    fieldErrors.fullName
+                      ? "border-red-500 bg-red-50/20 text-slate-800 focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                      : "border-slate-200 text-slate-800 focus:border-blue-400"
+                  }`}
                 />
+                {fieldErrors.fullName && (
+                  <p className="mt-1 text-[11px] font-medium text-red-600 flex items-center gap-1">
+                    <AlertCircle size={13} className="flex-shrink-0" />
+                    <span>{fieldErrors.fullName}</span>
+                  </p>
+                )}
               </div>
 
               {/* Nếu là sinh viên: Hiện 3 ô học vụ */}
@@ -298,33 +460,66 @@ export default function LoginPage() {
                     <input
                       type="text"
                       value={studentCode}
-                      onChange={(e) => setStudentCode(e.target.value)}
-                      placeholder="Ví dụ: 20045211..."
-                      required={userType === "student"}
-                      className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs focus:border-blue-400 focus:outline-none"
+                      onChange={(e) => handleFieldChange("studentCode", e.target.value, setStudentCode)}
+                      placeholder="Ví dụ: 20045211 (8 chữ số)..."
+                      className={`w-full rounded-lg border px-3 py-2 text-xs transition-colors focus:outline-none ${
+                        fieldErrors.studentCode
+                          ? "border-red-500 bg-red-50/20 text-slate-800 focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                          : "border-slate-200 text-slate-800 focus:border-blue-400"
+                      }`}
                     />
+                    {fieldErrors.studentCode && (
+                      <p className="mt-1 text-[11px] font-medium text-red-600 flex items-center gap-1">
+                        <AlertCircle size={13} className="flex-shrink-0" />
+                        <span>{fieldErrors.studentCode}</span>
+                      </p>
+                    )}
                   </div>
 
                   <div>
-                    <label className="mb-1 block text-xs font-medium text-slate-600">Khoa / Viện</label>
+                    <label className="mb-1 block text-xs font-medium text-slate-600">
+                      Khoa / Viện <span className="text-red-500">*</span>
+                    </label>
                     <input
                       type="text"
                       value={department}
-                      onChange={(e) => setDepartment(e.target.value)}
+                      onChange={(e) => handleFieldChange("department", e.target.value, setDepartment)}
                       placeholder="Ví dụ: Khoa Công nghệ Thông tin..."
-                      className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs focus:border-blue-400 focus:outline-none"
+                      className={`w-full rounded-lg border px-3 py-2 text-xs transition-colors focus:outline-none ${
+                        fieldErrors.department
+                          ? "border-red-500 bg-red-50/20 text-slate-800 focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                          : "border-slate-200 text-slate-800 focus:border-blue-400"
+                      }`}
                     />
+                    {fieldErrors.department && (
+                      <p className="mt-1 text-[11px] font-medium text-red-600 flex items-center gap-1">
+                        <AlertCircle size={13} className="flex-shrink-0" />
+                        <span>{fieldErrors.department}</span>
+                      </p>
+                    )}
                   </div>
 
                   <div>
-                    <label className="mb-1 block text-xs font-medium text-slate-600">Ngành học</label>
+                    <label className="mb-1 block text-xs font-medium text-slate-600">
+                      Ngành học <span className="text-red-500">*</span>
+                    </label>
                     <input
                       type="text"
                       value={major}
-                      onChange={(e) => setMajor(e.target.value)}
+                      onChange={(e) => handleFieldChange("major", e.target.value, setMajor)}
                       placeholder="Ví dụ: Kỹ thuật Phần mềm..."
-                      className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs focus:border-blue-400 focus:outline-none"
+                      className={`w-full rounded-lg border px-3 py-2 text-xs transition-colors focus:outline-none ${
+                        fieldErrors.major
+                          ? "border-red-500 bg-red-50/20 text-slate-800 focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                          : "border-slate-200 text-slate-800 focus:border-blue-400"
+                      }`}
                     />
+                    {fieldErrors.major && (
+                      <p className="mt-1 text-[11px] font-medium text-red-600 flex items-center gap-1">
+                        <AlertCircle size={13} className="flex-shrink-0" />
+                        <span>{fieldErrors.major}</span>
+                      </p>
+                    )}
                   </div>
                 </>
               )}
@@ -335,30 +530,52 @@ export default function LoginPage() {
           <div className="mb-4">
             <label className="mb-1 block text-xs font-medium text-slate-600">
               {isRegistering
-                ? "Email đăng ký"
-                : "Mã số sinh viên hoặc Email đăng nhập"}
+                ? userType === "student"
+                  ? "Email sinh viên / GV IUH"
+                  : "Email đăng ký"
+                : "Mã số sinh viên hoặc Email đăng nhập"} <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
               value={identifier}
-              onChange={(e) => setIdentifier(e.target.value)}
-              placeholder={isRegistering ? "nhapemail@iuh.edu.vn..." : "Nhập mã số hoặc email..."}
-              required
-              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs focus:border-blue-400 focus:outline-none"
+              onChange={(e) => handleFieldChange("identifier", e.target.value, setIdentifier)}
+              placeholder={
+                isRegistering
+                  ? userType === "student"
+                    ? "nhapemail@student.iuh.edu.vn..."
+                    : "nhapemail@gmail.com..."
+                  : "Nhập mã số hoặc email..."
+              }
+              className={`w-full rounded-lg border px-3 py-2 text-xs transition-colors focus:outline-none ${
+                fieldErrors.identifier
+                  ? "border-red-500 bg-red-50/20 text-slate-800 focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                  : "border-slate-200 text-slate-800 focus:border-blue-400"
+              }`}
             />
+            {fieldErrors.identifier && (
+              <p className="mt-1 text-[11px] font-medium text-red-600 flex items-center gap-1">
+                <AlertCircle size={13} className="flex-shrink-0" />
+                <span>{fieldErrors.identifier}</span>
+              </p>
+            )}
           </div>
 
           {/* Ô nhập Mật khẩu */}
           <div className="mb-3">
-            <label className="mb-1 block text-xs font-medium text-slate-600">Mật khẩu</label>
+            <label className="mb-1 block text-xs font-medium text-slate-600">
+              Mật khẩu <span className="text-red-500">*</span>
+            </label>
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                required
-                className="w-full rounded-lg border border-slate-200 px-3 py-2 pr-9 text-xs focus:border-blue-400 focus:outline-none"
+                onChange={(e) => handleFieldChange("password", e.target.value, setPassword)}
+                placeholder="Tối thiểu 8 ký tự (chứa chữ và số)..."
+                className={`w-full rounded-lg border px-3 py-2 pr-9 text-xs transition-colors focus:outline-none ${
+                  fieldErrors.password
+                    ? "border-red-500 bg-red-50/20 text-slate-800 focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                    : "border-slate-200 text-slate-800 focus:border-blue-400"
+                }`}
               />
               <button
                 type="button"
@@ -368,6 +585,12 @@ export default function LoginPage() {
                 {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
               </button>
             </div>
+            {fieldErrors.password && (
+              <p className="mt-1 text-[11px] font-medium text-red-600 flex items-center gap-1">
+                <AlertCircle size={13} className="flex-shrink-0" />
+                <span>{fieldErrors.password}</span>
+              </p>
+            )}
 
             {/* Nút Quên mật khẩu? (chỉ hiện khi Đăng nhập) */}
             {!isRegistering && (
@@ -394,16 +617,19 @@ export default function LoginPage() {
           {isRegistering && (
             <div className="mb-4">
               <label className="mb-1 block text-xs font-medium text-slate-600">
-                Xác nhận mật khẩu
+                Xác nhận mật khẩu <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <input
                   type={showConfirmPassword ? "text" : "password"}
                   value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="••••••••"
-                  required={isRegistering}
-                  className="w-full rounded-lg border border-slate-200 px-3 py-2 pr-9 text-xs focus:border-blue-400 focus:outline-none"
+                  onChange={(e) => handleFieldChange("confirmPassword", e.target.value, setConfirmPassword)}
+                  placeholder="Nhập lại mật khẩu..."
+                  className={`w-full rounded-lg border px-3 py-2 pr-9 text-xs transition-colors focus:outline-none ${
+                    fieldErrors.confirmPassword
+                      ? "border-red-500 bg-red-50/20 text-slate-800 focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                      : "border-slate-200 text-slate-800 focus:border-blue-400"
+                  }`}
                 />
                 <button
                   type="button"
@@ -413,6 +639,12 @@ export default function LoginPage() {
                   {showConfirmPassword ? <EyeOff size={15} /> : <Eye size={15} />}
                 </button>
               </div>
+              {fieldErrors.confirmPassword && (
+                <p className="mt-1 text-[11px] font-medium text-red-600 flex items-center gap-1">
+                  <AlertCircle size={13} className="flex-shrink-0" />
+                  <span>{fieldErrors.confirmPassword}</span>
+                </p>
+              )}
             </div>
           )}
 
@@ -441,40 +673,13 @@ export default function LoginPage() {
               : "Đăng nhập"}
           </button>
 
-          {/* Quick Bypass Test Mode Button */}
-          <div className="relative my-4">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-slate-200" />
-            </div>
-            <div className="relative flex justify-center text-[10px] uppercase">
-              <span className="bg-white px-2 text-slate-400 font-semibold">Chế độ kiểm thử nhanh</span>
-            </div>
-          </div>
-
-          <button
-            type="button"
-            onClick={async () => {
-              const ok = await login({ identifier: "dev@iuh.edu.vn", password: "password123" });
-              if (ok) {
-                navigate("/dashboard", { replace: true });
-                // We don't necessarily need window.location.reload() here since useAuth should update the context
-              } else {
-                setClientError("Lỗi đăng nhập nhanh: Tài khoản dev@iuh.edu.vn chưa được tạo.");
-              }
-            }}
-            className="w-full flex items-center justify-center gap-2 rounded-lg border-2 border-dashed border-amber-400 bg-amber-50/70 py-2 text-xs font-bold text-amber-800 hover:bg-amber-100/80 active:scale-[0.99] transition-all shadow-sm"
-          >
-            <Sparkles className="w-4 h-4 text-amber-600 animate-pulse" />
-            <span>⚡ Đăng nhập Nhanh bằng Dev Account</span>
-          </button>
-
           <div className="mt-6 text-center text-xs text-slate-500">
             {isRegistering ? (
               <span>
                 Đã có tài khoản?{" "}
                 <button
                   type="button"
-                  onClick={() => setIsRegistering(false)}
+                  onClick={() => switchMode(false)}
                   className="font-semibold text-blue-600 hover:underline"
                 >
                   Đăng nhập ngay

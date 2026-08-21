@@ -68,6 +68,7 @@ export interface UpdateSettingsPayload {
 export interface LearningStreakDay {
   date: string; // ISO date
   intensity: 0 | 1 | 2 | 3 | 4; // activity level, drives heatmap shade
+  count?: number;
 }
 
 export interface RecentDocument {
@@ -75,11 +76,65 @@ export interface RecentDocument {
   name: string;
   type: "pdf" | "docx" | "xlsx" | "pptx";
   modifiedAt: string;
-  category: "notes" | "reports" | "planning";
+  category: "notes" | "reports" | "planning" | "research" | "handbook";
+  pageCount?: number;
+  fileSize?: string;
+  status?: "completed" | "processing" | "ready";
+  translatedTitle?: string;
+}
+
+export interface RecentChatPreview {
+  id: string;
+  title: string;
+  lastMessage: string;
+  updatedAt: string;
+  messageCount: number;
+}
+
+export interface AcademicDeadline {
+  id: string;
+  title: string;
+  date: string;
+  daysRemaining?: number;
+  type: "urgent" | "warning" | "info" | "success";
+  tag: string;
+  link?: string;
+}
+
+export interface AdmissionNews {
+  id: string;
+  title: string;
+  date: string;
+  badge: string;
+  description: string;
+  link?: string;
+}
+
+export interface FlashcardSummary {
+  dueTodayCount: number;
+  totalMastered: number;
+  dailyGoal: number;
+  dailyLearned: number;
+  topDeckTitle?: string;
+  topDeckId?: string;
+  totalCards?: number;
+}
+
+export interface PublicUserProductivity {
+  totalDocsTranslated: number;
+  totalPagesProcessed: number;
+  totalWordsMastered: number;
+  timeSavedHours: number;
 }
 
 export interface DashboardStats {
   userFullName: string;
+  role?: UserRole;
+  studentCode?: string;
+  department?: string;
+  major?: string;
+  semesterName?: string;
+  currentWeek?: number;
   semesterCompletionPercent: number;
   lastSyncedAt: string;
   vocabularyLearnedToday: number;
@@ -90,7 +145,13 @@ export interface DashboardStats {
   streakDays: number;
   streak: LearningStreakDay[];
   recentDocuments: RecentDocument[];
+  recentChatSessions?: RecentChatPreview[];
+  flashcardSummary: FlashcardSummary;
+  academicDeadlines: AcademicDeadline[];
+  publicProductivity?: PublicUserProductivity;
+  admissionNews?: AdmissionNews[];
 }
+
 
 // ---- RAG Chat (Knowledge Hub) -----------------------------------------
 
@@ -198,11 +259,17 @@ export interface AnalyticsData {
   top_queries: { query: string; count: number }[];
 }
 
-// ---- Generic wrapper -----------------------------------------------------
+export interface ApiErrorDetail {
+  field: string;
+  message: string;
+  type?: string;
+}
 
 export interface ApiError {
   message: string;
   code?: string;
+  field?: string;
+  details?: ApiErrorDetail[];
 }
 
 /** Every mock/real service call resolves to this envelope. */

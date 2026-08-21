@@ -1,15 +1,23 @@
 import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "../useAuth";
 import {
   fetchDeckCards,
   type BackendCardItem
 } from "../../services/flashcardService";
 import { getDecks as getLocalDecks } from "../../services/deckStorage";
 
-export const getCardsQueryKey = (deckId?: string) => ["flashcard_cards", deckId];
+export const getCardsQueryKey = (deckId?: string, userId?: string) => [
+  "flashcard_cards",
+  deckId,
+  userId || "guest"
+];
 
 export function useCards(deckId?: string, deckLang: string = "en") {
+  const { user } = useAuth();
+  const userId = user?.id;
+
   const cardsQuery = useQuery({
-    queryKey: getCardsQueryKey(deckId),
+    queryKey: getCardsQueryKey(deckId, userId),
     enabled: !!deckId,
     queryFn: async (): Promise<BackendCardItem[]> => {
       if (!deckId) return [];
@@ -30,8 +38,8 @@ export function useCards(deckId?: string, deckLang: string = "en") {
         console.warn("fetchDeckCards error in useCards:", e);
       }
 
-      // Merge from local storage for offline / created local cards
-      const localDeck = getLocalDecks().find((d) => d.id === deckId);
+      // Merge from local storage for offline / created local cards for this user
+      const localDeck = getLocalDecks(userId).find((d) => d.id === deckId);
       if (localDeck && localDeck.cards && localDeck.cards.length > 0) {
         for (const lc of localDeck.cards) {
           if (!cardsList.some((c) => c.id === lc.id || c.term.toLowerCase() === lc.term.toLowerCase())) {

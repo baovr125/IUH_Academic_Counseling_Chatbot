@@ -3,7 +3,12 @@ _format_version: "3.0"
 plugins:
   - name: rate-limiting
     config:
-      minute: 50
+      minute: 1000
+      policy: local
+  - name: rate-limiting
+    route: tts-routes
+    config:
+      minute: 100
       policy: local
   - name: cors
     config:
@@ -34,6 +39,9 @@ jwt_secrets:
 services:
   - name: auth-service
     url: http://auth-service:8001
+    connect_timeout: 60000
+    read_timeout: 60000
+    write_timeout: 60000
     routes:
       - name: auth-routes
         paths:
@@ -43,6 +51,9 @@ services:
 
   - name: academic-chatbot-service
     url: http://academic-chatbot-service:8002
+    connect_timeout: 60000
+    read_timeout: 180000
+    write_timeout: 180000
     routes:
       - name: chat-routes
         paths:
@@ -52,7 +63,15 @@ services:
 
   - name: realtime-translation-service
     url: http://realtime-translation-service:8003
+    connect_timeout: 60000
+    read_timeout: 180000
+    write_timeout: 180000
     routes:
+      - name: tts-routes
+        paths:
+          - /api/v1/translate/tts
+          - /api/translate/tts
+        strip_path: false
       - name: translation-routes
         paths:
           - /api/v1/translate
@@ -61,6 +80,9 @@ services:
 
   - name: doc-translation-service
     url: http://doc-translation-service:8004
+    connect_timeout: 60000
+    read_timeout: 300000
+    write_timeout: 300000
     routes:
       - name: doc-routes
         paths:
@@ -70,6 +92,9 @@ services:
 
   - name: flashcard-service
     url: http://flashcard-service:8005
+    connect_timeout: 60000
+    read_timeout: 60000
+    write_timeout: 60000
     routes:
       - name: flashcard-routes
         paths:

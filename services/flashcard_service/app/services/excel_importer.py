@@ -441,15 +441,13 @@ async def bulk_insert_cards(
             # FSRS Default State
             "state": 0,
             "reps": 0,
-            "repetition": 0,
             "lapses": 0,
             "stability": 0.0,
             "difficulty": 0.0,
             "elapsed_days": 0,
             "scheduled_days": 0,
             "last_review": None,
-            "due": now_iso,
-            "next_review_date": now_iso
+            "due": now_iso
         }
         cards_to_insert.append(card_dict)
 
@@ -481,7 +479,14 @@ async def bulk_insert_cards(
                         "example": c["example"],
                         "part_of_speech": c["part_of_speech"],
                         "lang_code": c["lang_code"],
-                        "status": "learning"
+                        "state": 0,
+                        "reps": 0,
+                        "lapses": 0,
+                        "stability": 0.0,
+                        "difficulty": 0.0,
+                        "elapsed_days": 0,
+                        "scheduled_days": 0,
+                        "due": now_iso
                     }
                     if valid_uid:
                         sb_card["user_id"] = valid_uid

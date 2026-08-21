@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "../useAuth";
 import {
   fetchBackendDecks,
   createBackendDeck,
@@ -14,12 +15,15 @@ import {
 } from "../../services/deckStorage";
 
 export const DECKS_QUERY_KEY = ["flashcard_decks"];
+export const getDecksQueryKey = (userId?: string) => ["flashcard_decks", userId || "guest"];
 
 export function useDecks() {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
+  const userId = user?.id;
 
   const decksQuery = useQuery({
-    queryKey: DECKS_QUERY_KEY,
+    queryKey: getDecksQueryKey(userId),
     queryFn: async (): Promise<BackendDeck[]> => {
       let allDecks: BackendDeck[] = [];
 
@@ -32,8 +36,8 @@ export function useDecks() {
         console.warn("fetchBackendDecks error in useDecks:", e);
       }
 
-      // Merge with local storage decks
-      const local = getLocalDecks();
+      // Merge with local storage decks for this specific user
+      const local = getLocalDecks(userId);
       for (const ld of local) {
         const existing = allDecks.find((d) => d.id === ld.id);
         if (!existing) {
@@ -73,8 +77,8 @@ export function useDecks() {
         console.warn("createBackendDeck error:", e);
       }
 
-      // Sync to local storage
-      const localDeck = createCustomDeck(langCode, resolvedTitle, resolvedDesc, createdDeck?.id);
+      // Sync to local storage for this user
+      const localDeck = createCustomDeck(langCode, resolvedTitle, resolvedDesc, createdDeck?.id, userId);
       if (!createdDeck) {
         createdDeck = {
           id: localDeck.id,
@@ -105,14 +109,14 @@ export function useDecks() {
         console.warn("updateBackendDeck error:", e);
       }
 
-      // Update local storage
-      const localDecks = getLocalDecks();
+      // Update local storage for this user
+      const localDecks = getLocalDecks(userId);
       const target = localDecks.find((d) => d.id === id);
       if (target) {
         target.title = title.trim();
         target.description = description?.trim() || "";
         target.langCode = langCode;
-        saveLocalDecks(localDecks);
+        saveLocalDecks(localDecks, userId);
       }
 
       return { id, title: title.trim(), description: description?.trim() || "", lang_code: langCode };
@@ -131,9 +135,9 @@ export function useDecks() {
         console.warn("deleteBackendDeck error:", e);
       }
 
-      // Delete from local storage
-      const localDecks = getLocalDecks().filter((d) => d.id !== deckId);
-      saveLocalDecks(localDecks);
+      // Delete from local storage for this user
+      const localDecks = getLocalDecks(userId).filter((d) => d.id !== deckId);
+      saveLocalDecks(localDecks, userId);
       return deckId;
     },
     onSuccess: () => {

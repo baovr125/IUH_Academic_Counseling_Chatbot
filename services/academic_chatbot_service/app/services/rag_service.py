@@ -56,25 +56,56 @@ def get_gemini():
 
 _embedding_cache = TTLCache(maxsize=500, ttl=1800)
 
+def get_device() -> str:
+    try:
+        import torch
+        if torch.cuda.is_available():
+            return "cuda"
+    except Exception:
+        pass
+    return "cpu"
+
 def get_embedder():
     global _embedder_model
     with _embedder_lock:
         if _embedder_model is None:
-            _embedder_model = SentenceTransformer("bkai-foundation-models/vietnamese-bi-encoder", device="cpu", model_kwargs={"low_cpu_mem_usage": False})
+            dev = get_device()
+            logger.info(f"Loading Bi-Encoder model on device: {dev}")
+            kwargs = {}
+            if dev == "cuda":
+                import torch
+                kwargs["model_kwargs"] = {"torch_dtype": torch.float16}
+            else:
+                kwargs["model_kwargs"] = {"low_cpu_mem_usage": True}
+            _embedder_model = SentenceTransformer("bkai-foundation-models/vietnamese-bi-encoder", device=dev, **kwargs)
     return _embedder_model
 
 def get_reranker():
     global _reranker_model
     with _reranker_lock:
         if _reranker_model is None:
-            _reranker_model = CrossEncoder("BAAI/bge-reranker-v2-m3", device="cpu", model_kwargs={"low_cpu_mem_usage": False})
+            dev = get_device()
+            logger.info(f"Loading Cross-Encoder model on device: {dev}")
+            kwargs = {}
+            if dev == "cuda":
+                import torch
+                kwargs["model_kwargs"] = {"torch_dtype": torch.float16}
+            else:
+                kwargs["model_kwargs"] = {"low_cpu_mem_usage": True}
+            _reranker_model = CrossEncoder("BAAI/bge-reranker-v2-m3", device=dev, **kwargs)
     return _reranker_model
 
 def preload_models():
-    logger.info("Preloading ML Models into RAM...")
-    get_embedder()
-    get_reranker()
+    logger.info("Preloading ML Models into VRAM/RAM & Running Warmup...")
+    embedder = get_embedder()
+    reranker = get_reranker()
     get_gemini()
+    try:
+        embedder.encode("IUH kiểm tra khởi động", normalize_embeddings=True)
+        reranker.predict([("IUH kiểm tra", "Đại học Công nghiệp TP.HCM")])
+        logger.info("ML Models Warmup completed successfully.")
+    except Exception as e:
+        logger.warning(f"Warmup warning: {e}")
 
 
 # --- 1.5 Semantic Cache (Phase 2) ---
@@ -259,7 +290,8 @@ async def retrieve_relevant_chunks(query_text: str, top_k: int = 5, candidate_co
         pairs.append((query_text, text))
 
     reranker = get_reranker()
-    scores = await asyncio.to_thread(lambda: reranker.predict(pairs, batch_size=2))
+    batch_size = 8 if get_device() == "cuda" else 2
+    scores = await asyncio.to_thread(lambda: reranker.predict(pairs, batch_size=batch_size))
     for idx, chunk in enumerate(chunks):
         score = float(scores[idx])
         chunk["rerank_score"] = 1 / (1 + math.exp(-score))  # Apply Sigmoid

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { X, BookmarkPlus, Plus, Sparkles, Loader2, CheckCircle2, BookOpen } from "lucide-react";
+import { useAuth } from "../../hooks/useAuth";
+import { queryClient } from "../../queryClient";
 import {
   fetchBackendDecks,
   createBackendDeck,
@@ -34,6 +36,9 @@ export const SaveFlashcardModal: React.FC<SaveFlashcardModalProps> = ({
   initialPhonetic,
   onSuccess
 }) => {
+  const { user } = useAuth();
+  const userId = user?.id;
+
   const [term, setTerm] = useState(initialTerm);
   const [definition, setDefinition] = useState(initialDefinition);
   const [langCode, setLangCode] = useState(initialLangCode || "en");
@@ -63,7 +68,7 @@ export const SaveFlashcardModal: React.FC<SaveFlashcardModalProps> = ({
       setErrorMessage(null);
       loadDecks();
     }
-  }, [isOpen, initialTerm, initialDefinition, initialLangCode, initialContext, initialPhonetic]);
+  }, [isOpen, initialTerm, initialDefinition, initialLangCode, initialContext, initialPhonetic, userId]);
 
   const loadDecks = async () => {
     setIsLoadingDecks(true);
@@ -78,8 +83,8 @@ export const SaveFlashcardModal: React.FC<SaveFlashcardModalProps> = ({
       console.warn("fetchBackendDecks failed in modal:", e);
     }
 
-    // Merge with local storage decks so existing decks are ALWAYS available
-    const localDecks = getDecks();
+    // Merge with local storage decks so existing decks are ALWAYS available for this user
+    const localDecks = getDecks(userId);
     for (const ld of localDecks) {
       if (!availableDecks.some((d) => d.id === ld.id)) {
         availableDecks.push({
@@ -149,17 +154,17 @@ export const SaveFlashcardModal: React.FC<SaveFlashcardModalProps> = ({
             targetDeckId = deckRes.data.id;
             targetDeckTitle = deckRes.data.title;
             // Also register in local storage with the exact same ID
-            const localDecks = getDecks();
+            const localDecks = getDecks(userId);
             if (!localDecks.some((d) => d.id === targetDeckId)) {
-              createCustomDeck(langCode, targetDeckTitle, desc, targetDeckId);
+              createCustomDeck(langCode, targetDeckTitle, desc, targetDeckId, userId);
             }
           } else {
-            const localDeck = createCustomDeck(langCode, title, desc);
+            const localDeck = createCustomDeck(langCode, title, desc, undefined, userId);
             targetDeckId = localDeck.id;
             targetDeckTitle = localDeck.title;
           }
         } catch {
-          const localDeck = createCustomDeck(langCode, title, desc);
+          const localDeck = createCustomDeck(langCode, title, desc, undefined, userId);
           targetDeckId = localDeck.id;
           targetDeckTitle = localDeck.title;
         }
@@ -191,8 +196,13 @@ export const SaveFlashcardModal: React.FC<SaveFlashcardModalProps> = ({
         definition.trim(),
         example.trim() || undefined,
         "phrase",
-        targetDeckId
+        targetDeckId,
+        userId
       );
+
+      // Invalidate queries so decks & cards update immediately in UI
+      queryClient.invalidateQueries({ queryKey: ["flashcard_decks"] });
+      queryClient.invalidateQueries({ queryKey: ["flashcard_cards", targetDeckId] });
 
       // Success
       if (onSuccess) {

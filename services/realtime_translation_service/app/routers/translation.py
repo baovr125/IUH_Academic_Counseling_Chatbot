@@ -62,6 +62,8 @@ async def tts_endpoint(text: str, lang: str = "en"):
     """
     voice = resolve_voice(lang)
     clean_text = text.strip()
+    if not clean_text or len(clean_text.strip(" .,!?:;-_()[]{}\"'`~")) == 0:
+        return Response(status_code=204)
     
     cache_key = hashlib.md5(f"{clean_text.lower()}_{voice}".encode('utf-8')).hexdigest()
     object_name = f"tts/{cache_key}.mp3"
@@ -91,6 +93,8 @@ async def tts_endpoint(text: str, lang: str = "en"):
                 audio_data.extend(chunk["data"])
                 
         complete_audio = bytes(audio_data)
+        if not complete_audio:
+            return Response(status_code=204)
         
         # 3. Lưu trữ vào MinIO và Cache URL vào Redis
         try:
@@ -109,8 +113,8 @@ async def tts_endpoint(text: str, lang: str = "en"):
             }
         )
     except Exception as e:
-        logger.error(f"TTS generation failed for '{clean_text}': {e}")
-        return Response(status_code=500, content=f"TTS generation failed: {e}")
+        logger.warning(f"TTS generation skipped for '{clean_text}': {e}")
+        return Response(status_code=204)
 
 
 @router.get("/audio/{object_name:path}")

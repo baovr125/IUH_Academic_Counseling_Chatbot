@@ -25,11 +25,33 @@ export const LANG_CONFIG: Record<
   vi: { label: "Tiếng Việt (Vietnamese)", flag: "🇻🇳", defaultTitle: "Sổ từ vựng Tiếng Việt" },
 };
 
-const DECKS_STORAGE_KEY = "iuh_portal_ai_decks_v2";
-
-export function getDecks(): FlashcardDeck[] {
+function getStorageKey(userId?: string): string {
+  if (userId && userId.trim() && userId !== "guest") {
+    return `iuh_portal_ai_decks_${userId.trim()}`;
+  }
+  // Try extracting from sessionStorage token
   try {
-    const raw = localStorage.getItem(DECKS_STORAGE_KEY);
+    const token = sessionStorage.getItem("iuh_portal_ai_token");
+    if (token) {
+      const parts = token.split(".");
+      if (parts.length === 3) {
+        const payload = JSON.parse(atob(parts[1]));
+        const uid = payload.sub || payload.id || payload.user_id;
+        if (uid && String(uid).trim()) {
+          return `iuh_portal_ai_decks_${String(uid).trim()}`;
+        }
+      }
+    }
+  } catch {
+    // Ignore parse errors
+  }
+  return "iuh_portal_ai_decks_guest";
+}
+
+export function getDecks(userId?: string): FlashcardDeck[] {
+  try {
+    const key = getStorageKey(userId);
+    const raw = localStorage.getItem(key);
     if (!raw) {
       return [];
     }
@@ -40,9 +62,10 @@ export function getDecks(): FlashcardDeck[] {
   }
 }
 
-export function saveDecks(decks: FlashcardDeck[]): void {
+export function saveDecks(decks: FlashcardDeck[], userId?: string): void {
   try {
-    localStorage.setItem(DECKS_STORAGE_KEY, JSON.stringify(decks));
+    const key = getStorageKey(userId);
+    localStorage.setItem(key, JSON.stringify(decks));
   } catch (err) {
     console.error("Failed to save flashcard decks", err);
   }
@@ -54,9 +77,10 @@ export function addCardToDeck(
   definition: string,
   example?: string,
   partOfSpeech?: string,
-  deckId?: string
+  deckId?: string,
+  userId?: string
 ): { deck: FlashcardDeck; card: Flashcard } {
-  const decks = getDecks();
+  const decks = getDecks(userId);
   const langMeta = LANG_CONFIG[targetLangCode] || {
     label: targetLangCode.toUpperCase(),
     flag: "🌐",
@@ -99,7 +123,7 @@ export function addCardToDeck(
   } else {
     deck.cards = [newCard, ...deck.cards];
   }
-  saveDecks(decks);
+  saveDecks(decks, userId);
 
   return { deck, card: newCard };
 }
@@ -108,9 +132,10 @@ export function createCustomDeck(
   langCode: string,
   title: string,
   description: string,
-  customId?: string
+  customId?: string,
+  userId?: string
 ): FlashcardDeck {
-  const decks = getDecks();
+  const decks = getDecks(userId);
   const langMeta = LANG_CONFIG[langCode] || {
     label: langCode.toUpperCase(),
     flag: "🌐",
@@ -127,11 +152,11 @@ export function createCustomDeck(
   };
 
   decks.push(newDeck);
-  saveDecks(decks);
+  saveDecks(decks, userId);
   return newDeck;
 }
 
-export function deleteDeck(deckId: string): void {
-  const decks = getDecks().filter((d) => d.id !== deckId);
-  saveDecks(decks);
+export function deleteDeck(deckId: string, userId?: string): void {
+  const decks = getDecks(userId).filter((d) => d.id !== deckId);
+  saveDecks(decks, userId);
 }

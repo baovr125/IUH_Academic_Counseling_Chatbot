@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import * as authService from "../services/authService";
+import { queryClient } from "../queryClient";
 import type { LoginPayload, RegisterPayload, User } from "../types";
 
 interface AuthContextValue {
@@ -8,7 +9,12 @@ interface AuthContextValue {
   isLoading: boolean;
   error: string | null;
   login: (payload: LoginPayload) => Promise<boolean>;
-  register: (payload: RegisterPayload) => Promise<boolean>;
+  register: (payload: RegisterPayload) => Promise<{
+    ok: boolean;
+    message?: string;
+    field?: string;
+    details?: Array<{ field: string; message: string; type?: string }>;
+  }>;
   logout: () => Promise<void>;
   linkGoogleAccount: (idToken: string) => Promise<{ ok: boolean; message?: string; user?: User }>;
   setAccountPassword: (newPassword: string, confirmPassword: string) => Promise<{ ok: boolean; message?: string }>;
@@ -60,6 +66,7 @@ export function useAuthState(): AuthContextValue {
       setError(result.error.message);
       return false;
     }
+    queryClient.clear();
     setUser(result.data.user);
     return true;
   }, []);
@@ -71,15 +78,22 @@ export function useAuthState(): AuthContextValue {
     setIsLoading(false);
 
     if (!result.ok) {
-      setError(result.error.message);
-      return false;
+      const msg = result.error?.message || "Đăng ký không thành công.";
+      setError(msg);
+      return {
+        ok: false,
+        message: msg,
+        field: result.error?.field,
+        details: result.error?.details,
+      };
     }
-    setUser(result.data.user);
-    return true;
+    queryClient.clear();
+    return { ok: true };
   }, []);
 
   const logout = useCallback(async () => {
     await authService.logout();
+    queryClient.clear();
     setUser(null);
   }, []);
 

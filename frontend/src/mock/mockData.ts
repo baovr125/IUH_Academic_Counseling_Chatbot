@@ -17,24 +17,189 @@ export const MOCK_USER: User = {
 
 export const MOCK_DASHBOARD_STATS: DashboardStats = {
   userFullName: MOCK_USER.fullName,
-  semesterCompletionPercent: 85,
-  lastSyncedAt: "2 mins ago",
-  vocabularyLearnedToday: 124,
-  gpaScore: 3.85,
-  gpaDelta: 0.12,
-  creditsEarned: 18,
-  creditsTotal: 24,
-  streakDays: 24,
+  role: "student",
+  studentCode: "20045211",
+  department: "Khoa Công nghệ Thông tin",
+  major: "Kỹ thuật Phần mềm",
+  semesterName: "Học kỳ 1 (2025 - 2026)",
+  currentWeek: 12,
+  semesterCompletionPercent: 78,
+  lastSyncedAt: "Vừa cập nhật",
+  vocabularyLearnedToday: 18,
+  gpaScore: 3.82,
+  gpaDelta: 0.14,
+  creditsEarned: 112,
+  creditsTotal: 145,
+  streakDays: 28,
   streak: Array.from({ length: 84 }, (_, i) => ({
     date: new Date(Date.now() - (83 - i) * 86400000).toISOString(),
-    intensity: [0, 1, 2, 3, 4][Math.floor(Math.random() * 5)] as 0 | 1 | 2 | 3 | 4,
+    intensity: [0, 1, 2, 3, 4][(i % 5) === 0 ? 0 : ((i * 3 + 2) % 5)] as 0 | 1 | 2 | 3 | 4,
+    count: ((i * 3 + 2) % 5) * 3,
   })),
   recentDocuments: [
-    { id: "d1", name: "Quantum Mechanics Notes.pdf", type: "pdf", modifiedAt: "Oct 24, 2023", category: "notes" },
-    { id: "d2", name: "Lab Report #4.docx", type: "docx", modifiedAt: "Oct 22, 2023", category: "reports" },
-    { id: "d3", name: "Study Schedule.xlsx", type: "xlsx", modifiedAt: "Oct 19, 2023", category: "planning" },
+    {
+      id: "d1",
+      name: "Deep_Learning_Architectures_IEEE_2024.pdf",
+      type: "pdf",
+      modifiedAt: "10 phút trước",
+      category: "research",
+      pageCount: 14,
+      fileSize: "2.4 MB",
+      status: "completed",
+      translatedTitle: "Kiến trúc Học sâu IEEE 2024 (Đã dịch sang Tiếng Việt)",
+    },
+    {
+      id: "d2",
+      name: "Quy_che_Dao_tao_Tin_chi_IUH_2024.pdf",
+      type: "pdf",
+      modifiedAt: "Hôm qua, 15:30",
+      category: "handbook",
+      pageCount: 38,
+      fileSize: "4.8 MB",
+      status: "completed",
+      translatedTitle: "Quy chế Đào tạo Tín chỉ Đại học IUH 2024",
+    },
+    {
+      id: "d3",
+      name: "Software_Design_Patterns_GangOfFour.pdf",
+      type: "pdf",
+      modifiedAt: "2 ngày trước",
+      category: "notes",
+      pageCount: 22,
+      fileSize: "3.1 MB",
+      status: "completed",
+      translatedTitle: "Mẫu Thiết kế Phần mềm (GoF - Slide Bài giảng)",
+    },
+  ],
+  recentChatSessions: [
+    {
+      id: "s1",
+      title: "Điều kiện xét Học bổng Khuyến khích Học tập HK2",
+      lastMessage: "Theo quy định IUH, điểm GPA tối thiểu đạt loại Giỏi (từ 3.20 trở lên) và Điểm Rèn luyện >= 80...",
+      updatedAt: "35 phút trước",
+      messageCount: 4,
+    },
+    {
+      id: "s2",
+      title: "Thủ tục Hoãn thi & Phúc khảo Bài thi kết thúc học phần",
+      lastMessage: "Đơn xin phúc khảo phải được nộp tại Văn phòng Một cửa trong vòng 07 ngày kể từ ngày công bố điểm...",
+      updatedAt: "Hôm qua",
+      messageCount: 6,
+    },
+    {
+      id: "s3",
+      title: "Chuẩn đầu ra Ngoại ngữ TOEIC / VSTEP cho ngành KTPM",
+      lastMessage: "Sinh viên ngành Kỹ thuật Phần mềm cần đạt chứng chỉ TOEIC Quốc tế 500 điểm hoặc VSTEP B1...",
+      updatedAt: "3 ngày trước",
+      messageCount: 3,
+    },
+  ],
+  flashcardSummary: {
+    dueTodayCount: 16,
+    totalMastered: 184,
+    dailyGoal: 20,
+    dailyLearned: 14,
+    topDeckTitle: "Thuật ngữ Chuyên ngành CNTT (IT Terminology)",
+    topDeckId: "deck_it_core",
+    totalCards: 260,
+  },
+  academicDeadlines: [
+    {
+      id: "dl1",
+      title: "Đăng ký Học phần Bổ sung Đợt 2 (Hệ Đại học Chính quy)",
+      date: "25/08/2026 - 28/08/2026",
+      daysRemaining: 4,
+      type: "urgent",
+      tag: "Cổng SV IUH",
+      link: "https://sv.iuh.edu.vn",
+    },
+    {
+      id: "dl2",
+      title: "Hạn chót nộp Chứng chỉ Tiếng Anh xét Chuẩn đầu ra Đợt 3",
+      date: "05/09/2026",
+      daysRemaining: 15,
+      type: "warning",
+      tag: "Phòng Đào tạo",
+    },
+    {
+      id: "dl3",
+      title: "Hạn đóng Học phí Học kỳ 1 Năm học 2026 - 2027",
+      date: "15/09/2026",
+      daysRemaining: 25,
+      type: "info",
+      tag: "Phòng Tài chính",
+    },
+  ],
+  publicProductivity: {
+    totalDocsTranslated: 18,
+    totalPagesProcessed: 142,
+    totalWordsMastered: 248,
+    timeSavedHours: 16.5,
+  },
+  admissionNews: [
+    {
+      id: "adm1",
+      title: "Đề án Tuyển sinh Đại học Chính quy IUH 2026",
+      date: "Mới cập nhật",
+      badge: "Tuyển sinh",
+      description: "Chỉ tiêu 9.500 sinh viên cho 60+ ngành đào tạo kỹ thuật, công nghệ và kinh tế.",
+    },
+    {
+      id: "adm2",
+      title: "Điểm chuẩn trúng tuyển theo phương thức ĐGNL & Học bạ",
+      date: "Tuyển sinh 2026",
+      badge: "Điểm chuẩn",
+      description: "Ngành CNTT, Khoa học dữ liệu, Tự động hóa tiếp tục nằm trong nhóm ngành điểm cao nhất.",
+    },
+    {
+      id: "adm3",
+      title: "Chính sách Học bổng Thủ khoa & Tân sinh viên tài năng",
+      date: "Học bổng",
+      badge: "Học bổng 100%",
+      description: "Trao học bổng toàn phần 100% học phí và hỗ trợ sinh hoạt phí cho thí sinh xuất sắc.",
+    },
   ],
 };
+
+export function getMockDashboardStats(user?: User | null): DashboardStats {
+  if (!user || user.role !== "student" || !user.studentCode) {
+    // Non-student (Public / Guest / Researcher)
+    return {
+      ...MOCK_DASHBOARD_STATS,
+      userFullName: user?.fullName || "Khách / Độc giả Học thuật",
+      role: user?.role || "public",
+      studentCode: undefined,
+      department: user?.department || "Nghiên cứu & Học tập Tự do",
+      major: user?.major || "Người dùng Ngoài IUH",
+      gpaScore: 0,
+      gpaDelta: 0,
+      creditsEarned: 0,
+      creditsTotal: 0,
+      semesterCompletionPercent: 0,
+      streakDays: 12,
+      flashcardSummary: {
+        dueTodayCount: 12,
+        totalMastered: 142,
+        dailyGoal: 15,
+        dailyLearned: 9,
+        topDeckTitle: "English for Academic Research & AI",
+        topDeckId: "deck_research_ai",
+        totalCards: 180,
+      },
+    };
+  }
+
+  // Student persona
+  return {
+    ...MOCK_DASHBOARD_STATS,
+    userFullName: user.fullName || MOCK_DASHBOARD_STATS.userFullName,
+    role: "student",
+    studentCode: user.studentCode || "20045211",
+    department: user.department || "Khoa Công nghệ Thông tin",
+    major: user.major || "Kỹ thuật Phần mềm",
+  };
+}
+
 
 export const MOCK_CHAT_SESSIONS: ChatSession[] = [
   {
