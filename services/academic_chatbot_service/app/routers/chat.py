@@ -376,13 +376,34 @@ async def send_message_stream(
                     accumulated_text += first_chunk.text
                     yield f"data: {json.dumps({'type': 'delta', 'text': first_chunk.text})}\n\n"
 
+                queue = asyncio.Queue()
+                loop = asyncio.get_running_loop()
+                def _pump_stream():
+                    try:
+                        for c in stream_iter:
+                            asyncio.run_coroutine_threadsafe(queue.put(c), loop)
+                    except Exception as e:
+                        asyncio.run_coroutine_threadsafe(queue.put(e), loop)
+                    finally:
+                        asyncio.run_coroutine_threadsafe(queue.put(None), loop)
+                
+                import threading
+                threading.Thread(target=_pump_stream, daemon=True).start()
+
                 while True:
-                    chunk = await asyncio.to_thread(lambda: next(stream_iter, None))
-                    if chunk is None:
-                        break
-                    if chunk.text:
-                        accumulated_text += chunk.text
-                        yield f"data: {json.dumps({'type': 'delta', 'text': chunk.text})}\n\n"
+                    try:
+                        # Wait for chunk with 15s timeout
+                        chunk = await asyncio.wait_for(queue.get(), timeout=15.0)
+                        if chunk is None:
+                            break
+                        if isinstance(chunk, Exception):
+                            raise chunk
+                        if chunk.text:
+                            accumulated_text += chunk.text
+                            yield f"data: {json.dumps({'type': 'delta', 'text': chunk.text})}\n\n"
+                    except asyncio.TimeoutError:
+                        # Send heartbeat to prevent SSE connection drop
+                        yield ": keepalive\n\n"
             else:
                 err_str = str(last_err) if last_err else "Gemini client chưa khởi tạo"
                 fallback_txt = f"⚠️ Lỗi AI: {err_str}"
