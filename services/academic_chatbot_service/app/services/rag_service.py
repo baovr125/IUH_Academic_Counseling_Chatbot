@@ -461,6 +461,36 @@ async def build_rag_payload(session_id: str, content: str, retrieval_query: str,
     from .log_utils import log_retrieved_chunks_to_md
     log_file_path = await log_retrieved_chunks_to_md(session_id, retrieval_query, chunks)
 
+    def log_retrieved_chunks_to_md(query: str, chunks: list):
+        try:
+            log_dir = "logs"
+            os.makedirs(log_dir, exist_ok=True)
+            from datetime import datetime
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+            filename = os.path.join(log_dir, f"retrieval_debug_{timestamp}.md")
+            
+            with open(filename, "w", encoding="utf-8") as f:
+                f.write(f"# Retrieval Debug Log\n\n")
+                f.write(f"**Query:** {query}\n\n")
+                f.write(f"**Timestamp:** {datetime.now().isoformat()}\n\n")
+                f.write(f"## Retrieved Chunks ({len(chunks)} chunks)\n\n")
+                
+                for i, chunk in enumerate(chunks):
+                    f.write(f"### Chunk {i+1}\n")
+                    f.write(f"**Document ID:** {chunk.get('document_id')}\n")
+                    f.write(f"**Chunk Index:** {chunk.get('chunk_index')}\n")
+                    f.write(f"**Rerank Score:** {chunk.get('rerank_score', 0):.4f}\n")
+                    meta = chunk.get("metadata", {})
+                    f.write(f"**Metadata:**\n```json\n{json.dumps(meta, ensure_ascii=False, indent=2)}\n```\n\n")
+                    f.write(f"**Content:**\n```text\n{chunk.get('content')}\n```\n\n")
+                    f.write("---\n\n")
+        except Exception as e:
+            logger.error(f"Failed to write retrieval debug log: {e}")
+
+    # Call the logging function in the background
+    asyncio.create_task(asyncio.to_thread(log_retrieved_chunks_to_md, retrieval_query, chunks))
+
+
     citations = []
     chunk_ids = []
     for index, c in enumerate(chunks, 1):
