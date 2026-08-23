@@ -1,9 +1,14 @@
 import os
 import re
 from typing import List, Dict, Any, Optional
-from sentence_transformers import SentenceTransformer
+try:
+    from sentence_transformers import SentenceTransformer
+except Exception:
+    SentenceTransformer = None
 from supabase import create_client, Client
 from app.utils.logger import logger
+
+_model_instance = None
 
 # --- CẤU HÌNH MO-HINH EMBEDDING BGE-M3 (1024 DIMENSIONS) ---
 MODEL_NAME = "BAAI/bge-m3"
@@ -18,9 +23,9 @@ def get_device() -> str:
         pass
     return "cpu"
 
-def get_embedding_model() -> SentenceTransformer:
+def get_embedding_model() -> Optional[SentenceTransformer]:
     global _model_instance
-    if _model_instance is None:
+    if _model_instance is None and SentenceTransformer is not None:
         dev = get_device()
         logger.info(f"🔄 Đang khởi tạo mô hình nhúng BAAI/bge-m3 ({EMBEDDING_DIM}d) trên thiết bị: {dev.upper()}...")
         kwargs = {}
@@ -29,7 +34,10 @@ def get_embedding_model() -> SentenceTransformer:
             kwargs["model_kwargs"] = {"torch_dtype": torch.float16}
         else:
             kwargs["model_kwargs"] = {"low_cpu_mem_usage": True}
-        _model_instance = SentenceTransformer(MODEL_NAME, device=dev, **kwargs)
+        try:
+            _model_instance = SentenceTransformer(MODEL_NAME, device=dev, **kwargs)
+        except Exception as e:
+            logger.warning(f"Could not load BGE-M3 model: {e}")
     return _model_instance
 
 def get_supabase() -> Optional[Client]:

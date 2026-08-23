@@ -15,7 +15,7 @@ except LookupError:
 
 from nltk.tokenize import sent_tokenize
 
-HEADER_REGEX = re.compile(r"^(#{1,6}\s+.*|chapter\s+\d+.*|chương\s+\d+.*|mục\s+\d+.*|\d+(\.\d+)+\s+.*)", re.IGNORECASE)
+HEADER_REGEX = re.compile(r"^(#{1,6}\s+.*|chapter\s+\d+.*|chương\s+\d+.*|mục\s+\d+.*|\d+(\.\d+)*\.?\s+.*)", re.IGNORECASE)
 MAX_CHILD_WORDS = 350
 MIN_CHILD_WORDS = 5
 

@@ -1,0 +1,94 @@
+name: Microservices AI Automated Quality Gate & CI Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  backend-test-matrix:
+    name: Backend Test (${{ matrix.service }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - auth_service
+          - academic_chatbot_service
+          - realtime_translation_service
+          - doc_translation_service
+          - flashcard_service
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Common Test Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest pytest-asyncio pytest-mock pytest-cov httpx
+          if [ -f services/${{ matrix.service }}/requirements.txt ]; then
+            pip install -r services/${{ matrix.service }}/requirements.txt
+          fi
+
+      - name: Run PyTest with Coverage
+        run: |
+          pytest services/${{ matrix.service }}/tests -v --cov=services/${{ matrix.service }}/app --cov-report=xml --cov-report=term
+
+  rag-eval-benchmark:
+    name: RAG Retrieval & Benchmark Evaluation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest
+
+      - name: Run RAG Evaluation Benchmark
+        run: |
+          pytest scripts/eval/test_rag_benchmark.py -v
+
+  frontend-tests:
+    name: Frontend React / Vitest Suite
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Frontend Dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Run Vitest Suite
+        working-directory: frontend
+        run: npx vitest run
+
+  quality-gate-verdict:
+    name: 100% Quality Gate Verdict
+    needs: [backend-test-matrix, rag-eval-benchmark, frontend-tests]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Status
+        run: |
+          echo "🎉 All backend services, RAG benchmarks, and frontend test suites passed with 100% success rate!"

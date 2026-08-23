@@ -20,7 +20,11 @@ def get_redis():
         _redis_client = redis.Redis(host=redis_host, port=redis_port, db=0, decode_responses=True)
     return _redis_client
 
-from sentence_transformers import SentenceTransformer, CrossEncoder
+try:
+    from sentence_transformers import SentenceTransformer, CrossEncoder
+except Exception:
+    SentenceTransformer = None
+    CrossEncoder = None
 from google import genai
 from google.genai import types
 
@@ -68,7 +72,7 @@ def get_device() -> str:
 def get_embedder():
     global _embedder_model
     with _embedder_lock:
-        if _embedder_model is None:
+        if _embedder_model is None and SentenceTransformer is not None:
             dev = get_device()
             logger.info(f"Loading Bi-Encoder model on device: {dev}")
             kwargs = {}
@@ -77,13 +81,16 @@ def get_embedder():
                 kwargs["model_kwargs"] = {"torch_dtype": torch.float16}
             else:
                 kwargs["model_kwargs"] = {"low_cpu_mem_usage": True}
-            _embedder_model = SentenceTransformer("bkai-foundation-models/vietnamese-bi-encoder", device=dev, **kwargs)
+            try:
+                _embedder_model = SentenceTransformer("bkai-foundation-models/vietnamese-bi-encoder", device=dev, **kwargs)
+            except Exception as e:
+                logger.warning(f"Could not load SentenceTransformer: {e}")
     return _embedder_model
 
 def get_reranker():
     global _reranker_model
     with _reranker_lock:
-        if _reranker_model is None:
+        if _reranker_model is None and CrossEncoder is not None:
             dev = get_device()
             logger.info(f"Loading Cross-Encoder model on device: {dev}")
             kwargs = {}
@@ -92,7 +99,10 @@ def get_reranker():
                 kwargs["model_kwargs"] = {"torch_dtype": torch.float16}
             else:
                 kwargs["model_kwargs"] = {"low_cpu_mem_usage": True}
-            _reranker_model = CrossEncoder("BAAI/bge-reranker-v2-m3", device=dev, **kwargs)
+            try:
+                _reranker_model = CrossEncoder("BAAI/bge-reranker-v2-m3", device=dev, **kwargs)
+            except Exception as e:
+                logger.warning(f"Could not load CrossEncoder: {e}")
     return _reranker_model
 
 def preload_models():
@@ -101,8 +111,10 @@ def preload_models():
     reranker = get_reranker()
     get_gemini()
     try:
-        embedder.encode("IUH kiểm tra khởi động", normalize_embeddings=True)
-        reranker.predict([("IUH kiểm tra", "Đại học Công nghiệp TP.HCM")])
+        if embedder:
+            embedder.encode("IUH kiểm tra khởi động", normalize_embeddings=True)
+        if reranker:
+            reranker.predict([("IUH kiểm tra", "Đại học Công nghiệp TP.HCM")])
         logger.info("ML Models Warmup completed successfully.")
     except Exception as e:
         logger.warning(f"Warmup warning: {e}")

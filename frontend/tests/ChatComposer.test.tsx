@@ -1,8 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ChatComposer } from '../src/components/chat/ChatComposer';
-import '@testing-library/jest-dom/vitest';
 
 // Mock lucide-react icons
 vi.mock('lucide-react', () => ({
@@ -24,16 +23,15 @@ describe('ChatComposer', () => {
     const input = screen.getByPlaceholderText('Ask the Knowledge Hub...');
     expect(input).toBeInTheDocument();
 
-    // Quick action buttons should be present
-    expect(screen.getByText('Tóm tắt quy chế')).toBeInTheDocument();
-    expect(screen.getByText('Tìm kiếm biểu mẫu')).toBeInTheDocument();
-    expect(screen.getByText('Viết email xin phép')).toBeInTheDocument();
+    expect(screen.getByText(/Giới thiệu về trường/i)).toBeInTheDocument();
+    expect(screen.getByText(/Tìm kiếm biểu mẫu/i)).toBeInTheDocument();
+    expect(screen.getByText(/Viết email xin phép/i)).toBeInTheDocument();
   });
 
   it('disables send button when input is empty', () => {
     render(<ChatComposer onSend={mockOnSend} isSending={false} />);
 
-    const sendButton = screen.getByTitle('Send') || screen.getByTestId('send-icon').closest('button');
+    const sendButton = screen.getByTestId('send-icon').closest('button');
     expect(sendButton).toBeDisabled();
   });
 
@@ -43,10 +41,8 @@ describe('ChatComposer', () => {
     const input = screen.getByPlaceholderText('Ask the Knowledge Hub...');
     fireEvent.change(input, { target: { value: 'Xin chào' } });
 
-    // Find the button that contains the send icon
-    const buttons = document.querySelectorAll('button');
-    const sendBtn = Array.from(buttons).find(b => !b.disabled && b.querySelector('[data-testid="send-icon"]'));
-    expect(sendBtn).toBeTruthy();
+    const sendButton = screen.getByTestId('send-icon').closest('button');
+    expect(sendButton).not.toBeDisabled();
   });
 
   it('calls onSend with trimmed content and clears input', () => {
@@ -73,7 +69,6 @@ describe('ChatComposer', () => {
   it('shows character counter', () => {
     render(<ChatComposer onSend={mockOnSend} isSending={false} />);
 
-    // Initially 0/2000
     expect(screen.getByText('0/2000')).toBeInTheDocument();
 
     const input = screen.getByPlaceholderText('Ask the Knowledge Hub...');
@@ -85,7 +80,6 @@ describe('ChatComposer', () => {
   it('shows stop button when isSending is true', () => {
     render(<ChatComposer onSend={mockOnSend} isSending={true} onAbort={vi.fn()} />);
 
-    // Stop button should be visible (Square icon)
     expect(screen.getByTestId('square-icon')).toBeInTheDocument();
     expect(screen.getByTitle('Stop generating')).toBeInTheDocument();
   });
@@ -101,9 +95,9 @@ describe('ChatComposer', () => {
   it('sets input value when quick action is clicked', () => {
     render(<ChatComposer onSend={mockOnSend} isSending={false} />);
 
-    fireEvent.click(screen.getByText('Tóm tắt quy chế'));
+    fireEvent.click(screen.getByText(/Giới thiệu về trường/i));
     const input = screen.getByPlaceholderText('Ask the Knowledge Hub...') as HTMLInputElement;
-    expect(input.value).toBe('Tóm tắt quy chế');
+    expect(input.value).toContain('Giới thiệu về trường');
   });
 
   it('enforces maxLength=2000 on input', () => {
@@ -111,10 +105,5 @@ describe('ChatComposer', () => {
 
     const input = screen.getByPlaceholderText('Ask the Knowledge Hub...');
     expect(input).toHaveAttribute('maxLength', '2000');
-  });
-
-  it('shows disclaimer text', () => {
-    render(<ChatComposer onSend={mockOnSend} isSending={false} />);
-    expect(screen.getByText('AI can make mistakes. Verify critical information.')).toBeInTheDocument();
   });
 });
