@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { fetchUserSettings, updateUserSettings } from "../services/settingsService";
+import { getToken } from "../services/authService";
 import { translations, Language, TranslationKey } from "../translations";
 import type { UserSettings } from "../types";
 
@@ -69,10 +70,15 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   }, [theme]);
 
-  // Load initial settings from backend silently
+  // Load initial settings from backend silently only if user is logged in
   useEffect(() => {
     let isMounted = true;
     async function loadBackendSettings() {
+      if (!getToken()) {
+        if (isMounted) setLoading(false);
+        return;
+      }
+
       try {
         const res = await fetchUserSettings();
         if (isMounted && res.ok && res.data) {
@@ -110,6 +116,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   // Silent background sync with backend
   const syncToBackend = useCallback(async (updated: Partial<UserSettings>) => {
+    if (!getToken()) return;
     const payload: UserSettings = {
       theme: updated.theme ?? theme,
       language: updated.language ?? language,

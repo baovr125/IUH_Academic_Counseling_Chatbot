@@ -122,7 +122,7 @@ async def get_audio_endpoint(object_name: str):
     """Lấy file âm thanh phát âm trực tiếp từ MinIO Object Storage"""
     audio_content = get_audio_bytes(object_name)
     if not audio_content:
-        return Response(status_code=404, content="Audio file not found")
+        return Response(status_code=204)
     return Response(
         content=audio_content,
         media_type="audio/mpeg",

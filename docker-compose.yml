@@ -101,8 +101,13 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1.5'
-          memory: 2.0G
+          cpus: '2.0'
+          memory: 3.5G
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
 
   realtime-translation-service:
     image: realtime-translation-service:latest
@@ -120,8 +125,13 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1.0'
-          memory: 1.2G
+          cpus: '1.5'
+          memory: 2.0G
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
 
   doc-translation-service:
     image: doc-translation-service:latest
@@ -139,8 +149,13 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 384M
+          cpus: '1.0'
+          memory: 1.5G
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
 
   doc-translation-worker:
     image: doc-translation-worker:latest
@@ -157,8 +172,13 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1.5'
-          memory: 1.8G
+          cpus: '2.0'
+          memory: 2.5G
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
 
   flashcard-service:
     image: flashcard-service:latest
