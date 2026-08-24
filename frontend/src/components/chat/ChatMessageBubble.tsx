@@ -60,7 +60,7 @@ export function ChatMessageBubble({
     setShowComment(false);
   };
 
-  const followUpRegex = /\[follow_up\](.*?)\[\/follow_up\]/gs;
+  const followUpRegex = /(?:\[|<)follow_up(?:\]|>)(.*?)(?:\[|<)\/follow_up(?:\]|>)/gs;
   const followUps: string[] = [];
   let match;
   while ((match = followUpRegex.exec(message.content)) !== null) {
@@ -71,16 +71,26 @@ export function ChatMessageBubble({
 
   const cleanContent = message.content
     .replace(followUpRegex, '')
-    .replace(/\[follow_up\][^\[]*$/, '')
+    .replace(/(?:\[|<)follow_up(?:\]|>)[^\[<]*$/, '')
+    .replace(/\n*\*?Nguồn:\*?[\s\S]*$/, '') // Strip out Nguồn: block if AI hallucinates it
+    .replace(/\n*\*?Tham khảo:\*?[\s\S]*$/, '') // Strip out Tham khảo: block
     .trim();
 
   const uniqueCitations = (message.citations || []).reduce((acc, current) => {
-    const key = current.url || current.sourceTitle;
-    if (!acc.find(item => (item.url || item.sourceTitle) === key)) {
+    // Aggressively deduplicate by sourceTitle ONLY, ignoring different URLs 
+    // to ensure they collapse into exactly 1 badge.
+    const key = current.sourceTitle;
+    if (!acc.find(item => item.sourceTitle === key)) {
       acc.push(current);
     }
     return acc;
   }, [] as NonNullable<typeof message.citations>);
+
+  // DEBUG LOGS FOR USER
+  console.log("DEBUG - Message Citations:", message.citations);
+  console.log("DEBUG - Unique Citations:", uniqueCitations);
+  console.log("DEBUG - Sources Expanded:", sourcesExpanded);
+  console.log("DEBUG - Sliced Citations:", sourcesExpanded ? uniqueCitations : uniqueCitations.slice(0, 2));
 
   if (isUser) {
     return (

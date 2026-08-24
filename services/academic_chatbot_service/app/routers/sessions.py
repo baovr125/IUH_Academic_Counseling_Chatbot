@@ -73,16 +73,47 @@ async def get_session_messages(
         msg_list = msg_res.data or []
         msg_list.reverse() 
 
-        messages = [
-            {
+        # Collect all chunk IDs
+        all_chunk_ids = []
+        for m in msg_list:
+            if m.get("retrieved_chunk_ids"):
+                all_chunk_ids.extend(m["retrieved_chunk_ids"])
+        
+        chunk_map = {}
+        if all_chunk_ids:
+            chunk_res = supabase.table("document_chunks").select("id,content,metadata").in_("id", list(set(all_chunk_ids))).execute()
+            if chunk_res.data:
+                for c in chunk_res.data:
+                    chunk_map[c["id"]] = c
+
+        import uuid
+        messages = []
+        for m in msg_list:
+            msg_dict = {
                 "id": f"m_{m['id']}",
                 "role": m["role"],
                 "content": m["content"],
                 "createdAt": m.get("created_at", datetime.now(timezone.utc).isoformat()),
                 "status": "complete"
             }
-            for m in msg_list
-        ]
+            if m.get("retrieved_chunk_ids"):
+                citations = []
+                for cid in m["retrieved_chunk_ids"]:
+                    if cid in chunk_map:
+                        c = chunk_map[cid]
+                        meta = c.get("metadata", {})
+                        chunk_content = c.get("content", "")
+                        snippet = chunk_content[:140] + "..." if len(chunk_content) > 140 else chunk_content
+                        citations.append({
+                            "id": f"c_{uuid.uuid4().hex[:8]}",
+                            "sourceTitle": meta.get("title", "Tài liệu IUH"),
+                            "pageOrSection": meta.get("breadcrumbs", ""),
+                            "snippet": snippet,
+                            "url": meta.get("source_url")
+                        })
+                if citations:
+                    msg_dict["citations"] = citations
+            messages.append(msg_dict)
 
         return ApiResult(ok=True, data=messages)
     except Exception as e:
