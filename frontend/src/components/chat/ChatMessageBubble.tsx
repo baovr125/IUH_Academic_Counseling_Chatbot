@@ -86,12 +86,6 @@ export function ChatMessageBubble({
     return acc;
   }, [] as NonNullable<typeof message.citations>);
 
-  // DEBUG LOGS FOR USER
-  console.log("DEBUG - Message Citations:", message.citations);
-  console.log("DEBUG - Unique Citations:", uniqueCitations);
-  console.log("DEBUG - Sources Expanded:", sourcesExpanded);
-  console.log("DEBUG - Sliced Citations:", sourcesExpanded ? uniqueCitations : uniqueCitations.slice(0, 2));
-
   if (isUser) {
     return (
       <div className="flex justify-end gap-2">
