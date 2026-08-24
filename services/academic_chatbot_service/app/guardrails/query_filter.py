@@ -80,8 +80,8 @@ def evaluate_domain_relevance(query_text: str, query_embedding: list = None) -> 
     
     logger.info(f"Domain Similarity Score for '{query_text[:30]}...': {similarity:.4f}")
     
-    # If the score drops below 0.35, it's mathematically far away from academic topics
-    if similarity < 0.35:
+    # If the score drops below 0.20, it's mathematically far away from academic topics
+    if similarity < 0.20:
         return False, OFF_TOPIC_MESSAGE
         
     return True, None

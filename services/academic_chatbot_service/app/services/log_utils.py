@@ -1,21 +1,40 @@
 import os
 import json
 import asyncio
+import unicodedata
+import re
 from datetime import datetime
 
+def slugify(text: str, max_words: int = 5) -> str:
+    if not text:
+        return "query"
+    # Take first 5 words
+    words = text.split()[:max_words]
+    text = " ".join(words)
+    # Remove accents
+    text = unicodedata.normalize('NFKD', text).encode('ascii', 'ignore').decode('utf-8')
+    # Lowercase and replace non-alphanumeric with dash
+    text = text.lower()
+    text = re.sub(r'[^a-z0-9]+', '-', text)
+    return text.strip('-')
+
 def _write_log(session_id: str, query: str, chunks: list):
-    log_dir = "/app/logs/academic_chatbot"
+    now = datetime.now()
+    date_str = now.strftime("%Y-%m-%d")
+    time_str = now.strftime("%H%M%S")
+    
+    log_dir = os.path.join("/app/logs/academic_chatbot", date_str)
     os.makedirs(log_dir, exist_ok=True)
     
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    safe_session = "".join([c if c.isalnum() else "_" for c in session_id])
-    file_path = os.path.join(log_dir, f"{timestamp}_{safe_session}.md")
+    slug = slugify(query, max_words=5)
+    file_name = f"{time_str}-{slug}.md" if slug else f"{time_str}.md"
+    file_path = os.path.join(log_dir, file_name)
     
     try:
         with open(file_path, "w", encoding="utf-8") as f:
             f.write(f"# Query: {query}\n\n")
             f.write(f"**Session ID:** {session_id}\n\n")
-            f.write(f"**Timestamp:** {datetime.now().isoformat()}\n\n")
+            f.write(f"**Timestamp:** {now.isoformat()}\n\n")
             f.write("---\n\n")
             
             if not chunks:

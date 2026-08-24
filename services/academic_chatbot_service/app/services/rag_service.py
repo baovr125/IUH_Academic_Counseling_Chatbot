@@ -70,14 +70,22 @@ def get_embedder():
     with _embedder_lock:
         if _embedder_model is None:
             dev = get_device()
-            logger.info(f"Loading Bi-Encoder model on device: {dev}")
-            kwargs = {}
-            if dev == "cuda":
-                import torch
-                kwargs["model_kwargs"] = {"torch_dtype": torch.float16}
+            
+            onnx_path = "/app/hf_models/vietnamese-bi-encoder-onnx"
+            import os
+            if os.path.exists(os.path.join(onnx_path, "onnx", "model.onnx")):
+                logger.info(f"Loading Bi-Encoder model (ONNX Optimized) from {onnx_path} on {dev}")
+                model_kwargs = {"provider": "CUDAExecutionProvider"} if dev == "cuda" else {}
+                _embedder_model = SentenceTransformer(onnx_path, backend="onnx", model_kwargs=model_kwargs)
             else:
-                kwargs["model_kwargs"] = {"low_cpu_mem_usage": True}
-            _embedder_model = SentenceTransformer("bkai-foundation-models/vietnamese-bi-encoder", device=dev, **kwargs)
+                logger.info(f"Loading Bi-Encoder model (PyTorch) on device: {dev}")
+                kwargs = {}
+                if dev == "cuda":
+                    import torch
+                    kwargs["model_kwargs"] = {"torch_dtype": torch.float16}
+                else:
+                    kwargs["model_kwargs"] = {"low_cpu_mem_usage": True}
+                _embedder_model = SentenceTransformer("bkai-foundation-models/vietnamese-bi-encoder", device=dev, **kwargs)
     return _embedder_model
 
 def get_reranker():
@@ -85,14 +93,22 @@ def get_reranker():
     with _reranker_lock:
         if _reranker_model is None:
             dev = get_device()
-            logger.info(f"Loading Cross-Encoder model on device: {dev}")
-            kwargs = {}
-            if dev == "cuda":
-                import torch
-                kwargs["model_kwargs"] = {"torch_dtype": torch.float16}
+            
+            onnx_path = "/app/hf_models/bge-reranker-v2-m3-onnx"
+            import os
+            if os.path.exists(os.path.join(onnx_path, "onnx", "model.onnx")):
+                logger.info(f"Loading Cross-Encoder model (ONNX Optimized) from {onnx_path} on {dev}")
+                model_kwargs = {"provider": "CUDAExecutionProvider"} if dev == "cuda" else {}
+                _reranker_model = CrossEncoder(onnx_path, backend="onnx", model_kwargs=model_kwargs)
             else:
-                kwargs["model_kwargs"] = {"low_cpu_mem_usage": True}
-            _reranker_model = CrossEncoder("BAAI/bge-reranker-v2-m3", device=dev, **kwargs)
+                logger.info(f"Loading Cross-Encoder model (PyTorch) on device: {dev}")
+                kwargs = {}
+                if dev == "cuda":
+                    import torch
+                    kwargs["model_kwargs"] = {"torch_dtype": torch.float16}
+                else:
+                    kwargs["model_kwargs"] = {"low_cpu_mem_usage": True}
+                _reranker_model = CrossEncoder("BAAI/bge-reranker-v2-m3", device=dev, **kwargs)
     return _reranker_model
 
 def preload_models():
@@ -269,9 +285,9 @@ async def invalidate_semantic_cache():
 
 
 # --- 2. Hybrid Retrieval & Reranking ---
-async def retrieve_relevant_chunks(query_text: str, query_embedding: list = None, top_k: int = 5, candidate_count: int = 20):
+async def retrieve_relevant_chunks(query_text: str, query_embedding: list = None, top_k: int = 5, candidate_count: int = 30):
     """
-    Stage 1: Retrieve candidate_count (20)chunks via Supabase Hybrid RRF RPC.
+    Stage 1: Retrieve candidate_count (30) chunks via Supabase Hybrid RRF RPC.
     Stage 2: Cross-Encoder Reranking using BAAI/bge-reranker-v2-m3 -> Top k (5).
     Offloads CPU-bound ML inference to background thread pool.
     """
@@ -316,7 +332,13 @@ async def retrieve_relevant_chunks(query_text: str, query_embedding: list = None
         chunk["rerank_score"] = 1 / (1 + math.exp(-score))  # Apply Sigmoid
 
     chunks = sorted(chunks, key=lambda x: x["rerank_score"], reverse=True)
-    top_chunks = chunks[:top_k]
+    
+    # User Request: Display chunks with score > 0.75. If less than 3 chunks meet this, fallback to top 3 chunks.
+    filtered_chunks = [c for c in chunks if c["rerank_score"] > 0.75]
+    if len(filtered_chunks) < 3:
+        filtered_chunks = chunks[:3]
+        
+    top_chunks = filtered_chunks[:top_k]
 
     if top_chunks:
         logger.info(f"Top Rerank Score for query '{query_text[:30]}...': {top_chunks[0]['rerank_score']:.4f}")
@@ -387,24 +409,24 @@ async def generate_standalone_query(history: list, current_query: str) -> str:
 
     last_user_msg = None
     for msg in reversed(history):
-        if msg["role"] == "user":
-            last_user_msg = msg["content"]
+        if msg['role'] == 'user':
+            last_user_msg = msg['content']
             break
 
-    if not last_user_msg or last_user_msg == current_query:
-        return current_query
+    context_str = f"Previous User Question: {last_user_msg}\n" if last_user_msg and last_user_msg != current_query else "Previous User Question: None (First turn)\n"
 
     rewrite_prompt = (
-        "You are a search query rewriter for an academic counselor chatbot at IUH University (Đại học Công nghiệp TP.HCM). "
-        "Given the conversation context and a follow-up question, rewrite the follow-up question into "
-        "a single, self-contained standalone search query in Vietnamese. "
-        "CRITICAL INSTRUCTION: Expand all Vietnamese student abbreviations into formal text (e.g., 'dkhp' -> 'đăng ký học phần', 'gpa' -> 'điểm trung bình tích lũy', 'sv' -> 'sinh viên'). "
+        "You are a search query rewriter for an academic counselor chatbot at IUH University. "
+        "Your job is to clean and rewrite the user's question into a single, highly optimized search query in Vietnamese. "
+        "CRITICAL INSTRUCTIONS:\n"
+        "1. Expand all Vietnamese student abbreviations (e.g., 'dkhp' -> 'đăng ký học phần', 'sv' -> 'sinh viên').\n"
+        "2. STRIP OUT AND DELETE the university name ('IUH', 'Đại học Công nghiệp TP.HCM', etc.) from the query. All documents are already about the university. Including the name ruins keyword search rankings.\n"
+        "3. Keep the query concise and focused on the core academic concepts.\n"
         "Do NOT answer the question. Only output the rewritten search query.\n\n"
-        f"Previous User Question: {last_user_msg}\n"
-        f"Follow-up Question: {current_query}\n"
-        "Standalone Search Query:"
+        f"{context_str}"
+        f"User Question: {current_query}\n"
+        "Optimized Search Query:"
     )
-
     gemini_client = get_gemini()
     if gemini_client:
         for m in GEMINI_MODELS:
@@ -434,7 +456,7 @@ async def build_rag_payload(session_id: str, content: str, retrieval_query: str,
         if not (msg["role"] == "user" and msg["content"] == content)
     ]
 
-    chunks = await retrieve_relevant_chunks(retrieval_query, query_embedding=query_embedding, top_k=5, candidate_count=20)
+    chunks = await retrieve_relevant_chunks(retrieval_query, query_embedding=query_embedding, top_k=5, candidate_count=30)
 
     from .log_utils import log_retrieved_chunks_to_md
     asyncio.create_task(log_retrieved_chunks_to_md(session_id, retrieval_query, chunks))
@@ -492,7 +514,7 @@ async def build_rag_payload(session_id: str, content: str, retrieval_query: str,
         "6. Sau khi trả lời xong, KHÔNG ĐƯỢC thêm bất kỳ lời dẫn nào (như 'Dưới đây là các gợi ý...', 'Bạn có thể hỏi...'). Chỉ xuất ĐÚNG 2-3 câu hỏi tiếp theo trong thẻ [follow_up]Câu hỏi[/follow_up].\n\n"
         "--- VÍ DỤ MINH HỌA (FEW-SHOT EXAMPLES) ---\n"
         "User: Khi nào thì sinh viên bị cảnh báo kết quả học tập?\n"
-        "AI: Chào bạn, theo quy chế, sinh viên sẽ bị cảnh báo kết quả học tập dựa trên một trong các điều kiện sau:\n"
+        "AI: Theo quy chế, sinh viên sẽ bị cảnh báo kết quả học tập dựa trên một trong các điều kiện sau:\n"
         "1. **Tín chỉ không đạt:** Tổng số tín chỉ không đạt trong học kỳ vượt quá 50% khối lượng đã đăng ký, hoặc tổng số nợ đọng từ đầu khóa vượt 24 tín chỉ.\n"
         "2. **Điểm trung bình học kỳ (ĐTBCHK):** Dưới 0.80 với học kỳ đầu, hoặc dưới 1.00 với các học kỳ tiếp theo.\n"
         "3. **Điểm trung bình tích lũy (ĐTBCTL):**\n"

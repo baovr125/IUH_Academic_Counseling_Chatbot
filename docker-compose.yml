@@ -102,7 +102,7 @@ services:
       resources:
         limits:
           cpus: '4.0'
-          memory: 4.0G
+          memory: 8.0G
         reservations:
           devices:
             - driver: nvidia
@@ -110,6 +110,7 @@ services:
               capabilities: [gpu]
     volumes:
       - ./logs/academic_chatbot:/app/logs/academic_chatbot
+      - ./hf_models:/app/hf_models
 
 #  realtime-translation-service:
 #    image: realtime-translation-service:latest
