@@ -12,8 +12,7 @@ describe("Flashcard StudyMode Component", () => {
     description: "Bộ thẻ chuyên ngành",
     lang_code: "en",
     langCode: "en",
-    cardCount: 1,
-    dueCount: 1,
+    cards_count: 1,
   };
 
   const mockCard: BackendCardItem = {
