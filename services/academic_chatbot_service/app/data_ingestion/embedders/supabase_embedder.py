@@ -7,7 +7,7 @@ from sentence_transformers import SentenceTransformer
 import psycopg2
 from psycopg2.extras import Json, execute_values
 from dotenv import load_dotenv
-from data_pipeline.utils.logger import setup_logger
+from app.data_ingestion.utils.logger import setup_logger
 
 logger = setup_logger("embedder", "embedder.log")
 

@@ -18,7 +18,7 @@ def slugify(text: str, max_words: int = 5) -> str:
     text = re.sub(r'[^a-z0-9]+', '-', text)
     return text.strip('-')
 
-def _write_log(session_id: str, query: str, chunks: list):
+def _write_log(session_id: str, query: str, chunks: list) -> str:
     now = datetime.now()
     date_str = now.strftime("%Y-%m-%d")
     time_str = now.strftime("%H%M%S")
@@ -54,8 +54,10 @@ def _write_log(session_id: str, query: str, chunks: list):
                 content = chunk.get("content", "").strip()
                 f.write(f"> {content.replace(chr(10), chr(10) + '> ')}\n\n")
                 f.write("---\n\n")
+        return file_path
     except Exception as e:
         print(f"Error writing retrieval log: {e}")
+        return ""
 
-async def log_retrieved_chunks_to_md(session_id: str, query: str, chunks: list):
-    await asyncio.to_thread(_write_log, session_id, query, chunks)
+async def log_retrieved_chunks_to_md(session_id: str, query: str, chunks: list) -> str:
+    return await asyncio.to_thread(_write_log, session_id, query, chunks)

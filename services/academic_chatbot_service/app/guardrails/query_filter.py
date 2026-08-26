@@ -48,22 +48,27 @@ import numpy as np
 import os
 from app.utils.logger import logger
 
-# Load the semantic domain centroid at startup
-CENTROID_PATH = os.path.join(os.path.dirname(__file__), "academic_domain_centroid.npy")
+# Load the multi-domain centroids at startup
+CENTROID_PATH = os.path.join(os.path.dirname(__file__), "multi_domain_centroids.npz")
 try:
-    ACADEMIC_CENTROID = np.load(CENTROID_PATH)
+    if os.path.exists(CENTROID_PATH):
+        npz_file = np.load(CENTROID_PATH)
+        ACADEMIC_CENTROIDS = {key: npz_file[key] for key in npz_file.files}
+    else:
+        logger.warning(f"File {CENTROID_PATH} not found. Fallback to passing all.")
+        ACADEMIC_CENTROIDS = {}
 except Exception as e:
-    logger.warning(f"Failed to load academic centroid: {e}. Semantic domain check will pass everything.")
-    ACADEMIC_CENTROID = None
+    logger.warning(f"Failed to load academic centroids: {e}. Semantic domain check will pass everything.")
+    ACADEMIC_CENTROIDS = {}
 
 def evaluate_domain_relevance(query_text: str, query_embedding: list = None) -> Tuple[bool, Optional[str]]:
     """
-    Evaluates if the user query is relevant to the IUH academic domain using Vector Cosine Similarity.
+    Evaluates if the user query is relevant to the IUH academic domain using multiple sub-centroids.
     """
     if not query_text or len(query_text.strip()) < 2:
         return True, None
         
-    if ACADEMIC_CENTROID is None or not query_embedding:
+    if not ACADEMIC_CENTROIDS or not query_embedding:
         # Fallback if model/centroid fails
         return True, None
         
@@ -75,13 +80,20 @@ def evaluate_domain_relevance(query_text: str, query_embedding: list = None) -> 
     if norm > 0:
         query_vec = query_vec / norm
         
-    # Calculate cosine similarity (both vectors are normalized, so dot product == cosine similarity)
-    similarity = np.dot(query_vec, ACADEMIC_CENTROID)
+    # Calculate cosine similarity against all sub-centroids
+    max_similarity = -1.0
+    best_domain = "unknown"
     
-    logger.info(f"Domain Similarity Score for '{query_text[:30]}...': {similarity:.4f}")
+    for domain, centroid in ACADEMIC_CENTROIDS.items():
+        sim = np.dot(query_vec, centroid)
+        if sim > max_similarity:
+            max_similarity = sim
+            best_domain = domain
+            
+    logger.info(f"Domain Similarity Score for '{query_text[:30]}...': {max_similarity:.4f} (Matched: {best_domain})")
     
-    # If the score drops below 0.20, it's mathematically far away from academic topics
-    if similarity < 0.20:
+    # Lowered threshold to 0.15 to reduce false positives for short queries or slang
+    if max_similarity < 0.15:
         return False, OFF_TOPIC_MESSAGE
         
     return True, None

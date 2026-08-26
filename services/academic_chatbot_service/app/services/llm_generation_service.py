@@ -1,3 +1,4 @@
+from app.guardrails.query_filter import OFF_TOPIC_MESSAGE
 import uuid
 import json
 import time
@@ -56,18 +57,20 @@ async def process_chat_message(
         # Generate Standalone Query first so follow-ups have full context for domain checks
         history = await asyncio.to_thread(get_session_history_from_db, session_id)
         filtered_history = [msg for msg in history if not (msg["role"] == "user" and msg["content"] == normalized_query)]
-        retrieval_query = await generate_standalone_query(filtered_history, normalized_query)
+        retrieval_query_raw = await generate_standalone_query(filtered_history, normalized_query)
+        
+        # Step 2: Extract Intent Router Flag
+        if retrieval_query_raw.strip() == "<FALSE>":
+            clean_id = save_user_msg_to_db(session_id, payload.content, retrieval_query_raw, user_id=current_user_id)
+            save_assistant_msg_to_db(clean_id, OFF_TOPIC_MESSAGE)
+            assistant_msg = _build_assistant_message(OFF_TOPIC_MESSAGE)
+            return ApiResult(ok=True, data={"sessionId": clean_id, "message": assistant_msg.dict()})
+            
+        # Extract the actual rewritten query
+        retrieval_query = retrieval_query_raw.replace("<TRUE>", "").strip()
 
         # Generate the single query embedding using the rewritten context-rich query
         query_embedding = await get_query_embedding(retrieval_query)
-
-        # Step 2: Domain Relevance Check
-        is_relevant, off_topic_msg = evaluate_domain_relevance(retrieval_query, query_embedding)
-        if not is_relevant and off_topic_msg:
-            clean_id = save_user_msg_to_db(session_id, payload.content, retrieval_query, user_id=current_user_id)
-            save_assistant_msg_to_db(clean_id, off_topic_msg)
-            assistant_msg = _build_assistant_message(off_topic_msg)
-            return ApiResult(ok=True, data={"sessionId": clean_id, "message": assistant_msg.dict()})
 
         start_time = time.perf_counter()
 
@@ -95,7 +98,7 @@ async def process_chat_message(
             )
 
         # Step 4: RAG Retrieval and Prompt Building
-        history, retrieval_query, citations, chunk_ids, system_instruction, contents, top_doc_score = await build_rag_payload(session_id, normalized_query, retrieval_query, query_embedding)
+        history, retrieval_query, citations, chunk_ids, system_instruction, contents, top_doc_score, log_file_path = await build_rag_payload(session_id, normalized_query, retrieval_query, query_embedding)
 
         gemini_response = None
         last_exception = None
@@ -147,6 +150,15 @@ async def process_chat_message(
             retrieved_chunk_ids=chunk_ids, user_id=current_user_id,
             latency_ms=latency_ms
         )
+        
+        try:
+            if 'log_file_path' in locals() and log_file_path:
+                with open(log_file_path, "a", encoding="utf-8") as lf:
+                    lf.write("## AI Answer & Thinking Stage\n\n")
+                    lf.write(generated_text + "\n\n")
+                    lf.write("---\n")
+        except Exception as _e:
+            logger.error(f"Failed to append to markdown log: {_e}")
 
         assistant_message = _build_assistant_message(generated_text, citations)
 
@@ -199,19 +211,21 @@ async def process_chat_message_stream(
         # Generate Standalone Query first so follow-ups have full context for domain checks
         history = await asyncio.to_thread(get_session_history_from_db, session_id)
         filtered_history = [msg for msg in history if not (msg["role"] == "user" and msg["content"] == normalized_query)]
-        retrieval_query = await generate_standalone_query(filtered_history, normalized_query)
+        retrieval_query_raw = await generate_standalone_query(filtered_history, normalized_query)
+
+        # Step 2: Extract Intent Router Flag
+        if retrieval_query_raw.strip() == "<FALSE>":
+            yield _build_sse_metadata(clean_session_id)
+            yield _build_sse_delta(OFF_TOPIC_MESSAGE)
+            accumulated_text = OFF_TOPIC_MESSAGE
+            yield _build_sse_done()
+            return
+            
+        # Extract the actual rewritten query
+        retrieval_query = retrieval_query_raw.replace("<TRUE>", "").strip()
 
         # Generate the single query embedding using the rewritten context-rich query
         query_embedding = await get_query_embedding(retrieval_query)
-
-        # Step 2: Domain Relevance Check
-        is_relevant, off_topic_msg = evaluate_domain_relevance(retrieval_query, query_embedding)
-        if not is_relevant and off_topic_msg:
-            yield _build_sse_metadata(clean_session_id)
-            yield _build_sse_delta(off_topic_msg)
-            accumulated_text = off_topic_msg
-            yield _build_sse_done()
-            return
 
         # Step 3: Semantic Cache Lookup
         cache_hit = await check_semantic_cache(retrieval_query, query_embedding)
@@ -225,7 +239,7 @@ async def process_chat_message_stream(
             return
 
         # Step 4: RAG Retrieval and Prompt Building
-        history, retrieval_query, citations, chunk_ids, system_instruction, contents, top_doc_score = await build_rag_payload(clean_session_id, normalized_query, retrieval_query, query_embedding)
+        history, retrieval_query, citations, chunk_ids, system_instruction, contents, top_doc_score, log_file_path = await build_rag_payload(clean_session_id, normalized_query, retrieval_query, query_embedding)
 
         # Immediately send citations (metadata) to the client
         citations_data = [c.dict() for c in citations]
@@ -301,6 +315,15 @@ async def process_chat_message_stream(
                 clean_session_id, accumulated_text, 
                 retrieved_chunk_ids=chunk_ids
             )
+            
+            try:
+                if 'log_file_path' in locals() and log_file_path:
+                    with open(log_file_path, "a", encoding="utf-8") as lf:
+                        lf.write("## AI Answer & Thinking Stage\n\n")
+                        lf.write(accumulated_text + "\n\n")
+                        lf.write("---\n")
+            except Exception as _e:
+                logger.error(f"Failed to append to markdown log: {_e}")
             
             # Trigger async cache write-back in background
             if not accumulated_text.startswith("⚠️"):

@@ -3,8 +3,8 @@ import random
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse, urljoin
-from data_pipeline.utils.logger import setup_logger
-from data_pipeline.utils.url_helpers import clean_and_verify_url
+from app.data_ingestion.utils.logger import setup_logger
+from app.data_ingestion.utils.url_helpers import clean_and_verify_url
 
 logger = setup_logger("url_extractor", "link_extract.log")
 

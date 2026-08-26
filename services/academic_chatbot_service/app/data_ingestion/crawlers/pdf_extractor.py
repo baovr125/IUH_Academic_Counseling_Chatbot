@@ -28,7 +28,7 @@ try:
 except ImportError:
     pytesseract = None
 
-from data_pipeline.crawlers.ocr_service import execute_ocr
+from app.data_ingestion.crawlers.ocr_service import execute_ocr
 
 logger = logging.getLogger(__name__)
 

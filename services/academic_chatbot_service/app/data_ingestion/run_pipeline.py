@@ -2,9 +2,9 @@ import os
 import json
 import argparse
 from urllib.parse import urlparse
-from data_pipeline.utils.logger import setup_logger
-from data_pipeline.extractors.url_extractor import URLExtractor
-from data_pipeline.crawlers.content_crawler import ContentCrawler
+from app.data_ingestion.utils.logger import setup_logger
+from app.data_ingestion.extractors.url_extractor import URLExtractor
+from app.data_ingestion.crawlers.content_crawler import ContentCrawler
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(BASE_DIR, "data")
@@ -72,7 +72,7 @@ def run_crawling(urls=None):
     crawler = ContentCrawler(output_dir=MARKDOWN_DIR, max_workers=5)
     crawler.run_crawl(urls)
 
-from data_pipeline.chunkers.hybrid_chunker import HybridChunker
+from app.data_ingestion.chunkers.hybrid_chunker import HybridChunker
 
 def run_chunking():
     logger.info("========== BƯỚC 2: CẮT NHỎ MARKDOWN (CHUNKING) ==========")
@@ -113,7 +113,7 @@ def run_chunking():
     logger.info(f"Lưu tại {parents_file} và {children_file}")
     return children
 
-from data_pipeline.embedders.supabase_embedder import SupabaseEmbedder
+from app.data_ingestion.embedders.supabase_embedder import SupabaseEmbedder
 
 def run_embedding():
     logger.info("========== BƯỚC 3: NHÚNG VÀ LƯU VÀO SUPABASE (EMBEDDING) ==========")

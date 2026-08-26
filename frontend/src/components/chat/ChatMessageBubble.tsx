@@ -60,7 +60,7 @@ export function ChatMessageBubble({
     setShowComment(false);
   };
 
-  const followUpRegex = /(?:\[|<)follow_up(?:\]|>)(.*?)(?:\[|<)\/follow_up(?:\]|>)/gs;
+  const followUpRegex = /<query>(.*?)<\/query>/gs;
   const followUps: string[] = [];
   let match;
   while ((match = followUpRegex.exec(message.content)) !== null) {
@@ -70,8 +70,10 @@ export function ChatMessageBubble({
   }
 
   const cleanContent = message.content
-    .replace(followUpRegex, '')
-    .replace(/(?:\[|<)follow_up(?:\]|>)[^\[<]*$/, '')
+    .replace(/<thinking>[\s\S]*?<\/thinking>\n*/g, '') // Strip out completed Chain-of-Thought thinking tags
+    .replace(/<thinking>[\s\S]*$/, '') // Strip out incomplete thinking tags while streaming
+    .replace(/<suggested_queries>[\s\S]*?<\/suggested_queries>\n*/g, '') // Strip out entire suggested queries block
+    .replace(/<suggested_queries>[\s\S]*$/, '') // Strip out incomplete suggested queries block while streaming
     .replace(/\n*\*?Nguồn:\*?[\s\S]*$/, '') // Strip out Nguồn: block if AI hallucinates it
     .replace(/\n*\*?Tham khảo:\*?[\s\S]*$/, '') // Strip out Tham khảo: block
     .trim();

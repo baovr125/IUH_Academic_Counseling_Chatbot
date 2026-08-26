@@ -8,9 +8,9 @@ import threading
 from bs4 import BeautifulSoup
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import urllib3
-from data_pipeline.utils.logger import setup_logger
-from data_pipeline.crawlers.pdf_extractor import PDFExtractor
-from data_pipeline.crawlers.html_utils import (
+from app.data_ingestion.utils.logger import setup_logger
+from app.data_ingestion.crawlers.pdf_extractor import PDFExtractor
+from app.data_ingestion.crawlers.html_utils import (
     extract_published_date, clean_html_boilerplate, extract_markdown, get_pdf_links
 )
 
