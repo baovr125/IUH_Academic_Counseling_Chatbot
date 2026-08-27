@@ -61,6 +61,36 @@ except Exception as e:
     logger.warning(f"Failed to load academic centroids: {e}. Semantic domain check will pass everything.")
     ACADEMIC_CENTROIDS = {}
 
+ACADEMIC_ABBREVIATIONS = {
+    r"\bdkhp\b": "đăng ký học phần",
+    r"\bdkhc\b": "đăng ký học cải thiện",
+    r"\bdk\b": "đăng ký",
+    r"\bsv\b": "sinh viên",
+    r"\bcntt\b": "công nghệ thông tin",
+    r"\bgpa\b": "điểm trung bình tích lũy",
+    r"\btin chi\b": "tín chỉ",
+    r"\bxet tot nghiep\b": "xét tốt nghiệp",
+    r"\btot nghiep\b": "tốt nghiệp",
+    r"\bhoc phan\b": "học phần",
+    r"\bhoc lai\b": "học lại",
+}
+
+def normalize_academic_query(query: Optional[str]) -> Optional[str]:
+    if not query:
+        return query
+    normalized = query
+    for pattern, replacement in ACADEMIC_ABBREVIATIONS.items():
+        normalized = re.sub(pattern, replacement, normalized, flags=re.IGNORECASE)
+    return normalized
+
+OFF_TOPIC_PATTERNS = [
+    r"(?i)\b(nấu phở|nấu ăn|công thức nấu|món ăn|làm bánh)\b",
+    r"(?i)\b(bitcoin|crypto|tiền ảo|đầu tư coin|chứng khoán)\b",
+    r"(?i)\b(hack game|liên quân|pubg|chơi game|tải game)\b",
+    r"(?i)\b(nhạc bolero|soạn nhạc|hát karaoke|bài hát)\b",
+]
+COMPILED_OFF_TOPIC_REGEX = [re.compile(p) for p in OFF_TOPIC_PATTERNS]
+
 def evaluate_domain_relevance(query_text: str, query_embedding: list = None) -> Tuple[bool, Optional[str]]:
     """
     Evaluates if the user query is relevant to the IUH academic domain using multiple sub-centroids.
@@ -68,6 +98,10 @@ def evaluate_domain_relevance(query_text: str, query_embedding: list = None) -> 
     if not query_text or len(query_text.strip()) < 2:
         return True, None
         
+    for pattern in COMPILED_OFF_TOPIC_REGEX:
+        if pattern.search(query_text):
+            return False, OFF_TOPIC_MESSAGE
+            
     if not ACADEMIC_CENTROIDS or not query_embedding:
         # Fallback if model/centroid fails
         return True, None

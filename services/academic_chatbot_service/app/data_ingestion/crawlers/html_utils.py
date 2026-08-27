@@ -1,6 +1,9 @@
 import re
 from datetime import datetime
-import trafilatura
+try:
+    import trafilatura
+except ImportError:
+    trafilatura = None
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 
@@ -72,9 +75,11 @@ def extract_markdown(soup):
     if not article_node:
         article_node = soup.find('article')
         
+    clean_md = None
     if article_node:
         html_to_parse = f"<html><body>{str(article_node)}</body></html>"
-        clean_md = trafilatura.extract(html_to_parse, include_links=True, output_format="markdown")
+        if trafilatura:
+            clean_md = trafilatura.extract(html_to_parse, include_links=True, output_format="markdown")
     else:
         for tag in soup.find_all(['header', 'footer', 'nav', 'aside']):
             tag.decompose()
@@ -82,7 +87,8 @@ def extract_markdown(soup):
         for tag in soup.find_all('div'):
             if exact_bad_classes.intersection(set(tag.get('class', []))):
                 tag.decompose()
-        clean_md = trafilatura.extract(str(soup), include_links=True, output_format="markdown")
+        if trafilatura:
+            clean_md = trafilatura.extract(str(soup), include_links=True, output_format="markdown")
         
     if not clean_md and article_node:
         fallback_node = BeautifulSoup(str(article_node), "html.parser")

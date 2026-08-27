@@ -2,7 +2,6 @@ import React from 'react';
 import { render } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { ChatMessageBubble } from '../src/components/chat/ChatMessageBubble';
-import '@testing-library/jest-dom/vitest';
 
 // Mock FormattedMarkdown since it's a separate component
 vi.mock('../src/components/chat/FormattedMarkdown', () => {
@@ -19,7 +18,9 @@ vi.mock('lucide-react', () => ({
   ThumbsUp: () => <div data-testid="thumbs-up-icon" />,
   ThumbsDown: () => <div data-testid="thumbs-down-icon" />,
   MessageSquare: () => <div data-testid="message-square-icon" />,
-  BookMarked: () => <div data-testid="bookmarked-icon" />
+  BookMarked: () => <div data-testid="bookmarked-icon" />,
+  Copy: () => <div data-testid="copy-icon" />,
+  Check: () => <div data-testid="check-icon" />,
 }));
 
 describe('ChatMessageBubble (Test Case 0.1)', () => {

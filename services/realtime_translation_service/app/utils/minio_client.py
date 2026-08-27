@@ -26,8 +26,8 @@ def init_audio_bucket():
         if not client.bucket_exists(AUDIO_BUCKET):
             client.make_bucket(AUDIO_BUCKET)
             logger.info(f"Created MinIO bucket for audio: {AUDIO_BUCKET}")
-    except S3Error as e:
-        logger.error(f"MinIO audio bucket initialization error: {e}")
+    except Exception as e:
+        logger.warning(f"MinIO audio bucket initialization skipped or offline: {e}")
 
 # Initialize bucket on module load
 init_audio_bucket()

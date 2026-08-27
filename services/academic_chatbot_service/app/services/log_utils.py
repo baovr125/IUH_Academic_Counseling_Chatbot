@@ -23,7 +23,8 @@ def _write_log(session_id: str, query: str, chunks: list) -> str:
     date_str = now.strftime("%Y-%m-%d")
     time_str = now.strftime("%H%M%S")
     
-    log_dir = os.path.join("/app/logs/academic_chatbot", date_str)
+    base_log = os.getenv("LOG_DIR", "./logs/academic_chatbot")
+    log_dir = os.path.join(base_log, date_str)
     os.makedirs(log_dir, exist_ok=True)
     
     slug = slugify(query, max_words=5)

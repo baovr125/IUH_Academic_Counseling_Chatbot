@@ -19,7 +19,7 @@ if not logger.handlers:
 logger.setLevel(logging.INFO)
 import os
 
-LOG_DIR = "/app/logs/academic_chatbot"
+LOG_DIR = os.getenv("LOG_DIR", "./logs/academic_chatbot")
 os.makedirs(LOG_DIR, exist_ok=True)
 TRACE_FILE = os.path.join(LOG_DIR, "query_traces.jsonl")
 

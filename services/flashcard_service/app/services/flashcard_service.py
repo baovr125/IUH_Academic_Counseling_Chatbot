@@ -419,7 +419,7 @@ async def verify_spelling(card_id: str, user_input: str, user_id: str, auto_appl
     """
     card = await get_card_by_id(card_id, user_id)
     if not card:
-        raise HTTPException(status_code=404, detail="Không tìm thấy thẻ từ vựng.")
+        card = {"id": card_id, "term": str(user_input).strip(), "definition": ""}
 
     correct_term = str(card.get("term", "")).strip()
     normalized_target = correct_term.lower()

@@ -210,25 +210,76 @@ export function useCardMutations(deckId?: string) {
       fallbackAudio?: string;
       langCode?: string;
     }): Promise<VerifySpellingResult> => {
-      const res = await verifyCardSpelling(cardId, userInput.trim(), false);
-      if (res.ok && res.data) {
-        return res.data;
-      }
-      // Fallback local verify
-      const isMatch = userInput.trim().toLowerCase() === term.trim().toLowerCase();
-      return {
-        is_correct: isMatch,
-        is_close: false,
-        similarity_score: isMatch ? 1.0 : 0.0,
-        correct_term: term,
-        user_input: userInput,
-        feedback: isMatch ? "Chính xác tuyệt đối! 🎉" : `Chưa đúng. Đáp án: ${term}`,
-        suggested_grade: isMatch ? 4 : 1,
-        audio_url: fallbackAudio,
-        phonetic: fallbackPhonetic,
-        example_sentence: fallbackExample,
-        lang_code: langCode
+      const cleanInput = userInput.trim();
+      const cleanTerm = term.trim();
+      const isLocalCard = !cardId || cardId.length < 10 || /^\d+$/.test(cardId);
+
+      // Local Levenshtein distance calculation for offline/demo/local cards
+      const evaluateLocally = (): VerifySpellingResult => {
+        const s1 = cleanInput.toLowerCase();
+        const s2 = cleanTerm.toLowerCase();
+        const isMatch = s1 === s2;
+
+        let similarity = isMatch ? 1.0 : 0.0;
+        if (!isMatch && s1.length > 0 && s2.length > 0) {
+          const matrix: number[][] = [];
+          for (let i = 0; i <= s1.length; i++) matrix[i] = [i];
+          for (let j = 0; j <= s2.length; j++) matrix[0][j] = j;
+          for (let i = 1; i <= s1.length; i++) {
+            for (let j = 1; j <= s2.length; j++) {
+              if (s1[i - 1] === s2[j - 1]) matrix[i][j] = matrix[i - 1][j - 1];
+              else matrix[i][j] = Math.min(matrix[i - 1][j - 1] + 1, matrix[i][j - 1] + 1, matrix[i - 1][j] + 1);
+            }
+          }
+          const maxLen = Math.max(s1.length, s2.length);
+          similarity = Math.max(0, 1 - matrix[s1.length][s2.length] / maxLen);
+        }
+
+        const isClose = !isMatch && similarity >= 0.75;
+        let feedback = "";
+        let suggestedGrade = 1;
+
+        if (isMatch) {
+          feedback = "Chính xác tuyệt đối! 🎉 Bạn đã ghi nhớ từ này rất xuất sắc.";
+          suggestedGrade = 4; // Easy
+        } else if (isClose) {
+          feedback = `Gần đúng rồi! Lỗi chính tả nhỏ. Bạn gõ '${cleanInput}', đáp án đúng là '${cleanTerm}'.`;
+          suggestedGrade = 2; // Hard
+        } else {
+          feedback = `Chưa chính xác. Đáp án đúng là '${cleanTerm}'. Hãy luyện tập thêm nhé!`;
+          suggestedGrade = 1; // Again
+        }
+
+        return {
+          is_correct: isMatch,
+          is_close: isClose,
+          similarity_score: similarity,
+          correct_term: cleanTerm,
+          user_input: cleanInput,
+          feedback,
+          suggested_grade: suggestedGrade,
+          audio_url: fallbackAudio,
+          phonetic: fallbackPhonetic,
+          example_sentence: fallbackExample,
+          lang_code: langCode
+        };
       };
+
+      // If local card or no backend token, grade locally (0ms, no 404 network errors)
+      if (isLocalCard) {
+        return evaluateLocally();
+      }
+
+      try {
+        const res = await verifyCardSpelling(cardId, cleanInput, false);
+        if (res.ok && res.data) {
+          return res.data;
+        }
+      } catch {
+        // Silent fallback
+      }
+
+      return evaluateLocally();
     }
   });
 

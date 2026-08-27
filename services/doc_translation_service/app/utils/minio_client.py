@@ -23,8 +23,8 @@ def init_buckets():
         if not client.bucket_exists(DOCUMENTS_BUCKET):
             client.make_bucket(DOCUMENTS_BUCKET)
             logger.info(f"Created MinIO bucket: {DOCUMENTS_BUCKET}")
-    except S3Error as e:
-        logger.error(f"MinIO initialization error: {e}")
+    except Exception as e:
+        logger.warning(f"MinIO initialization skipped or offline: {e}")
 
 # Initialize bucket on module load
 init_buckets()

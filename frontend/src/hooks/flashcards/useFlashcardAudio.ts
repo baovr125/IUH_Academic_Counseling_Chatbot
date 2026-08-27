@@ -129,7 +129,13 @@ export function useFlashcardAudio() {
     const ttsLang = getTTSLangCode(lang);
     const baseUrl = getApiBaseUrl();
 
-    // Priority 1: If card already has a generated MP3 URL from MinIO or backend
+    // Priority 1: High-precision Microsoft Neural TTS stream (instant 0ms from Blob Cache or backend endpoint)
+    if (targetText) {
+      playStreamNeuralTTS(targetText, ttsLang, phonetic);
+      return;
+    }
+
+    // Priority 2: Fallback to audioUrl only if text is empty and audioUrl is an external/explicit file
     if (audioUrl && !audioUrl.startsWith("blob:") && audioUrl.length > 5) {
       const fullUrl = audioUrl.startsWith("http")
         ? audioUrl
@@ -139,20 +145,15 @@ export function useFlashcardAudio() {
       audio.play().then(() => {
         audio.onended = () => setIsPlayingAudio(false);
       }).catch(() => {
-        playStreamNeuralTTS(targetText, ttsLang, phonetic);
+        setIsPlayingAudio(false);
       });
       audio.onerror = () => {
-        playStreamNeuralTTS(targetText, ttsLang, phonetic);
+        setIsPlayingAudio(false);
       };
       return;
     }
 
-    // Priority 2: Stream Microsoft Edge Neural TTS directly from backend API (or from Blob Cache)
-    if (targetText) {
-      playStreamNeuralTTS(targetText, ttsLang, phonetic);
-    } else {
-      setIsPlayingAudio(false);
-    }
+    setIsPlayingAudio(false);
   }, [playStreamNeuralTTS]);
 
   const stopAudio = useCallback(() => {
