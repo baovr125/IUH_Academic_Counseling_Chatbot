@@ -14,6 +14,13 @@ export default function AdminPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [sortOrder, setSortOrder] = useState<"desc" | "asc">("desc");
   const [sortBy, setSortBy] = useState<"updated_at" | "chunk_count">("updated_at");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(searchTerm), 500);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
   const [totalItems, setTotalItems] = useState(0);
 
   const [editingDocId, setEditingDocId] = useState<string | null>(null);
@@ -25,15 +32,15 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (activeTab === "stats") {
-      fetchDocuments(currentPage, sortOrder, sortBy);
+      fetchDocuments(currentPage, sortOrder, sortBy, debouncedSearch);
     }
-  }, [activeTab, currentPage, sortOrder, sortBy]);
+  }, [activeTab, currentPage, sortOrder, sortBy, debouncedSearch]);
 
-  const fetchDocuments = async (page: number = 1, sort: "desc" | "asc" = sortOrder, by: "updated_at" | "chunk_count" = sortBy) => {
+  const fetchDocuments = async (page: number = 1, sort: "desc" | "asc" = sortOrder, by: "updated_at" | "chunk_count" = sortBy, search: string = debouncedSearch) => {
     setLoadingDocs(true);
     try {
       const token = authService.getToken();
-      const res = await fetch(`http://localhost:8000/api/admin/ingest/documents?page=${page}&limit=50&sort=${sort}&sort_by=${by}`, {
+      const res = await fetch(`http://localhost:8000/api/admin/ingest/documents?page=${page}&limit=50&sort=${sort}&sort_by=${by}${search ? `&search=${encodeURIComponent(search)}` : ""}`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       if (res.ok) {
@@ -348,11 +355,22 @@ export default function AdminPage() {
           <div className="p-6 md:p-8">
             {activeTab === "stats" && (
               <div className="space-y-6 animate-fade-in">
-                <div className="flex justify-between items-center">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                   <p className="text-slate-600">Danh sách các tài liệu đã được nạp vào Vector Database.</p>
-                  <button onClick={() => fetchDocuments(currentPage, sortOrder)} className="p-2 hover:bg-slate-100 rounded-lg text-slate-500 transition-colors">
-                    <RefreshCw className={`w-5 h-5 ${loadingDocs ? 'animate-spin text-blue-500' : ''}`} />
-                  </button>
+                  <div className="flex items-center gap-2 w-full sm:w-auto">
+                    <div className="relative w-full sm:w-64">
+                      <input 
+                        type="text"
+                        placeholder="Tìm kiếm theo Tên hoặc URL..."
+                        value={searchTerm}
+                        onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
+                        className="w-full pl-3 pr-10 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                      />
+                    </div>
+                    <button onClick={() => fetchDocuments(currentPage, sortOrder, sortBy, debouncedSearch)} className="p-2 hover:bg-slate-100 rounded-lg text-slate-500 transition-colors shrink-0">
+                      <RefreshCw className={`w-5 h-5 ${loadingDocs ? 'animate-spin text-blue-500' : ''}`} />
+                    </button>
+                  </div>
                 </div>
                 
                 <div className="overflow-x-auto border border-slate-200 rounded-lg">

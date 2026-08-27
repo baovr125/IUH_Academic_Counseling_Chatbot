@@ -204,6 +204,7 @@ async def get_ingested_documents(
     limit: int = Query(50, ge=1, le=100),
     sort: str = Query("desc", pattern="^(asc|desc)$"),
     sort_by: str = Query("updated_at", pattern="^(updated_at|chunk_count)$"),
+    search: str = Query(None),
     admin_id: str = Depends(get_current_admin_user)
 ):
     try:
@@ -211,13 +212,23 @@ async def get_ingested_documents(
         start_idx = (page - 1) * limit
         end_idx = start_idx + limit - 1
         
+        query = supabase.table("documents").select("id, title, source_url, updated_at, chunk_count")
+        count_query = supabase.table("documents").select("id", count="exact")
+        
+        if search and search.strip():
+            search_clean = search.strip()
+            # ILIKE is case-insensitive substring match
+            or_cond = f"source_url.ilike.%{search_clean}%,title.ilike.%{search_clean}%"
+            query = query.or_(or_cond)
+            count_query = count_query.or_(or_cond)
+        
         # Get total count
-        count_res = supabase.table("documents").select("id", count="exact").execute()
+        count_res = count_query.execute()
         total_count = count_res.count if hasattr(count_res, 'count') and count_res.count else 0
         
         # Fetch paginated documents
         is_desc = True if sort == "desc" else False
-        response = supabase.table("documents").select("id, title, source_url, updated_at, chunk_count").order(sort_by, desc=is_desc).range(start_idx, end_idx).execute()
+        response = query.order(sort_by, desc=is_desc).range(start_idx, end_idx).execute()
         
         docs = response.data if response.data else []
         # chunk_count is now natively retrieved from the documents table!

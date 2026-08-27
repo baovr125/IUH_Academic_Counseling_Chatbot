@@ -278,7 +278,7 @@ async def process_chat_message_stream(
                     stream_iter, first_chunk = await asyncio.to_thread(_start_stream_with_first_chunk)
                     break
                 except Exception as e:
-                    logger.exception(f"Error streaming content with model {model_name}: {e}")
+                    logger.warning(f"Error streaming content with model {model_name}: {e}")
                     last_err = e
                     continue
 

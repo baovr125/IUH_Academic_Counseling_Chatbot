@@ -41,10 +41,11 @@ class PDFExtractor:
         pdf_name = pdf_url.split('/')[-1] or "document.pdf"
         try:
             res = requests.get(pdf_url, verify=False, timeout=15)
-            if res.status_code == 200 and PdfReader:
-                pdf_bytes = io.BytesIO(res.content)
-                reader = PdfReader(pdf_bytes)
-                text = "\n".join([page.extract_text() for page in reader.pages if page.extract_text()])
+            if res.status_code == 200 and fitz:
+                pdf_bytes = res.content
+                doc = fitz.open(stream=pdf_bytes, filetype="pdf")
+                text = "\n".join([page.get_text() for page in doc])
+                doc.close()
                 
                 safe_name = hashlib.md5(pdf_url.encode('utf-8')).hexdigest()[:8] + "_" + pdf_name
                 pdf_dir = os.path.join(self.output_dir, "pdfs")
@@ -63,9 +64,10 @@ class PDFExtractor:
 
     def extract_from_bytes(self, pdf_bytes: bytes, filename: str) -> str:
         try:
-            if PdfReader:
-                reader = PdfReader(io.BytesIO(pdf_bytes))
-                text = "\n".join([page.extract_text() for page in reader.pages if page.extract_text()])
+            if fitz:
+                doc = fitz.open(stream=pdf_bytes, filetype="pdf")
+                text = "\n".join([page.get_text() for page in doc])
+                doc.close()
                 
                 safe_name = hashlib.md5(pdf_bytes).hexdigest()[:8] + "_" + filename
                 pdf_dir = os.path.join(self.output_dir, "pdfs")
