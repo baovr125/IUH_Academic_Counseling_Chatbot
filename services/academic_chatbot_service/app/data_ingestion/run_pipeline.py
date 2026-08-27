@@ -2,9 +2,9 @@ import os
 import json
 import argparse
 from urllib.parse import urlparse
-from data_pipeline.utils.logger import setup_logger
-from data_pipeline.extractors.url_extractor import URLExtractor
-from data_pipeline.crawlers.content_crawler import ContentCrawler
+from app.data_ingestion.utils.logger import setup_logger
+from app.data_ingestion.extractors.url_extractor import URLExtractor
+from app.data_ingestion.crawlers.content_crawler import ContentCrawler
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(BASE_DIR, "data")
@@ -72,7 +72,7 @@ def run_crawling(urls=None):
     crawler = ContentCrawler(output_dir=MARKDOWN_DIR, max_workers=5)
     crawler.run_crawl(urls)
 
-from data_pipeline.chunkers.hybrid_chunker import HybridChunker
+from app.data_ingestion.chunkers.hybrid_chunker import HybridChunker
 
 def run_chunking():
     logger.info("========== BƯỚC 2: CẮT NHỎ MARKDOWN (CHUNKING) ==========")
@@ -82,6 +82,24 @@ def run_chunking():
         
     chunker = HybridChunker(max_child_size=600, overlap=100)
     parents, children = chunker.process_directory(MARKDOWN_DIR)
+
+    # --- DEDUPLICATION AT INDEX TIME ---
+    import hashlib
+    seen_hashes = set()
+    unique_children = []
+    
+    for c in children:
+        raw_text = c.get('text', '').strip()
+        normalized_text = " ".join(raw_text.lower().split())
+        text_hash = hashlib.md5(normalized_text.encode('utf-8')).hexdigest()
+        
+        if text_hash not in seen_hashes:
+            seen_hashes.add(text_hash)
+            unique_children.append(c)
+            
+    logger.info(f"Deduplication removed {len(children) - len(unique_children)} duplicate chunks.")
+    children = unique_children
+    # -----------------------------------
     
     parents_file = os.path.join(DATA_DIR, "parents.json")
     with open(parents_file, 'w', encoding='utf-8') as f:
@@ -91,11 +109,11 @@ def run_chunking():
     with open(children_file, 'w', encoding='utf-8') as f:
         json.dump(children, f, indent=4, ensure_ascii=False)
         
-    logger.info(f"Đã cắt thành {len(parents)} Parent Chunks và {len(children)} Child Chunks.")
+    logger.info(f"Đã cắt thành {len(parents)} Parent Chunks và {len(children)} Child Chunks (Unique).")
     logger.info(f"Lưu tại {parents_file} và {children_file}")
     return children
 
-from data_pipeline.embedders.supabase_embedder import SupabaseEmbedder
+from app.data_ingestion.embedders.supabase_embedder import SupabaseEmbedder
 
 def run_embedding():
     logger.info("========== BƯỚC 3: NHÚNG VÀ LƯU VÀO SUPABASE (EMBEDDING) ==========")

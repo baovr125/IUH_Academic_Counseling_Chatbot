@@ -248,6 +248,11 @@ class HybridChunker:
         - all_parents: Dùng để lưu trữ vào Document Store cho LLM đọc.
         - all_children: Dùng để Embed thành Vector phục vụ Search.
         """
+        import sys
+        import os
+        sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        from utils.text_cleaner import clean_noise
+
         all_parents = []
         all_children = []
         
@@ -258,6 +263,9 @@ class HybridChunker:
             filepath = os.path.join(input_dir, filename)
             with open(filepath, 'r', encoding='utf-8') as f:
                 content = f.read()
+                
+            # --- PREPROCESSING STEP ---
+            content = clean_noise(content)
                 
             metadata, text = self.extract_frontmatter(content)
             

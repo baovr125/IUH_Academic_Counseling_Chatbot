@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
-from app.routers import chat
+from app.routers import chat, admin_ingest, sessions
 from app.utils.limiter import limiter
 from app.utils.logger import logger, request_id_var
 from app.services.rag_service import preload_models
@@ -40,8 +40,16 @@ async def request_id_middleware(request: Request, call_next):
 async def startup_event():
     asyncio.create_task(asyncio.to_thread(preload_models))
 
-app.include_router(chat.router, prefix="/api/v1/chat")
-app.include_router(chat.router, prefix="/api/chat")
+# Include chat messages endpoints
+app.include_router(chat.router, prefix="/api/v1/chat/messages")
+app.include_router(chat.router, prefix="/api/chat/messages")
+
+# Include admin ingestion endpoints
+app.include_router(admin_ingest.router)
+
+# Include chat sessions endpoints
+app.include_router(sessions.router, prefix="/api/v1/chat/sessions")
+app.include_router(sessions.router, prefix="/api/chat/sessions")
 
 @app.get("/health", tags=["Health Check"])
 @app.get("/api/v1/chat/health", tags=["Health Check"])

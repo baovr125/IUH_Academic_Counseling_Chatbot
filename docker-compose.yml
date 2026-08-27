@@ -18,29 +18,29 @@ services:
     depends_on:
       - auth-service
       - academic-chatbot-service
-      - realtime-translation-service
-      - doc-translation-service
-      - flashcard-service
+#      - realtime-translation-service
+#      - doc-translation-service
+#      - flashcard-service
     deploy:
       resources:
         limits:
           cpus: '0.5'
           memory: 256M
 
-  rabbitmq:
-    image: rabbitmq:3-management-alpine
-    container_name: iuh_rabbitmq
-    ports:
-      - "5672:5672"
-      - "15672:15672"
-    environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 256M
+#  rabbitmq:
+#    image: rabbitmq:3-management-alpine
+#    container_name: iuh_rabbitmq
+#    ports:
+#      - "5672:5672"
+#      - "15672:15672"
+#    environment:
+#      RABBITMQ_DEFAULT_USER: guest
+#      RABBITMQ_DEFAULT_PASS: guest
+#    deploy:
+#      resources:
+#        limits:
+#          cpus: '0.5'
+#          memory: 256M
 
   redis:
     image: redis:7-alpine
@@ -54,23 +54,23 @@ services:
           cpus: '0.3'
           memory: 128M
 
-  minio:
-    image: minio/minio:latest
-    container_name: iuh_minio
-    ports:
-      - "9000:9000"
-      - "9001:9001"
-    environment:
-      MINIO_ROOT_USER: "minioadmin"
-      MINIO_ROOT_PASSWORD: "minioadmin"
-    command: server /data --console-address ":9001"
-    volumes:
-      - minio_data:/data
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 256M
+#  minio:
+#    image: minio/minio:latest
+#    container_name: iuh_minio
+#    ports:
+#      - "9000:9000"
+#      - "9001:9001"
+#    environment:
+#      MINIO_ROOT_USER: "minioadmin"
+#      MINIO_ROOT_PASSWORD: "minioadmin"
+#    command: server /data --console-address ":9001"
+#    volumes:
+#      - minio_data:/data
+#    deploy:
+#      resources:
+#        limits:
+#          cpus: '0.5'
+#          memory: 256M
 
   auth-service:
     image: auth-service:latest
@@ -101,81 +101,90 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1.5'
-          memory: 2.0G
+          cpus: '4.0'
+          memory: 8.0G
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    volumes:
+      - ./logs/academic_chatbot:/app/logs/academic_chatbot
+      - ./hf_models:/app/hf_models
+      - ./data/ingestion:/app/app/data_ingestion/data
 
-  realtime-translation-service:
-    image: realtime-translation-service:latest
-    build:
-      context: ./services/realtime_translation_service
-    container_name: iuh_realtime_translation_service
-    ports:
-      - "8003:8003"
-    env_file:
-      - .env
-    depends_on:
-      - redis
-      - minio
-      - rabbitmq
-    deploy:
-      resources:
-        limits:
-          cpus: '1.0'
-          memory: 1.2G
-
-  doc-translation-service:
-    image: doc-translation-service:latest
-    build:
-      context: ./services/doc_translation_service
-    container_name: iuh_doc_translation_service
-    ports:
-      - "8004:8004"
-    env_file:
-      - .env
-    depends_on:
-      - rabbitmq
-      - redis
-      - minio
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 384M
-
-  doc-translation-worker:
-    image: doc-translation-worker:latest
-    build:
-      context: ./services/doc_translation_service
-    container_name: iuh_doc_translation_worker
-    command: celery -A app.celery_app worker --loglevel=info --concurrency=2
-    env_file:
-      - .env
-    depends_on:
-      - rabbitmq
-      - redis
-      - minio
-    deploy:
-      resources:
-        limits:
-          cpus: '1.5'
-          memory: 1.8G
-
-  flashcard-service:
-    image: flashcard-service:latest
-    build:
-      context: ./services/flashcard_service
-    container_name: iuh_flashcard_service
-    ports:
-      - "8005:8005"
-    env_file:
-      - .env
-    depends_on:
-      - rabbitmq
-    deploy:
-      resources:
-        limits:
-          cpus: '0.4'
-          memory: 256M
+#  realtime-translation-service:
+#    image: realtime-translation-service:latest
+#    build:
+#      context: ./services/realtime_translation_service
+#    container_name: iuh_realtime_translation_service
+#    ports:
+#      - "8003:8003"
+#    env_file:
+#      - .env
+#    depends_on:
+#      - redis
+#      - minio
+#      - rabbitmq
+#    deploy:
+#      resources:
+#        limits:
+#          cpus: '1.0'
+#          memory: 1.2G
+#
+#  doc-translation-service:
+#    image: doc-translation-service:latest
+#    build:
+#      context: ./services/doc_translation_service
+#    container_name: iuh_doc_translation_service
+#    ports:
+#      - "8004:8004"
+#    env_file:
+#      - .env
+#    depends_on:
+#      - rabbitmq
+#      - redis
+#      - minio
+#    deploy:
+#      resources:
+#        limits:
+#          cpus: '0.5'
+#          memory: 384M
+#
+#  doc-translation-worker:
+#    image: doc-translation-worker:latest
+#    build:
+#      context: ./services/doc_translation_service
+#    container_name: iuh_doc_translation_worker
+#    command: celery -A app.celery_app worker --loglevel=info --concurrency=2
+#    env_file:
+#      - .env
+#    depends_on:
+#      - rabbitmq
+#      - redis
+#      - minio
+#    deploy:
+#      resources:
+#        limits:
+#          cpus: '1.5'
+#          memory: 1.8G
+#
+#  flashcard-service:
+#    image: flashcard-service:latest
+#    build:
+#      context: ./services/flashcard_service
+#    container_name: iuh_flashcard_service
+#    ports:
+#      - "8005:8005"
+#    env_file:
+#      - .env
+#    depends_on:
+#      - rabbitmq
+#    deploy:
+#      resources:
+#        limits:
+#          cpus: '0.4'
+#          memory: 256M
 
   frontend:
     image: frontend:latest

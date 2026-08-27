@@ -28,7 +28,7 @@ try:
 except ImportError:
     pytesseract = None
 
-from data_pipeline.crawlers.ocr_service import execute_ocr
+from app.data_ingestion.crawlers.ocr_service import execute_ocr
 
 logger = logging.getLogger(__name__)
 
@@ -41,10 +41,11 @@ class PDFExtractor:
         pdf_name = pdf_url.split('/')[-1] or "document.pdf"
         try:
             res = requests.get(pdf_url, verify=False, timeout=15)
-            if res.status_code == 200 and PdfReader:
-                pdf_bytes = io.BytesIO(res.content)
-                reader = PdfReader(pdf_bytes)
-                text = "\n".join([page.extract_text() for page in reader.pages if page.extract_text()])
+            if res.status_code == 200 and fitz:
+                pdf_bytes = res.content
+                doc = fitz.open(stream=pdf_bytes, filetype="pdf")
+                text = "\n".join([page.get_text() for page in doc])
+                doc.close()
                 
                 safe_name = hashlib.md5(pdf_url.encode('utf-8')).hexdigest()[:8] + "_" + pdf_name
                 pdf_dir = os.path.join(self.output_dir, "pdfs")
@@ -59,6 +60,28 @@ class PDFExtractor:
                 return text
         except Exception as e:
             logger.error(f"Lỗi đọc PDF {pdf_url}: {e}")
+        return ""
+
+    def extract_from_bytes(self, pdf_bytes: bytes, filename: str) -> str:
+        try:
+            if fitz:
+                doc = fitz.open(stream=pdf_bytes, filetype="pdf")
+                text = "\n".join([page.get_text() for page in doc])
+                doc.close()
+                
+                safe_name = hashlib.md5(pdf_bytes).hexdigest()[:8] + "_" + filename
+                pdf_dir = os.path.join(self.output_dir, "pdfs")
+                os.makedirs(pdf_dir, exist_ok=True)
+                with open(os.path.join(pdf_dir, safe_name), "wb") as f:
+                    f.write(pdf_bytes)
+                
+                if len(text.strip()) < 50:
+                    logger.warning(f"PDF {filename} có vẻ là bản scan. Kích hoạt OCR fallback...")
+                    text = self._ocr_pdf(pdf_bytes)
+                    
+                return text
+        except Exception as e:
+            logger.error(f"Lỗi đọc file PDF {filename}: {e}")
         return ""
 
     def _ocr_pdf(self, pdf_bytes: bytes) -> str:

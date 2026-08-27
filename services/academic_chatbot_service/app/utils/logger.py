@@ -17,3 +17,25 @@ if not logger.handlers:
     handler.setFormatter(formatter)
     logger.addHandler(handler)
 logger.setLevel(logging.INFO)
+import os
+
+LOG_DIR = "/app/logs/academic_chatbot"
+os.makedirs(LOG_DIR, exist_ok=True)
+TRACE_FILE = os.path.join(LOG_DIR, "query_traces.jsonl")
+
+def log_query_trace(session_id: str, original_query: str, retrieval_query: str, retrieved_chunks: list, ai_response: str):
+    import json
+    import datetime
+    try:
+        trace = {
+            "timestamp": datetime.datetime.utcnow().isoformat(),
+            "session_id": session_id,
+            "original_query": original_query,
+            "retrieval_query": retrieval_query,
+            "retrieved_chunks": retrieved_chunks,
+            "ai_response": ai_response,
+        }
+        with open(TRACE_FILE, 'a', encoding='utf-8') as f:
+            f.write(json.dumps(trace, ensure_ascii=False) + "\n")
+    except Exception as e:
+        logger.error(f"Failed to write query trace: {e}")

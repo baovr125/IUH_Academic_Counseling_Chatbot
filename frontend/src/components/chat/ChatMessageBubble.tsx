@@ -33,6 +33,7 @@ export function ChatMessageBubble({
   const [showComment, setShowComment] = useState(false);
   const [comment, setComment] = useState("");
   const [copied, setCopied] = useState(false);
+  const [sourcesExpanded, setSourcesExpanded] = useState(false);
 
   const handleCopy = async () => {
     try {
@@ -59,7 +60,7 @@ export function ChatMessageBubble({
     setShowComment(false);
   };
 
-  const followUpRegex = /\[follow_up\](.*?)\[\/follow_up\]/gs;
+  const followUpRegex = /<query>(.*?)<\/query>/gs;
   const followUps: string[] = [];
   let match;
   while ((match = followUpRegex.exec(message.content)) !== null) {
@@ -69,9 +70,23 @@ export function ChatMessageBubble({
   }
 
   const cleanContent = message.content
-    .replace(followUpRegex, '')
-    .replace(/\[follow_up\][^\[]*$/, '')
+    .replace(/<thinking>[\s\S]*?<\/thinking>\n*/g, '') // Strip out completed Chain-of-Thought thinking tags
+    .replace(/<thinking>[\s\S]*$/, '') // Strip out incomplete thinking tags while streaming
+    .replace(/<suggested_queries>[\s\S]*?<\/suggested_queries>\n*/g, '') // Strip out entire suggested queries block
+    .replace(/<suggested_queries>[\s\S]*$/, '') // Strip out incomplete suggested queries block while streaming
+    .replace(/\n*\*?Nguồn:\*?[\s\S]*$/, '') // Strip out Nguồn: block if AI hallucinates it
+    .replace(/\n*\*?Tham khảo:\*?[\s\S]*$/, '') // Strip out Tham khảo: block
     .trim();
+
+  const uniqueCitations = (message.citations || []).reduce((acc, current) => {
+    // Aggressively deduplicate by sourceTitle ONLY, ignoring different URLs 
+    // to ensure they collapse into exactly 1 badge.
+    const key = current.sourceTitle;
+    if (!acc.find(item => item.sourceTitle === key)) {
+      acc.push(current);
+    }
+    return acc;
+  }, [] as NonNullable<typeof message.citations>);
 
   if (isUser) {
     return (
@@ -97,12 +112,30 @@ export function ChatMessageBubble({
             {message.status === "pending" && (
               <span className="inline-block h-3 w-1.5 animate-pulse rounded-sm bg-blue-400 ml-0.5 align-baseline" />
             )}
-            {message.citations && message.citations.length > 0 && (
-              <div className="mt-2 flex flex-wrap items-center gap-1.5 border-t border-blue-100 pt-2">
-                <span className="text-xs text-slate-400">Nguồn:</span>
-                {message.citations.map((c) => (
-                  <CitationBadge key={c.id} citation={c} />
-                ))}
+            {uniqueCitations && uniqueCitations.length > 0 && (
+              <div className="mt-2 flex flex-col gap-1.5 border-t border-blue-100 pt-2">
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <span className="text-xs text-slate-400">Nguồn:</span>
+                  {(sourcesExpanded ? uniqueCitations : uniqueCitations.slice(0, 2)).map((c) => (
+                    <CitationBadge key={c.id} citation={c} />
+                  ))}
+                  {!sourcesExpanded && uniqueCitations.length > 2 && (
+                    <button
+                      onClick={() => setSourcesExpanded(true)}
+                      className="text-xs text-blue-500 hover:text-blue-700 underline px-1"
+                    >
+                      +{uniqueCitations.length - 2} xem thêm
+                    </button>
+                  )}
+                  {sourcesExpanded && uniqueCitations.length > 2 && (
+                    <button
+                      onClick={() => setSourcesExpanded(false)}
+                      className="text-xs text-slate-400 hover:text-slate-600 underline px-1"
+                    >
+                      Thu gọn
+                    </button>
+                  )}
+                </div>
               </div>
             )}
             {isLatest && followUps.length > 0 && (
