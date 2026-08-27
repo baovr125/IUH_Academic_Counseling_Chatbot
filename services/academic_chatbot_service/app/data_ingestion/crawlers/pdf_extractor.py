@@ -61,6 +61,27 @@ class PDFExtractor:
             logger.error(f"Lỗi đọc PDF {pdf_url}: {e}")
         return ""
 
+    def extract_from_bytes(self, pdf_bytes: bytes, filename: str) -> str:
+        try:
+            if PdfReader:
+                reader = PdfReader(io.BytesIO(pdf_bytes))
+                text = "\n".join([page.extract_text() for page in reader.pages if page.extract_text()])
+                
+                safe_name = hashlib.md5(pdf_bytes).hexdigest()[:8] + "_" + filename
+                pdf_dir = os.path.join(self.output_dir, "pdfs")
+                os.makedirs(pdf_dir, exist_ok=True)
+                with open(os.path.join(pdf_dir, safe_name), "wb") as f:
+                    f.write(pdf_bytes)
+                
+                if len(text.strip()) < 50:
+                    logger.warning(f"PDF {filename} có vẻ là bản scan. Kích hoạt OCR fallback...")
+                    text = self._ocr_pdf(pdf_bytes)
+                    
+                return text
+        except Exception as e:
+            logger.error(f"Lỗi đọc file PDF {filename}: {e}")
+        return ""
+
     def _ocr_pdf(self, pdf_bytes: bytes) -> str:
         if not fitz or not Image:
             return "[CẦN CÀI ĐẶT PyMuPDF VÀ Pillow ĐỂ OCR]"

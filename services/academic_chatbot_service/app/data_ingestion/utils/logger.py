@@ -3,8 +3,7 @@ import logging
 from datetime import datetime
 
 def setup_logger(name, log_file):
-    BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    LOG_DIR = os.path.join(BASE_DIR, "logs")
+    LOG_DIR = "/app/logs/academic_chatbot" 
     os.makedirs(LOG_DIR, exist_ok=True)
     
     logger = logging.getLogger(name)

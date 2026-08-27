@@ -111,6 +111,7 @@ services:
     volumes:
       - ./logs/academic_chatbot:/app/logs/academic_chatbot
       - ./hf_models:/app/hf_models
+      - ./data/ingestion:/app/app/data_ingestion/data
 
 #  realtime-translation-service:
 #    image: realtime-translation-service:latest

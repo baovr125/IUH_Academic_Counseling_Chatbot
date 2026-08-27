@@ -55,12 +55,19 @@ get_optional_current_user_id = get_optional_user_id
 def get_current_admin_user(
     authorization: Optional[str] = Header(None, alias="Authorization"),
     x_user_id: Optional[str] = Header(None, alias="X-User-ID"),
-    x_user_role: Optional[str] = Header(None, alias="X-User-Role")
+    x_user_role: Optional[str] = Header(None, alias="X-User-Role"),
+    token: Optional[str] = None
 ) -> str:
-    # 1. Check Authorization header
-    if authorization and authorization.startswith("Bearer "):
-        token = authorization.split(" ")[1]
+    # 1. Check token from query param (for EventSource/SSE)
+    if token:
         user_info = extract_user_info_from_token(token)
+        if user_info and user_info.get("user_id") and user_info.get("role") == "admin":
+            return user_info["user_id"]
+
+    # 2. Check Authorization header
+    if authorization and authorization.startswith("Bearer "):
+        bearer_token = authorization.split(" ")[1]
+        user_info = extract_user_info_from_token(bearer_token)
         if user_info and user_info.get("user_id"):
             if user_info.get("role") == "admin":
                 return user_info["user_id"]
@@ -69,8 +76,7 @@ def get_current_admin_user(
                 detail="Truy cập bị từ chối. Chỉ Admin mới có quyền thực hiện thao tác này."
             )
 
-    # 2. Check X headers (for direct inter-service communication via Kong Gateway)
-    # If the gateway verified the token and passed the role
+    # 3. Check X headers (for direct inter-service communication via Kong Gateway)
     if x_user_id and x_user_id.strip() and x_user_id != "anonymous":
         if x_user_role == "admin":
             return x_user_id.strip()

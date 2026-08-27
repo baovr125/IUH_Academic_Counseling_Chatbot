@@ -437,8 +437,7 @@ async def generate_standalone_query(history: list, current_query: str) -> str:
                         model=m,
                         contents=rewrite_prompt,
                         config=types.GenerateContentConfig(
-                            temperature=0.0,
-                            automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True)
+                            temperature=0.0
                         )
                     )
                 res = await asyncio.to_thread(_gen_rewrite)

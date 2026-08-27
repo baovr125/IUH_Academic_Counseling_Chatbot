@@ -2,6 +2,7 @@ import os
 import re
 import time
 import logging
+from threading import Lock
 
 try:
     from google import genai
@@ -13,6 +14,9 @@ gemini_client = None
 if os.getenv("GEMINI_API_KEY") and genai:
     gemini_client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
+AVAILABLE_MODELS = ["gemini-3.5-flash-lite", "gemini-3.1-flash-lite", "gemma-4-31b-it", "gemini-1.5-flash"]
+model_lock = Lock()
+
 def execute_ocr(prompt: str, img) -> str:
     """
     Gửi ảnh lên Gemini API để OCR. Tự động đổi model nếu lỗi 429 quota.
@@ -21,9 +25,14 @@ def execute_ocr(prompt: str, img) -> str:
     if not gemini_client:
         return "[LỖI: Chưa cấu hình GEMINI_API_KEY]"
         
-    models = ["gemini-3.5-flash-lite", "gemini-3.1-flash-lite", "gemma-4-31b-it", "gemini-1.5-flash"]
+    with model_lock:
+        models_to_try = list(AVAILABLE_MODELS)
+        
+    if not models_to_try:
+        logger.error("Tất cả các model đều đã bị loại bỏ do hết Quota.")
+        raise Exception("API_OCR_FAILED")
     
-    for model_name in models:
+    for model_name in models_to_try:
         retries = 3
         while retries > 0:
             try:
@@ -36,11 +45,13 @@ def execute_ocr(prompt: str, img) -> str:
                 return ""
             except Exception as api_err:
                 err_msg = str(api_err).lower()
-                logger.warning(f"Model {model_name} thất bại: {api_err}")
                 
                 if "429" in err_msg or "quota" in err_msg or "resource_exhausted" in err_msg:
                     if "perday" in err_msg or "per_day" in err_msg:
-                        logger.error(f"Model {model_name} đã hết Quota trong ngày. Chuyển model khác!")
+                        logger.error(f"Model {model_name} đã hết Quota trong ngày. Xóa vĩnh viễn khỏi danh sách!")
+                        with model_lock:
+                            if model_name in AVAILABLE_MODELS:
+                                AVAILABLE_MODELS.remove(model_name)
                         break
                         
                     match = re.search(r'retry in ([\d\.]+)s', err_msg)
@@ -55,6 +66,7 @@ def execute_ocr(prompt: str, img) -> str:
                     retries -= 1
                     continue
                 else:
+                    logger.warning(f"Model {model_name} thất bại không xác định: {api_err}")
                     break
     
     logger.error(f"Tất cả các model đều thất bại OCR.")

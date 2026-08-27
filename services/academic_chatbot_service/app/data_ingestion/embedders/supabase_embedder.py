@@ -4,10 +4,9 @@ import uuid
 import hashlib
 from tqdm.auto import tqdm
 from sentence_transformers import SentenceTransformer
-import psycopg2
-from psycopg2.extras import Json, execute_values
 from dotenv import load_dotenv
 from app.data_ingestion.utils.logger import setup_logger
+from app.services.supabase_client import get_supabase_client
 
 logger = setup_logger("embedder", "embedder.log")
 
@@ -33,17 +32,17 @@ def inject_meta(text, meta):
     return prefix + text
 
 class SupabaseEmbedder:
-    def __init__(self, model_name="bkai-foundation-models/vietnamese-bi-encoder"):
-        load_dotenv()
-        self.db_url = os.getenv("DATABASE_URL")
-        if not self.db_url:
-            raise ValueError("Không tìm thấy DATABASE_URL trong .env")
+    def __init__(self, model_name="bkai-foundation-models/vietnamese-bi-encoder", embedder_instance=None):
+        if embedder_instance:
+            logger.info(f"Sử dụng mô hình nhúng đã tải sẵn từ bộ nhớ...")
+            self.embedder = embedder_instance
+        else:
+            logger.info(f"Đang tải mô hình nhúng {model_name}...")
+            self.embedder = SentenceTransformer(model_name)
             
-        logger.info(f"Đang tải mô hình nhúng {model_name}...")
-        self.embedder = SentenceTransformer(model_name)
-        
-    def get_connection(self):
-        return psycopg2.connect(self.db_url)
+        self.supabase = get_supabase_client()
+        if not self.supabase:
+            raise ValueError("Không thể kết nối Supabase REST API (kiểm tra SUPABASE_URL và SUPABASE_KEY).")
         
     def run_embedding(self, children_file_path):
         logger.info(f"Đọc dữ liệu từ {children_file_path}...")
@@ -54,7 +53,6 @@ class SupabaseEmbedder:
             logger.warning("Không có dữ liệu child chunks để embed.")
             return
 
-        # Nhóm chunks theo source_url
         docs_map = {}
         for child in children:
             meta = child.get("metadata", {})
@@ -70,87 +68,65 @@ class SupabaseEmbedder:
         stats = {"added_or_updated_docs": 0, "embedded_chunks": 0}
         
         try:
-            with self.get_connection() as conn:
-                with conn.cursor() as cur:
-                    for source_url, doc_info in tqdm(docs_map.items(), desc="Nhúng và Lưu DB"):
-                        title = doc_info["title"]
-                        breadcrumbs = doc_info["breadcrumbs"]
-                        
-                        # Tạo hash đại diện cho doc này (để sau này có incremental caching nếu muốn)
-                        # Tạm thời sinh random UUID hoặc hash nội dung
-                        all_text = "".join(c["text"] for c in doc_info["chunks"])
-                        content_hash = hashlib.md5(all_text.encode('utf-8')).hexdigest()
-                        
-                        # 1. Upsert Document
-                        upsert_doc_query = """
-                            INSERT INTO documents (title, source_url, breadcrumbs, content_hash, updated_at)
-                            VALUES (%s, %s, %s, %s, NOW())
-                            ON CONFLICT (source_url) 
-                            DO UPDATE SET 
-                                title = EXCLUDED.title,
-                                breadcrumbs = EXCLUDED.breadcrumbs,
-                                content_hash = EXCLUDED.content_hash,
-                                updated_at = NOW()
-                            RETURNING id;
-                        """
-                        cur.execute(upsert_doc_query, (title, source_url, breadcrumbs, content_hash))
-                        doc_row = cur.fetchone()
-                        if not doc_row:
-                            logger.error(f"Không thể upsert document cho '{source_url}'")
-                            continue
-                        document_id = doc_row[0]
-                        stats["added_or_updated_docs"] += 1
-                        
-                        # 2. Xóa chunk cũ của document_id này (tránh orphan khi update)
-                        cur.execute("DELETE FROM document_chunks WHERE document_id = %s;", (document_id,))
-                        
-                        # 3. Chuẩn bị bulk insert chunks
-                        chunk_records = []
-                        chunks_batch = doc_info["chunks"]
-                        
-                        # Embed từng chunk một (có thể batch encode để nhanh hơn)
-                        texts_to_embed = [inject_meta(c["text"], c.get("metadata", {})) for c in chunks_batch]
-                        vectors = self.embedder.encode(texts_to_embed, convert_to_numpy=True).tolist()
-                        
-                        for idx, (child, vector) in enumerate(zip(chunks_batch, vectors)):
-                            injected_text = texts_to_embed[idx]
-                            meta_cleaned = {k: (v if v is not None else "") for k, v in child.get("metadata", {}).items()}
-                            vector_str = "[" + ",".join(str(x) for x in vector) + "]"
-                            
-                            # Tính tokens roughly
-                            tokens_count = len(child["text"].split())
-                            
-                            chunk_records.append((
-                                document_id,
-                                idx,
-                                child["text"],
-                                injected_text,
-                                Json(meta_cleaned),
-                                vector_str,
-                                tokens_count
-                            ))
-                            
-                        # 4. Insert chunks
-                        insert_chunks_query = """
-                            INSERT INTO document_chunks (
-                                document_id,
-                                chunk_index,
-                                content,
-                                injected_content,
-                                metadata,
-                                embedding,
-                                tokens_count
-                            ) VALUES %s;
-                        """
-                        execute_values(
-                            cur,
-                            insert_chunks_query,
-                            chunk_records,
-                            template="(%s, %s, %s, %s, %s, %s::vector, %s)"
-                        )
-                        stats["embedded_chunks"] += len(chunk_records)
-                        
-                conn.commit()
+            for source_url, doc_info in tqdm(docs_map.items(), desc="Nhúng và Lưu DB"):
+                title = doc_info["title"]
+                breadcrumbs = doc_info["breadcrumbs"]
+                all_text = "".join(c["text"] for c in doc_info["chunks"])
+                content_hash = hashlib.md5(all_text.encode('utf-8')).hexdigest()
+                
+                # 1. Upsert Document via REST API
+                doc_payload = {
+                    "title": title,
+                    "source_url": source_url,
+                    "breadcrumbs": breadcrumbs,
+                    "content_hash": content_hash,
+                    "chunk_count": len(doc_info["chunks"])
+                }
+                
+                doc_res = self.supabase.table("documents").upsert(
+                    doc_payload, on_conflict="source_url"
+                ).execute()
+                
+                if not doc_res.data or len(doc_res.data) == 0:
+                    logger.error(f"Không thể upsert document cho '{source_url}'")
+                    continue
+                    
+                document_id = doc_res.data[0]["id"]
+                stats["added_or_updated_docs"] += 1
+                
+                # 2. Xóa chunk cũ
+                self.supabase.table("document_chunks").delete().eq("document_id", document_id).execute()
+                
+                # 3. Chuẩn bị bulk insert chunks
+                chunk_records = []
+                chunks_batch = doc_info["chunks"]
+                
+                texts_to_embed = [inject_meta(c["text"], c.get("metadata", {})) for c in chunks_batch]
+                vectors = self.embedder.encode(texts_to_embed, convert_to_numpy=True).tolist()
+                
+                for idx, (child, vector) in enumerate(zip(chunks_batch, vectors)):
+                    injected_text = texts_to_embed[idx]
+                    meta_cleaned = {k: (v if v is not None else "") for k, v in child.get("metadata", {}).items()}
+                    tokens_count = len(child["text"].split())
+                    
+                    chunk_records.append({
+                        "document_id": document_id,
+                        "chunk_index": idx,
+                        "content": child["text"],
+                        "injected_content": injected_text,
+                        "metadata": meta_cleaned,
+                        "embedding": vector,
+                        "tokens_count": tokens_count
+                    })
+                    
+                # 4. Bulk Insert Chunks
+                # We can insert in batches of 100 to avoid request size limits
+                batch_size = 100
+                for i in range(0, len(chunk_records), batch_size):
+                    batch = chunk_records[i:i+batch_size]
+                    self.supabase.table("document_chunks").insert(batch).execute()
+                    
+                stats["embedded_chunks"] += len(chunk_records)
                 
             logger.info("✅ HOÀN TẤT NẠP VECTOR VÀO SUPABASE!")
             logger.info(f"📊 Kết quả: {stats['added_or_updated_docs']} Documents, {stats['embedded_chunks']} Chunks")
