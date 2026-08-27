@@ -96,8 +96,6 @@ services:
       - "8002:8002"
     env_file:
       - .env
-    volumes:
-      - ./logs/academic_chatbot:/app/logs
     depends_on:
       - redis
     deploy:
