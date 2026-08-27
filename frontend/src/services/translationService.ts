@@ -7,7 +7,7 @@ let historyStore: TranslationHistoryItem[] = [...MOCK_TRANSLATION_HISTORY];
 
 const getApiUrl = (endpoint: string): string => {
   const env = (import.meta as any).env || {};
-  const base = (env.VITE_API_BASE_URL !== undefined ? env.VITE_API_BASE_URL : "http://localhost:8000").replace(/\/+$/, "");
+  const base = (env.VITE_API_BASE_URL !== undefined ? env.VITE_API_BASE_URL : "").replace(/\/+$/, "");
   if (!base) return endpoint;
   return `${base}${endpoint}`;
 };

@@ -216,9 +216,10 @@ async def get_ingested_documents(
         count_query = supabase.table("documents").select("id", count="exact")
         
         if search and search.strip():
-            search_clean = search.strip()
-            # ILIKE is case-insensitive substring match
-            or_cond = f"source_url.ilike.%{search_clean}%,title.ilike.%{search_clean}%"
+            # Escape double quotes to prevent breaking the PostgREST or_ syntax
+            search_clean = search.strip().replace('"', '\\"')
+            # Wrap in double quotes so commas, hyphens, and parentheses inside the search term don't break the logic tree
+            or_cond = f'source_url.ilike."%{search_clean}%",title.ilike."%{search_clean}%"' 
             query = query.or_(or_cond)
             count_query = count_query.or_(or_cond)
         

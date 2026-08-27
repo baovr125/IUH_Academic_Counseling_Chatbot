@@ -4,6 +4,8 @@ import { useAuth } from "../hooks/useAuth";
 
 import * as authService from "../services/authService";
 
+const API_BASE_URL = (import.meta as any).env.VITE_API_BASE_URL || "";
+
 export default function AdminPage() {
   const { user } = useAuth();
     const [activeTab, setActiveTab] = useState<"files" | "urls" | "stats">("stats");
@@ -40,7 +42,7 @@ export default function AdminPage() {
     setLoadingDocs(true);
     try {
       const token = authService.getToken();
-      const res = await fetch(`http://localhost:8000/api/admin/ingest/documents?page=${page}&limit=50&sort=${sort}&sort_by=${by}${search ? `&search=${encodeURIComponent(search)}` : ""}`, {
+      const res = await fetch(`${API_BASE_URL}/api/admin/ingest/documents?page=${page}&limit=50&sort=${sort}&sort_by=${by}${search ? `&search=${encodeURIComponent(search)}` : ""}`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       if (res.ok) {
@@ -70,47 +72,71 @@ export default function AdminPage() {
   const [progressMsg, setProgressMsg] = useState("");
   const [progressPercent, setProgressPercent] = useState(0);
   
-  const eventSourceRef = useRef<EventSource | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
-    // Check if SSE needs to be connected
-    if (status === "processing" && !eventSourceRef.current) {
+    if (status === "processing" && !abortControllerRef.current) {
       const token = authService.getToken() || "";
-      // EventSource doesn't support custom headers easily, so we pass token in URL or rely on cookies.
-      // But standard apiClient uses headers. Let's assume the backend doesn't strictly need the token in SSE or we can append it.
-      // For now, since it's an admin endpoint, we pass it as a query param or just hit the endpoint if Kong Gateway passes auth.
-      eventSourceRef.current = new EventSource(`http://localhost:8000/api/admin/ingest/status?token=${token}`);
-      
-      eventSourceRef.current.onmessage = (event) => {
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
+
+      const fetchStatus = async () => {
         try {
-          const data = JSON.parse(event.data);
-          setProgressMsg(data.message);
-          setProgressPercent(data.progress || 0);
-          
-          if (data.status === "completed" || data.status === "error") {
-            setStatus(data.status);
-            if (eventSourceRef.current) {
-              eventSourceRef.current.close();
-              eventSourceRef.current = null;
+          const response = await fetch(`${API_BASE_URL}/api/admin/ingest/status`, {
+            headers: {
+              "Authorization": `Bearer ${token}`
+            },
+            signal: controller.signal
+          });
+
+          if (!response.body) throw new Error("No readable stream");
+          const reader = response.body.getReader();
+          const decoder = new TextDecoder("utf-8");
+
+          let buffer = "";
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            buffer += decoder.decode(value, { stream: true });
+            
+            const lines = buffer.split('\n');
+            buffer = lines.pop() || "";
+            
+            for (const line of lines) {
+              if (line.startsWith("data: ")) {
+                const dataStr = line.substring(6).trim();
+                if (!dataStr) continue;
+                try {
+                  const data = JSON.parse(dataStr);
+                  setProgressMsg(data.message);
+                  setProgressPercent(data.progress || 0);
+                  
+                  if (data.status === "completed" || data.status === "error") {
+                    setStatus(data.status);
+                    controller.abort();
+                  }
+                } catch (e) {
+                  console.error("Error parsing SSE data", e);
+                }
+              }
             }
           }
-        } catch (e) {
-          console.error("Error parsing SSE data", e);
+        } catch (e: any) {
+          if (e.name !== "AbortError") {
+            console.error("Error fetching status stream", e);
+          }
+        } finally {
+          abortControllerRef.current = null;
         }
       };
-      
-      eventSourceRef.current.onerror = () => {
-        if (eventSourceRef.current) {
-          eventSourceRef.current.close();
-          eventSourceRef.current = null;
-        }
-      };
+
+      fetchStatus();
     }
     
     return () => {
-      if (eventSourceRef.current) {
-        eventSourceRef.current.close();
-        eventSourceRef.current = null;
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+        abortControllerRef.current = null;
       }
     };
   }, [status]);
@@ -131,7 +157,7 @@ export default function AdminPage() {
     if (!window.confirm("Bạn có chắc chắn muốn xóa tài liệu này? Mọi chunk và dữ liệu vector liên quan sẽ bị xóa.")) return;
     try {
       const token = authService.getToken();
-      const res = await fetch(`http://localhost:8000/api/admin/ingest/documents/${id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/admin/ingest/documents/${id}`, {
         method: "DELETE",
         headers: { "Authorization": `Bearer ${token}` }
       });
@@ -153,7 +179,7 @@ export default function AdminPage() {
     try {
       const token = authService.getToken();
       const urls = extraUrlsText.split("\n").map((u) => u.trim()).filter((u) => u.startsWith("http"));
-      const res = await fetch("http://localhost:8000/api/admin/ingest/extract-and-crawl", {
+      const res = await fetch(`${API_BASE_URL}/api/admin/ingest/extract-and-crawl`, {
         method: "POST",
         headers: { 
           "Authorization": `Bearer ${token}`,
@@ -179,7 +205,7 @@ export default function AdminPage() {
     }
     try {
       const token = authService.getToken();
-      const res = await fetch(`http://localhost:8000/api/admin/ingest/documents/${id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/admin/ingest/documents/${id}`, {
         method: "PATCH",
         headers: { 
           "Authorization": `Bearer ${token}`,
@@ -237,7 +263,7 @@ export default function AdminPage() {
 
     try {
       const token = authService.getToken();
-      const res = await fetch("http://localhost:8000/api/admin/ingest/files", {
+      const res = await fetch(`${API_BASE_URL}/api/admin/ingest/files`, {
         method: "POST",
         headers: { "Authorization": `Bearer ${token}` },
         body: formData
@@ -259,7 +285,7 @@ export default function AdminPage() {
 
     try {
       const token = authService.getToken();
-      const res = await fetch("http://localhost:8000/api/admin/ingest/urls", {
+      const res = await fetch(`${API_BASE_URL}/api/admin/ingest/urls`, {
         method: "POST",
         headers: { 
           "Authorization": `Bearer ${token}`,
