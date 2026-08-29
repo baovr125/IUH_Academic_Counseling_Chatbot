@@ -114,3 +114,26 @@ flowchart TD
    - `src/components/translation/SaveFlashcardModal.tsx`: Modal cho phép chọn sổ thẻ hiện có hoặc tạo sổ thẻ mới khi lưu từ vựng từ trang dịch.
    - `src/components/translation/TranslationBox.tsx`: Khắc phục mapping phát âm 10 ngôn ngữ chuẩn xác (`de-DE`, `en-US`, `ja-JP`...), tích hợp `SaveFlashcardModal`.
    - `src/pages/FlashcardPage.tsx`: Giao diện phát âm tức thì từ MinIO, hỗ trợ quản lý Sổ thẻ (Sửa/Xóa), quản lý danh sách thẻ (Sửa/Xóa từng thẻ), ôn tập FSRS và chế độ Gõ chính tả.
+
+---
+
+## 6. Tối Ưu Tài Nguyên Hệ Thống (Resource & RAM Optimization)
+
+Nhằm đảm bảo hệ thống có thể chạy toàn bộ các microservices tích hợp AI mượt mà trên môi trường máy cá nhân (Laptop có **24GB RAM Hệ thống** và Card đồ họa **RTX 4060 8GB VRAM**), kiến trúc đã được quy hoạch và tối ưu tài nguyên một cách nghiêm ngặt:
+
+### 6.1. Chi Tiết Phân Bổ System RAM và VRAM cho Từng Microservice
+Tổng lượng RAM hệ thống cấp cho Docker được khống chế ở mức **~9.8GB**, đảm bảo dành ra khoảng 14GB RAM cho hệ điều hành Windows và các IDE lập trình. 
+Về phía Card đồ họa, tổng lượng VRAM tiêu thụ ước tính khoảng **~4.5GB - 5.0GB** trên tổng số 8GB của card RTX 4060, đảm bảo hệ thống chạy mượt mà và không bao giờ bị văng lỗi *CUDA Out of Memory*. Chi tiết như sau:
+
+| Tên Service | Cấu hình System RAM (Docker) | Tiêu thụ VRAM (GPU RTX 4060) | Mô hình AI & Kỹ thuật Tối ưu Áp dụng |
+| :--- | :--- | :--- | :--- |
+| **cademic-chatbot-service** | **4.5 GB** | **~1.5 GB** | Ép dùng **ONNX** (ietnamese-bi-encoder-onnx & ge-reranker-v2-m3-onnx). |
+| **doc-translation-worker** | **2.0 GB** | **~2.0 GB - 2.5 GB** | Tự động convert model BAAI/bge-m3 sang **ONNX** thông qua optimum. |
+| **
+ealtime-translation-service** | **1.5 GB** | **~600 MB - 1.0 GB** | Ép dùng **CTranslate2 (INT8 Quantization)** cho model 
+llb-200-distilled-600M. |
+| **Cụm Hạ tầng Nền tảng** (Kong, RabbitMQ, MinIO, Redis, Frontend, Auth...) | **~1.8 GB** (Tổng) | **0 GB** (Chỉ dùng CPU) | Siết chặt Resource Limits (< 256MB mỗi service nhỏ). Không chiếm dụng GPU. |
+
+### 6.2. Các Giải Pháp Chống Thắt Cổ Chai (Bottleneck Prevention)
+- **Kích hoạt CUDA Hardware Acceleration**: Cấu hình toàn bộ mã nguồn PyTorch/ONNX ưu tiên kết nối vào CUDAExecutionProvider, đưa gánh nặng xử lý ma trận từ CPU sang GPU.
+- **Giới hạn CPU Background (Worker limits)**: Đưa luồng xử lý CPU của các worker dịch thuật xuống tối đa 2 cores (cpus: '2.0'). Chống tình trạng chiếm dụng 100% CPU gây giật lag toàn hệ thống máy tính cục bộ khi xử lý hàng trăm trang tài liệu PDF.

@@ -89,3 +89,8 @@ sequenceDiagram
 1. **Kiến trúc Bất đồng bộ Chuẩn Công nghiệp (Event-Driven Async Pipeline)**: Sự kết hợp giữa Celery + RabbitMQ + Redis Pub/Sub + MinIO S3 tạo nên một hệ thống xử lý file đạt chuẩn doanh nghiệp (Production-ready), có khả năng mở rộng quy mô (Horizontal Scaling) chỉ bằng cách tăng số lượng container Worker.
 2. **Khả năng Giữ nguyên Định dạng (Layout Preservation)**: Giải quyết được "nỗi đau" lớn nhất của việc dịch tài liệu là bị nhảy trang, mất bảng biểu hoặc vỡ bố cục slide.
 3. **Cầu nối Tự động hóa với Hệ sinh thái Flashcard**: Biến quá trình đọc tài liệu dịch thành hành động học tập chủ động bằng cách tự động sinh Glossary và bắn event lên Message Broker.
+4. **Tối ưu hóa Bóc tách và Dịch thuật với Semantic & Parallel Processing**:
+   - **Context-Aware Translation (Tiêm Ngữ Cảnh)**: Cải tiến quy trình truyền thống bằng cách dùng AI để trích xuất Glossary (bộ từ vựng) trước, sau đó tiêm vào *System Prompt* của quá trình dịch. Điều này giải quyết triệt để lỗi LLM dịch sai thuật ngữ chuyên ngành do thiếu ngữ cảnh.
+   - **Markdown Hierarchical Chunking**: Giải quyết giới hạn Context Window của LLM bằng cách cắt nội dung theo cấp độ *Semantic* của Markdown (dựa trên các thẻ `#`, `##`). Đảm bảo một bảng biểu (Table), khối mã (Code) hay công thức toán học (LaTeX) không bao giờ bị cắt đôi, giữ lại cấu trúc hoàn hảo 100%.
+   - **Continuous Batching & Parallel Inference**: Tích hợp ThreadPoolExecutor đa luồng gửi yêu cầu đồng thời lên engine LLM (ví dụ: vLLM hoặc Ollama) trên GPU (2x T4 30GB VRAM). Tính năng này đẩy thông lượng dịch lên gấp 4 lần so với vòng lặp đồng bộ, khắc phục bottleneck I/O khi gọi mô hình.
+

@@ -1,9 +1,24 @@
 import os
-from typing import Optional
+from typing import Optional, Tuple
 import docx
 from pptx import Presentation
-from app.services.ollama_translator import call_ollama_generate, OLLAMA_DEFAULT_MODEL
+from app.services.ollama_translator import call_ollama_generate, OLLAMA_DEFAULT_MODEL, SYSTEM_TRANSLATION_PROMPT
 from app.utils.logger import logger
+
+
+def set_paragraph_text_preserve_runs(para, new_text: str) -> None:
+    """
+    Gán text mới cho paragraph mà không xóa toàn bộ formatting của runs đầu tiên.
+    Cách tiếp cận: đặt text vào run đầu tiên và xóa nội dung các run còn lại.
+    Giúp bảo toàn font size, bold, italic, color của run đầu tiên trong paragraph.
+    """
+    if para.runs:
+        para.runs[0].text = new_text
+        for run in para.runs[1:]:
+            run.text = ""
+    else:
+        para.text = new_text
+
 
 def translate_single_text(
     text: str,
@@ -21,8 +36,9 @@ def translate_single_text(
         f"Chỉ trả về bản dịch, không giải thích thừa.\n\n"
         f"Text:\n{clean_text}"
     )
+    system_instr = SYSTEM_TRANSLATION_PROMPT.format(glossary_context="Không có")
     try:
-        translated = call_ollama_generate(prompt=prompt, model=model)
+        translated = call_ollama_generate(prompt=prompt, system_instruction=system_instr, model=model)
         return translated if translated else text
     except Exception as e:
         logger.warning(f"Lỗi dịch đoạn ngắn bằng Ollama ({e}), thử dùng Gemini API fallback...")
@@ -33,7 +49,6 @@ def translate_single_text(
             logger.error(f"Lỗi cả Gemini API fallback: {gemini_err}")
             return text
 
-from typing import Optional, Tuple
 
 def translate_docx_document(
     input_path: str,
@@ -44,8 +59,8 @@ def translate_docx_document(
 ) -> Tuple[str, str, str]:
     """
     Dịch file Microsoft Word (.docx) In-place:
-    - Duyệt qua doc.paragraphs, dịch các đoạn > 5 ký tự và gán lại para.text.
-    - Duyệt qua doc.tables, từng row, cell. Dịch cell.text và gán lại.
+    - Duyệt qua doc.paragraphs, dịch các đoạn > 5 ký tự và gán lại qua set_paragraph_text_preserve_runs().
+    - Duyệt qua doc.tables, từng row, cell. Dịch cell text và gán lại.
     - Trả về: (output_path, translated_markdown_text, raw_source_text)
     """
     logger.info(f"Bắt đầu dịch file Word .docx: {input_path} -> {output_path}")
@@ -54,7 +69,7 @@ def translate_docx_document(
     translated_lines = []
     source_lines = []
 
-    # 1. Dịch các đoạn văn (paragraphs)
+    # 1. Dịch các đoạn văn (paragraphs) — bảo toàn formatting của run đầu tiên
     for para in doc.paragraphs:
         raw = para.text.strip()
         if raw and len(raw) > 3:
@@ -62,7 +77,7 @@ def translate_docx_document(
             translated_text = translate_single_text(
                 raw, source_lang=source_lang, target_lang=target_lang, model=model
             )
-            para.text = translated_text
+            set_paragraph_text_preserve_runs(para, translated_text)
             translated_lines.append(translated_text)
 
     # 2. Dịch các bảng biểu (tables) giữ nguyên cấu trúc khung bảng (borders & layout)
@@ -77,7 +92,7 @@ def translate_docx_document(
                         translated_para = translate_single_text(
                             raw, source_lang=source_lang, target_lang=target_lang, model=model
                         )
-                        para.text = translated_para
+                        set_paragraph_text_preserve_runs(para, translated_para)
                         row_translated.append(translated_para)
             if row_translated:
                 translated_lines.append(" | ".join(row_translated))
@@ -90,6 +105,7 @@ def translate_docx_document(
     source_md = "\n\n".join(source_lines)
     return output_path, translated_md, source_md
 
+
 def translate_pptx_document(
     input_path: str,
     output_path: str,
@@ -100,7 +116,7 @@ def translate_pptx_document(
     """
     Dịch file Microsoft PowerPoint (.pptx) In-place:
     - Duyệt qua các slide -> shapes -> text_frame.
-    - Dịch paragraph.text và gán lại.
+    - Dịch paragraph.text và gán lại qua set_paragraph_text_preserve_runs().
     - Bật thuộc tính AutoFit (word_wrap = True) để chữ tiếng Việt dài không tràn khỏi box.
     - Trả về: (output_path, translated_markdown_text, raw_source_text)
     """
@@ -115,8 +131,8 @@ def translate_pptx_document(
         for shape in slide.shapes:
             if shape.has_text_frame:
                 text_frame = shape.text_frame
-                text_frame.word_wrap = True # AutoFit / word wrap
-                
+                text_frame.word_wrap = True  # AutoFit / word wrap
+
                 for para in text_frame.paragraphs:
                     raw = para.text.strip()
                     if raw and len(raw) > 2:
@@ -124,7 +140,7 @@ def translate_pptx_document(
                         translated_text = translate_single_text(
                             raw, source_lang=source_lang, target_lang=target_lang, model=model
                         )
-                        para.text = translated_text
+                        set_paragraph_text_preserve_runs(para, translated_text)
                         slide_texts.append(f"- {translated_text.strip()}")
         
         if slide_texts:

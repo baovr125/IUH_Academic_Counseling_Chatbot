@@ -27,6 +27,24 @@ export function useFlashcardAudio() {
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioCache = useRef<Map<string, string>>(new Map());
+  const playbackSessionRef = useRef<number>(0);
+
+  // Deep teardown of any active HTML5 audio and browser speech synthesis
+  const cleanupCurrentAudio = useCallback(() => {
+    if (audioRef.current) {
+      audioRef.current.onended = null;
+      audioRef.current.onerror = null;
+      audioRef.current.oncanplay = null;
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      audioRef.current.removeAttribute("src");
+      audioRef.current.load();
+      audioRef.current = null;
+    }
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+    }
+  }, []);
 
   // Prefetch audio and cache as in-memory Blob URL for zero-latency instant playback
   const prefetchAudio = useCallback(async (text?: string, lang: string = "en", phonetic?: string) => {
@@ -51,8 +69,10 @@ export function useFlashcardAudio() {
     }
   }, []);
 
-  const speakBrowserTTS = useCallback((text: string, lang: string) => {
-    if ("speechSynthesis" in window) {
+  const speakBrowserTTS = useCallback((text: string, lang: string, sessionId: number) => {
+    if (sessionId !== playbackSessionRef.current) return;
+
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(text);
       const targetLang = getTTSLangCode(lang);
@@ -66,34 +86,57 @@ export function useFlashcardAudio() {
         utterance.voice = voice;
       }
 
-      utterance.onend = () => setIsPlayingAudio(false);
-      utterance.onerror = () => setIsPlayingAudio(false);
+      utterance.onend = () => {
+        if (playbackSessionRef.current === sessionId) {
+          setIsPlayingAudio(false);
+        }
+      };
+      utterance.onerror = () => {
+        if (playbackSessionRef.current === sessionId) {
+          setIsPlayingAudio(false);
+        }
+      };
       window.speechSynthesis.speak(utterance);
     } else {
-      setIsPlayingAudio(false);
+      if (playbackSessionRef.current === sessionId) {
+        setIsPlayingAudio(false);
+      }
     }
   }, []);
 
-  const playFlashcardServiceTTSFallback = useCallback((text: string, ttsLang: string) => {
+  const playFlashcardServiceTTSFallback = useCallback((text: string, ttsLang: string, sessionId: number) => {
+    if (sessionId !== playbackSessionRef.current) return;
+
     const baseUrl = getApiBaseUrl();
     const fallbackUrl = `${baseUrl}/api/v1/flashcards/tts?text=${encodeURIComponent(text)}&lang=${encodeURIComponent(ttsLang)}`;
     const fallbackAudio = new Audio(fallbackUrl);
     audioRef.current = fallbackAudio;
-    fallbackAudio.play().then(() => {
-      fallbackAudio.onended = () => setIsPlayingAudio(false);
-    }).catch(() => {
-      speakBrowserTTS(text, ttsLang);
-      setIsPlayingAudio(false);
-    });
-    fallbackAudio.onerror = () => {
-      speakBrowserTTS(text, ttsLang);
-      setIsPlayingAudio(false);
+
+    fallbackAudio.onended = () => {
+      if (playbackSessionRef.current === sessionId) {
+        setIsPlayingAudio(false);
+      }
     };
+    fallbackAudio.onerror = () => {
+      if (playbackSessionRef.current === sessionId) {
+        speakBrowserTTS(text, ttsLang, sessionId);
+      }
+    };
+
+    fallbackAudio.play().catch((err: any) => {
+      if (err?.name === "AbortError" || playbackSessionRef.current !== sessionId) {
+        // User interrupted playback with another click; do not trigger fallback cascade
+        return;
+      }
+      speakBrowserTTS(text, ttsLang, sessionId);
+    });
   }, [speakBrowserTTS]);
 
-  const playStreamNeuralTTS = useCallback((text: string, ttsLang: string, phonetic?: string) => {
+  const playStreamNeuralTTS = useCallback((text: string, ttsLang: string, phonetic: string | undefined, sessionId: number) => {
     if (!text) {
-      setIsPlayingAudio(false);
+      if (playbackSessionRef.current === sessionId) {
+        setIsPlayingAudio(false);
+      }
       return;
     }
     const cacheKey = `${ttsLang}_${text}_${phonetic || ""}`;
@@ -104,25 +147,36 @@ export function useFlashcardAudio() {
 
     const audio = new Audio(ttsUrl);
     audioRef.current = audio;
+
+    audio.onended = () => {
+      if (playbackSessionRef.current === sessionId) {
+        setIsPlayingAudio(false);
+      }
+    };
+
+    audio.onerror = () => {
+      if (playbackSessionRef.current === sessionId) {
+        playFlashcardServiceTTSFallback(text, ttsLang, sessionId);
+      }
+    };
+
     audio.play().then(() => {
-      audio.onended = () => setIsPlayingAudio(false);
-      if (!cachedBlobUrl) {
+      if (playbackSessionRef.current === sessionId && !cachedBlobUrl) {
         prefetchAudio(text, ttsLang, phonetic);
       }
-    }).catch(() => {
-      playFlashcardServiceTTSFallback(text, ttsLang);
+    }).catch((err: any) => {
+      if (err?.name === "AbortError" || playbackSessionRef.current !== sessionId) {
+        // User interrupted playback with another click; do not trigger fallback cascade
+        return;
+      }
+      playFlashcardServiceTTSFallback(text, ttsLang, sessionId);
     });
-    audio.onerror = () => {
-      playFlashcardServiceTTSFallback(text, ttsLang);
-    };
   }, [playFlashcardServiceTTSFallback, prefetchAudio]);
 
   // Play Audio Pronunciation (Studio-quality Neural Voice via Backend TTS with IPA SSML support)
   const playAudio = useCallback((audioUrl?: string, text?: string, lang: string = "en", phonetic?: string) => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current = null;
-    }
+    cleanupCurrentAudio();
+    const sessionId = ++playbackSessionRef.current;
     setIsPlayingAudio(true);
 
     const targetText = (text || "").trim();
@@ -131,7 +185,7 @@ export function useFlashcardAudio() {
 
     // Priority 1: High-precision Microsoft Neural TTS stream (instant 0ms from Blob Cache or backend endpoint)
     if (targetText) {
-      playStreamNeuralTTS(targetText, ttsLang, phonetic);
+      playStreamNeuralTTS(targetText, ttsLang, phonetic, sessionId);
       return;
     }
 
@@ -142,37 +196,43 @@ export function useFlashcardAudio() {
         : `${baseUrl}${audioUrl.startsWith("/") ? "" : "/"}${audioUrl}`;
       const audio = new Audio(fullUrl);
       audioRef.current = audio;
-      audio.play().then(() => {
-        audio.onended = () => setIsPlayingAudio(false);
-      }).catch(() => {
+
+      audio.onended = () => {
+        if (playbackSessionRef.current === sessionId) {
+          setIsPlayingAudio(false);
+        }
+      };
+      audio.onerror = () => {
+        if (playbackSessionRef.current === sessionId) {
+          setIsPlayingAudio(false);
+        }
+      };
+
+      audio.play().catch((err: any) => {
+        if (err?.name === "AbortError" || playbackSessionRef.current !== sessionId) {
+          return;
+        }
         setIsPlayingAudio(false);
       });
-      audio.onerror = () => {
-        setIsPlayingAudio(false);
-      };
       return;
     }
 
     setIsPlayingAudio(false);
-  }, [playStreamNeuralTTS]);
+  }, [cleanupCurrentAudio, playStreamNeuralTTS]);
 
   const stopAudio = useCallback(() => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current = null;
-    }
+    playbackSessionRef.current++;
+    cleanupCurrentAudio();
     setIsPlayingAudio(false);
-  }, []);
+  }, [cleanupCurrentAudio]);
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
+      playbackSessionRef.current++;
+      cleanupCurrentAudio();
     };
-  }, []);
+  }, [cleanupCurrentAudio]);
 
   return {
     isPlayingAudio,
