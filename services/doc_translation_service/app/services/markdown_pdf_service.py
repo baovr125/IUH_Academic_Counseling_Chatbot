@@ -21,24 +21,60 @@ def extract_pdf_to_markdown(pdf_path: str, doc_id: str) -> tuple[str, str]:
         raise e
 
 TABLE_CSS = """
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    padding: 10px;
+}
 table {
     width: 100%;
     border-collapse: collapse;
-    margin: 15px 0;
-    font-size: 10pt;
+    margin: 20px 0;
+    font-size: 11pt;
+    page-break-inside: auto;
+}
+tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+}
+thead {
+    display: table-header-group;
 }
 th, td {
-    border: 1px solid #666666;
-    padding: 6px 8px;
+    border: 1px solid #d1d5db;
+    padding: 10px 12px;
     text-align: left;
     vertical-align: top;
+    word-wrap: break-word;
 }
 th {
-    background-color: #eef2f7;
-    font-weight: bold;
+    background-color: #f3f4f6;
+    font-weight: 600;
+    color: #1f2937;
+    border-bottom: 2px solid #9ca3af;
 }
 tr:nth-child(even) {
     background-color: #f9fafb;
+}
+img {
+    max-width: 100%;
+    height: auto;
+    margin: 15px 0;
+    page-break-inside: avoid;
+}
+code {
+    background-color: #f3f4f6;
+    padding: 2px 5px;
+    border-radius: 4px;
+    font-family: monospace;
+}
+pre {
+    background-color: #f8f9fa;
+    padding: 12px;
+    border-radius: 6px;
+    overflow-x: auto;
+    page-break-inside: avoid;
 }
 """
 

@@ -9,6 +9,12 @@ from typing import List, Optional
 import json
 import redis.asyncio as redis
 from cachetools import TTLCache
+import warnings
+
+# Suppress ONNX Runtime TensorRT provider warnings (TensorRT not installed)
+os.environ.setdefault("ORT_LOGGING_LEVEL_SEVERITY", "3")  # ERROR only
+warnings.filterwarnings("ignore", message=".*TensorRT.*")
+warnings.filterwarnings("ignore", message=".*libnvinfer.*")
 
 _redis_client = None
 
@@ -75,7 +81,11 @@ def get_embedder():
             import os
             if os.path.exists(os.path.join(onnx_path, "onnx", "model.onnx")):
                 logger.info(f"Loading Bi-Encoder model (ONNX Optimized) from {onnx_path} on {dev}")
-                model_kwargs = {"provider": "CUDAExecutionProvider"} if dev == "cuda" else {}
+                # Explicitly set providers to avoid TensorRT lookup
+                if dev == "cuda":
+                    model_kwargs = {"provider": "CUDAExecutionProvider"}
+                else:
+                    model_kwargs = {"provider": "CPUExecutionProvider"}
                 _embedder_model = SentenceTransformer(onnx_path, backend="onnx", model_kwargs=model_kwargs)
             else:
                 logger.info(f"Loading Bi-Encoder model (PyTorch) on device: {dev}")
@@ -98,7 +108,11 @@ def get_reranker():
             import os
             if os.path.exists(os.path.join(onnx_path, "onnx", "model.onnx")):
                 logger.info(f"Loading Cross-Encoder model (ONNX Optimized) from {onnx_path} on {dev}")
-                model_kwargs = {"provider": "CUDAExecutionProvider"} if dev == "cuda" else {}
+                # Explicitly set providers to avoid TensorRT lookup
+                if dev == "cuda":
+                    model_kwargs = {"provider": "CUDAExecutionProvider"}
+                else:
+                    model_kwargs = {"provider": "CPUExecutionProvider"}
                 _reranker_model = CrossEncoder(onnx_path, backend="onnx", model_kwargs=model_kwargs)
             else:
                 logger.info(f"Loading Cross-Encoder model (PyTorch) on device: {dev}")

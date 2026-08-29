@@ -1,10 +1,16 @@
 from pydantic import BaseModel, Field
 from typing import Optional, List, Dict, Any
 
+
 class GlossaryTerm(BaseModel):
     term: str = Field(..., description="Từ gốc tiếng Anh/ngôn ngữ nguồn")
-    vi: str = Field(..., description="Nghĩa dịch chuẩn tiếng Việt theo học vụ IUH")
+    vi: Optional[str] = Field(None, description="Nghĩa dịch tiếng Việt theo học vụ IUH")
+    translation: Optional[str] = Field(None, description="Nghĩa dịch chuẩn")
     context: Optional[str] = Field(None, description="Ngữ cảnh/Giải thích thêm")
+    phonetic: Optional[str] = Field(None, description="Phiên âm quốc tế")
+    audio_url: Optional[str] = Field(None, description="URL âm thanh phát âm")
+    lang_code: Optional[str] = Field(None, description="Mã ngôn ngữ nguồn")
+
 
 class DocumentUploadResponse(BaseModel):
     doc_id: str
@@ -12,6 +18,7 @@ class DocumentUploadResponse(BaseModel):
     file_type: str
     status: str = Field("processing", description="Trạng thái khởi tạo: processing")
     message: str
+
 
 class DocumentStatusResponse(BaseModel):
     doc_id: str
@@ -27,18 +34,6 @@ class DocumentStatusResponse(BaseModel):
     model_used: Optional[str] = None
     error: Optional[str] = None
 
-class CitationItem(BaseModel):
-    page: int
-    snippet: str
-    score: Optional[float] = None
-
-class DocumentQueryRequest(BaseModel):
-    query: str = Field(..., min_length=1, max_length=2000)
-
-class DocumentQueryResponse(BaseModel):
-    doc_id: str
-    answer: str
-    citations: List[CitationItem] = []
 
 class ApiResult(BaseModel):
     ok: bool

@@ -107,34 +107,82 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
     }
   };
 
-  // Neural Edge TTS from Backend
-  const speakText = async (text: string, lang: string = "vi-VN", id: "source" | "target" | "selection") => {
-    if (!text) return;
-    
-    // Stop currently playing audio
+  const playbackSessionRef = useRef<number>(0);
+
+  // Deep teardown of any active HTML5 audio and browser speech synthesis
+  const cleanupCurrentAudio = () => {
     if (audioRef.current) {
+      audioRef.current.onended = null;
+      audioRef.current.onerror = null;
+      audioRef.current.oncanplay = null;
       audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      audioRef.current.removeAttribute("src");
+      audioRef.current.load();
       audioRef.current = null;
     }
-    
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+    }
+  };
+
+  // Cleanup audio on unmount
+  useEffect(() => {
+    return () => {
+      playbackSessionRef.current++;
+      cleanupCurrentAudio();
+    };
+  }, []);
+
+  // Neural Edge TTS from Backend with Toggle-to-stop & Spam Protection
+  const speakText = async (text: string, lang: string = "vi-VN", id: "source" | "target" | "selection") => {
+    if (!text || !text.trim()) return;
+
+    // Toggle behavior: if currently speaking this specific section, stop it
+    if (speakingId === id) {
+      playbackSessionRef.current++;
+      cleanupCurrentAudio();
+      setSpeakingId(null);
+      return;
+    }
+
+    // Stop currently playing audio cleanly
+    cleanupCurrentAudio();
+    const sessionId = ++playbackSessionRef.current;
     setSpeakingId(id);
-    const cacheKey = `${lang}_${text}`;
-    
+
+    const cacheKey = `${lang}_${text.trim()}`;
     let audioUrl = audioCache.current.get(cacheKey);
     const baseUrl = getApiBaseUrl();
-    
+
     if (!audioUrl) {
-       audioUrl = `${baseUrl}/api/v1/translate/tts?text=${encodeURIComponent(text)}&lang=${lang}`;
+      audioUrl = `${baseUrl}/api/v1/translate/tts?text=${encodeURIComponent(text.trim())}&lang=${encodeURIComponent(lang)}`;
     }
 
     const audio = new Audio(audioUrl);
     audioRef.current = audio;
-    
-    audio.onended = () => setSpeakingId(null);
-    audio.onerror = () => setSpeakingId(null);
-    audio.play().catch(e => {
-       console.error("TTS Play Error:", e);
-       setSpeakingId(null);
+
+    audio.onended = () => {
+      if (playbackSessionRef.current === sessionId) {
+        setSpeakingId(null);
+      }
+    };
+
+    audio.onerror = () => {
+      if (playbackSessionRef.current === sessionId) {
+        setSpeakingId(null);
+      }
+    };
+
+    audio.play().catch((e: any) => {
+      if (e?.name === "AbortError" || playbackSessionRef.current !== sessionId) {
+        // Interrupted by new click or pause, silently ignore
+        return;
+      }
+      console.error("TTS Play Error:", e);
+      if (playbackSessionRef.current === sessionId) {
+        setSpeakingId(null);
+      }
     });
   };
 

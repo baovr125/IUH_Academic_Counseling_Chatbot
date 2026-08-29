@@ -90,6 +90,9 @@ export default function DocumentTranslationPage() {
   // Extracted Glossary from real document processing
   const [glossary, setGlossary] = useState<GlossaryItem[]>([]);
   const [selectedGlossaryIndices, setSelectedGlossaryIndices] = useState<Set<number>>(new Set());
+  const [playingGlossaryTerm, setPlayingGlossaryTerm] = useState<string | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const playbackSessionRef = useRef<number>(0);
 
   // Deck Modal & Saving State
   const [isDeckModalOpen, setIsDeckModalOpen] = useState(false);
@@ -574,21 +577,103 @@ export default function DocumentTranslationPage() {
     }
   };
 
-  const playAudio = (text: string, langCode: string) => {
-    if (!text || !text.trim()) return;
-    const voiceLang = langCode === "en" ? "en-US" : (langCode === "vi" ? "vi-VN" : langCode);
-    const resolvedUrl = `${baseUrl}/api/v1/translate/tts?text=${encodeURIComponent(text.trim())}&lang=${voiceLang}`;
+  // Deep teardown of any active HTML5 audio and browser speech synthesis
+  const cleanupCurrentAudio = () => {
+    if (audioRef.current) {
+      audioRef.current.onended = null;
+      audioRef.current.onerror = null;
+      audioRef.current.oncanplay = null;
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      audioRef.current.removeAttribute("src");
+      audioRef.current.load();
+      audioRef.current = null;
+    }
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+    }
+  };
 
-    const audio = new Audio(resolvedUrl);
-    audio.play().catch((e) => {
-      console.warn("Audio playback error, trying Web Speech API fallback...", e);
+  // Cleanup audio on unmount
+  useEffect(() => {
+    return () => {
+      playbackSessionRef.current++;
+      cleanupCurrentAudio();
+    };
+  }, []);
+
+  const speakBrowserFallback = (text: string, voiceLang: string, sessionId: number) => {
+    if (playbackSessionRef.current !== sessionId) return;
+
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
       try {
+        window.speechSynthesis.cancel();
         const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = langCode === "en" ? "en-US" : langCode;
+        utterance.lang = voiceLang;
+        utterance.onend = () => {
+          if (playbackSessionRef.current === sessionId) {
+            setPlayingGlossaryTerm(null);
+          }
+        };
+        utterance.onerror = () => {
+          if (playbackSessionRef.current === sessionId) {
+            setPlayingGlossaryTerm(null);
+          }
+        };
         window.speechSynthesis.speak(utterance);
       } catch (err) {
         console.error("SpeechSynthesis fallback failed:", err);
+        if (playbackSessionRef.current === sessionId) {
+          setPlayingGlossaryTerm(null);
+        }
       }
+    } else {
+      if (playbackSessionRef.current === sessionId) {
+        setPlayingGlossaryTerm(null);
+      }
+    }
+  };
+
+  const playAudio = (text: string, langCode: string) => {
+    const trimmed = (text || "").trim();
+    if (!trimmed) return;
+
+    // Toggle behavior: if clicking the term currently playing, stop it
+    if (playingGlossaryTerm === trimmed) {
+      playbackSessionRef.current++;
+      cleanupCurrentAudio();
+      setPlayingGlossaryTerm(null);
+      return;
+    }
+
+    cleanupCurrentAudio();
+    const sessionId = ++playbackSessionRef.current;
+    setPlayingGlossaryTerm(trimmed);
+
+    const voiceLang = langCode === "en" ? "en-US" : (langCode === "vi" ? "vi-VN" : langCode);
+    const resolvedUrl = `${baseUrl}/api/v1/translate/tts?text=${encodeURIComponent(trimmed)}&lang=${voiceLang}`;
+
+    const audio = new Audio(resolvedUrl);
+    audioRef.current = audio;
+
+    audio.onended = () => {
+      if (playbackSessionRef.current === sessionId) {
+        setPlayingGlossaryTerm(null);
+      }
+    };
+
+    audio.onerror = () => {
+      if (playbackSessionRef.current === sessionId) {
+        speakBrowserFallback(trimmed, voiceLang, sessionId);
+      }
+    };
+
+    audio.play().catch((e: any) => {
+      if (e?.name === "AbortError" || playbackSessionRef.current !== sessionId) {
+        // User clicked another term or stopped playback; do not trigger fallback
+        return;
+      }
+      speakBrowserFallback(trimmed, voiceLang, sessionId);
     });
   };
 
@@ -779,7 +864,7 @@ export default function DocumentTranslationPage() {
               <div className="flex items-center gap-2">
                 <BookMarked size={18} className="text-indigo-600" />
                 <span className="text-xs font-bold text-slate-800">
-                  Từ Điển Thuật Ngữ IUH ({glossary.length})
+                  Glossary ({glossary.length})
                 </span>
                 {isExtractingGlossary && (
                   <span className="flex items-center gap-1 rounded-full bg-indigo-50 border border-indigo-200 px-2 py-0.5 text-[10px] font-bold text-indigo-700 animate-pulse">
@@ -856,8 +941,17 @@ export default function DocumentTranslationPage() {
                         </div>
                       </div>
                       
-                      <button onClick={(e) => { e.stopPropagation(); playAudio(g.term, sourceLang); }} className="text-blue-600 hover:text-blue-800 hover:bg-blue-100/80 p-1.5 rounded-full transition-colors shrink-0 flex items-center justify-center bg-blue-50/50 cursor-pointer" title="Phát âm">
-                        <Volume2 size={15} />
+                      <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); playAudio(g.term, sourceLang); }}
+                        className={`p-1.5 rounded-full transition-colors shrink-0 flex items-center justify-center cursor-pointer ${
+                          playingGlossaryTerm === g.term
+                            ? "text-blue-700 bg-blue-100 shadow-inner"
+                            : "text-blue-600 hover:text-blue-800 hover:bg-blue-100/80 bg-blue-50/50"
+                        }`}
+                        title={playingGlossaryTerm === g.term ? "Dừng phát âm" : "Phát âm"}
+                      >
+                        <Volume2 size={15} className={playingGlossaryTerm === g.term ? "animate-pulse text-blue-700" : ""} />
                       </button>
                     </div>
                     
