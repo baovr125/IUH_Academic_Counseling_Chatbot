@@ -169,7 +169,7 @@ export default function DocumentTranslationPage() {
           if (data.activeTab) setActiveTab(data.activeTab);
 
           // Fetch fresh state from backend
-          const baseUrl = (import.meta as any).env.VITE_API_BASE_URL || "http://localhost:8000";
+          const baseUrl = (import.meta as any).env.VITE_API_BASE_URL || "";
           const token = getToken();
           const headers: Record<string, string> = {};
           if (token) headers["Authorization"] = `Bearer ${token}`;
@@ -280,7 +280,7 @@ export default function DocumentTranslationPage() {
       formData.append("source_lang", sourceLang);
       formData.append("target_lang", targetLang);
 
-      const baseUrl = (import.meta as any).env.VITE_API_BASE_URL || "http://localhost:8000";
+      const baseUrl = (import.meta as any).env.VITE_API_BASE_URL || "";
       const token = getToken();
       
       const headers = new Headers();
@@ -418,7 +418,7 @@ export default function DocumentTranslationPage() {
     }
   };
 
-  const baseUrl = (import.meta as any).env.VITE_API_BASE_URL || "http://localhost:8000";
+  const baseUrl = (import.meta as any).env.VITE_API_BASE_URL || "";
   const token = getToken();
   const pdfUrl = docId ? `${baseUrl}/api/v1/documents/${docId}/download${token ? `?token=${token}` : ""}` : "";
 

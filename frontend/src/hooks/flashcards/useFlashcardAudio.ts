@@ -19,7 +19,7 @@ export const getTTSLangCode = (langCode?: string): string => {
 
 export const getApiBaseUrl = (): string => {
   const env = (import.meta as any).env || {};
-  const base = env.VITE_API_BASE_URL !== undefined ? env.VITE_API_BASE_URL : "http://localhost:8000";
+  const base = env.VITE_API_BASE_URL !== undefined ? env.VITE_API_BASE_URL : "";
   return String(base).replace(/\/+$/, "");
 };
 
