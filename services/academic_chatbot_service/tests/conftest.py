@@ -8,6 +8,8 @@ service_root = Path(__file__).resolve().parent.parent
 if str(service_root) not in sys.path:
     sys.path.insert(0, str(service_root))
 
+os.environ["USE_TF"] = "0"
+os.environ["USE_TORCH"] = "1"
 os.environ["SUPABASE_URL"] = "https://mock-supabase.test"
 os.environ["SUPABASE_KEY"] = "mock-key-test"
 os.environ["GEMINI_API_KEY"] = "mock-gemini-key"

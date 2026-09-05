@@ -16,7 +16,7 @@ from app.utils.logger import logger
 from app.utils.minio_client import upload_file_stream, object_exists, get_object_stream, get_presigned_url
 from app.utils.security import get_current_user_id, get_optional_user_id
 
-router = APIRouter(tags=["Document Translation & RAG Service"])
+router = APIRouter(tags=["Document Translation Service"])
 
 @router.post("/upload", status_code=status.HTTP_202_ACCEPTED)
 async def upload_document(

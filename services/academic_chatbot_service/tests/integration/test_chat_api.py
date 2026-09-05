@@ -16,7 +16,7 @@ class TestAcademicChatbotApiIntegration:
         assert res.json()["ok"] is True
 
     def test_get_sessions_empty_when_no_database_connection(self, client):
-        with patch("app.routers.chat.get_supabase_client") as mock_sb:
+        with patch("app.routers.sessions.get_supabase_client") as mock_sb:
             mock_sb.return_value = None
             res = client.get("/api/chat/sessions")
             assert res.status_code == 200
@@ -25,7 +25,7 @@ class TestAcademicChatbotApiIntegration:
             assert data["data"] == []
 
     def test_get_sessions_returns_conversation_list(self, client):
-        with patch("app.routers.chat.get_supabase_client") as mock_sb:
+        with patch("app.routers.sessions.get_supabase_client") as mock_sb:
             mock_client = MagicMock()
             mock_table = MagicMock()
             mock_query = MagicMock()
@@ -50,7 +50,7 @@ class TestAcademicChatbotApiIntegration:
             assert data["data"][0]["title"] == "Tư vấn đăng ký môn học"
 
     def test_get_session_messages(self, client):
-        with patch("app.routers.chat.get_supabase_client") as mock_sb:
+        with patch("app.routers.sessions.get_supabase_client") as mock_sb:
             mock_client = MagicMock()
             mock_table = MagicMock()
             mock_query = MagicMock()

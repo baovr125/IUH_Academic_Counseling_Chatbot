@@ -79,6 +79,10 @@ services:
     read_timeout: 600000
     write_timeout: 600000
     routes:
+      - name: admin-routes
+        paths:
+          - /api/admin
+        strip_path: false
       - name: chat-routes
         paths:
           - /api/v1/chat

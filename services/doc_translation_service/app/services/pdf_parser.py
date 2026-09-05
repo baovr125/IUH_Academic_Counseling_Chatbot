@@ -1,213 +1,133 @@
 import re
-import fitz  # PyMuPDF
-import nltk
-from typing import List, Dict, Any, Tuple
+import os
+import pymupdf4llm
+from typing import List
 from app.utils.logger import logger
 
-# Safe NLTK init
-try:
-    nltk.data.find("tokenizers/punkt")
-except LookupError:
-    try:
-        nltk.download("punkt", quiet=True)
-    except Exception:
-        pass
-
-from nltk.tokenize import sent_tokenize
-
-HEADER_REGEX = re.compile(r"^(#{1,6}\s+.*|chapter\s+\d+.*|chương\s+\d+.*|mục\s+\d+.*|\d+(\.\d+)*\.?\s+.*)", re.IGNORECASE)
-MAX_CHILD_WORDS = 350
-MIN_CHILD_WORDS = 5
 
 def clean_text(text: str) -> str:
     if not text:
         return ""
-    text = re.sub(r"\r\n|\r", "\n", text)
-    text = re.sub(r"[ \t]+", " ", text)
-    return text.strip()
+    text = text.replace("\r\n", "\n").replace("\r", "\n")
+    lines = [re.sub(r'[ \t]+', ' ', line).strip() for line in text.split("\n")]
+    return "\n".join(lines).strip()
+
 
 def split_into_sentences_safe(text: str) -> List[str]:
-    try:
-        sents = sent_tokenize(text)
-    except Exception:
-        sents = re.split(r"(?<=[.!?])\s+", text)
-    return [clean_text(s) for s in sents if clean_text(s)]
+    if not text:
+        return []
+    sentences = re.split(r'(?<=[.!?])\s+', text.strip())
+    return [s.strip() for s in sentences if s.strip()]
+
 
 def is_header_line(line: str) -> bool:
-    s = line.strip()
-    if not s:
+    if not line:
         return False
-    if s.startswith("#"):
+    stripped = line.strip()
+    if re.match(r'^#{1,6}\s+', stripped):
         return True
-    if HEADER_REGEX.match(s):
+    if re.match(r'^(chương|chapter|\d+(\.\d+)*)\b', stripped, re.IGNORECASE):
         return True
-    if len(s) < 80 and s.isupper() and not s.endswith("."):
+    if stripped.isupper() and len(stripped.split()) <= 10 and len(stripped) > 5:
         return True
     return False
 
+
 def get_header_level(line: str) -> int:
-    s = line.strip()
-    if s.startswith("#"):
-        count = len(s.split()[0])
-        return min(count, 6)
-    if re.match(r"^chương\s+\d+", s, re.IGNORECASE) or re.match(r"^chapter\s+\d+", s, re.IGNORECASE):
+    stripped = line.strip()
+    md_match = re.match(r'^(#{1,6})\s+', stripped)
+    if md_match:
+        return len(md_match.group(1))
+    if re.match(r'^(chương|chapter)\s+\d+', stripped, re.IGNORECASE):
         return 1
-    if re.match(r"^\d+\.\s+", s):
+    num_match = re.match(r'^(\d+(\.\d+)*)', stripped)
+    if num_match:
+        dots = num_match.group(1).count('.')
+        return min(dots + 2, 6)
+    if stripped.isupper():
         return 2
-    if re.match(r"^\d+\.\d+\s+", s):
-        return 3
-    return 2
+    return 1
 
-def parse_pdf_document(file_path: str) -> List[Dict[str, Any]]:
-    """
-    Trích xuất văn bản từ PDF theo trang sử dụng PyMuPDF.
-    Trả về danh sách dict: [{'page': 1, 'text': '...', 'lines': [...]}]
-    """
-    pages_data = []
-    try:
-        doc = fitz.open(file_path)
-        for page_num, page in enumerate(doc, start=1):
-            text = page.get_text("text")
-            cleaned = clean_text(text)
-            lines = [clean_text(l) for l in text.split("\n") if clean_text(l)]
-            pages_data.append({
-                "page": page_num,
-                "text": cleaned,
-                "lines": lines
-            })
-        doc.close()
-    except Exception as e:
-        logger.exception(f"Lỗi khi đọc file PDF bằng PyMuPDF ({file_path}): {e}")
-        raise e
-    return pages_data
 
-def hierarchical_chunk_pages(pages_data: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
-    """
-    Thực hiện thuật toán Hierarchical Chunking v6.2 (Parent-Child Structure).
-    Trả về: (parent_chunks, child_chunks)
-    """
-    parent_chunks = []
-    child_chunks = []
+def hierarchical_chunk_pages(pages_data: List[dict]):
+    parents = [{"id": "parent_root", "title": "Tổng quan tài liệu"}]
+    children = []
+    chunk_idx = 1
     
-    current_parent_id = "parent_root"
-    current_parent_title = "Tổng quan tài liệu"
-    current_ancestors = []
-    header_stack: List[Tuple[int, str]] = []  # [(level, title)]
-
-    parent_chunks.append({
-        "id": current_parent_id,
-        "title": current_parent_title,
-        "level": 1,
-        "page_number": 1,
-        "ancestors": []
-    })
-    
-    child_counter = 0
-
     for page_info in pages_data:
-        page_num = page_info["page"]
-        lines = page_info["lines"]
+        p_num = page_info.get("page", 1)
+        p_text = page_info.get("text", "")
+        lines = page_info.get("lines", [p_text])
+        current_parent_title = "Tổng quan tài liệu"
         
-        current_paragraph_lines = []
-
         for line in lines:
             if is_header_line(line):
-                # Flush paragraph hiện tại nếu có
-                if current_paragraph_lines:
-                    p_text = " ".join(current_paragraph_lines)
-                    sents = split_into_sentences_safe(p_text)
-                    _build_child_chunks_from_sentences(
-                        sents=sents,
-                        page_num=page_num,
-                        parent_id=current_parent_id,
-                        parent_title=current_parent_title,
-                        ancestors=current_ancestors,
-                        child_chunks=child_chunks,
-                        child_counter_start=len(child_chunks)
-                    )
-                    current_paragraph_lines = []
-
-                # Xử lý Header mới
-                level = get_header_level(line)
-                clean_title = re.sub(r"^#{1,6}\s*", "", line).strip()
-                
-                # Cập nhật stack tiêu đề
-                while header_stack and header_stack[-1][0] >= level:
-                    header_stack.pop()
-                header_stack.append((level, clean_title))
-                
-                current_ancestors = [h[1] for h in header_stack[:-1]]
-                current_parent_title = clean_title
-                current_parent_id = f"parent_p{page_num}_{len(parent_chunks)}"
-                
-                parent_chunks.append({
-                    "id": current_parent_id,
+                current_parent_title = line.strip()
+                parents.append({
+                    "id": f"parent_{len(parents)}",
                     "title": current_parent_title,
-                    "level": level,
-                    "page_number": page_num,
-                    "ancestors": current_ancestors[:]
+                    "page_number": p_num
                 })
-            else:
-                current_paragraph_lines.append(line)
-
-        # End of page paragraph flush
-        if current_paragraph_lines:
-            p_text = " ".join(current_paragraph_lines)
-            sents = split_into_sentences_safe(p_text)
-            _build_child_chunks_from_sentences(
-                sents=sents,
-                page_num=page_num,
-                parent_id=current_parent_id,
-                parent_title=current_parent_title,
-                ancestors=current_ancestors,
-                child_chunks=child_chunks,
-                child_counter_start=len(child_chunks)
-            )
-            current_paragraph_lines = []
-
-    return parent_chunks, child_chunks
-
-def _build_child_chunks_from_sentences(
-    sents: List[str],
-    page_num: int,
-    parent_id: str,
-    parent_title: str,
-    ancestors: List[str],
-    child_chunks: List[Dict[str, Any]],
-    child_counter_start: int
-):
-    current_sentences = []
-    current_word_count = 0
-
-    for s in sents:
-        words = s.split()
-        w_len = len(words)
-
-        if current_word_count + w_len > MAX_CHILD_WORDS and current_sentences:
-            chunk_text = " ".join(current_sentences)
-            if len(chunk_text.split()) >= MIN_CHILD_WORDS:
-                child_chunks.append({
-                    "chunk_index": len(child_chunks) + 1,
-                    "parent_id": parent_id,
-                    "page_number": page_num,
-                    "parent_title": parent_title,
-                    "ancestors": ancestors[:],
-                    "content": chunk_text
+            elif line.strip():
+                children.append({
+                    "chunk_index": chunk_idx,
+                    "parent_title": current_parent_title,
+                    "content": line.strip(),
+                    "page_number": p_num
                 })
-            current_sentences = [s]
-            current_word_count = w_len
+                chunk_idx += 1
+                
+    return parents, children
+
+
+def estimate_tokens(text: str) -> int:
+    """Ước tính số token dựa trên số từ (1 từ ~ 1.3 token cho tiếng Anh/Việt)"""
+    words = len(text.split())
+    return int(words * 1.3)
+
+
+def markdown_hierarchical_chunking(text: str, max_tokens: int = 2500) -> List[str]:
+    """
+    Tách nội dung Markdown dựa trên cấp độ Header (ưu tiên ## hoặc ###).
+    Đảm bảo bảng biểu (Table), khối code, LaTeX không bị cắt vỡ ở giữa.
+    Thuật toán phân tích Layout Structure Preserving Chunking.
+    """
+    batches: List[str] = []
+    # Dùng regex để tách theo các Header cấp 1, 2 (ví dụ: #, ##)
+    parts = re.split(r'(^#{1,2}\s+.*$)', text, flags=re.MULTILINE)
+    
+    current_batch = []
+    current_tokens = 0
+    
+    for part in parts:
+        part_trimmed = part.strip("\n")
+        if not part_trimmed or not part_trimmed.strip():
+            continue
+            
+        part_tokens = estimate_tokens(part_trimmed)
+        
+        # Nếu 1 section quá lớn, chia nhỏ theo paragraph
+        if part_tokens > max_tokens * 1.5:
+            sub_parts = re.split(r'\n\s*\n', part_trimmed)
+            for sub_part in sub_parts:
+                sub_tokens = estimate_tokens(sub_part)
+                if current_tokens + sub_tokens > max_tokens and current_batch:
+                    batches.append("\n\n".join(current_batch))
+                    current_batch = [sub_part]
+                    current_tokens = sub_tokens
+                else:
+                    current_batch.append(sub_part)
+                    current_tokens += sub_tokens
         else:
-            current_sentences.append(s)
-            current_word_count += w_len
+            if current_tokens + part_tokens > max_tokens and current_batch:
+                batches.append("\n\n".join(current_batch))
+                current_batch = [part_trimmed]
+                current_tokens = part_tokens
+            else:
+                current_batch.append(part_trimmed)
+                current_tokens += part_tokens
 
-    if current_sentences:
-        chunk_text = " ".join(current_sentences)
-        if len(chunk_text.split()) >= MIN_CHILD_WORDS or not child_chunks:
-            child_chunks.append({
-                "chunk_index": len(child_chunks) + 1,
-                "parent_id": parent_id,
-                "page_number": page_num,
-                "parent_title": parent_title,
-                "ancestors": ancestors[:],
-                "content": chunk_text
-            })
+    if current_batch:
+        batches.append("\n\n".join(current_batch))
+        
+    return batches

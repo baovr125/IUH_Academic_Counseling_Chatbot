@@ -1,5 +1,6 @@
 import os
 from celery import Celery
+from celery.schedules import crontab
 
 # Load URLs from environment or use defaults
 REDIS_HOST = os.environ.get("REDIS_HOST", "localhost")
@@ -18,11 +19,10 @@ celery_app = Celery(
 )
 
 # Setup Celery Beat schedule for the cleanup task
-from celery.schedules import crontab
 celery_app.conf.beat_schedule = {
     "cleanup-old-files-every-day": {
         "task": "app.tasks.cleanup_worker.cleanup_old_files",
-        "schedule": crontab(hour=0, minute=0), # Run every day at midnight UTC
+        "schedule": crontab(hour=0, minute=0),  # Run every day at midnight UTC
     },
 }
 
@@ -32,5 +32,18 @@ celery_app.conf.update(
     result_serializer="json",
     timezone="UTC",
     enable_utc=True,
-    broker_connection_retry_on_startup=True
+    broker_connection_retry_on_startup=True,
+
+    # --- Task execution limits (tránh task bị treo vô thời hạn) ---
+    # Gửi SoftTimeLimitExceeded exception sau 10 phút để worker tự cleanup gracefully
+    task_soft_time_limit=600,
+    # Hard kill task sau 15 phút nếu vẫn chưa dừng
+    task_time_limit=900,
+
+    # --- Worker hygiene ---
+    # Restart worker sau 50 task để tránh memory leak tích lũy
+    worker_max_tasks_per_child=50,
+
+    # Global default: acknowledge task AFTER execution (không mất task khi worker crash)
+    task_acks_late=True,
 )

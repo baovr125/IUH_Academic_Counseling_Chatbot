@@ -43,59 +43,93 @@ def check_safety_and_jailbreak(query: str) -> Optional[str]:
             return REFUSAL_MESSAGE
     return None
 
-ACADEMIC_ABBREVIATIONS = [
-    (r"\bdkhp\b", "đăng ký học phần"),
-    (r"\bdkhc\b", "đăng ký học cải thiện"),
-    (r"\bdktc\b", "đăng ký tín chỉ"),
-    (r"\bgpa\b", "điểm trung bình tích lũy"),
-    (r"\btin chi\b", "tín chỉ"),
-    (r"\btinchi\b", "tín chỉ"),
-    (r"\bquy che\b", "quy chế"),
-    (r"\bquyche\b", "quy chế"),
-    (r"\bhoc phi\b", "học phí"),
-    (r"\bhocphi\b", "học phí"),
-    (r"\bhoc bong\b", "học bổng"),
-    (r"\bhocbong\b", "học bổng"),
-    (r"\bxet tot nghiep\b", "xét tốt nghiệp"),
-    (r"\btot nghiep\b", "tốt nghiệp"),
-    (r"\bsv\b", "sinh viên"),
-    (r"\bctdt\b", "chương trình đào tạo"),
-    (r"\bkhn\b", "kế hoạch năm"),
-    (r"\bclc\b", "chất lượng cao"),
-    (r"\bcntt\b", "công nghệ thông tin"),
-    (r"\bhp\b", "học phần"),
-    (r"\bbch\b", "ban chấp hành"),
-    (r"\bkcq\b", "khiếu nại kết quả"),
-    (r"\bktx\b", "ký túc xá"),
-]
 
-COMPILED_ABBREVIATION_REGEX = [(re.compile(pattern, re.IGNORECASE), replacement) for pattern, replacement in ACADEMIC_ABBREVIATIONS]
+import numpy as np
+import os
+from app.utils.logger import logger
 
-def normalize_academic_query(query: str) -> str:
+# Load the multi-domain centroids at startup
+CENTROID_PATH = os.path.join(os.path.dirname(__file__), "multi_domain_centroids.npz")
+try:
+    if os.path.exists(CENTROID_PATH):
+        npz_file = np.load(CENTROID_PATH)
+        ACADEMIC_CENTROIDS = {key: npz_file[key] for key in npz_file.files}
+    else:
+        logger.warning(f"File {CENTROID_PATH} not found. Fallback to passing all.")
+        ACADEMIC_CENTROIDS = {}
+except Exception as e:
+    logger.warning(f"Failed to load academic centroids: {e}. Semantic domain check will pass everything.")
+    ACADEMIC_CENTROIDS = {}
+
+ACADEMIC_ABBREVIATIONS = {
+    r"\bdkhp\b": "đăng ký học phần",
+    r"\bdkhc\b": "đăng ký học cải thiện",
+    r"\bdk\b": "đăng ký",
+    r"\bsv\b": "sinh viên",
+    r"\bcntt\b": "công nghệ thông tin",
+    r"\bgpa\b": "điểm trung bình tích lũy",
+    r"\btin chi\b": "tín chỉ",
+    r"\bxet tot nghiep\b": "xét tốt nghiệp",
+    r"\btot nghiep\b": "tốt nghiệp",
+    r"\bhoc phan\b": "học phần",
+    r"\bhoc lai\b": "học lại",
+}
+
+def normalize_academic_query(query: Optional[str]) -> Optional[str]:
     if not query:
         return query
-    cleaned = query
-    for pattern, replacement in COMPILED_ABBREVIATION_REGEX:
-        cleaned = pattern.sub(replacement, cleaned)
-    return cleaned
+    normalized = query
+    for pattern, replacement in ACADEMIC_ABBREVIATIONS.items():
+        normalized = re.sub(pattern, replacement, normalized, flags=re.IGNORECASE)
+    return normalized
 
-ACADEMIC_DOMAIN_KEYWORDS = [
-    "iuh", "học vụ", "tín chỉ", "học phần", "đăng ký", "học phí", "điểm", "gpa", "bảng điểm",
-    "học bổng", "tốt nghiệp", "quy chế", "biểu mẫu", "khoa", "ngành", "lớp", "giảng viên",
-    "chào", "chào bạn", "hello", "hi", "xin chào", "thời khóa biểu",
-    "thi", "bảo lưu", "rút môn", "hoãn thi", "xét", "chứng chỉ", "thực tập", "đồ án", "khóa luận"
+OFF_TOPIC_PATTERNS = [
+    r"(?i)\b(nấu phở|nấu ăn|công thức nấu|món ăn|làm bánh)\b",
+    r"(?i)\b(bitcoin|crypto|tiền ảo|đầu tư coin|chứng khoán)\b",
+    r"(?i)\b(hack game|liên quân|pubg|chơi game|tải game)\b",
+    r"(?i)\b(nhạc bolero|soạn nhạc|hát karaoke|bài hát)\b",
 ]
+COMPILED_OFF_TOPIC_REGEX = [re.compile(p) for p in OFF_TOPIC_PATTERNS]
 
-def evaluate_domain_relevance(query: str) -> Tuple[bool, Optional[str]]:
-    if not query or len(query.strip()) < 2:
+def evaluate_domain_relevance(query_text: str, query_embedding: list = None) -> Tuple[bool, Optional[str]]:
+    """
+    Evaluates if the user query is relevant to the IUH academic domain using multiple sub-centroids.
+    """
+    if not query_text or len(query_text.strip()) < 2:
         return True, None
-    lower_query = query.lower()
-    OFF_TOPIC_TRIGGERS = [
-        "nấu phở", "công thức nấu", "chứng khoán", "coin", "bitcoin", "crypto", "hack game",
-        "viết code game", "nấu ăn", "soạn nhạc", "tiểu thuyết"
-    ]
-    if any(t in lower_query for t in OFF_TOPIC_TRIGGERS):
+        
+    for pattern in COMPILED_OFF_TOPIC_REGEX:
+        if pattern.search(query_text):
+            return False, OFF_TOPIC_MESSAGE
+            
+    if not ACADEMIC_CENTROIDS or not query_embedding:
+        # Fallback if model/centroid fails
+        return True, None
+        
+    # Convert query embedding to numpy array
+    query_vec = np.array(query_embedding)
+    
+    # Normalize query vector just in case
+    norm = np.linalg.norm(query_vec)
+    if norm > 0:
+        query_vec = query_vec / norm
+        
+    # Calculate cosine similarity against all sub-centroids
+    max_similarity = -1.0
+    best_domain = "unknown"
+    
+    for domain, centroid in ACADEMIC_CENTROIDS.items():
+        sim = np.dot(query_vec, centroid)
+        if sim > max_similarity:
+            max_similarity = sim
+            best_domain = domain
+            
+    logger.info(f"Domain Similarity Score for '{query_text[:30]}...': {max_similarity:.4f} (Matched: {best_domain})")
+    
+    # Lowered threshold to 0.15 to reduce false positives for short queries or slang
+    if max_similarity < 0.15:
         return False, OFF_TOPIC_MESSAGE
+        
     return True, None
 
 def wrap_context_sandbox(chunks: list) -> str:

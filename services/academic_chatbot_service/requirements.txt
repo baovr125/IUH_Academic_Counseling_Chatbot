@@ -1,14 +1,42 @@
-fastapi>=0.110.0
-uvicorn[standard]>=0.28.0
+# ==========================================
+# 1. COMMON DEPENDENCIES
+# Used by both Chatbot API and Data Ingestion
+# ==========================================
 pydantic>=2.6.0
 pydantic-settings>=2.2.0
 supabase>=2.3.0
 google-genai>=0.1.1
-slowapi>=0.1.9
 python-json-logger>=2.0.7
 httpx>=0.27.0
 python-jose[cryptography]>=3.3.0
+sentence-transformers>=2.5.0
+onnxruntime-gpu==1.19.2
+optimum[onnxruntime-gpu]>=1.17.0
+transformers<4.45.0
+
+# ==========================================
+# 2. CHATBOT SERVICE DEPENDENCIES
+# Core API and Caching
+# ==========================================
+fastapi>=0.110.0
+uvicorn[standard]>=0.28.0
+python-multipart>=0.0.9
+slowapi>=0.1.9
 cachetools>=5.3.3
-transformers>=4.40.0,<5.0.0
-sentence-transformers>=2.5.0,<3.5.0
 redis>=5.0.3
+
+# ==========================================
+# 3. DATA INGESTION DEPENDENCIES
+# Web Crawling, Parsing, and OCR
+# ==========================================
+requests>=2.34.2
+beautifulsoup4>=4.15.0
+lxml>=6.1.1
+trafilatura>=2.2.0
+PyMuPDF>=1.28.2
+Pillow>=12.3.0
+pytesseract>=0.3.13
+python-docx>=1.1.0
+PyPDF2>=3.0.0
+psycopg2-binary>=2.9.9
+tqdm>=4.66.0

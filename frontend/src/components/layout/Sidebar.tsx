@@ -1,6 +1,7 @@
-import { GraduationCap, LayoutDashboard, MessageSquare, Languages, Settings, HelpCircle, BarChart2 } from "lucide-react";
+import { GraduationCap, LayoutDashboard, MessageSquare, Languages, Settings, HelpCircle, Database } from "lucide-react";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useSettings } from "../../context/SettingsContext";
+import { useAuth } from "../../hooks/useAuth";
 
 interface NavItem {
   to: string;
@@ -14,11 +15,12 @@ const NAV_ITEMS: NavItem[] = [
   { to: "/chat", icon: MessageSquare, key: "sidebar.knowledgeHub", label: "Trợ lý Tư vấn IUH" },
   { to: "/translation", icon: Languages, key: "sidebar.translationStudio", label: "Dịch thuật Đa ngôn ngữ" },
   { to: "/flashcards", icon: GraduationCap, key: "sidebar.languageLab", label: "Sổ thẻ Từ vựng Flashcard" },
-  { to: "/analytics", icon: BarChart2, key: "sidebar.analytics", label: "Thống kê Học tập" },
+  { to: "/admin", icon: Database, key: "sidebar.admin", label: "Quản trị Dữ liệu (Admin)" },
 ];
 
 export function Sidebar() {
   const { t } = useSettings();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -39,7 +41,7 @@ export function Sidebar() {
           E
         </NavLink>
         <nav className="flex flex-col gap-1.5">
-          {NAV_ITEMS.map(({ to, icon: Icon, key, label }) => {
+          {NAV_ITEMS.filter(item => item.to !== "/admin" || user?.role === "admin").map(({ to, icon: Icon, key, label }) => {
             const isCurrentActive = location.pathname.startsWith(to);
             return (
               <NavLink
