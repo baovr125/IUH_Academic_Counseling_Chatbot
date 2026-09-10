@@ -1,0 +1,10 @@
+{
+  "file_name": "NEJMoa2035389.pdf",
+  "doc_id": "7b7cc680-7592-48a2-bc39-8c71c3db264b",
+  "result": "COMPLETED",
+  "elapsed_sec": 401.1,
+  "model_used": "Groq (openai/gpt-oss-120b) & vLLM (Qwen/Qwen2.5-14B-Instruct-AWQ)",
+  "pages_processed": 14,
+  "glossary_count": 9,
+  "timestamp": "2026-09-03T14:43:32.800573"
+}

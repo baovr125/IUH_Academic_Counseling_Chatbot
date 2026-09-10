@@ -1,0 +1,10 @@
+{
+  "file_name": "1706.03762v7.pdf",
+  "doc_id": "7b779479-5638-4b20-b43b-39c638b6654f",
+  "result": "COMPLETED",
+  "elapsed_sec": 192.5,
+  "model_used": "Groq (openai/gpt-oss-120b) & vLLM (Qwen/Qwen2.5-14B-Instruct-AWQ)",
+  "pages_processed": 15,
+  "glossary_count": 12,
+  "timestamp": "2026-09-03T14:46:46.756393"
+}

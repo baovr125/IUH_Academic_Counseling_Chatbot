@@ -36,7 +36,7 @@ def translate_single_text(
         f"Chỉ trả về bản dịch, không giải thích thừa.\n\n"
         f"Text:\n{clean_text}"
     )
-    system_instr = SYSTEM_TRANSLATION_PROMPT.format(glossary_context="Không có")
+    system_instr = SYSTEM_TRANSLATION_PROMPT
     try:
         translated = call_ollama_generate(prompt=prompt, system_instruction=system_instr, model=model)
         return translated if translated else text

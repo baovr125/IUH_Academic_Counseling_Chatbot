@@ -9,6 +9,24 @@ from typing import List, Dict, Any
 from app.utils.logger import logger
 from app.services.ollama_translator import call_ollama_generate, check_ollama_health
 
+_GROUND_TRUTH_CACHE = None
+
+def get_ground_truth_glossary() -> List[Dict[str, Any]]:
+    global _GROUND_TRUTH_CACHE
+    if _GROUND_TRUTH_CACHE is not None:
+        return _GROUND_TRUTH_CACHE
+    json_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "academic_glossary.json")
+    if os.path.exists(json_path):
+        try:
+            with open(json_path, "r", encoding="utf-8") as f:
+                _GROUND_TRUTH_CACHE = json.load(f)
+                logger.info(f"Loaded {len(_GROUND_TRUTH_CACHE)} academic ground truth glossary terms from {json_path}")
+                return _GROUND_TRUTH_CACHE
+        except Exception as e:
+            logger.warning(f"Failed to load academic ground truth glossary: {e}")
+    _GROUND_TRUTH_CACHE = []
+    return _GROUND_TRUTH_CACHE
+
 
 async def get_word_audio(word: str) -> Dict[str, str]:
     """
@@ -128,9 +146,15 @@ def parse_glossary_json(raw_text: str) -> List[Dict[str, Any]]:
     for item in items:
         if isinstance(item, dict) and item.get("term"):
             term_str = str(item.get("term", "")).strip()
-            # Lấy nghĩa dịch từ translation, vi hoặc meaning
             meaning_str = str(item.get("translation") or item.get("vi") or item.get("meaning") or "").strip()
             
+            # Lọc bỏ rác ký tự ngoại lai (Hangul / Hanzi) lọt vào trường giải nghĩa tiếng Việt
+            meaning_cleaned = re.sub(r'[\u4e00-\u9fff\uac00-\ud7af]+', '', meaning_str).strip()
+            meaning_cleaned = re.sub(r'[\s\-\?]+$', '', meaning_cleaned).strip()
+            meaning_cleaned = re.sub(r'^\s*[\-\?]+\s*', '', meaning_cleaned).strip()
+            if meaning_cleaned:
+                meaning_str = meaning_cleaned
+
             # Chỉ giữ lại nếu term và translation khác nhau và không phải chuỗi rỗng
             if term_str and meaning_str and term_str.lower() != meaning_str.lower():
                 cleaned_items.append({
@@ -260,7 +284,9 @@ def translate_term_candidates(terms: List[str], target_lang: str = "vi", source_
 
 async def extract_glossary(text: str, target_lang: str = "vi", source_lang: str = "en") -> List[Dict[str, Any]]:
     """
-    Trích xuất từ khóa và thuật ngữ chuyên ngành từ văn bản bằng LLM với cơ chế fallback 3 tầng tự động.
+    Trích xuất từ khóa và thuật ngữ chuyên ngành:
+    1. Ưu tiên số 1: Khớp chính xác với Từ điển Học thuật Chuẩn (Ground Truth Dictionary).
+    2. Bổ sung từ LLM (vLLM/Gemini) đối với các từ khóa mới trong tài liệu chưa có trong Ground Truth.
     """
     if not text or len(text.strip()) == 0:
         return []
@@ -269,7 +295,30 @@ async def extract_glossary(text: str, target_lang: str = "vi", source_lang: str 
     clean_lang = (source_lang or "en").strip().lower()[:2]
     lang_map = {"vi": "Vietnamese", "en": "English", "fr": "French", "es": "Spanish"}
     target_lang_name = lang_map.get(target_lang, target_lang)
+
+    glossary_items: List[Dict[str, Any]] = []
+    seen_terms = set()
+
+    # ── TẦNG 0 (ƯU TIÊN TUYỆT ĐỐI): Quét Từ điển Học thuật Chuẩn (Ground Truth) ──
+    gt_list = get_ground_truth_glossary()
+    if gt_list:
+        text_lower = text.lower()
+        for gt in gt_list:
+            gt_term = gt.get("term", "").strip()
+            if not gt_term or len(gt_term) < 2:
+                continue
+            # Dùng regex word boundary để kiểm tra chính xác
+            term_esc = re.escape(gt_term.lower())
+            if re.search(r'\b' + term_esc + r'\b', text_lower):
+                item = dict(gt)
+                seen_terms.add(gt_term.lower())
+                glossary_items.append(item)
+                if len(glossary_items) >= 12:
+                    break
+        logger.info(f"📚 Đã tìm thấy {len(glossary_items)} thuật ngữ chuẩn từ Ground Truth Dictionary.")
     
+    # ── TẦNG 1: Nếu chưa đủ hoặc cần làm giàu thêm từ LLM ──
+    llm_extracted_items = []
     prompt = f"""
     You are an expert academic translator and domain terminologist.
     Extract 5 to 8 important technical domain terms and keywords from the academic text below.
@@ -295,54 +344,60 @@ async def extract_glossary(text: str, target_lang: str = "vi", source_lang: str 
     {sample_text}
     """
     
-    glossary_items: List[Dict[str, Any]] = []
-    
-    # ── TẦNG 1: Thử qua vLLM / Ollama ──
-    if check_ollama_health():
-        try:
-            content = call_ollama_generate(
-                prompt=prompt, 
-                system_instruction="You are a JSON generator. Return only a valid JSON object containing a 'glossary' array.",
-                format="json"
-            )
-            glossary_items = parse_glossary_json(content)
-        except Exception as e:
-            logger.warning(f"vLLM/Ollama failed to extract glossary ({e}). Trying Gemini fallback...")
-    else:
-        logger.info("LLM/vLLM server not reachable, switching directly to Gemini fallback for glossary extraction.")
-        
-    # ── TẦNG 2: Thử qua Gemini Fallback nếu Tầng 1 chưa có kết quả ──
-    if not glossary_items:
-        try:
-            from app.services.translator import get_gemini_client
-            client = get_gemini_client()
-            res = client.models.generate_content(
-                model="gemini-2.5-flash",
-                contents=prompt,
-                config={"response_mime_type": "application/json"}
-            )
-            if res and res.text:
-                glossary_items = parse_glossary_json(res.text)
-        except Exception as gemini_err:
-            logger.error(f"Gemini fallback failed for glossary: {gemini_err}")
-                
-    # ── TẦNG 3: Fallback Heuristic + Dịch thuật danh sách từ ──
-    if not glossary_items:
-        candidate_objs = heuristic_extract_terms(text, source_lang=source_lang)
-        term_names = [c["term"] for c in candidate_objs]
-        if term_names:
-            translations_map = translate_term_candidates(term_names, target_lang=target_lang, source_lang=source_lang)
-            for c in candidate_objs:
-                t_name = c["term"]
-                meaning = translations_map.get(t_name, "")
-                if meaning and meaning.lower() != t_name.lower():
-                    c["translation"] = meaning
-                    c["vi"] = meaning
-                    glossary_items.append(c)
+    if len(glossary_items) < 8:
+        # ── Thử qua vLLM / Ollama ──
+        if check_ollama_health():
+            try:
+                content = call_ollama_generate(
+                    prompt=prompt, 
+                    system_instruction="You are a JSON generator. Return only a valid JSON object containing a 'glossary' array.",
+                    format="json"
+                )
+                llm_extracted_items = parse_glossary_json(content)
+            except Exception as e:
+                logger.warning(f"vLLM/Ollama failed to extract glossary ({e}). Trying Gemini fallback...")
+        else:
+            logger.info("LLM/vLLM server not reachable, switching directly to Gemini fallback for glossary extraction.")
+            
+        # ── Thử qua Gemini Fallback nếu Tầng 1 chưa có kết quả ──
+        if not llm_extracted_items:
+            try:
+                from app.services.translator import get_gemini_client
+                client = get_gemini_client()
+                res = client.models.generate_content(
+                    model="gemini-2.5-flash",
+                    contents=prompt,
+                    config={"response_mime_type": "application/json"}
+                )
+                if res and res.text:
+                    llm_extracted_items = parse_glossary_json(res.text)
+            except Exception as gemini_err:
+                logger.error(f"Gemini fallback failed for glossary: {gemini_err}")
                     
-        # Nếu vẫn không dịch được nghĩa, chỉ giữ lại các từ candidate cơ bản
-        if not glossary_items and candidate_objs:
-            glossary_items = candidate_objs[:6]
+        # ── Fallback Heuristic nếu vẫn chưa có ──
+        if not llm_extracted_items:
+            candidate_objs = heuristic_extract_terms(text, source_lang=source_lang)
+            term_names = [c["term"] for c in candidate_objs]
+            if term_names:
+                translations_map = translate_term_candidates(term_names, target_lang=target_lang, source_lang=source_lang)
+                for c in candidate_objs:
+                    t_name = c["term"]
+                    meaning = translations_map.get(t_name, "")
+                    if meaning and meaning.lower() != t_name.lower():
+                        c["translation"] = meaning
+                        c["vi"] = meaning
+                        llm_extracted_items.append(c)
+            if not llm_extracted_items and candidate_objs:
+                llm_extracted_items = candidate_objs[:6]
+
+    # Hợp nhất: Chỉ thêm các từ LLM trích xuất nếu chưa có trong Ground Truth
+    for it in llm_extracted_items:
+        raw_t = str(it.get("term", "")).strip()
+        if raw_t and raw_t.lower() not in seen_terms:
+            seen_terms.add(raw_t.lower())
+            glossary_items.append(it)
+            if len(glossary_items) >= 15:
+                break
 
     # Làm giàu thêm thông tin phát âm & âm thanh (non-blocking, asyncio đã được import ở top-level)
     if glossary_items:

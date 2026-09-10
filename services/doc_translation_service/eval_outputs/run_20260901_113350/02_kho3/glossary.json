@@ -1,0 +1,74 @@
+[
+  {
+    "term": "gravitational waves",
+    "translation": "tiếng rung hấp dẫn",
+    "vi": "tiếng rung hấp dẫn",
+    "phonetic": "/ˌɡrævɪˈteɪʃənəl ˈweɪvz/",
+    "context": "Phenomena predicted by general relativity that propagate as ripples in spacetime.",
+    "audio_url": "/api/v1/translate/audio/terms/en_9b33c0c4f23d646e3b10e73ee4546eac.mp3",
+    "lang_code": "en"
+  },
+  {
+    "term": "black holes",
+    "translation": "hố đen",
+    "vi": "hố đen",
+    "phonetic": "/blæk hoʊlz/",
+    "context": "Regions of space where gravity pulls so much that even light cannot get out.",
+    "audio_url": "/api/v1/translate/audio/terms/en_2046036bacec70511ab21f088cede7ee.mp3",
+    "lang_code": "en"
+  },
+  {
+    "term": "binary black hole merger",
+    "translation": "hợp nhất hố đen kép",
+    "vi": "hợp nhất hố đen kép",
+    "phonetic": "/ˈbɪnəri blæk hoʊl ˈmɜːrdʒər/",
+    "context": "The process where two black holes combine into one larger black hole.",
+    "audio_url": "/api/v1/translate/audio/terms/en_d8aba8779fc6a79ebc81303006e9006b.mp3",
+    "lang_code": "en"
+  },
+  {
+    "term": "matched-filter signal-to-noise ratio",
+    "translation": "tỷ lệ tín hiệu trên nhiễu sử dụng bộ lọc phù hợp",
+    "vi": "tỷ lệ tín hiệu trên nhiễu sử dụng bộ lọc phù hợp",
+    "phonetic": "/ˈmætʃt fɪltər ˈsɪgnəl tu nɔɪz ˈreɪʃioʊ/",
+    "context": "A statistical method used to detect signals in noise.",
+    "audio_url": "/api/v1/translate/audio/terms/en_9e5cd8e60970f9cc4d6f5b6f524d385f.mp3",
+    "lang_code": "en"
+  },
+  {
+    "term": "quasinormal modes",
+    "translation": "chuỗi dao động gần bình thường",
+    "vi": "chuỗi dao động gần bình thường",
+    "phonetic": "/ˈkwazɪnɔrməl moʊdz/",
+    "context": "Damped oscillations of a perturbed black hole.",
+    "audio_url": "/api/v1/translate/audio/terms/en_9ab5d7842aa27a400eace7a5029fb74c.mp3",
+    "lang_code": "en"
+  },
+  {
+    "term": "postNewtonian calculations",
+    "translation": "tính toán hậu Newton",
+    "vi": "tính toán hậu Newton",
+    "phonetic": "/poʊstˈnuːtənɪən kælkjʊˈleɪʃənz/",
+    "context": "A series of approximations used in general relativity to model gravitational fields.",
+    "audio_url": "/api/v1/translate/audio/terms/en_6b66e2c3c0cc8fc31ee1f7c1a5e9ad63.mp3",
+    "lang_code": "en"
+  },
+  {
+    "term": "relativistic two-body dynamics",
+    "translation": "động lực học hai vật thể tương đối",
+    "vi": "động lực học hai vật thể tương đối",
+    "phonetic": "/ˌreləˈvɪstɪk tu ˈbaɪdi ˈdɪnæmɪks/",
+    "context": "The study of the motion of two bodies under the influence of gravity in the framework of general relativity.",
+    "audio_url": "/api/v1/translate/audio/terms/en_512195bc9d3ac4dcaa75df56021326c4.mp3",
+    "lang_code": "en"
+  },
+  {
+    "term": "numerical relativity",
+    "translation": "tương đối số học",
+    "vi": "tương đối số học",
+    "phonetic": "/njuːmɛrɪkl ˈrɛlətɪvi ti/",
+    "context": "A branch of general relativity that uses numerical methods to solve the Einstein field equations.",
+    "audio_url": "/api/v1/translate/audio/terms/en_eb449dc2f955214a490aa589b3fafead.mp3",
+    "lang_code": "en"
+  }
+]

@@ -1,0 +1,10 @@
+{
+  "file_name": "kho2.pdf",
+  "doc_id": "d970e879-521f-416e-9acc-1cd742546f79",
+  "result": "COMPLETED",
+  "elapsed_sec": 224.8,
+  "model_used": "vLLM (Qwen/Qwen2.5-14B-Instruct-AWQ)",
+  "pages_processed": 9,
+  "glossary_count": 8,
+  "timestamp": "2026-09-01T11:38:05.084082"
+}

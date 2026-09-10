@@ -1,0 +1,110 @@
+[
+  {
+    "term": "Transformer",
+    "translation": "Transformer",
+    "phonetic": "/trænsˈfɔːrmər/",
+    "field": "Công nghệ thông tin",
+    "audio_url": "/api/v1/translate/audio/terms/en_e0ddf0635cf2757ae1139ce7405d839f.mp3",
+    "lang_code": "en",
+    "vi": "Transformer"
+  },
+  {
+    "term": "Attention mechanism",
+    "translation": "cơ chế chú ý",
+    "phonetic": "/əˈtenʃn ˈmekənɪzəm/",
+    "field": "Công nghệ thông tin",
+    "audio_url": "/api/v1/translate/audio/terms/en_3bcb43d26a49ce3f4d2554c694143df0.mp3",
+    "lang_code": "en",
+    "vi": "cơ chế chú ý"
+  },
+  {
+    "term": "Attention Mechanism",
+    "translation": "cơ chế chú ý",
+    "phonetic": "/əˈtenʃn ˈmekənɪzəm/",
+    "field": "Công nghệ thông tin",
+    "audio_url": "/api/v1/translate/audio/terms/en_3bcb43d26a49ce3f4d2554c694143df0.mp3",
+    "lang_code": "en",
+    "vi": "cơ chế chú ý"
+  },
+  {
+    "term": "Self-attention",
+    "translation": "tự chú ý",
+    "phonetic": "/sɛlf əˈtenʃn/",
+    "field": "Công nghệ thông tin",
+    "audio_url": "/api/v1/translate/audio/terms/en_3170d22aa52905e15539ede360f1ce64.mp3",
+    "lang_code": "en",
+    "vi": "tự chú ý"
+  },
+  {
+    "term": "Scaled Dot-Product Attention",
+    "translation": "chú ý tích vô hướng tỷ lệ",
+    "phonetic": "/skeɪld dɑːt ˈprɑːdʌkt əˈtenʃn/",
+    "field": "Công nghệ thông tin",
+    "audio_url": "/api/v1/translate/audio/terms/en_d5f8813d6f12a626e6aef7c77b465339.mp3",
+    "lang_code": "en",
+    "vi": "chú ý tích vô hướng tỷ lệ"
+  },
+  {
+    "term": "Multi-Head Attention",
+    "translation": "chú ý đa đầu",
+    "phonetic": "/ˈmʌlti hed əˈtenʃn/",
+    "field": "Công nghệ thông tin",
+    "audio_url": "/api/v1/translate/audio/terms/en_3969ca83d9a37d38883d055aeaf52e78.mp3",
+    "lang_code": "en",
+    "vi": "chú ý đa đầu"
+  },
+  {
+    "term": "Recurrent Neural Networks",
+    "translation": "mạng nơ-ron hồi quy",
+    "phonetic": "/rɪˈkɜːrənt ˈnjʊərəl ˈnɛtwɜːrks/",
+    "field": "Công nghệ thông tin",
+    "audio_url": "/api/v1/translate/audio/terms/en_43b2c3f97dd3085749c7d924f1aeaa81.mp3",
+    "lang_code": "en",
+    "vi": "mạng nơ-ron hồi quy"
+  },
+  {
+    "term": "recurrent neural networks",
+    "translation": "mạng nơ-ron hồi quy",
+    "phonetic": "/rɪˈkɜːrənt ˈnjʊərəl ˈnɛtwɜːrks/",
+    "field": "Công nghệ thông tin",
+    "audio_url": "/api/v1/translate/audio/terms/en_43b2c3f97dd3085749c7d924f1aeaa81.mp3",
+    "lang_code": "en",
+    "vi": "mạng nơ-ron hồi quy"
+  },
+  {
+    "term": "RNN",
+    "translation": "mạng nơ-ron hồi quy",
+    "phonetic": "/ˌɑːr.enˈen/",
+    "field": "Công nghệ thông tin",
+    "audio_url": "/api/v1/translate/audio/terms/en_becd5d23b3621e8c5e0d05c5df0217dc.mp3",
+    "lang_code": "en",
+    "vi": "mạng nơ-ron hồi quy"
+  },
+  {
+    "term": "RNNs",
+    "translation": "các mạng nơ-ron hồi quy",
+    "phonetic": "/ˌɑːr.enˈenz/",
+    "field": "Công nghệ thông tin",
+    "audio_url": "/api/v1/translate/audio/terms/en_05e57bd8663c6d815d96583600a72cfc.mp3",
+    "lang_code": "en",
+    "vi": "các mạng nơ-ron hồi quy"
+  },
+  {
+    "term": "LSTM",
+    "translation": "mạng bộ nhớ dài-ngắn hạn",
+    "phonetic": "/ˌel.es.tiːˈem/",
+    "field": "Công nghệ thông tin",
+    "audio_url": "/api/v1/translate/audio/terms/en_f00bf5e2f74b7a733fc151059ce9dee3.mp3",
+    "lang_code": "en",
+    "vi": "mạng bộ nhớ dài-ngắn hạn"
+  },
+  {
+    "term": "Encoder",
+    "translation": "bộ mã hóa",
+    "phonetic": "/ɪnˈkoʊdər/",
+    "field": "Công nghệ thông tin",
+    "audio_url": "/api/v1/translate/audio/terms/en_07a796c7c009d789c9dc27e55f68478e.mp3",
+    "lang_code": "en",
+    "vi": "bộ mã hóa"
+  }
+]

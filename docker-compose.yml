@@ -130,7 +130,7 @@ services:
       resources:
         limits:
           cpus: '2.0'
-          memory: 1.5G
+          memory: 3.5G
         reservations:
           devices:
             - driver: nvidia
@@ -161,7 +161,7 @@ services:
     build:
       context: ./services/doc_translation_service
     container_name: iuh_doc_translation_worker
-    command: celery -A app.celery_app worker --loglevel=info --concurrency=2
+    command: celery -A app.celery_app worker --loglevel=info --concurrency=4
     env_file:
       - .env
     depends_on:
@@ -171,8 +171,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '2.0'
-          memory: 2.0G
+          cpus: '4.0'
+          memory: 3.5G
         reservations:
           devices:
             - driver: nvidia

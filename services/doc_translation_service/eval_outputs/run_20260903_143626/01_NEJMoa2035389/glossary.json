@@ -1,0 +1,83 @@
+[
+  {
+    "term": "PCR",
+    "translation": "phản ứng chuỗi polymerase (PCR)",
+    "phonetic": "/ˌpiː.siːˈɑːr/",
+    "field": "Hóa - Sinh - Môi trường",
+    "audio_url": "/api/v1/translate/audio/terms/en_aedb8a291374a39aea17d5e20fae303d.mp3",
+    "lang_code": "en",
+    "vi": "phản ứng chuỗi polymerase (PCR)"
+  },
+  {
+    "term": "mRNA-1273 vaccine",
+    "translation": "vắc-xin mRNA-1273",
+    "vi": "vắc-xin mRNA-1273",
+    "phonetic": "/mRNA-1273 vaccine/",
+    "context": "A lipid nanoparticle-encapsulated mRNA-based vaccine that encodes the prefusion stabilized full-length spike protein of SARS-CoV-2.",
+    "audio_url": "/api/v1/translate/audio/terms/en_4ca2443fffc370cc334d64ba2ec613e0.mp3",
+    "lang_code": "en"
+  },
+  {
+    "term": "lipid nanoparticle-encapsulated mRNA",
+    "translation": "mRNA bọc trong hạt nanomRNA",
+    "vi": "mRNA bọc trong hạt nanomRNA",
+    "phonetic": "/lipid nanoparticle-encapsulated mRNA/",
+    "context": "A type of vaccine delivery system used in the mRNA-1273 vaccine.",
+    "audio_url": "/api/v1/translate/audio/terms/en_881825cd45a4c084c45bcff43f917574.mp3",
+    "lang_code": "en"
+  },
+  {
+    "term": "prefusion stabilized full-length spike protein",
+    "translation": "protein gai điểm ổn định dạng tiền phân tiết",
+    "vi": "protein gai điểm ổn định dạng tiền phân tiết",
+    "phonetic": "/prefusion stabilized full-length spike protein/",
+    "context": "The specific part of the SARS-CoV-2 virus targeted by the mRNA-1273 vaccine.",
+    "audio_url": "/api/v1/translate/audio/terms/en_b29cef56fb5a98f3b7c0688c8df65e90.mp3",
+    "lang_code": "en"
+  },
+  {
+    "term": "SARS-CoV-2",
+    "translation": "vi rút SARS-CoV-2",
+    "vi": "vi rút SARS-CoV-2",
+    "phonetic": "/SARS-CoV-2/",
+    "context": "The virus responsible for causing COVID-19.",
+    "audio_url": "/api/v1/translate/audio/terms/en_1e677480dbc5504cacc16d3a8ae6fe64.mp3",
+    "lang_code": "en"
+  },
+  {
+    "term": "placebo-controlled trial",
+    "translation": "thử nghiệm đối chứng giả dược",
+    "vi": "thử nghiệm đối chứng giả dược",
+    "phonetic": "/placebo-controlled trial/",
+    "context": "A clinical trial design where some participants receive a placebo instead of the active treatment.",
+    "audio_url": "/api/v1/translate/audio/terms/en_d13c168cec662df9929ffef7ec3b970d.mp3",
+    "lang_code": "en"
+  },
+  {
+    "term": "observer-blinded",
+    "translation": "đối chứng mù quan sát viên",
+    "vi": "đối chứng mù quan sát viên",
+    "phonetic": "/observer-blinded/",
+    "context": "A study design where the observers do not know which participants are receiving the treatment or placebo.",
+    "audio_url": "/api/v1/translate/audio/terms/en_9c074b24e429db7cc5afbd4545927a87.mp3",
+    "lang_code": "en"
+  },
+  {
+    "term": "vaccine efficacy",
+    "translation": "hiệu quả của vắc-xin",
+    "vi": "hiệu quả của vắc-xin",
+    "phonetic": "/vaccine efficacy/",
+    "context": "The measure of how well a vaccine works in preventing a disease.",
+    "audio_url": "/api/v1/translate/audio/terms/en_8ec24868567665c065a79f3da4804fb7.mp3",
+    "lang_code": "en"
+  },
+  {
+    "term": "reactogenicity",
+    "translation": "tính phản ứng",
+    "vi": "tính phản ứng",
+    "phonetic": "/reactogenicity/",
+    "context": "The ability of a vaccine to cause side effects.",
+    "audio_url": "/api/v1/translate/audio/terms/en_65db8fc9701f747ec2280afdebc59eb0.mp3",
+    "lang_code": "en"
+  }
+]

@@ -1,0 +1,74 @@
+[
+  {
+    "term": "Transformer",
+    "translation": "Biến đổi",
+    "vi": "Biến đổi",
+    "phonetic": "/transformer/",
+    "context": "Mô hình mạng lưới dựa trên cơ chế chú ý",
+    "audio_url": "/api/v1/translate/audio/terms/en_e0ddf0635cf2757ae1139ce7405d839f.mp3",
+    "lang_code": "en"
+  },
+  {
+    "term": "Attention Mechanism",
+    "translation": "Cơ chế chú ý",
+    "vi": "Cơ chế chú ý",
+    "phonetic": "/attention mechanism/",
+    "context": "Cơ chế giúp kết nối giữa encoder và decoder trong mô hình học máy",
+    "audio_url": "/api/v1/translate/audio/terms/en_3bcb43d26a49ce3f4d2554c694143df0.mp3",
+    "lang_code": "en"
+  },
+  {
+    "term": "Encoder-Decoder",
+    "translation": "Mã hóa - Gi해설 해주실 수 있으신가요? 디코더",
+    "vi": "Mã hóa - Gi해설 해주실 수 있으신가요? 디코더",
+    "phonetic": "/encoder-decoder/",
+    "context": "Hệ thống hai phần trong học máy, nơi một mô hình mã hóa dữ liệu đầu vào và một mô hình khác giải mã nó",
+    "audio_url": "/api/v1/translate/audio/terms/en_f21ca40eddec09145c0391124f9ef142.mp3",
+    "lang_code": "en"
+  },
+  {
+    "term": "Recurrent Neural Network (RNN)",
+    "translation": "Mạng nơ-ron tái phát",
+    "vi": "Mạng nơ-ron tái phát",
+    "phonetic": "/recurrent neural network/",
+    "context": "Mô hình mạng nơ-ron xử lý chuỗi dữ liệu",
+    "audio_url": "/api/v1/translate/audio/terms/en_ed59cc571018c062f92870c79d4289bc.mp3",
+    "lang_code": "en"
+  },
+  {
+    "term": "Long Short-Term Memory (LSTM)",
+    "translation": "Hồi quy ngắn hạn dài hạn",
+    "vi": "Hồi quy ngắn hạn dài hạn",
+    "phonetic": "/long short-term memory/",
+    "context": "Loại đặc biệt của RNN, được thiết kế để giải quyết vấn đề mất nhớ trong học máy",
+    "audio_url": "/api/v1/translate/audio/terms/en_e2e71755b5288fe4fb31b950d94e2666.mp3",
+    "lang_code": "en"
+  },
+  {
+    "term": "Gated Recurrent Unit (GRU)",
+    "translation": "Đơn vị tái phát có van",
+    "vi": "Đơn vị tái phát có van",
+    "phonetic": "/gated recurrent unit/",
+    "context": "Một loại đơn vị tái phát, là sự kết hợp giữa LSTM và RNN",
+    "audio_url": "/api/v1/translate/audio/terms/en_a95c56e79c8ab1c3e448fc3db3711093.mp3",
+    "lang_code": "en"
+  },
+  {
+    "term": "Scaled Dot-Product Attention",
+    "translation": "Chú ý tích vô hướng đã chuẩn hóa",
+    "vi": "Chú ý tích vô hướng đã chuẩn hóa",
+    "phonetic": "/scaled dot-product attention/",
+    "context": "Một kỹ thuật chú ý trong Transformer, sử dụng tích vô hướng giữa các vector",
+    "audio_url": "/api/v1/translate/audio/terms/en_d5f8813d6f12a626e6aef7c77b465339.mp3",
+    "lang_code": "en"
+  },
+  {
+    "term": "Multi-Head Attention",
+    "translation": "Chú ý đa đầu",
+    "vi": "Chú ý đa đầu",
+    "phonetic": "/multi-head attention/",
+    "context": "Kỹ thuật chú ý cho phép nhiều luồng chú ý đồng thời",
+    "audio_url": "/api/v1/translate/audio/terms/en_3969ca83d9a37d38883d055aeaf52e78.mp3",
+    "lang_code": "en"
+  }
+]

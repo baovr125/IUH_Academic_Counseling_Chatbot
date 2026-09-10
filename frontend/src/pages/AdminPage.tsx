@@ -1,14 +1,15 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Database, UploadCloud, Globe, Play, X, Loader2, CheckCircle, AlertCircle, RefreshCw, Trash2, Edit2 } from "lucide-react";
+import { Database, UploadCloud, Globe, Play, X, Loader2, CheckCircle, AlertCircle, RefreshCw, Trash2, Edit2, BookOpen } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 
 import * as authService from "../services/authService";
+import DictionaryAdmin from "../components/admin/DictionaryAdmin";
 
 const API_BASE_URL = (import.meta as any).env.VITE_API_BASE_URL || "";
 
 export default function AdminPage() {
   const { user } = useAuth();
-    const [activeTab, setActiveTab] = useState<"files" | "urls" | "stats">("stats");
+  const [activeTab, setActiveTab] = useState<"files" | "urls" | "stats" | "dict">("stats");
 
   const [documents, setDocuments] = useState<any[]>([]);
   const [loadingDocs, setLoadingDocs] = useState(false);
@@ -376,9 +377,21 @@ export default function AdminPage() {
             >
               <Globe size={18} /> Cào dữ liệu Web
             </button>
+            <button
+              onClick={() => setActiveTab("dict")}
+              className={`flex-1 py-4 text-center font-medium flex items-center justify-center gap-2 ${
+                activeTab === "dict" 
+                  ? "border-b-2 border-blue-600 text-blue-600 bg-blue-50/50 dark:bg-blue-900/10" 
+                  : "text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-700/50"
+              }`}
+            >
+              <BookOpen size={18} /> Từ Điển Chuyên Ngành
+            </button>
           </div>
 
           <div className="p-6 md:p-8">
+            {activeTab === "dict" && <DictionaryAdmin />}
+            
             {activeTab === "stats" && (
               <div className="space-y-6 animate-fade-in">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">

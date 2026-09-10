@@ -1,0 +1,10 @@
+{
+  "file_name": "kho3.pdf",
+  "doc_id": "ce88c810-0623-4f29-948c-2fb7d302fbde",
+  "result": "COMPLETED",
+  "elapsed_sec": 208.7,
+  "model_used": "Gemini 2.5 Flash & vLLM (Qwen/Qwen2.5-14B-Instruct-AWQ)",
+  "pages_processed": 16,
+  "glossary_count": 8,
+  "timestamp": "2026-09-01T11:41:33.919814"
+}

@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IUH Doc Translation -- Side-by-Side Evaluation Viewer</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f4f6f9; }
+        .header-hero { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; padding: 30px 0; }
+        .badge-success { background-color: #28a745; }
+        .badge-warning { background-color: #ffc107; color: #212529; }
+        .badge-danger { background-color: #dc3545; }
+    </style>
+</head>
+<body>
+    <div class="header-hero mb-4">
+        <div class="container">
+            <h2>🎓 IUH Doc Translation Service -- Bảng Đối Soát Thủ Công Song Song</h2>
+            <p class="mb-0">Ngày chạy: 03/09/2026 14:48:53 | Mã phiên kiểm thử: <code>run_20260903_143626</code></p>
+        </div>
+    </div>
+    <div class="container-fluid px-5">
+        <div class="alert alert-info shadow-sm">
+            <b>💡 Hướng dẫn đối soát:</b> Mở song song <code>Original PDF</code> và <code>Translated PDF</code> bằng 2 tab trình duyệt để đối chiếu độ trung thực, công thức LaTeX, bảng biểu và tính nhất quán của thuật ngữ học thuật.
+        </div>
+        
+        <div class="card mb-4" id="card-1">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5><b>Bài 1:</b> NEJMoa2035389.pdf <span class="badge badge-success">COMPLETED</span></h5>
+                <span class="text-muted">763.1 KB | 6m 41s | Model: Groq (openai/gpt-oss-120b) & vLLM (Qwen/Qwen2.5-14B-Instruct-AWQ)</span>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <h6><b>📂 File Liên Kết:</b></h6>
+                        <a href="01_NEJMoa2035389/original.pdf" target="_blank" class="btn btn-sm btn-outline-primary mr-2">📄 Mở Original PDF</a>
+                        <a href="01_NEJMoa2035389/translated.pdf" target="_blank" class="btn btn-sm btn-outline-success mr-2">📑 Mở Translated PDF</a>
+                        <a href="01_NEJMoa2035389/translated.md" target="_blank" class="btn btn-sm btn-outline-secondary mr-2">📝 Mở Translated Markdown</a>
+                        <a href="01_NEJMoa2035389/glossary.json" target="_blank" class="btn btn-sm btn-outline-info">📚 Mở Glossary JSON</a>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><b>🎯 Khung Chấm Điểm Thủ Công (Likert 1-5):</b></h6>
+                        <small class="text-muted">1. Thuật ngữ (___/5) | 2. LaTeX (___/5) | 3. Bảng biểu (___/5) | 4. Tên riêng (___/5) | 5. Mạch lạc (___/5)</small>
+                    </div>
+                </div>
+                <hr/>
+                <div class="row">
+                    <div class="col-md-7">
+                        <h6><b>📝 Trích Đoạn Văn Bản Đã Dịch (Markdown Preview):</b></h6>
+                        <pre class="bg-light p-3 border rounded text-dark" style="max-height: 400px; overflow-y: auto; white-space: pre-wrap; font-size: 13px;"># Tạp chí Y học New England
+
+được thành lập năm 1812
+
+Tháng 2 năm 2021, tập 384, số 5
+
+## Hiệu quả và An toàn của Vắc-xin mRNA-1273 chống lại SARS-CoV-2
+
+L.R. Baden, H.M. El Sahly, B. Essink, K. Kotloff, S. Frey, R. Novak, D. Diemert, S.A. Spector, N. Rouphael, C.B. Creech, J. McGettigan, S. Khetan, N. Segall, J. Solis, A. Brosz, C. Fierro, H. Schwartz, K. Neuzil, L. Corey, P. Gilbert, H. Janes, D. Follmann, M. Marovich, J. Mascola, L. Polakowski, J. Ledgerwood, B.S. Graham, H. Bennett, R. Pajon, C. Knightly, B. Leav, W. Deng, H. Zhou, S. Han, M. Ivarsson, J. Miller, và T. Zaks, cho Nhóm nghiên cứu COVE*
+
+### Tóm tắt
+
+#### **ĐỊNH NGHĨA**
+
+Vắc-xin cần thiết để ngăn ngừa bệnh viêm đường hô hấp cấp do coronavirus 2019 (Covid-19) và bảo vệ những người có nguy cơ cao mắc các biến chứng. Vắc-xin mRNA-1273 là một loại vắc-xin dựa trên mRNA được bọc trong hạt nanolipid, mã hóa cho protein gai điểm ổn định dạng tiền phân tiết của vi rút viêm đường hô hấp cấp nghiêm trọng do coronavirus 2 (SARS-CoV-2), vi rút gây ra bệnh Covid-19.
+
+#### **PHƯƠNG PHÁP**
+
+Thử nghiệm ngẫu nhiên giai đoạn 3, đối chứng mù quan sát viên, đối chứng giả dược này được thực hiện tại 99 trung tâm trên khắp Hoa Kỳ. Những người có nguy cơ cao mắc SARS-CoV-2 hoặc biến chứng của nó được phân chia ngẫu nhiên theo tỷ lệ 1:1 để nhận hai liều tiêm cơ bắp của vắc-xin mRNA-1273 (100 μg) hoặc giả dược cách nhau 28 ngày. Điểm cuối chính là việc ngăn chặn bệnh Covid-19 với thời điểm khởi phát ít nhất 14 ngày sau liều thứ hai ở những người chưa từng bị nhiễm SARS-CoV-2 trước đó.
+
+#### **KẾT QUẢ**
+
+Thử nghiệm đã tuyển chọn 30,420 tình nguyện viên được phân chia ngẫu nhiên theo tỷ lệ 1:1 để nhận vắc-xin hoặc giả dược (15,210 tình nguyện viên trong mỗi nhóm). Hơn 96% tình nguyện viên đã nhận cả hai liều, và 2.2% có bằng chứng (huyết thanh học, vi sinh học hoặc cả hai) về nhiễm SARS-CoV-2 ở thời điểm cơ sở. Bệnh Covid-19 triệu chứng được xác nhận ở 185 tình nguyện viên trong nhóm giả dược (56.5 trường hợp trên 1000 năm người; khoảng tin cậy 95%, CI, 48.7 đến 65.3) và 11 tình nguyện viên trong nhóm mRNA-1273 (3.3 trường hợp trên 1000 năm người; CI 95%, 1.7 đến 6.0); hiệu quả của vắc-xin là 94.1% (CI 95%, 89.3 đến 96.8%; P&lt;0.001). Hiệu quả tương tự trong các phân tích phụ chính, bao gồm đánh giá 14 ngày sau liều đầu tiên, phân tích bao gồm tình nguyện viên có bằng chứng về nhiễm SARS-CoV-2 ở thời điểm cơ sở, và phân tích trong tình nguyện viên 65 tuổi trở lên. Bệnh Covid-19 nghiêm trọng xảy ra ở 30 tình nguyện vi
+
+... [Xem file translated.md để đọc toàn bộ]</pre>
+                    </div>
+                    <div class="col-md-5">
+                        <h6><b>📚 Thuật Ngữ Học Thuật Trích Xuất (9 terms):</b></h6>
+                        <div style="max-height: 400px; overflow-y: auto;">
+                            <table class="table table-sm table-bordered">
+                                <thead class="thead-light">
+                                    <tr><th>Thuật ngữ</th><th>Nghĩa tiếng Việt</th><th>IPA</th></tr>
+                                </thead>
+                                <tbody><tr><td><b>PCR</b></td><td>phản ứng chuỗi polymerase (PCR)</td><td><code>/ˌpiː.siːˈɑːr/</code></td></tr><tr><td><b>mRNA-1273 vaccine</b></td><td>vắc-xin mRNA-1273</td><td><code>/mRNA-1273 vaccine/</code></td></tr><tr><td><b>lipid nanoparticle-encapsulated mRNA</b></td><td>mRNA bọc trong hạt nanomRNA</td><td><code>/lipid nanoparticle-encapsulated mRNA/</code></td></tr><tr><td><b>prefusion stabilized full-length spike protein</b></td><td>protein gai điểm ổn định dạng tiền phân tiết</td><td><code>/prefusion stabilized full-length spike protein/</code></td></tr><tr><td><b>SARS-CoV-2</b></td><td>vi rút SARS-CoV-2</td><td><code>/SARS-CoV-2/</code></td></tr><tr><td><b>placebo-controlled trial</b></td><td>thử nghiệm đối chứng giả dược</td><td><code>/placebo-controlled trial/</code></td></tr><tr><td><b>observer-blinded</b></td><td>đối chứng mù quan sát viên</td><td><code>/observer-blinded/</code></td></tr><tr><td><b>vaccine efficacy</b></td><td>hiệu quả của vắc-xin</td><td><code>/vaccine efficacy/</code></td></tr><tr><td><b>reactogenicity</b></td><td>tính phản ứng</td><td><code>/reactogenicity/</code></td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mb-4" id="card-2">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5><b>Bài 2:</b> 1706.03762v7.pdf <span class="badge badge-success">COMPLETED</span></h5>
+                <span class="text-muted">2.11 MB | 3m 12s | Model: Groq (openai/gpt-oss-120b) & vLLM (Qwen/Qwen2.5-14B-Instruct-AWQ)</span>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <h6><b>📂 File Liên Kết:</b></h6>
+                        <a href="02_1706.03762v7/original.pdf" target="_blank" class="btn btn-sm btn-outline-primary mr-2">📄 Mở Original PDF</a>
+                        <a href="02_1706.03762v7/translated.pdf" target="_blank" class="btn btn-sm btn-outline-success mr-2">📑 Mở Translated PDF</a>
+                        <a href="02_1706.03762v7/translated.md" target="_blank" class="btn btn-sm btn-outline-secondary mr-2">📝 Mở Translated Markdown</a>
+                        <a href="02_1706.03762v7/glossary.json" target="_blank" class="btn btn-sm btn-outline-info">📚 Mở Glossary JSON</a>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><b>🎯 Khung Chấm Điểm Thủ Công (Likert 1-5):</b></h6>
+                        <small class="text-muted">1. Thuật ngữ (___/5) | 2. LaTeX (___/5) | 3. Bảng biểu (___/5) | 4. Tên riêng (___/5) | 5. Mạch lạc (___/5)</small>
+                    </div>
+                </div>
+                <hr/>
+                <div class="row">
+                    <div class="col-md-7">
+                        <h6><b>📝 Trích Đoạn Văn Bản Đã Dịch (Markdown Preview):</b></h6>
+                        <pre class="bg-light p-3 border rounded text-dark" style="max-height: 400px; overflow-y: auto; white-space: pre-wrap; font-size: 13px;">## **Tóm tắt** 
+
+Các mô hình chuyển đổi chuỗi chi phối hiện nay dựa trên các mạng nơ-ron hồi quy hoặc mạng nơ-ron tích chập phức tạp, bao gồm một bộ mã hóa và một bộ giải mã. Các mô hình có hiệu suất tốt nhất cũng kết nối bộ mã hóa và bộ giải mã thông qua một cơ chế chú ý. Chúng tôi đề xuất một kiến trúc mạng mới đơn giản, Transformer, dựa hoàn toàn trên các cơ chế chú ý, loại bỏ hoàn toàn việc sử dụng hồi quy và tích chập. Các thí nghiệm trên hai nhiệm vụ dịch máy cho thấy các mô hình này vượt trội về chất lượng đồng thời có khả năng song song cao hơn và yêu cầu thời gian huấn luyện đáng kể ít hơn. Mô hình của chúng tôi đạt 28.4 BLEU trên nhiệm vụ dịch WMT 2014 Tiếng Anh‑Tiếng Đức, cải thiện hơn 2 BLEU so với các kết quả tốt nhất hiện có, kể cả các mô hình hợp nhất. Trên nhiệm vụ dịch WMT 2014 Tiếng Anh‑Tiếng Pháp, mô hình của chúng tôi thiết lập điểm BLEU mới nhất cho mô hình đơn là 41.8 sau 3.5 ngày huấn luyện trên tám GPU, chỉ chiếm một phần rất nhỏ chi phí huấn luyện so với các mô hình tốt nhất trong tài liệu. Chúng tôi chứng minh rằng Transformer tổng quát tốt cho các nhiệm vụ khác bằng cách áp dụng thành công cho việc phân tích cú pháp thành phần tiếng Anh cả với dữ liệu huấn luyện lớn và hạn chế. 
+
+&gt; _∗_ Đóng góp bằng nhau. Thứ tự liệt kê là ngẫu nhiên. Jakob đề xuất thay thế các mạng nơ-ron hồi quy bằng tự chú ý và khởi xướng nỗ lực đánh giá ý tưởng này. Ashish, cùng Illia, thiết kế và triển khai các mô hình Transformer đầu tiên và đã tham gia quan trọng vào mọi khía cạnh của công trình này. Noam đề xuất chú ý tích vô hướng tỷ lệ, chú ý đa đầu và biểu diễn vị trí không tham số, và trở thành người tham gia vào hầu hết mọi chi tiết. Niki thiết kế, triển khai, tinh chỉnh và đánh giá vô số biến thể mô hình trong cơ sở mã gốc và tensor2tensor của chúng tôi. Llion cũng thực nghiệm với các biến thể mô hình mới, chịu trách nhiệm cho cơ sở mã ban đầu của chúng tôi, cũng như việc suy luận hiệu quả và trực quan hoá. Lukasz và Aidan đã dành nhiều ngày dài thiết kế các phần khác nhau và triển khai tensor2tensor, thay thế cơ sở mã trước đây, cải thiện đáng kể kết quả và tăng tốc mạnh mẽ nghiên cứu của chúng tôi. 
+
+&gt; _†_ Công việc thực hiện trong thời gian làm việc tại Google Brain. 
+
+&gt; _‡_ Công việc thực hiện trong thời gian làm việc tại Google Research. 
+
+31st Conference on Neural Information Processing Systems (NIPS 2017), Long Beach, CA, USA. 
+
+## **1 Giới thiệu** 
+
+Các mạng nơ-ron hồi quy, mạng bộ nhớ dài‑ngắn hạn [13] và các mạng nơ-ron hồi quy có cổng [7]
+
+... [Xem file translated.md để đọc toàn bộ]</pre>
+                    </div>
+                    <div class="col-md-5">
+                        <h6><b>📚 Thuật Ngữ Học Thuật Trích Xuất (12 terms):</b></h6>
+                        <div style="max-height: 400px; overflow-y: auto;">
+                            <table class="table table-sm table-bordered">
+                                <thead class="thead-light">
+                                    <tr><th>Thuật ngữ</th><th>Nghĩa tiếng Việt</th><th>IPA</th></tr>
+                                </thead>
+                                <tbody><tr><td><b>Transformer</b></td><td>Transformer</td><td><code>/trænsˈfɔːrmər/</code></td></tr><tr><td><b>Attention mechanism</b></td><td>cơ chế chú ý</td><td><code>/əˈtenʃn ˈmekənɪzəm/</code></td></tr><tr><td><b>Attention Mechanism</b></td><td>cơ chế chú ý</td><td><code>/əˈtenʃn ˈmekənɪzəm/</code></td></tr><tr><td><b>Self-attention</b></td><td>tự chú ý</td><td><code>/sɛlf əˈtenʃn/</code></td></tr><tr><td><b>Scaled Dot-Product Attention</b></td><td>chú ý tích vô hướng tỷ lệ</td><td><code>/skeɪld dɑːt ˈprɑːdʌkt əˈtenʃn/</code></td></tr><tr><td><b>Multi-Head Attention</b></td><td>chú ý đa đầu</td><td><code>/ˈmʌlti hed əˈtenʃn/</code></td></tr><tr><td><b>Recurrent Neural Networks</b></td><td>mạng nơ-ron hồi quy</td><td><code>/rɪˈkɜːrənt ˈnjʊərəl ˈnɛtwɜːrks/</code></td></tr><tr><td><b>recurrent neural networks</b></td><td>mạng nơ-ron hồi quy</td><td><code>/rɪˈkɜːrənt ˈnjʊərəl ˈnɛtwɜːrks/</code></td></tr><tr><td><b>RNN</b></td><td>mạng nơ-ron hồi quy</td><td><code>/ˌɑːr.enˈen/</code></td></tr><tr><td><b>RNNs</b></td><td>các mạng nơ-ron hồi quy</td><td><code>/ˌɑːr.enˈenz/</code></td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mb-4" id="card-3">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5><b>Bài 3:</b> ai_lect_01.pdf <span class="badge badge-success">COMPLETED</span></h5>
+                <span class="text-muted">2.13 MB | 2m 0s | Model: vLLM (Qwen/Qwen2.5-14B-Instruct-AWQ)</span>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <h6><b>📂 File Liên Kết:</b></h6>
+                        <a href="03_ai_lect_01/original.pdf" target="_blank" class="btn btn-sm btn-outline-primary mr-2">📄 Mở Original PDF</a>
+                        <a href="03_ai_lect_01/translated.pdf" target="_blank" class="btn btn-sm btn-outline-success mr-2">📑 Mở Translated PDF</a>
+                        <a href="03_ai_lect_01/translated.md" target="_blank" class="btn btn-sm btn-outline-secondary mr-2">📝 Mở Translated Markdown</a>
+                        <a href="03_ai_lect_01/glossary.json" target="_blank" class="btn btn-sm btn-outline-info">📚 Mở Glossary JSON</a>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><b>🎯 Khung Chấm Điểm Thủ Công (Likert 1-5):</b></h6>
+                        <small class="text-muted">1. Thuật ngữ (___/5) | 2. LaTeX (___/5) | 3. Bảng biểu (___/5) | 4. Tên riêng (___/5) | 5. Mạch lạc (___/5)</small>
+                    </div>
+                </div>
+                <hr/>
+                <div class="row">
+                    <div class="col-md-7">
+                        <h6><b>📝 Trích Đoạn Văn Bản Đã Dịch (Markdown Preview):</b></h6>
+                        <pre class="bg-light p-3 border rounded text-dark" style="max-height: 400px; overflow-y: auto; white-space: pre-wrap; font-size: 13px;">![](/api/v1/documents/8b1beaac-c7c4-4243-9094-99fbfbf7eb31/images/input_8b1beaac-c7c4-4243-9094-99fbfbf7eb31.pdf-0001-00.png)
+
+# Giới thiệu về Trí tuệ nhân tạo
+
+(Được chỉnh sửa từ UIUC – Trí tuệ nhân tạo CS440/ECE448)
+
+## Nội dung chính
+
+- Trí tuệ
+
+- Trí tuệ nhân tạo (chương 1)
+
+- Lịch sử ngắn gọn (chương 1)
+
+- Môi trường mà trí tuệ nhân tạo có thể hoạt động (chương 2.3)
+
+- Nội dung còn lại của khóa học này
+
+## Sách giáo trình
+
+![](/api/v1/documents/8b1beaac-c7c4-4243-9094-99fbfbf7eb31/images/input_8b1beaac-c7c4-4243-9094-99fbfbf7eb31.pdf-0003-01.png)
+
+#### &lt;u&gt;Trí tuệ nhân tạo, phương pháp hiện đại: Bản thứ tư bởi Russell&lt;/u&gt; & Norvig
+
+- Danh sách khá tốt các chủ đề được giảng dạy trong khóa học này
+
+- Phân tích sâu về trí tuệ dựa trên kiến thức/hệ chuyên gia; giới thiệu phương pháp xác suất và học máy
+
+- Các bài tập và đọc thêm sẽ được chỉ định khi cần thiết
+
+## Nội dung chính
+
+- Trí tuệ
+
+- Trí tuệ nhân tạo (chương 1)
+
+- Lịch sử ngắn gọn về trí tuệ nhân tạo (chương 2)
+
+- Môi trường mà trí tuệ nhân tạo có thể hoạt động (chương 3)
+
+- Nội dung còn lại của khóa học này
+
+## Trí tuệ là gì?
+
+Từ "trí tuệ" thực sự rất mới. Người cổ đại dùng nó để chỉ "tâm trí phổ quát". Những người hiện đại sớm (ví dụ, Bacon, Hobbes; thế kỷ 15) chế giễu nó và ngừng sử dụng nó.
+
+## Trí tuệ là gì?
+
+Charles Spearman đã phổ biến định nghĩa hiện đại trong bài viết "Trí tuệ tổng hợp được xác định và đo lường một cách khách quan", American Journal of Psychology 15(2):201-292.
+
+- Ông đã chứng minh rằng điểm số kiểm tra tương quan qua nhiều môn học và đề xuất "trí tuệ tổng hợp" như yếu tố thống nhất chúng.
+
+![](/api/v1/documents/8b1beaac-c7c4-4243-9094-99fbfbf7eb31/images/input_8b1beaac-c7c4-4243-9094-99fbfbf7eb31.pdf-0006-02.png)
+
+https://en.wikipedia.org/wiki/G_factor_(psychometrics)
+
+## Trí tuệ có thể được học
+
+![](/api/v1/documents/8b1beaac-c7c4-4243-9094-99fbfbf7eb31/images/input_8b1beaac-c7c4-4243-9094-99fbfbf7eb31.pdf-0007-01.png)
+
+- Có thể học các chiến lược mới cho việc học.
+
+- Bằng cách làm vậy, có thể tăng điểm số của mình trong các bài kiểm tra về trí tuệ tổng hợp.
+
+## Trí tuệ chỉ là khởi đầu
+
+![](/api/v1/documents/8b1beaac-c7c4-4243-9094-99fbfbf7eb31/images/input_8b1beaac-c7c4-4243-9094-99fbfbf7eb31.pdf-0008-01.png)
+
+Grit ("sự quyết tâm và kiên trì hướng tới mục tiêu dài hạn") không tương quan với trí tuệ tổng hợp và là dự đoán tốt hơn về thành công lâu dài.
+
+## Nội dung chính
+
+- Trí tuệ
+
+- Trí tuệ nhân tạo (chương 1)
+
+- Lịch sử ngắn gọn (chương 2)
+
+- Môi trường mà trí tuệ nhâ
+
+... [Xem file translated.md để đọc toàn bộ]</pre>
+                    </div>
+                    <div class="col-md-5">
+                        <h6><b>📚 Thuật Ngữ Học Thuật Trích Xuất (8 terms):</b></h6>
+                        <div style="max-height: 400px; overflow-y: auto;">
+                            <table class="table table-sm table-bordered">
+                                <thead class="thead-light">
+                                    <tr><th>Thuật ngữ</th><th>Nghĩa tiếng Việt</th><th>IPA</th></tr>
+                                </thead>
+                                <tbody><tr><td><b>Machine Learning</b></td><td>Học máy</td><td><code>/məˈʃiːn lɜːrnɪŋ/</code></td></tr><tr><td><b>Rationality</b></td><td>Tính toán hợp lý</td><td><code>/ræʃəˈnalɪti/</code></td></tr><tr><td><b>Natural Language Processing</b></td><td>Xử lý ngôn ngữ tự nhiên</td><td><code>/ˈnætʃrəl ˈlæŋgwɪdʒ prəʊˈsesɪŋ/</code></td></tr><tr><td><b>Probability</b></td><td>Độ khả năng</td><td><code>/prɒbəˈbɪlɪti/</code></td></tr><tr><td><b>Causality</b></td><td>Nguyên nhân - kết quả</td><td><code>/kɔːˈsælɪti/</code></td></tr><tr><td><b>Morality</b></td><td>Đạo đức</td><td><code>/mɒˈrælɪti/</code></td></tr><tr><td><b>Neural Network</b></td><td>Mạng nơ-ron</td><td><code>/ˈnʊərəl ˈnetwɜːk/</code></td></tr><tr><td><b>McCulloch-Pitts Neuron Model</b></td><td>Mô hình nơ-ron McCulloch-Pitts</td><td><code>/məˈkʌloʊtʃ-pɪts/</code></td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+</body>
+</html>

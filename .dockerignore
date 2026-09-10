@@ -1,0 +1,23 @@
+# Root .dockerignore
+.git
+.gitignore
+.env
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache
+.coverage
+htmlcov/
+node_modules
+dist
+build
+temp_images
+extracted_images
+eval_outputs
+eval_reports
+logs
+*.log
+hf_models
+data/ingestion/data
+minio_data

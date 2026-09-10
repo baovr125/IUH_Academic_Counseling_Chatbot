@@ -213,3 +213,43 @@ async def download_translated_document(
     )
 
 
+@router.get("/{doc_id}/images/{image_name}")
+async def get_document_extracted_image(
+    doc_id: str,
+    image_name: str
+):
+    """
+    API phục vụ ảnh đã bóc tách từ tài liệu PDF:
+    1. Tìm trong MinIO: documents/{doc_id}/images/{image_name}
+    2. Fallback tìm trên đĩa cục bộ extracted_images/{doc_id}/{image_name}
+    Stream trực tiếp ảnh về trình duyệt để hiển thị trơn tru.
+    """
+    minio_key = f"documents/{doc_id}/images/{image_name}"
+    content_type = "image/png"
+    if image_name.lower().endswith(".jpg") or image_name.lower().endswith(".jpeg"):
+        content_type = "image/jpeg"
+    elif image_name.lower().endswith(".svg"):
+        content_type = "image/svg+xml"
+
+    # 1. Thử lấy từ MinIO
+    if object_exists(minio_key):
+        minio_resp = get_object_stream(minio_key)
+        if minio_resp:
+            def iterfile():
+                try:
+                    for chunk in minio_resp.stream(32 * 1024):
+                        yield chunk
+                finally:
+                    minio_resp.close()
+                    minio_resp.release_conn()
+            return StreamingResponse(iterfile(), media_type=content_type)
+
+    # 2. Thử tìm trên đĩa cục bộ
+    local_path = os.path.join(os.path.abspath("extracted_images"), doc_id, image_name)
+    if os.path.exists(local_path):
+        from fastapi.responses import FileResponse
+        return FileResponse(local_path, media_type=content_type)
+
+    raise HTTPException(status_code=404, detail="Không tìm thấy hình ảnh yêu cầu.")
+
+

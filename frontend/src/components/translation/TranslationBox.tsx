@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { streamTranslation, extractFlashcard } from "../../services/translationService";
 import { FloatingMenu } from "./FloatingMenu";
 import { DomainSelector } from "./DomainSelector";
-import { BookmarkPlus, ArrowRightLeft, Volume2, X, Loader2 } from "lucide-react";
+import { BookmarkPlus, ArrowRightLeft, Volume2, X, Loader2, Copy, Check } from "lucide-react";
 import { LANG_CONFIG } from "../../services/deckStorage";
 import { SaveFlashcardModal } from "./SaveFlashcardModal";
 
@@ -32,16 +32,16 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
   const [domain, setDomain] = useState("");
   const [isTranslating, setIsTranslating] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Array of parsed tokens/words for the UI
   const [translatedTokens, setTranslatedTokens] = useState<string[]>([]);
-  
+
   // Selection state for Floating Menu
   const [menuPosition, setMenuPosition] = useState<{ x: number, y: number } | null>(null);
   const [selectedWord, setSelectedWord] = useState("");
   const [selectedContext, setSelectedContext] = useState("");
   const [isSavingFlashcard, setIsSavingFlashcard] = useState(false);
-  
+
   // Save Flashcard Modal State
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const [modalTerm, setModalTerm] = useState("");
@@ -52,13 +52,33 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
 
   // Toast state
   const [toastMessage, setToastMessage] = useState<string | null>(null);
-  
+
   const [speakingId, setSpeakingId] = useState<"source" | "target" | "selection" | null>(null);
+
+  const [isSourceCopied, setIsSourceCopied] = useState(false);
+  const [isTargetCopied, setIsTargetCopied] = useState(false);
+
+  const handleCopy = (text: string, type: 'source' | 'target') => {
+    if (!text.trim()) return;
+    navigator.clipboard.writeText(text).then(() => {
+      setToastMessage("Đã sao chép thành công!");
+      if (type === 'source') {
+        setIsSourceCopied(true);
+        setTimeout(() => setIsSourceCopied(false), 2000);
+      } else {
+        setIsTargetCopied(true);
+        setTimeout(() => setIsTargetCopied(false), 2000);
+      }
+    }).catch(err => {
+      console.error("Failed to copy: ", err);
+      setToastMessage("Không thể sao chép văn bản.");
+    });
+  };
 
   const containerRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioCache = useRef<Map<string, string>>(new Map());
-  
+
   // Debounce ref to handle real-time streaming
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const ttsDebounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -196,7 +216,7 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
       setIsTranslating(false);
       return;
     }
-    
+
     // Cancel any pending translation stream before starting a new one
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
@@ -210,7 +230,7 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
     setMenuPosition(null);
 
     let currentBuffer = "";
-    
+
     streamTranslation(
       {
         sourceText: textToTranslate,
@@ -233,14 +253,14 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
     );
   };
 
-  // Debounced input change translation (200ms fast real-time typing)
+  // Debounced input change translation (500ms smooth real-time typing)
   useEffect(() => {
     if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
-    
+
     if (sourceText.trim()) {
       debounceTimerRef.current = setTimeout(() => {
         handleTranslate(sourceText);
-      }, 200); // 200ms fast debounce
+      }, 300); // 500ms smooth debounce
     } else {
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
@@ -260,7 +280,7 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
       clearTimeout(ttsDebounceTimerRef.current);
     }
 
-    if (!isTranslating) {
+    if (!isTranslating && !error) {
       const translated = translatedTokens.join("");
       const hasValidTarget = translated.trim().length >= 2;
       const hasValidSource = sourceText.trim().length >= 2;
@@ -282,7 +302,7 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
         clearTimeout(ttsDebounceTimerRef.current);
       }
     };
-  }, [isTranslating, translatedTokens, sourceText, sourceLang, targetLang]);
+  }, [isTranslating, error, translatedTokens, sourceText, sourceLang, targetLang]);
 
   const handleSwap = () => {
     const currentTranslated = translatedTokens.join("");
@@ -312,7 +332,7 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
     // Get position for the floating menu
     const range = selection.getRangeAt(0);
     const rect = range.getBoundingClientRect();
-    
+
     // Get full sentence context (rough approximation)
     const allText = translatedTokens.join("");
     // Find the sentence containing the text
@@ -330,19 +350,19 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
 
   const saveFlashcard = async () => {
     if (!selectedWord) return;
-    
+
     setIsSavingFlashcard(true);
     setToastMessage(`Đang phân tích từ vựng "${selectedWord}"...`);
-    
+
     try {
       const res = await extractFlashcard(selectedWord, selectedContext, domain);
       setIsSavingFlashcard(false);
       setMenuPosition(null);
       setToastMessage(null);
-      
+
       const extractedDef = res.ok && res.data?.definition ? res.data.definition : "";
       const extractedPhonetic = res.ok && res.data?.phonetic ? res.data.phonetic : "";
-      
+
       setModalTerm(selectedWord.trim());
       setModalDef(extractedDef || selectedWord.trim());
       setModalLang(targetLang === "vi" ? sourceLang : targetLang);
@@ -389,7 +409,7 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
     <div className="w-full relative">
       {/* Translation Main Card */}
       <div className="relative flex flex-col md:flex-row bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden min-h-[450px]">
-        
+
         {/* Source Text Area */}
         <div className="flex-1 flex flex-col border-b md:border-b-0 md:border-r border-slate-200 focus-within:bg-slate-50/50 transition-colors">
           {/* Header */}
@@ -406,7 +426,7 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
               ))}
             </select>
           </div>
-          
+
           <textarea
             className="flex-1 w-full px-6 py-5 bg-transparent resize-none outline-none text-slate-800 text-lg leading-relaxed placeholder:text-slate-400"
             placeholder="Nhập văn bản cần dịch tại đây..."
@@ -414,37 +434,42 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
             onChange={(e) => setSourceText(e.target.value.slice(0, 3000))}
           />
           <div className="px-6 py-3 flex items-center justify-between text-xs font-medium text-slate-400 bg-white">
-             <div className="flex items-center gap-1">
-               {sourceText && (
-                 <button onClick={() => setSourceText("")} className="hover:text-red-500 transition-colors p-2 rounded-lg hover:bg-red-50" title="Xóa văn bản">
-                   <X size={18} />
-                 </button>
-               )}
-               {sourceText && (
-                  <button onClick={() => speakText(sourceText, getTTSLangCode(sourceLang), "source")} className="hover:text-blue-500 transition-colors p-2 rounded-lg hover:bg-blue-50" title="Đọc văn bản">
-                    {speakingId === "source" ? <Loader2 size={18} className="animate-spin" /> : <Volume2 size={18} />}
-                  </button>
-               )}
-             </div>
-             <span className={sourceText.length >= 3000 ? "text-red-500 font-semibold" : ""}>
-               {sourceText.length} / 3000
-             </span>
+            <div className="flex items-center gap-1">
+              {sourceText && (
+                <button onClick={() => setSourceText("")} className="hover:text-red-500 transition-colors p-2 rounded-lg hover:bg-red-50" title="Xóa văn bản">
+                  <X size={18} />
+                </button>
+              )}
+              {sourceText && (
+                <button onClick={() => speakText(sourceText, getTTSLangCode(sourceLang), "source")} className="hover:text-blue-500 transition-colors p-2 rounded-lg hover:bg-blue-50" title="Đọc văn bản">
+                  {speakingId === "source" ? <Loader2 size={18} className="animate-spin" /> : <Volume2 size={18} />}
+                </button>
+              )}
+              {sourceText && (
+                <button onClick={() => handleCopy(sourceText, 'source')} className="hover:text-emerald-500 transition-colors p-2 rounded-lg hover:bg-emerald-50" title="Sao chép văn bản">
+                  {isSourceCopied ? <Check size={18} className="text-emerald-500" /> : <Copy size={18} />}
+                </button>
+              )}
+            </div>
+            <span className={sourceText.length >= 3000 ? "text-red-500 font-semibold" : ""}>
+              {sourceText.length} / 3000
+            </span>
           </div>
         </div>
 
         {/* Desktop Swap Button */}
         <div className="hidden md:flex absolute left-1/2 top-[30px] -translate-x-1/2 -translate-y-1/2 z-10">
-           <button
-             onClick={handleSwap}
-             className="flex items-center justify-center w-10 h-10 bg-white border border-slate-200 rounded-full shadow-sm text-slate-500 hover:text-blue-600 hover:border-blue-200 transition-transform hover:scale-105 active:scale-95"
-             title="Đổi ngôn ngữ"
-           >
-             <ArrowRightLeft size={16} />
-           </button>
+          <button
+            onClick={handleSwap}
+            className="flex items-center justify-center w-10 h-10 bg-white border border-slate-200 rounded-full shadow-sm text-slate-500 hover:text-blue-600 hover:border-blue-200 transition-transform hover:scale-105 active:scale-95"
+            title="Đổi ngôn ngữ"
+          >
+            <ArrowRightLeft size={16} />
+          </button>
         </div>
 
         {/* Translation Output Area */}
-        <div 
+        <div
           className="flex-1 flex flex-col bg-slate-50"
           ref={containerRef}
           onMouseUp={handleSelection}
@@ -462,23 +487,23 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
                 </option>
               ))}
             </select>
-            
+
             <DomainSelector value={domain} onChange={setDomain} />
           </div>
-          
+
           <div className="flex-1 px-6 py-5 overflow-y-auto leading-relaxed text-slate-800 text-lg selection:bg-blue-200 selection:text-blue-900">
             {translatedTokens.length === 0 && !isTranslating && !error && (
               <span className="text-slate-400 font-light italic">
                 Bản dịch sẽ xuất hiện tại đây...
               </span>
             )}
-            
+
             {error && (
               <div className="p-4 bg-red-50 text-red-600 rounded-xl text-sm border border-red-100">
                 {error}
               </div>
             )}
-            
+
             <div className="whitespace-pre-wrap relative">
               {translatedTokens.map((token, i) => (
                 <span key={i} className="hover:bg-blue-100/50 rounded-sm transition-colors cursor-text">
@@ -490,24 +515,29 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
               )}
             </div>
           </div>
-          
+
           <div className="px-6 py-4 flex items-center justify-between border-t border-slate-200/50 bg-slate-50">
-             <div className="flex items-center gap-2">
-               {translatedTokens.length > 0 && (
-                  <button onClick={() => speakText(translatedTokens.join(''), getTTSLangCode(targetLang), "target")} className="text-slate-500 hover:text-blue-600 transition-colors p-2 rounded-lg hover:bg-white border border-transparent hover:border-slate-200 shadow-sm" title="Đọc bản dịch">
-                    {speakingId === "target" ? <Loader2 size={18} className="animate-spin" /> : <Volume2 size={18} />}
-                  </button>
-               )}
-             </div>
-             <button
+            <div className="flex items-center gap-2">
+              {translatedTokens.length > 0 && (
+                <button onClick={() => speakText(translatedTokens.join(''), getTTSLangCode(targetLang), "target")} className="text-slate-500 hover:text-blue-600 transition-colors p-2 rounded-lg hover:bg-white border border-transparent hover:border-slate-200 shadow-sm" title="Đọc bản dịch">
+                  {speakingId === "target" ? <Loader2 size={18} className="animate-spin" /> : <Volume2 size={18} />}
+                </button>
+              )}
+              {translatedTokens.length > 0 && (
+                <button onClick={() => handleCopy(translatedTokens.join(''), 'target')} className="text-slate-500 hover:text-emerald-600 transition-colors p-2 rounded-lg hover:bg-white border border-transparent hover:border-slate-200 shadow-sm" title="Sao chép bản dịch">
+                  {isTargetCopied ? <Check size={18} className="text-emerald-500" /> : <Copy size={18} />}
+                </button>
+              )}
+            </div>
+            <button
               type="button"
               onClick={handleOpenFullSaveModal}
               disabled={translatedTokens.length === 0 || isTranslating}
               className="group flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:scale-[1.02] active:scale-[0.98]"
-             >
+            >
               <BookmarkPlus size={18} className="transition-transform group-hover:scale-110" />
               <span>Lưu Flashcard</span>
-             </button>
+            </button>
           </div>
         </div>
       </div>
@@ -551,7 +581,7 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
           </div>
         </div>
       )}
-      
+
     </div>
   );
 };

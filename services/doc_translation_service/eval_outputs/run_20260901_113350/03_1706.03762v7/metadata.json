@@ -1,0 +1,10 @@
+{
+  "file_name": "1706.03762v7.pdf",
+  "doc_id": "770dd380-a3ad-411e-a6d6-e2631dc3d8c9",
+  "result": "COMPLETED",
+  "elapsed_sec": 208.6,
+  "model_used": "vLLM (Qwen/Qwen2.5-14B-Instruct-AWQ)",
+  "pages_processed": 15,
+  "glossary_count": 8,
+  "timestamp": "2026-09-01T11:45:04.176407"
+}

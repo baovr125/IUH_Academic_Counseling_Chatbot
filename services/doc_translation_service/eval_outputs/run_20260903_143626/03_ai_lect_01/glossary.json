@@ -1,0 +1,74 @@
+[
+  {
+    "term": "Machine Learning",
+    "translation": "Học máy",
+    "vi": "Học máy",
+    "phonetic": "/məˈʃiːn lɜːrnɪŋ/",
+    "context": "Khả năng học hỏi của hệ thống trí tuệ nhân tạo.",
+    "audio_url": "/api/v1/translate/audio/terms/en_49ab6e5180a7b39848704659e830119c.mp3",
+    "lang_code": "en"
+  },
+  {
+    "term": "Rationality",
+    "translation": "Tính toán hợp lý",
+    "vi": "Tính toán hợp lý",
+    "phonetic": "/ræʃəˈnalɪti/",
+    "context": "Khả năng lập kế hoạch và ra quyết định hợp lý.",
+    "audio_url": "/api/v1/translate/audio/terms/en_286d4a5bfb08a2403cf2b2476717c182.mp3",
+    "lang_code": "en"
+  },
+  {
+    "term": "Natural Language Processing",
+    "translation": "Xử lý ngôn ngữ tự nhiên",
+    "vi": "Xử lý ngôn ngữ tự nhiên",
+    "phonetic": "/ˈnætʃrəl ˈlæŋgwɪdʒ prəʊˈsesɪŋ/",
+    "context": "Khả năng giao tiếp bằng ngôn ngữ tự nhiên.",
+    "audio_url": "/api/v1/translate/audio/terms/en_60f24fe5059586b5f6d192858b4a379e.mp3",
+    "lang_code": "en"
+  },
+  {
+    "term": "Probability",
+    "translation": "Độ khả năng",
+    "vi": "Độ khả năng",
+    "phonetic": "/prɒbəˈbɪlɪti/",
+    "context": "Phương pháp sử dụng xác suất trong AI.",
+    "audio_url": "/api/v1/translate/audio/terms/en_0c2e58eaee6ac27174c8b80562f3ea4a.mp3",
+    "lang_code": "en"
+  },
+  {
+    "term": "Causality",
+    "translation": "Nguyên nhân - kết quả",
+    "vi": "Nguyên nhân - kết quả",
+    "phonetic": "/kɔːˈsælɪti/",
+    "context": "Khả năng hiểu và phân tích mối quan hệ nguyên nhân - kết quả.",
+    "audio_url": "/api/v1/translate/audio/terms/en_70c25f7920c30745b7bf95617125d691.mp3",
+    "lang_code": "en"
+  },
+  {
+    "term": "Morality",
+    "translation": "Đạo đức",
+    "vi": "Đạo đức",
+    "phonetic": "/mɒˈrælɪti/",
+    "context": "Khả năng suy nghĩ về đạo đức và phán đoán.",
+    "audio_url": "/api/v1/translate/audio/terms/en_698fdea96030dbc0c7bf293519012816.mp3",
+    "lang_code": "en"
+  },
+  {
+    "term": "Neural Network",
+    "translation": "Mạng nơ-ron",
+    "vi": "Mạng nơ-ron",
+    "phonetic": "/ˈnʊərəl ˈnetwɜːk/",
+    "context": "Mô hình học máy mô phỏng cấu trúc não.",
+    "audio_url": "/api/v1/translate/audio/terms/en_816a02b7ec11205311cb4b0398e566ac.mp3",
+    "lang_code": "en"
+  },
+  {
+    "term": "McCulloch-Pitts Neuron Model",
+    "translation": "Mô hình nơ-ron McCulloch-Pitts",
+    "vi": "Mô hình nơ-ron McCulloch-Pitts",
+    "phonetic": "/məˈkʌloʊtʃ-pɪts/",
+    "context": "Mô hình đơn giản đầu tiên của nơ-ron thần kinh.",
+    "audio_url": "/api/v1/translate/audio/terms/en_5625ee055066b34c8e69db6151a0654f.mp3",
+    "lang_code": "en"
+  }
+]

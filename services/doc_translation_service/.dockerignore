@@ -1,0 +1,13 @@
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache
+.coverage
+htmlcov/
+temp_images
+extracted_images
+eval_outputs
+eval_reports
+*.log
+tests

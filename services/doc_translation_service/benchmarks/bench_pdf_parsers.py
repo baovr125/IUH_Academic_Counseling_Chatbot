@@ -7,6 +7,11 @@ import fitz # PyMuPDF
 import pymupdf4llm
 from typing import Dict, Any, List
 
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8")
+
 def create_sample_academic_pdf(pdf_path: str) -> str:
     """Tạo một file PDF học thuật mẫu 4 trang hoàn chỉnh gồm bảng biểu, công thức toán, tiêu đề 2 cấp để đo lường."""
     doc = fitz.open()

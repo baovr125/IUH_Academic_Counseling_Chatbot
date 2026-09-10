@@ -6,35 +6,35 @@
       "os": "Windows 10 (10.0.26200)",
       "processor": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
       "python_version": "3.11.8",
-      "execution_date": "2026-08-29 21:00:17",
+      "execution_date": "2026-09-01 11:04:18",
       "hardware_target": "Local Server Intel CPU + NVIDIA RTX GPU + vLLM/Ollama / Groq Cloud"
     }
   },
   "pdf_parsers": {
     "PyMuPDF4LLM": {
-      "avg_latency_ms": 499.17,
-      "ms_per_page": 124.79,
-      "pages_per_sec": 8.01,
-      "peak_ram_mb": 11.59,
+      "avg_latency_ms": 1025.22,
+      "ms_per_page": 256.31,
+      "pages_per_sec": 3.9,
+      "peak_ram_mb": 11.58,
       "table_structure_preserved": true,
       "heading_preserved": true,
       "math_preserved": true,
       "output_format": "Structured Markdown (LLM-ready)"
     },
     "PyMuPDF (Raw fitz)": {
-      "avg_latency_ms": 3.73,
-      "ms_per_page": 0.93,
-      "pages_per_sec": 1071.07,
-      "peak_ram_mb": 0.04,
+      "avg_latency_ms": 8.52,
+      "ms_per_page": 2.13,
+      "pages_per_sec": 469.32,
+      "peak_ram_mb": 0.03,
       "table_structure_preserved": false,
       "heading_preserved": false,
       "math_preserved": true,
       "output_format": "Plain Text (Unstructured)"
     },
     "pdfplumber": {
-      "avg_latency_ms": 340.42,
-      "ms_per_page": 85.1,
-      "pages_per_sec": 11.75,
+      "avg_latency_ms": 1268.87,
+      "ms_per_page": 317.22,
+      "pages_per_sec": 3.15,
       "peak_ram_mb": 16.15,
       "table_structure_preserved": true,
       "heading_preserved": false,
@@ -42,9 +42,9 @@
       "output_format": "Plain Text + Table Dicts"
     },
     "pypdf": {
-      "avg_latency_ms": 26.6,
-      "ms_per_page": 6.65,
-      "pages_per_sec": 150.36,
+      "avg_latency_ms": 72.65,
+      "ms_per_page": 18.16,
+      "pages_per_sec": 55.06,
       "peak_ram_mb": 0.35,
       "table_structure_preserved": false,
       "heading_preserved": false,
@@ -62,7 +62,7 @@
     },
     "naive_fixed_chunking": {
       "chunks_count": 5,
-      "execution_time_ms": 0.037,
+      "execution_time_ms": 0.067,
       "table_split_violations": 3,
       "table_split_rate_percent": 60.0,
       "latex_split_violations": 1,
@@ -70,7 +70,7 @@
     },
     "hierarchical_chunking_v6_2": {
       "chunks_count": 1,
-      "execution_time_ms": 0.049,
+      "execution_time_ms": 0.09,
       "table_split_violations": 0,
       "table_split_rate_percent": 0.0,
       "latex_split_violations": 1,
@@ -149,10 +149,10 @@
     "parallel_batching": {
       "num_batches": 8,
       "batch_latency_ms": 300.0,
-      "sequential_total_time_ms": 2402.66,
-      "parallel_total_time_ms": 604.47,
-      "speedup_factor": 3.97,
-      "throughput_improvement_percent": 297.5
+      "sequential_total_time_ms": 2404.54,
+      "parallel_total_time_ms": 612.45,
+      "speedup_factor": 3.93,
+      "throughput_improvement_percent": 292.6
     },
     "models_matrix": {
       "models": {
@@ -238,7 +238,7 @@
       "total_paragraphs": 2,
       "total_tables": 1,
       "total_table_cells": 9,
-      "execution_latency_ms": 15.25,
+      "execution_latency_ms": 41.03,
       "font_styling_runs_preserved_percent": 100.0,
       "table_grid_structure_preserved_percent": 100.0,
       "paragraph_margins_preserved_percent": 100.0
@@ -248,14 +248,14 @@
       "total_slides": 2,
       "total_shapes": 4,
       "text_frames_processed": 4,
-      "execution_latency_ms": 22.35,
+      "execution_latency_ms": 40.27,
       "slide_layout_preserved_percent": 100.0,
       "text_autofit_enabled_percent": 100.0
     },
     "scanned_pdf_ocr": {
       "pipeline": "Scanned PDF OCR (PyMuPDF Pixmap 200 DPI + PaddleOCR)",
       "pages_rendered": 4,
-      "render_latency_per_page_ms": 47.42,
+      "render_latency_per_page_ms": 155.83,
       "target_dpi": 200,
       "ocr_text_block_detection_rate_percent": 98.2,
       "output_format": "Reconstructed DOCX with preserved paragraphs"

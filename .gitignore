@@ -42,3 +42,6 @@ Thumbs.db.agent/
 data/
 logs/
 hf_models/
+
+venv_marker/
+venv_marker_latest/

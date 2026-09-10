@@ -1,22 +1,10 @@
 import os
 import time
+import asyncio
 from typing import Tuple
-from google import genai
 from app.services.cache_service import get_cached_translation, set_cached_translation
+from app.services.llm_service import get_nllb_translator, LANG_MAP, get_gemini_client
 from app.utils.logger import logger
-
-_gemini_client = None
-
-def get_gemini():
-    global _gemini_client
-    if _gemini_client is None:
-        api_key = os.getenv("GEMINI_API_KEY", "")
-        if api_key:
-            try:
-                _gemini_client = genai.Client(api_key=api_key)
-            except Exception as e:
-                logger.warning(f"Gemini client creation failed: {e}")
-    return _gemini_client
 
 async def translate_text(text: str, source_lang: str = "en", target_lang: str = "vi") -> Tuple[str, bool, float]:
     start_time = time.perf_counter()
@@ -47,7 +35,32 @@ async def translate_text(text: str, source_lang: str = "en", target_lang: str = 
         latency = (time.perf_counter() - start_time) * 1000
         return translated, False, round(latency, 2)
         
-    client = get_gemini()
+    # Try NLLB first (cost optimized)
+    translator, tokenizer = get_nllb_translator()
+    if translator and tokenizer:
+        nllb_src = LANG_MAP.get(source_lang, "eng_Latn")
+        nllb_tgt = LANG_MAP.get(target_lang, "vie_Latn")
+        try:
+            tokenizer.src_lang = nllb_src
+            source_tokens = tokenizer.convert_ids_to_tokens(tokenizer.encode(text))
+            target_prefix = [nllb_tgt]
+
+            results = await asyncio.to_thread(
+                translator.translate_batch,
+                [source_tokens],
+                target_prefix=[target_prefix]
+            )
+            
+            target_tokens = results[0].hypotheses[0][1:] 
+            translated = tokenizer.decode(tokenizer.convert_tokens_to_ids(target_tokens))
+            set_cached_translation(cache_key, translated)
+            latency = (time.perf_counter() - start_time) * 1000
+            return translated, False, round(latency, 2)
+        except Exception as e:
+            logger.error(f"NLLB translation failed in translate_text: {e}. Falling back to Gemini.")
+
+    # Fallback to LLM if NLLB fails
+    client = get_gemini_client()
     if client:
         try:
             prompt = f"Translate the following text accurately from {source_lang} to {target_lang}. Only output the direct translation without quotes or extra text:\n\n{text}"

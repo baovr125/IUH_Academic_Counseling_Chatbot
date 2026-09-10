@@ -1,0 +1,2562 @@
+[
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Software",
+        "translation": "Phần mềm"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Hardware",
+        "translation": "Phần cứng"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Network",
+        "translation": "Mạng lưới"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Database",
+        "translation": "Cơ sở dữ liệu"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Operating System",
+        "translation": "Hệ điều hành"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Programming Language",
+        "translation": "Ngôn ngữ lập trình"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Algorithm",
+        "translation": "Thuật toán"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Data",
+        "translation": "Dữ liệu"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Cloud Computing",
+        "translation": "Điện toán đám mây"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Artificial Intelligence",
+        "translation": "Trí tuệ nhân tạo"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Machine Learning",
+        "translation": "Học máy"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Big Data",
+        "translation": "Dữ liệu lớn"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Cybersecurity",
+        "translation": "An ninh mạng"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Internet",
+        "translation": "Mạng Internet"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Website",
+        "translation": "Trang web"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Application",
+        "translation": "Ứng dụng"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Server",
+        "translation": "Máy chủ"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Client",
+        "translation": "Máy khách"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Browser",
+        "translation": "Trình duyệt"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "User Interface",
+        "translation": "Giao diện người dùng"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "User Experience",
+        "translation": "Trải nghiệm người dùng"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "API",
+        "translation": "Giao diện lập trình ứng dụng"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Framework",
+        "translation": "Khung làm việc"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Library",
+        "translation": "Thư viện"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Module",
+        "translation": "Mô-đun"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Function",
+        "translation": "Hàm"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Variable",
+        "translation": "Biến"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Constant",
+        "translation": "Hằng số"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Loop",
+        "translation": "Vòng lặp"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Condition",
+        "translation": "Điều kiện"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Debugging",
+        "translation": "Gỡ lỗi"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Compiler",
+        "translation": "Trình biên dịch"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Interpreter",
+        "translation": "Trình thông dịch"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Source Code",
+        "translation": "Mã nguồn"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Binary Code",
+        "translation": "Mã nhị phân"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Frontend",
+        "translation": "Giao diện người dùng"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Backend",
+        "translation": "Hậu cần"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Full Stack",
+        "translation": "Toàn diện"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Deployment",
+        "translation": "Triển khai"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Version Control",
+        "translation": "Kiểm soát phiên bản"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Repository",
+        "translation": "Kho lưu trữ"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Commit",
+        "translation": "Cam kết"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Branch",
+        "translation": "Nhánh"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Merge",
+        "translation": "Hợp nhất"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Testing",
+        "translation": "Kiểm thử"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Unit Test",
+        "translation": "Kiểm thử đơn vị"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Integration Test",
+        "translation": "Kiểm thử tích hợp"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "System Test",
+        "translation": "Kiểm thử hệ thống"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Acceptance Test",
+        "translation": "Kiểm thử chấp nhận"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Bug",
+        "translation": "Lỗi"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Feature",
+        "translation": "Tính năng"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Requirement",
+        "translation": "Yêu cầu"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Specification",
+        "translation": "Đặc tả"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Architecture",
+        "translation": "Kiến trúc"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Design Pattern",
+        "translation": "Mẫu thiết kế"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Object-Oriented",
+        "translation": "Hướng đối tượng"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Inheritance",
+        "translation": "Kế thừa"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Polymorphism",
+        "translation": "Đa hình"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Encapsulation",
+        "translation": "Đóng gói"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Abstraction",
+        "translation": "Trừu tượng hóa"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Data Structure",
+        "translation": "Cấu trúc dữ liệu"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Array",
+        "translation": "Mảng"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "List",
+        "translation": "Danh sách"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Stack",
+        "translation": "Ngăn xếp"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Queue",
+        "translation": "Hàng đợi"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Tree",
+        "translation": "Cây"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Graph",
+        "translation": "Đồ thị"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Hash Table",
+        "translation": "Bảng băm"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Sorting",
+        "translation": "Sắp xếp"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Searching",
+        "translation": "Tìm kiếm"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Encryption",
+        "translation": "Mã hóa"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Decryption",
+        "translation": "Giải mã"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Firewall",
+        "translation": "Tường lửa"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "VPN",
+        "translation": "Mạng riêng ảo"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Authentication",
+        "translation": "Xác thực"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Authorization",
+        "translation": "Ủy quyền"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Protocol",
+        "translation": "Giao thức"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "IP Address",
+        "translation": "Địa chỉ IP"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Domain Name",
+        "translation": "Tên miền"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "DNS",
+        "translation": "Hệ thống tên miền"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Router",
+        "translation": "Bộ định tuyến"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Switch",
+        "translation": "Bộ chuyển mạch"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Modem",
+        "translation": "Bộ điều giải"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Bandwidth",
+        "translation": "Băng thông"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Latency",
+        "translation": "Độ trễ"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Throughput",
+        "translation": "Thông lượng"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Virtual Machine",
+        "translation": "Máy ảo"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Container",
+        "translation": "Bộ chứa"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Microservices",
+        "translation": "Kiến trúc vi dịch vụ"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "DevOps",
+        "translation": "Phát triển và vận hành"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Agile",
+        "translation": "Linh hoạt"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Scrum",
+        "translation": "Scrum (phương pháp)"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Kanban",
+        "translation": "Kanban (phương pháp)"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Sprint",
+        "translation": "Chạy nước rút"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Backlog",
+        "translation": "Danh sách tồn đọng"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Product Owner",
+        "translation": "Chủ sản phẩm"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Scrum Master",
+        "translation": "Quản lý Scrum"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Daily Standup",
+        "translation": "Họp đứng hàng ngày"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Retrospective",
+        "translation": "Hồi cứu"
+    },
+    {
+        "domain": "Công nghệ Thông tin (IT)",
+        "word": "Refactoring",
+        "translation": "Tái cấu trúc mã"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Doctor",
+        "translation": "Bác sĩ"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Nurse",
+        "translation": "Y tá / Điều dưỡng"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Patient",
+        "translation": "Bệnh nhân"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Hospital",
+        "translation": "Bệnh viện"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Clinic",
+        "translation": "Phòng khám"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Medicine",
+        "translation": "Thuốc"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Disease",
+        "translation": "Bệnh"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Symptom",
+        "translation": "Triệu chứng"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Diagnosis",
+        "translation": "Chẩn đoán"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Treatment",
+        "translation": "Điều trị"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Surgery",
+        "translation": "Phẫu thuật"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Vaccine",
+        "translation": "Vắc-xin"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Infection",
+        "translation": "Nhiễm trùng"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Inflammation",
+        "translation": "Viêm"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Pain",
+        "translation": "Đau"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Fever",
+        "translation": "Sốt"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Headache",
+        "translation": "Đau đầu"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Cough",
+        "translation": "Ho"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Cold",
+        "translation": "Cảm lạnh"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Flu",
+        "translation": "Cúm"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Allergy",
+        "translation": "Dị ứng"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Asthma",
+        "translation": "Hen suyễn"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Diabetes",
+        "translation": "Tiểu đường"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Hypertension",
+        "translation": "Huyết áp cao"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Heart attack",
+        "translation": "Đau tim / Nhồi máu cơ tim"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Stroke",
+        "translation": "Đột quỵ"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Cancer",
+        "translation": "Ung thư"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Tumor",
+        "translation": "Khối u"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Blood",
+        "translation": "Máu"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Urine",
+        "translation": "Nước tiểu"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Stool",
+        "translation": "Phân"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "X-ray",
+        "translation": "Chụp X-quang"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "MRI",
+        "translation": "Chụp MRI"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "CT scan",
+        "translation": "Chụp CT"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Ultrasound",
+        "translation": "Siêu âm"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Prescription",
+        "translation": "Đơn thuốc"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Pharmacy",
+        "translation": "Nhà thuốc"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Pharmacist",
+        "translation": "Dược sĩ"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Side effect",
+        "translation": "Tác dụng phụ"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Dosage",
+        "translation": "Liều lượng"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Injection",
+        "translation": "Tiêm"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Tablet",
+        "translation": "Viên nén"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Capsule",
+        "translation": "Viên nang"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Syrup",
+        "translation": "Siro"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Ointment",
+        "translation": "Thuốc mỡ"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Bandage",
+        "translation": "Băng gạc"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Wound",
+        "translation": "Vết thương"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Fracture",
+        "translation": "Gãy xương"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Sprain",
+        "translation": "Bong gân"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Bruise",
+        "translation": "Vết bầm"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Burn",
+        "translation": "Bỏng"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "First aid",
+        "translation": "Sơ cứu"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Emergency",
+        "translation": "Cấp cứu"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Ambulance",
+        "translation": "Xe cứu thương"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Operation room",
+        "translation": "Phòng mổ"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Intensive care unit",
+        "translation": "Khoa hồi sức tích cực"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Pediatrics",
+        "translation": "Nhi khoa"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Obstetrics",
+        "translation": "Sản khoa"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Gynecology",
+        "translation": "Phụ khoa"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Cardiology",
+        "translation": "Tim mạch"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Dermatology",
+        "translation": "Da liễu"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Neurology",
+        "translation": "Thần kinh"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Oncology",
+        "translation": "Ung bướu"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Orthopedics",
+        "translation": "Chấn thương chỉnh hình"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Psychiatry",
+        "translation": "Tâm thần học"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "General practitioner",
+        "translation": "Bác sĩ đa khoa"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Specialist",
+        "translation": "Bác sĩ chuyên khoa"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Health insurance",
+        "translation": "Bảo hiểm y tế"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Medical record",
+        "translation": "Hồ sơ bệnh án"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Check-up",
+        "translation": "Khám sức khỏe định kỳ"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Blood pressure",
+        "translation": "Huyết áp"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Heart rate",
+        "translation": "Nhịp tim"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Body temperature",
+        "translation": "Nhiệt độ cơ thể"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Respiration rate",
+        "translation": "Nhịp thở"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Weight",
+        "translation": "Cân nặng"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Height",
+        "translation": "Chiều cao"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Diet",
+        "translation": "Chế độ ăn uống"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Exercise",
+        "translation": "Tập thể dục"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Nutrition",
+        "translation": "Dinh dưỡng"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Vitamin",
+        "translation": "Vitamin"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Mineral",
+        "translation": "Khoáng chất"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Hydration",
+        "translation": "Bù nước"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Dehydration",
+        "translation": "Mất nước"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Stress",
+        "translation": "Căng thẳng"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Mental health",
+        "translation": "Sức khỏe tâm thần"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Depression",
+        "translation": "Trầm cảm"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Anxiety",
+        "translation": "Lo âu"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Insomnia",
+        "translation": "Mất ngủ"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Addiction",
+        "translation": "Nghiện"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Rehabilitation",
+        "translation": "Phục hồi chức năng"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Physical therapy",
+        "translation": "Vật lý trị liệu"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Occupational therapy",
+        "translation": "Hoạt động trị liệu"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Speech therapy",
+        "translation": "Ngôn ngữ trị liệu"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Public health",
+        "translation": "Y tế công cộng"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Epidemiology",
+        "translation": "Dịch tễ học"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Prevention",
+        "translation": "Phòng ngừa"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Screening",
+        "translation": "Sàng lọc"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Vaccination",
+        "translation": "Tiêm chủng"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Chronic disease",
+        "translation": "Bệnh mãn tính"
+    },
+    {
+        "domain": "Y khoa / Sức khỏe",
+        "word": "Acute disease",
+        "translation": "Bệnh cấp tính"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Economy",
+        "translation": "Kinh tế"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Finance",
+        "translation": "Tài chính"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Market",
+        "translation": "Thị trường"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Investment",
+        "translation": "Đầu tư"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Capital",
+        "translation": "Vốn"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Stock",
+        "translation": "Cổ phiếu"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Bond",
+        "translation": "Trái phiếu"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Interest rate",
+        "translation": "Lãi suất"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Inflation",
+        "translation": "Lạm phát"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Deflation",
+        "translation": "Giảm phát"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "GDP",
+        "translation": "Tổng sản phẩm quốc nội"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "GNP",
+        "translation": "Tổng sản phẩm quốc dân"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Recession",
+        "translation": "Suy thoái"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Depression",
+        "translation": "Khủng hoảng kinh tế"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Exchange rate",
+        "translation": "Tỷ giá hối đoái"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Currency",
+        "translation": "Tiền tệ"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Bank",
+        "translation": "Ngân hàng"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Loan",
+        "translation": "Khoản vay"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Debt",
+        "translation": "Nợ"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Credit",
+        "translation": "Tín dụng"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Budget",
+        "translation": "Ngân sách"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Revenue",
+        "translation": "Doanh thu"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Expense",
+        "translation": "Chi phí"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Profit",
+        "translation": "Lợi nhuận"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Loss",
+        "translation": "Lỗ"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Tax",
+        "translation": "Thuế"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Subsidy",
+        "translation": "Trợ cấp"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Trade",
+        "translation": "Thương mại"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Export",
+        "translation": "Xuất khẩu"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Import",
+        "translation": "Nhập khẩu"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Tariff",
+        "translation": "Thuế quan"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Supply",
+        "translation": "Cung"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Demand",
+        "translation": "Cầu"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Monopoly",
+        "translation": "Độc quyền"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Oligopoly",
+        "translation": "Độc quyền nhóm"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Competition",
+        "translation": "Cạnh tranh"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Consumer",
+        "translation": "Người tiêu dùng"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Producer",
+        "translation": "Nhà sản xuất"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Entrepreneur",
+        "translation": "Doanh nhân"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Shareholder",
+        "translation": "Cổ đông"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Dividend",
+        "translation": "Cổ tức"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Portfolio",
+        "translation": "Danh mục đầu tư"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Diversification",
+        "translation": "Đa dạng hóa"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Risk",
+        "translation": "Rủi ro"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Return",
+        "translation": "Lợi tức"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Asset",
+        "translation": "Tài sản"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Liability",
+        "translation": "Nợ phải trả"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Balance sheet",
+        "translation": "Bảng cân đối kế toán"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Income statement",
+        "translation": "Báo cáo kết quả kinh doanh"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Cash flow",
+        "translation": "Dòng tiền"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Audit",
+        "translation": "Kiểm toán"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Fiscal policy",
+        "translation": "Chính sách tài khóa"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Monetary policy",
+        "translation": "Chính sách tiền tệ"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Central bank",
+        "translation": "Ngân hàng trung ương"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Commercial bank",
+        "translation": "Ngân hàng thương mại"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Mortgage",
+        "translation": "Thế chấp"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Collateral",
+        "translation": "Tài sản thế chấp"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Default",
+        "translation": "Vỡ nợ"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Bankruptcy",
+        "translation": "Phá sản"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Liquidity",
+        "translation": "Thanh khoản"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Solvency",
+        "translation": "Khả năng thanh toán"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Futures",
+        "translation": "Hợp đồng tương lai"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Options",
+        "translation": "Quyền chọn"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Derivatives",
+        "translation": "Phái sinh"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Hedge",
+        "translation": "Phòng ngừa rủi ro"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Arbitrage",
+        "translation": "Kinh doanh chênh lệch giá"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Bull market",
+        "translation": "Thị trường giá lên"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Bear market",
+        "translation": "Thị trường giá xuống"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Volatility",
+        "translation": "Biến động"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Index",
+        "translation": "Chỉ số"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Blue chip",
+        "translation": "Cổ phiếu blue chip"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "IPO",
+        "translation": "Phát hành cổ phiếu lần đầu ra công chúng"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Merger",
+        "translation": "Sáp nhập"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Acquisition",
+        "translation": "Mua lại"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Due diligence",
+        "translation": "Thẩm định chuyên sâu"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Valuation",
+        "translation": "Định giá"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Equity",
+        "translation": "Vốn chủ sở hữu"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Debt financing",
+        "translation": "Tài trợ bằng nợ"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Equity financing",
+        "translation": "Tài trợ bằng vốn chủ sở hữu"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Venture capital",
+        "translation": "Vốn đầu tư mạo hiểm"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Private equity",
+        "translation": "Vốn cổ phần tư nhân"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Hedge fund",
+        "translation": "Quỹ phòng hộ"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Mutual fund",
+        "translation": "Quỹ tương hỗ"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Pension fund",
+        "translation": "Quỹ hưu trí"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Sovereign wealth fund",
+        "translation": "Quỹ tài sản quốc gia"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Credit rating",
+        "translation": "Xếp hạng tín dụng"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Bond yield",
+        "translation": "Lợi suất trái phiếu"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Spread",
+        "translation": "Chênh lệch"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Bid price",
+        "translation": "Giá mua"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Ask price",
+        "translation": "Giá bán"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Broker",
+        "translation": "Môi giới"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Trader",
+        "translation": "Nhà giao dịch"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Regulator",
+        "translation": "Cơ quan quản lý"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Compliance",
+        "translation": "Tuân thủ"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Sanctions",
+        "translation": "Trừng phạt"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Globalization",
+        "translation": "Toàn cầu hóa"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Free trade",
+        "translation": "Tự do thương mại"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Protectionism",
+        "translation": "Chủ nghĩa bảo hộ"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Supply chain",
+        "translation": "Chuỗi cung ứng"
+    },
+    {
+        "domain": "Kinh tế / Tài chính",
+        "word": "Economic growth",
+        "translation": "Tăng trưởng kinh tế"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Mechanical engineering",
+        "translation": "Kỹ thuật cơ khí"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Machine",
+        "translation": "Máy móc"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Component",
+        "translation": "Chi tiết máy"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Assembly",
+        "translation": "Lắp ráp"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Design",
+        "translation": "Thiết kế"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Analysis",
+        "translation": "Phân tích"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Manufacturing",
+        "translation": "Chế tạo"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Material",
+        "translation": "Vật liệu"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Steel",
+        "translation": "Thép"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Aluminum",
+        "translation": "Nhôm"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Copper",
+        "translation": "Đồng"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Alloy",
+        "translation": "Hợp kim"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Strength",
+        "translation": "Độ bền"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Stress",
+        "translation": "Ứng suất"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Strain",
+        "translation": "Biến dạng"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Fatigue",
+        "translation": "Mỏi"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Fracture",
+        "translation": "Gãy, nứt"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Deformation",
+        "translation": "Biến dạng"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Torque",
+        "translation": "Mô-men xoắn"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Power",
+        "translation": "Công suất"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Energy",
+        "translation": "Năng lượng"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Force",
+        "translation": "Lực"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Motion",
+        "translation": "Chuyển động"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Velocity",
+        "translation": "Vận tốc"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Acceleration",
+        "translation": "Gia tốc"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Gear",
+        "translation": "Bánh răng"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Bearing",
+        "translation": "Ổ trục"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Shaft",
+        "translation": "Trục"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Coupling",
+        "translation": "Khớp nối"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Belt drive",
+        "translation": "Truyền động đai"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Pulley",
+        "translation": "Ròng rọc"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Chain drive",
+        "translation": "Truyền động xích"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Sprocket",
+        "translation": "Đĩa xích"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Engine",
+        "translation": "Động cơ"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Motor",
+        "translation": "Mô tơ"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Pump",
+        "translation": "Bơm"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Valve",
+        "translation": "Van"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Pipe",
+        "translation": "Ống"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Fluid",
+        "translation": "Chất lỏng"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Pressure",
+        "translation": "Áp suất"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Flow",
+        "translation": "Lưu lượng"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Heat",
+        "translation": "Nhiệt"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Temperature",
+        "translation": "Nhiệt độ"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Thermodynamics",
+        "translation": "Nhiệt động lực học"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Combustion",
+        "translation": "Đốt cháy"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Lubrication",
+        "translation": "Bôi trơn"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Friction",
+        "translation": "Ma sát"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Vibration",
+        "translation": "Rung động"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Noise",
+        "translation": "Tiếng ồn"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Robotics",
+        "translation": "Người máy học"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Automation",
+        "translation": "Tự động hóa"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "CAD",
+        "translation": "Thiết kế có sự hỗ trợ của máy tính"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "CAM",
+        "translation": "Sản xuất có sự hỗ trợ của máy tính"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "CAE",
+        "translation": "Kỹ thuật có sự hỗ trợ của máy tính"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "CNC",
+        "translation": "Điều khiển số bằng máy tính"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Welding",
+        "translation": "Hàn"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Machining",
+        "translation": "Gia công cơ khí"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Turning",
+        "translation": "Tiện"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Milling",
+        "translation": "Phay"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Drilling",
+        "translation": "Khoan"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Grinding",
+        "translation": "Mài"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Casting",
+        "translation": "Đúc"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Forging",
+        "translation": "Rèn"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Stamping",
+        "translation": "Dập"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Extrusion",
+        "translation": "Ép đùn"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Injection molding",
+        "translation": "Ép phun"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Additive manufacturing",
+        "translation": "Sản xuất bồi đắp"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Quality control",
+        "translation": "Kiểm soát chất lượng"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Tolerance",
+        "translation": "Dung sai"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Dimension",
+        "translation": "Kích thước"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Blueprint",
+        "translation": "Bản vẽ kỹ thuật"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Drawing",
+        "translation": "Bản vẽ"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Mechanism",
+        "translation": "Cơ cấu"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Kinematics",
+        "translation": "Động học"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Dynamics",
+        "translation": "Động lực học"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Statics",
+        "translation": "Tĩnh học"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Fluid mechanics",
+        "translation": "Cơ học chất lỏng"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Heat transfer",
+        "translation": "Truyền nhiệt"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Solid mechanics",
+        "translation": "Cơ học vật rắn"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Material science",
+        "translation": "Khoa học vật liệu"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Mechatronics",
+        "translation": "Cơ điện tử"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Actuator",
+        "translation": "Bộ truyền động"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Sensor",
+        "translation": "Cảm biến"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Control system",
+        "translation": "Hệ thống điều khiển"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Gearbox",
+        "translation": "Hộp số"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Piston",
+        "translation": "Pít-tông"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Cylinder",
+        "translation": "Xi lanh"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Crankshaft",
+        "translation": "Trục khuỷu"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Camshaft",
+        "translation": "Trục cam"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Radiator",
+        "translation": "Két tản nhiệt"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Turbine",
+        "translation": "Tuabin"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Compressor",
+        "translation": "Máy nén"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Boiler",
+        "translation": "Nồi hơi"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Heat exchanger",
+        "translation": "Bộ trao đổi nhiệt"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Renewable energy",
+        "translation": "Năng lượng tái tạo"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Sustainable design",
+        "translation": "Thiết kế bền vững"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Finite element analysis",
+        "translation": "Phân tích phần tử hữu hạn"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Product development",
+        "translation": "Phát triển sản phẩm"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Hydraulics",
+        "translation": "Thủy lực học"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Pneumatics",
+        "translation": "Khí nén"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Aerodynamics",
+        "translation": "Khí động lực học"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Thermoset",
+        "translation": "Nhựa nhiệt rắn"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Thermoplastic",
+        "translation": "Nhựa nhiệt dẻo"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Composite material",
+        "translation": "Vật liệu composite"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Corrosion",
+        "translation": "Ăn mòn"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Wear",
+        "translation": "Mài mòn"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Maintenance",
+        "translation": "Bảo trì"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Troubleshooting",
+        "translation": "Khắc phục sự cố"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Efficiency",
+        "translation": "Hiệu suất"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Reliability",
+        "translation": "Độ tin cậy"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Durability",
+        "translation": "Độ bền"
+    },
+    {
+        "domain": "Kỹ thuật Cơ khí",
+        "word": "Safety",
+        "translation": "An toàn"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Law",
+        "translation": "Luật"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Legal",
+        "translation": "Pháp lý"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Justice",
+        "translation": "Công lý"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Court",
+        "translation": "Tòa án"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Judge",
+        "translation": "Thẩm phán"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Lawyer",
+        "translation": "Luật sư"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Attorney",
+        "translation": "Luật sư"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Plaintiff",
+        "translation": "Nguyên đơn"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Defendant",
+        "translation": "Bị đơn"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Witness",
+        "translation": "Nhân chứng"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Verdict",
+        "translation": "Phán quyết"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Sentence",
+        "translation": "Bản án"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Crime",
+        "translation": "Tội phạm"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Criminal",
+        "translation": "Tội phạm (người)"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Civil law",
+        "translation": "Luật dân sự"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Penal code",
+        "translation": "Bộ luật hình sự"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Constitution",
+        "translation": "Hiến pháp"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Statute",
+        "translation": "Đạo luật"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Regulation",
+        "translation": "Quy định"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Ordinance",
+        "translation": "Sắc lệnh"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Act (law)",
+        "translation": "Đạo luật"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Bill (law)",
+        "translation": "Dự luật"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Appeal",
+        "translation": "Kháng cáo"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Appellant",
+        "translation": "Người kháng cáo"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Respondent",
+        "translation": "Bị đơn (kháng cáo)"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Hearing",
+        "translation": "Phiên điều trần"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Trial",
+        "translation": "Phiên tòa"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Jury",
+        "translation": "Bồi thẩm đoàn"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Juror",
+        "translation": "Thành viên bồi thẩm"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Evidence",
+        "translation": "Bằng chứng"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Exhibit",
+        "translation": "Vật chứng"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Testimony",
+        "translation": "Lời khai"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Oath",
+        "translation": "Lời thề"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Affidavit",
+        "translation": "Bản khai có tuyên thệ"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Summons",
+        "translation": "Giấy triệu tập"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Subpoena",
+        "translation": "Trát đòi hầu tòa"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Warrant",
+        "translation": "Lệnh (bắt, khám xét)"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Arrest",
+        "translation": "Bắt giữ"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Bail",
+        "translation": "Tiền bảo lãnh"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Prosecution",
+        "translation": "Bên công tố"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Prosecutor",
+        "translation": "Công tố viên"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Defense",
+        "translation": "Bên bào chữa"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Defense counsel",
+        "translation": "Luật sư bào chữa"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Acquittal",
+        "translation": "Tha bổng"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Conviction",
+        "translation": "Kết án"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Guilty",
+        "translation": "Có tội"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Not guilty",
+        "translation": "Vô tội"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Damages",
+        "translation": "Thiệt hại (bồi thường)"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Compensation",
+        "translation": "Bồi thường"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Liability",
+        "translation": "Trách nhiệm pháp lý"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Contract",
+        "translation": "Hợp đồng"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Agreement",
+        "translation": "Thỏa thuận"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Breach of contract",
+        "translation": "Vi phạm hợp đồng"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Tort",
+        "translation": "Sai phạm dân sự"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Negligence",
+        "translation": "Sơ suất"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Duty of care",
+        "translation": "Nghĩa vụ cẩn trọng"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Property law",
+        "translation": "Luật tài sản"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Real estate",
+        "translation": "Bất động sản"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Intellectual property",
+        "translation": "Sở hữu trí tuệ"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Patent",
+        "translation": "Bằng sáng chế"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Trademark",
+        "translation": "Nhãn hiệu"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Copyright",
+        "translation": "Bản quyền"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Will",
+        "translation": "Di chúc"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Estate",
+        "translation": "Di sản"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Inheritance",
+        "translation": "Thừa kế"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Probate",
+        "translation": "Chứng thực di chúc"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Family law",
+        "translation": "Luật gia đình"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Divorce",
+        "translation": "Ly hôn"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Custody",
+        "translation": "Quyền nuôi con"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Adoption",
+        "translation": "Nhận con nuôi"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Human rights",
+        "translation": "Nhân quyền"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "International law",
+        "translation": "Luật quốc tế"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Treaty",
+        "translation": "Hiệp ước"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Convention",
+        "translation": "Công ước"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Jurisdiction",
+        "translation": "Thẩm quyền"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Precedent",
+        "translation": "Án lệ"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Stare decisis",
+        "translation": "Nguyên tắc án lệ"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Due process",
+        "translation": "Quy trình tố tụng"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Rule of law",
+        "translation": "Pháp quyền"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Legal aid",
+        "translation": "Trợ giúp pháp lý"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Barrister",
+        "translation": "Luật sư tranh tụng"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Solicitor",
+        "translation": "Luật sư tư vấn"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Notary public",
+        "translation": "Công chứng viên"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Legislation",
+        "translation": "Pháp luật (quá trình)"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Enactment",
+        "translation": "Ban hành luật"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Repeal",
+        "translation": "Bãi bỏ"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Amendment",
+        "translation": "Sửa đổi"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Clause",
+        "translation": "Điều khoản"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Article",
+        "translation": "Điều (luật)"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Section",
+        "translation": "Khoản (luật)"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Paragraph",
+        "translation": "Điểm (luật)"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Subsection",
+        "translation": "Tiểu mục"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Legal entity",
+        "translation": "Pháp nhân"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Corporate law",
+        "translation": "Luật doanh nghiệp"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Bankruptcy",
+        "translation": "Phá sản"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Insolvency",
+        "translation": "Mất khả năng thanh toán"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Arbitration",
+        "translation": "Trọng tài"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Mediation",
+        "translation": "Hòa giải"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Litigation",
+        "translation": "Kiện tụng"
+    },
+    {
+        "domain": "Luật / Pháp lý",
+        "word": "Legal dispute",
+        "translation": "Tranh chấp pháp lý"
+    }
+]

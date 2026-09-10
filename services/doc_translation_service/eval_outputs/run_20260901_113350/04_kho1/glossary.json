@@ -1,0 +1,56 @@
+[
+  {
+    "term": "protein structure prediction",
+    "translation": "đoán định cấu trúc protein",
+    "vi": "đoán định cấu trúc protein",
+    "phonetic": "/protein structure prediction/",
+    "context": "Phần quan trọng của bài viết đề cập đến việc dự đoán cấu trúc ba chiều của protein dựa trên chuỗi axit amin.",
+    "audio_url": "/api/v1/translate/audio/terms/en_c9668c9b95ed0c844a5ea97fbac23d16.mp3",
+    "lang_code": "en"
+  },
+  {
+    "term": "Critical Assessment of protein Structure Prediction (CASP)",
+    "translation": "Đánh giá phê duyệt về dự đoán cấu trúc protein (CASP)",
+    "vi": "Đánh giá phê duyệt về dự đoán cấu trúc protein (CASP)",
+    "phonetic": "/Critical Assessment of protein Structure Prediction/",
+    "context": "Cuộc thi CASP14 nhằm đánh giá độ chính xác của các phương pháp dự đoán cấu trúc protein.",
+    "audio_url": "/api/v1/translate/audio/terms/en_dd02de25cede2a65a98dd6ef8485a8ba.mp3",
+    "lang_code": "en"
+  },
+  {
+    "term": "machine learning",
+    "translation": "học máy",
+    "vi": "học máy",
+    "phonetic": "/machine learning/",
+    "context": "Phương pháp học máy mới được sử dụng trong phiên bản mới nhất của AlphaFold.",
+    "audio_url": "/api/v1/translate/audio/terms/en_49ab6e5180a7b39848704659e830119c.mp3",
+    "lang_code": "en"
+  },
+  {
+    "term": "multi-sequence alignment",
+    "translation": "đối sánh đa chuỗi",
+    "vi": "đối sánh đa chuỗi",
+    "phonetic": "/multi-sequence alignment/",
+    "context": "Kỹ thuật đối sánh đa chuỗi được tích hợp vào thiết kế thuật toán học sâu.",
+    "audio_url": "/api/v1/translate/audio/terms/en_8e8d5fbf560ef99c38a185be0247419f.mp3",
+    "lang_code": "en"
+  },
+  {
+    "term": "physical interaction programme",
+    "translation": "chương trình tương tác vật lý",
+    "vi": "chương trình tương tác vật lý",
+    "phonetic": "/physical interaction programme/",
+    "context": "Chương trình tập trung vào sự hiểu biết về lực phân tử trong mô phỏng hoặc ước tính thống kê về protein.",
+    "audio_url": "/api/v1/translate/audio/terms/en_28c5f21231239af3fc0b3c729f595952.mp3",
+    "lang_code": "en"
+  },
+  {
+    "term": "evolutionary history",
+    "translation": "lịch sử tiến hóa",
+    "vi": "lịch sử tiến hóa",
+    "phonetic": "/evolutionary history/",
+    "context": "Chương trình tập trung vào lịch sử tiến hóa của protein.",
+    "audio_url": "/api/v1/translate/audio/terms/en_cb212d7287b7a10d80c702ab3bc1d21d.mp3",
+    "lang_code": "en"
+  }
+]

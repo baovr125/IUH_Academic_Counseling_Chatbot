@@ -1,0 +1,10 @@
+{
+  "file_name": "ai_lect_01.pdf",
+  "doc_id": "8b1beaac-c7c4-4243-9094-99fbfbf7eb31",
+  "result": "COMPLETED",
+  "elapsed_sec": 120.3,
+  "model_used": "vLLM (Qwen/Qwen2.5-14B-Instruct-AWQ)",
+  "pages_processed": 30,
+  "glossary_count": 8,
+  "timestamp": "2026-09-03T14:48:50.247423"
+}

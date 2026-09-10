@@ -175,7 +175,21 @@ export default function DocumentTranslationPage() {
           if (token) headers["Authorization"] = `Bearer ${token}`;
 
           fetch(`${baseUrl}/api/v1/documents/${data.docId}/status`, { headers })
-            .then((res) => (res.ok ? res.json() : null))
+            .then((res) => {
+              if (res.status === 404) {
+                // Phiên làm việc đã hết hạn hoặc không tồn tại (chẳng hạn backend bị restart)
+                sessionStorage.removeItem(storageKey);
+                setDocId("");
+                setTranslatedText("");
+                setGlossary([]);
+                setIsCompleted(false);
+                setIsTranslating(false);
+                setStatusMessage("");
+                setProgressPercent(0);
+                return null;
+              }
+              return res.ok ? res.json() : null;
+            })
             .then((resData) => {
               if (resData?.data) {
                 const item = resData.data;
@@ -189,6 +203,10 @@ export default function DocumentTranslationPage() {
                   if (item.translated_text) setTranslatedText(item.translated_text);
                   if (item.model_used) setModelUsed(item.model_used);
                   if (item.message) setStatusMessage(item.message);
+                } else if (item.status === "failed") {
+                  setIsCompleted(false);
+                  setIsTranslating(false);
+                  setStatusMessage("Lỗi dịch thuật: " + (item.error || item.message));
                 }
               }
             })

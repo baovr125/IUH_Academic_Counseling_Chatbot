@@ -71,6 +71,33 @@ def get_nllb_translator():
         except Exception as cpu_err:
             logger.error(f"Failed to load NLLB model on CPU fallback: {cpu_err}")
             return None, None
+
+def preload_models():
+    """Preloads the local translation models into memory (VRAM if available) at startup."""
+    logger.info("Preloading local NLLB models...")
+    translator, tokenizer = get_nllb_translator()
+    
+    if translator and tokenizer:
+        logger.info("Running dummy inference to warm up CUDA memory allocation...")
+        try:
+            # Dummy inference to trigger memory allocation and kernel compilation
+            nllb_src = LANG_MAP.get("en", "eng_Latn")
+            nllb_tgt = LANG_MAP.get("vi", "vie_Latn")
+            tokenizer.src_lang = nllb_src
+            source_tokens = tokenizer.convert_ids_to_tokens(tokenizer.encode("Hello"))
+            target_prefix = [nllb_tgt]
+            
+            # Use synchronous translate_batch for warm-up
+            translator.translate_batch(
+                [source_tokens],
+                target_prefix=[target_prefix]
+            )
+            logger.info("Dummy inference completed. Model is fully warmed up.")
+        except Exception as e:
+            logger.warning(f"Failed to run dummy inference: {e}")
+            
+    logger.info("Local models preloaded successfully.")
+
 def get_groq_client() -> Optional[AsyncGroq]:
     api_key = os.getenv("GROQ_API_KEY", "")
     if not api_key:
@@ -106,6 +133,17 @@ LANG_MAP = {
 
 async def stream_translation(text: str, source_lang: str, target_lang: str, domain: str = "") -> AsyncGenerator[str, None]:
     """Translates text using local NLLB model via CTranslate2. Falls back to Groq/Gemini."""
+    # Length-based routing: if <= 3 words and domain is provided, check Redis first
+    words = text.strip().split()
+    if domain and len(words) <= 3:
+        from app.services.cache_service import get_redis
+        redis_client = get_redis()
+        if redis_client:
+            cached_trans = redis_client.hget(f"domain_dict:{domain}", text.strip().lower())
+            if cached_trans:
+                yield json.dumps({'text': cached_trans})
+                return
+                
     translator, tokenizer = get_nllb_translator()
     
     if translator and tokenizer:

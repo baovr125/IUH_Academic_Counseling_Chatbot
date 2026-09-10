@@ -1,0 +1,74 @@
+[
+  {
+    "term": "language model",
+    "translation": "mô hình ngôn ngữ",
+    "vi": "mô hình ngôn ngữ",
+    "phonetic": "/langɡwij/ /mɑdl/",
+    "context": "mô hình học máy được huấn luyện dựa trên dữ liệu văn bản lớn",
+    "audio_url": "/api/v1/translate/audio/terms/en_c8740c2b69c868ebf849e53a4ff189b3.mp3",
+    "lang_code": "en"
+  },
+  {
+    "term": "few-shot learning",
+    "translation": "học ít mẫu",
+    "vi": "học ít mẫu",
+    "phonetic": "/fjuː/ /ʃɒt/ /lɜːnɪŋ/",
+    "context": "khả năng học từ một số lượng nhỏ dữ liệu mẫu",
+    "audio_url": "/api/v1/translate/audio/terms/en_cec7ef491a6e81ab4423175550cb1f00.mp3",
+    "lang_code": "en"
+  },
+  {
+    "term": "autoregressive model",
+    "translation": "mô hình tự hồi quy",
+    "vi": "mô hình tự hồi quy",
+    "phonetic": "/ɔːtərɛɡrɛsɪv/ /mɑdl/",
+    "context": "mô hình học máy dự đoán giá trị tiếp theo dựa trên các giá trị trước đó",
+    "audio_url": "/api/v1/translate/audio/terms/en_1593fc0e9ad7cee79ce06a6596f3657b.mp3",
+    "lang_code": "en"
+  },
+  {
+    "term": "fine-tuning",
+    "translation": "huấn luyện tinh chỉnh",
+    "vi": "huấn luyện tinh chỉnh",
+    "phonetic": "/faɪn tuːnɪŋ/",
+    "context": "quá trình điều chỉnh mô hình học máy cho một nhiệm vụ cụ thể",
+    "audio_url": "/api/v1/translate/audio/terms/en_87f73fbeca457404396409ad5f6f48a0.mp3",
+    "lang_code": "en"
+  },
+  {
+    "term": "cloze task",
+    "translation": "bài tập điền từ",
+    "vi": "bài tập điền từ",
+    "phonetic": "/kloʊz/ /tæsk/",
+    "context": "bài tập yêu cầu người dùng điền từ vào chỗ trống trong câu",
+    "audio_url": "/api/v1/translate/audio/terms/en_16c837fc106816225331292349030a9a.mp3",
+    "lang_code": "en"
+  },
+  {
+    "term": "closed book question answering",
+    "translation": "trả lời câu hỏi không cần sách tham khảo",
+    "vi": "trả lời câu hỏi không cần sách tham khảo",
+    "phonetic": "/kləʊzd bʊk/ /kwɛstʃən/ /ˈænsərɪŋ/",
+    "context": "các bài kiểm tra yêu cầu trả lời câu hỏi mà không cần đến tài liệu tham khảo",
+    "audio_url": "/api/v1/translate/audio/terms/en_0461e35f4bcf03fd532a36cf6e253d64.mp3",
+    "lang_code": "en"
+  },
+  {
+    "term": "common sense reasoning",
+    "translation": "phân tích logic thông thường",
+    "vi": "phân tích logic thông thường",
+    "phonetic": "/ˈkɒmən sɛns/ /riːznɪŋ/",
+    "context": "khả năng suy luận và hiểu biết về các tình huống hàng ngày",
+    "audio_url": "/api/v1/translate/audio/terms/en_a6fed44287f85116c94a7fbb97622bfa.mp3",
+    "lang_code": "en"
+  },
+  {
+    "term": "reading comprehension",
+    "translation": "hiểu nội dung khi đọc",
+    "vi": "hiểu nội dung khi đọc",
+    "phonetic": "/ˈredɪŋ/ /kəmˈprɛʃən/",
+    "context": "khả năng hiểu và nắm bắt ý nghĩa của đoạn văn khi đọc",
+    "audio_url": "/api/v1/translate/audio/terms/en_bcd6f1dd53922bbc6f8adc7294d45026.mp3",
+    "lang_code": "en"
+  }
+]

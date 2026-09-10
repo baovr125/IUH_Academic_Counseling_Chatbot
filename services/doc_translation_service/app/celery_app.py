@@ -35,10 +35,10 @@ celery_app.conf.update(
     broker_connection_retry_on_startup=True,
 
     # --- Task execution limits (tránh task bị treo vô thời hạn) ---
-    # Gửi SoftTimeLimitExceeded exception sau 10 phút để worker tự cleanup gracefully
-    task_soft_time_limit=600,
-    # Hard kill task sau 15 phút nếu vẫn chưa dừng
-    task_time_limit=900,
+    # Gửi SoftTimeLimitExceeded exception sau 30 phút để worker tự cleanup gracefully
+    task_soft_time_limit=1800,
+    # Hard kill task sau 35 phút nếu vẫn chưa dừng
+    task_time_limit=2100,
 
     # --- Worker hygiene ---
     # Restart worker sau 50 task để tránh memory leak tích lũy

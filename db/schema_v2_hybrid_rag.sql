@@ -427,7 +427,7 @@ $$;
 -- 5. CẤP QUYỀN TRUY CẬP VÀ CẤU HÌNH BẢO MẬT (GRANTS & RLS CONFIG)
 -- ====================================================================================
 
--- Tắt RLS để Microservices truy cập liền mạch qua Direct REST/PostgREST API
+-- Cập nhật: Tắt RLS để Microservices truy cập liền mạch qua Direct REST/PostgREST API
 ALTER TABLE users DISABLE ROW LEVEL SECURITY;
 ALTER TABLE password_resets DISABLE ROW LEVEL SECURITY;
 ALTER TABLE documents DISABLE ROW LEVEL SECURITY;
@@ -441,7 +441,24 @@ ALTER TABLE flashcard_decks DISABLE ROW LEVEL SECURITY;
 ALTER TABLE flashcards DISABLE ROW LEVEL SECURITY;
 ALTER TABLE review_logs DISABLE ROW LEVEL SECURITY;
 
+-- ====================================================================================
+-- 6. TỪ ĐIỂN CHUYÊN NGÀNH
+-- ====================================================================================
+CREATE TABLE domain_dictionaries (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    domain VARCHAR(255) NOT NULL,
+    word VARCHAR(500) NOT NULL,
+    translation TEXT NOT NULL,
+    phonetic VARCHAR(255),
+    pos VARCHAR(100),
+    audio_url TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(domain, word)
+);
+ALTER TABLE domain_dictionaries DISABLE ROW LEVEL SECURITY;
+
 -- Cấp toàn quyền thao tác cho các vai trò Supabase
 GRANT ALL ON ALL TABLES IN SCHEMA public TO postgres, anon, authenticated, service_role;
 GRANT ALL ON ALL FUNCTIONS IN SCHEMA public TO postgres, anon, authenticated, service_role;
 GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO postgres, anon, authenticated, service_role;
+

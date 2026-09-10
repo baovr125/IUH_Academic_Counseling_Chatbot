@@ -1,0 +1,74 @@
+[
+  {
+    "term": "FAIR Data Principles",
+    "translation": "Nguyên tắc dữ liệu FAIR",
+    "vi": "Nguyên tắc dữ liệu FAIR",
+    "phonetic": "/ˈfeɪr/",
+    "context": "Một tập hợp nguyên tắc đo lường được nhằm cải thiện khả năng tìm kiếm và sử dụng dữ liệu học thuật.",
+    "audio_url": "/api/v1/translate/audio/terms/en_f33c7518b5fa5a99f47d43c5c175d0c5.mp3",
+    "lang_code": "en"
+  },
+  {
+    "term": "Data Management",
+    "translation": "Quản lý dữ liệu",
+    "vi": "Quản lý dữ liệu",
+    "phonetic": "/ˈdeɪtə ˈmænɪdʒmənt/",
+    "context": "Quy trình quản lý dữ liệu từ việc thu thập, chú thích, lưu trữ đến việc bảo quản lâu dài.",
+    "audio_url": "/api/v1/translate/audio/terms/en_cfebcef9031ab890597a92d8a6465aad.mp3",
+    "lang_code": "en"
+  },
+  {
+    "term": "Data Stewardship",
+    "translation": "Bảo quản dữ liệu",
+    "vi": "Bảo quản dữ liệu",
+    "phonetic": "/ˈdeɪtə ˈstjuːɑrdʃɪp/",
+    "context": "Quá trình bảo vệ và duy trì giá trị của dữ liệu học thuật trong thời gian dài.",
+    "audio_url": "/api/v1/translate/audio/terms/en_2bbeb3751b2e980661f170f074672e3d.mp3",
+    "lang_code": "en"
+  },
+  {
+    "term": "Digital Publications",
+    "translation": "Tạp chí điện tử",
+    "vi": "Tạp chí điện tử",
+    "phonetic": "/ˈdɪdʒɪtl ˌpʌblikˈeɪʃənz/",
+    "context": "Các công trình học thuật được xuất bản dưới dạng kỹ thuật số để hỗ trợ quá trình khám phá, đánh giá và tái sử dụng.",
+    "audio_url": "/api/v1/translate/audio/terms/en_8a0ef450215ff08abde39b327589cee0.mp3",
+    "lang_code": "en"
+  },
+  {
+    "term": "Scholarly Digital Research Objects",
+    "translation": "Đối tượng nghiên cứu kỹ thuật số học thuật",
+    "vi": "Đối tượng nghiên cứu kỹ thuật số học thuật",
+    "phonetic": "/ˈskɒlərli dɪdʒɪtl rɪˈsɜːrtʃ ˈɒbɪjets/",
+    "context": "Các thành phần của quy trình nghiên cứu học thuật, bao gồm dữ liệu, công cụ phân tích, và các luồng làm việc.",
+    "audio_url": "/api/v1/translate/audio/terms/en_2bb4cca8d26f43ec39de832c3119f311.mp3",
+    "lang_code": "en"
+  },
+  {
+    "term": "Reproducibility",
+    "translation": "Tái tạo được",
+    "vi": "Tái tạo được",
+    "phonetic": "/riːprəʊˈdjuːsəblɪ/",
+    "context": "Khả năng tái tạo kết quả nghiên cứu dựa trên cùng một phương pháp và dữ liệu.",
+    "audio_url": "/api/v1/translate/audio/terms/en_8c3fa69104801f98ccd167237b1be66b.mp3",
+    "lang_code": "en"
+  },
+  {
+    "term": "Transparency",
+    "translation": "Minh bạch",
+    "vi": "Minh bạch",
+    "phonetic": "/trænsˈpeɪrənsi/",
+    "context": "Khả năng minh bạch về quy trình và phương pháp nghiên cứu.",
+    "audio_url": "/api/v1/translate/audio/terms/en_fe7516b0859e91dd2a92499f259d57ba.mp3",
+    "lang_code": "en"
+  },
+  {
+    "term": "Knowledge Integration",
+    "translation": "Tích hợp kiến thức",
+    "vi": "Tích hợp kiến thức",
+    "phonetic": "/ˈnɒlɪdʒ ɪntɪˈɡreɪʃən/",
+    "context": "Quá trình tích hợp kiến thức từ nhiều nguồn dữ liệu khác nhau.",
+    "audio_url": "/api/v1/translate/audio/terms/en_d16ee94d96cf661aa325433702513be0.mp3",
+    "lang_code": "en"
+  }
+]

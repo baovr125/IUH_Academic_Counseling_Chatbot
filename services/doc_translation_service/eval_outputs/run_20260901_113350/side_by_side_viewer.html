@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IUH Doc Translation -- Side-by-Side Evaluation Viewer</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f4f6f9; }
+        .header-hero { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; padding: 30px 0; }
+        .badge-success { background-color: #28a745; }
+        .badge-warning { background-color: #ffc107; color: #212529; }
+        .badge-danger { background-color: #dc3545; }
+    </style>
+</head>
+<body>
+    <div class="header-hero mb-4">
+        <div class="container">
+            <h2>🎓 IUH Doc Translation Service -- Bảng Đối Soát Thủ Công Song Song</h2>
+            <p class="mb-0">Ngày chạy: 01/09/2026 12:03:38 | Mã phiên kiểm thử: <code>run_20260901_113350</code></p>
+        </div>
+    </div>
+    <div class="container-fluid px-5">
+        <div class="alert alert-info shadow-sm">
+            <b>💡 Hướng dẫn đối soát:</b> Mở song song <code>Original PDF</code> và <code>Translated PDF</code> bằng 2 tab trình duyệt để đối chiếu độ trung thực, công thức LaTeX, bảng biểu và tính nhất quán của thuật ngữ học thuật.
+        </div>
+        
+        <div class="card mb-4" id="card-1">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5><b>Bài 1:</b> kho2.pdf <span class="badge badge-success">COMPLETED</span></h5>
+                <span class="text-muted">248.9 KB | 3m 45s | Model: vLLM (Qwen/Qwen2.5-14B-Instruct-AWQ)</span>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <h6><b>📂 File Liên Kết:</b></h6>
+                        <a href="01_kho2/original.pdf" target="_blank" class="btn btn-sm btn-outline-primary mr-2">📄 Mở Original PDF</a>
+                        <a href="01_kho2/translated.pdf" target="_blank" class="btn btn-sm btn-outline-success mr-2">📑 Mở Translated PDF</a>
+                        <a href="01_kho2/translated.md" target="_blank" class="btn btn-sm btn-outline-secondary mr-2">📝 Mở Translated Markdown</a>
+                        <a href="01_kho2/glossary.json" target="_blank" class="btn btn-sm btn-outline-info">📚 Mở Glossary JSON</a>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><b>🎯 Khung Chấm Điểm Thủ Công (Likert 1-5):</b></h6>
+                        <small class="text-muted">1. Thuật ngữ (___/5) | 2. LaTeX (___/5) | 3. Bảng biểu (___/5) | 4. Tên riêng (___/5) | 5. Mạch lạc (___/5)</small>
+                    </div>
+                </div>
+                <hr/>
+                <div class="row">
+                    <div class="col-md-7">
+                        <h6><b>📝 Trích Đoạn Văn Bản Đã Dịch (Markdown Preview):</b></h6>
+                        <pre class="bg-light p-3 border rounded text-dark" style="max-height: 400px; overflow-y: auto; white-space: pre-wrap; font-size: 13px;">&lt;mark&gt;www.nature.com/scientificdata&lt;/mark&gt;
+
+![](temp_images/d970e879-521f-416e-9acc-1cd742546f79/input_d970e879-521f-416e-9acc-1cd742546f79.pdf-0001-01.png)
+
+![](temp_images/d970e879-521f-416e-9acc-1cd742546f79/input_d970e879-521f-416e-9acc-1cd742546f79.pdf-0001-02.png)
+
+![](temp_images/d970e879-521f-416e-9acc-1cd742546f79/input_d970e879-521f-416e-9acc-1cd742546f79.pdf-0001-03.png)
+
+![](temp_images/d970e879-521f-416e-9acc-1cd742546f79/input_d970e879-521f-416e-9acc-1cd742546f79.pdf-0001-04.png)
+
+Đã chỉnh sửa: Phụ lục
+
+MỞ
+
+THỂ LOẠI CHỦ ĐỀ
+
+» Dữ liệu nghiên cứu » Đặc điểm xuất bản
+
+Ghi chú: Nguyên tắc hướng dẫn FAIR về quản lý dữ liệu khoa học và bảo quản dữ liệu
+
+Mark D. Wilkinson et al.&lt;sup&gt;#&lt;/sup&gt;
+
+Nhận: 10 tháng 12 năm 2015  
+Chấp nhận: 12 tháng 2 năm 2016  
+Phát hành: 15 tháng 3 năm 2016
+
+Có một nhu cầu cấp bách để cải thiện hạ tầng hỗ trợ việc tái sử dụng dữ liệu học thuật. Một tập hợp đa dạng các bên liên quan - đại diện cho học thuật, doanh nghiệp, cơ quan tài trợ và nhà xuất bản học thuật - đã cùng nhau thiết kế và đồng ý ủng hộ một tập hợp ngắn gọn và đo lường được các nguyên tắc mà chúng tôi gọi là Nguyên tắc Dữ liệu FAIR. Ý định là những nguyên tắc này có thể đóng vai trò như một hướng dẫn cho những ai muốn tăng cường khả năng tái sử dụng của bộ dữ liệu của họ. Khác biệt với các sáng kiến đối tác tập trung vào học giả, Nguyên tắc FAIR đặt trọng tâm cụ thể vào việc tăng cường khả năng của máy tính để tìm kiếm và sử dụng dữ liệu một cách tự động, ngoài ra còn hỗ trợ việc tái sử dụng dữ liệu bởi cá nhân. Bài viết này là lần xuất bản chính thức đầu tiên của Nguyên tắc FAIR, và bao gồm lý do đằng sau chúng, cũng như một số ví dụ thực hiện trong cộng đồng.
+
+Hỗ trợ khám phá thông qua quản lý dữ liệu tốt
+
+Quản lý dữ liệu tốt không phải là mục tiêu cuối cùng, mà là kênh chính dẫn đến khám phá kiến thức và đổi mới, và sau đó tích hợp và tái sử dụng dữ liệu và kiến thức bởi cộng đồng sau quá trình xuất bản dữ liệu. Tiếc thay, hệ sinh thái kỹ thuật số hiện tại xung quanh xuất bản dữ liệu học thuật ngăn cản chúng ta tận dụng tối đa lợi ích từ đầu tư nghiên cứu của mình (ví dụ, xem [1]). Một phần trong phản ứng đối với điều này, các cơ quan tài trợ khoa học, nhà xuất bản và cơ quan chính phủ bắt đầu yêu cầu kế hoạch quản lý dữ liệu và bảo quản dữ liệu cho dữ liệu được tạo ra trong các thí nghiệm được tài trợ công. Ngoài việc thu thập, chú thích và lưu trữ đúng, bảo quản dữ liệu bao gồm khái niệm về 'sự chăm sóc dài hạn' đối với tài sản kỹ thuật số quý giá, với 
+
+... [Xem file translated.md để đọc toàn bộ]</pre>
+                    </div>
+                    <div class="col-md-5">
+                        <h6><b>📚 Thuật Ngữ Học Thuật Trích Xuất (8 terms):</b></h6>
+                        <div style="max-height: 400px; overflow-y: auto;">
+                            <table class="table table-sm table-bordered">
+                                <thead class="thead-light">
+                                    <tr><th>Thuật ngữ</th><th>Nghĩa tiếng Việt</th><th>IPA</th></tr>
+                                </thead>
+                                <tbody><tr><td><b>FAIR Data Principles</b></td><td>Nguyên tắc dữ liệu FAIR</td><td><code>/ˈfeɪr/</code></td></tr><tr><td><b>Data Management</b></td><td>Quản lý dữ liệu</td><td><code>/ˈdeɪtə ˈmænɪdʒmənt/</code></td></tr><tr><td><b>Data Stewardship</b></td><td>Bảo quản dữ liệu</td><td><code>/ˈdeɪtə ˈstjuːɑrdʃɪp/</code></td></tr><tr><td><b>Digital Publications</b></td><td>Tạp chí điện tử</td><td><code>/ˈdɪdʒɪtl ˌpʌblikˈeɪʃənz/</code></td></tr><tr><td><b>Scholarly Digital Research Objects</b></td><td>Đối tượng nghiên cứu kỹ thuật số học thuật</td><td><code>/ˈskɒlərli dɪdʒɪtl rɪˈsɜːrtʃ ˈɒbɪjets/</code></td></tr><tr><td><b>Reproducibility</b></td><td>Tái tạo được</td><td><code>/riːprəʊˈdjuːsəblɪ/</code></td></tr><tr><td><b>Transparency</b></td><td>Minh bạch</td><td><code>/trænsˈpeɪrənsi/</code></td></tr><tr><td><b>Knowledge Integration</b></td><td>Tích hợp kiến thức</td><td><code>/ˈnɒlɪdʒ ɪntɪˈɡreɪʃən/</code></td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mb-4" id="card-2">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5><b>Bài 2:</b> kho3.pdf <span class="badge badge-success">COMPLETED</span></h5>
+                <span class="text-muted">842.5 KB | 3m 29s | Model: Gemini 2.5 Flash & vLLM (Qwen/Qwen2.5-14B-Instruct-AWQ)</span>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <h6><b>📂 File Liên Kết:</b></h6>
+                        <a href="02_kho3/original.pdf" target="_blank" class="btn btn-sm btn-outline-primary mr-2">📄 Mở Original PDF</a>
+                        <a href="02_kho3/translated.pdf" target="_blank" class="btn btn-sm btn-outline-success mr-2">📑 Mở Translated PDF</a>
+                        <a href="02_kho3/translated.md" target="_blank" class="btn btn-sm btn-outline-secondary mr-2">📝 Mở Translated Markdown</a>
+                        <a href="02_kho3/glossary.json" target="_blank" class="btn btn-sm btn-outline-info">📚 Mở Glossary JSON</a>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><b>🎯 Khung Chấm Điểm Thủ Công (Likert 1-5):</b></h6>
+                        <small class="text-muted">1. Thuật ngữ (___/5) | 2. LaTeX (___/5) | 3. Bảng biểu (___/5) | 4. Tên riêng (___/5) | 5. Mạch lạc (___/5)</small>
+                    </div>
+                </div>
+                <hr/>
+                <div class="row">
+                    <div class="col-md-7">
+                        <h6><b>📝 Trích Đoạn Văn Bản Đã Dịch (Markdown Preview):</b></h6>
+                        <pre class="bg-light p-3 border rounded text-dark" style="max-height: 400px; overflow-y: auto; white-space: pre-wrap; font-size: 13px;">Chọn để xuất bản trong tạp chí Physics P H Y S I C A L R E V I E W L E T T E R S 
+
+tuần kết thúc 12 THÁNG 2 2016 
+
+PRL 116, 061102 (2016) 
+
+# Quan sát sóng hấp dẫn từ sự hợp nhất của hố đen kép 
+
+B. P. Abbott et al.&lt;sup&gt;*&lt;/sup&gt; 
+
+(Cộng đồng nghiên cứu LIGO và cộng đồng Virgo) 
+
+(Nhận ngày 21 tháng 1 năm 2016; công bố ngày 11 tháng 2 năm 2016) 
+
+Ngày 14 tháng 9 năm 2015 lúc 09:50:45 UTC, hai máy phát hiện của Trạm đo lường sóng hấp dẫn bằng laser đã đồng thời phát hiện một tín hiệu sóng hấp dẫn tạm thời. Tín hiệu này di chuyển lên với tần số từ 35 đến 250 Hz với đỉnh tỷ lệ tín hiệu trên nhiễu sóng hấp dẫn là 1.0 × 10&lt;sup&gt;−21&lt;/sup&gt;. Nó khớp với mô hình dự đoán bởi lý thuyết tương đối rộng cho sự tiến vào và hợp nhất của một cặp hố đen và sự dao động của hố đen đơn kết quả. Tín hiệu được quan sát với tỷ lệ tín hiệu trên nhiễu sử dụng bộ lọc phù hợp là 24 và tỷ lệ sai báo động được ước tính dưới 1 sự kiện mỗi 203.000 năm, tương đương với mức độ ý nghĩa lớn hơn 5.1σ. Nguồn nằm ở khoảng cách ánh sáng là 410&lt;sup&gt;þ&lt;/sup&gt; −180&lt;sup&gt;160Mpc tương ứng với độ lệch đỏ z ¼ 0.09þ&lt;/sup&gt; −0&lt;sup&gt;0&lt;/sup&gt; .&lt;sup&gt;.&lt;/sup&gt; 04&lt;sup&gt;03.&lt;/sup&gt;. Trong khung nguồn, khối lượng ban đầu của hố đen là 36&lt;sup&gt;þ&lt;/sup&gt; −4&lt;sup&gt;5M⊙ và 29&lt;sup&gt;þ&lt;/sup&gt; −4&lt;sup&gt;4M⊙, và khối lượng cuối cùng của hố đen là 62&lt;sup&gt;þ&lt;/sup&gt; −4&lt;sup&gt;4M⊙, với 3.0&lt;sup&gt;þ&lt;/sup&gt; −0&lt;sup&gt;0&lt;/sup&gt; .&lt;sup&gt;.&lt;/sup&gt; 5&lt;sup&gt;5M⊙c2&lt;/sup&gt; được bức xạ dưới dạng sóng hấp dẫn. Tất cả các không chắc chắn định rõ khoảng tin cậy 90%. 
+
+Những quan sát này chứng minh sự tồn tại của hệ thống hố đen kép có khối lượng sao. Đây là lần đầu tiên phát hiện trực tiếp sóng hấp dẫn và là lần đầu tiên quan sát sự hợp nhất của hố đen kép. 
+
+DOI: 10.1103/PhysRevLett.116.061102 
+
+## I. GIỚI THIỆU 
+
+Năm 1916, năm sau khi phương trình trường cuối cùng của lý thuyết tương đối rộng được đưa ra, Albert Einstein dự đoán sự tồn tại của sóng hấp dẫn. Ông tìm thấy rằng các phương trình trường yếu tuyến tính có các giải pháp dạng sóng: sóng ngang của biến dạng không gian truyền với tốc độ ánh sáng, được tạo ra bởi sự thay đổi về thời gian của mo-ment khối lượng bậc bốn của nguồn [1,2]. Einstein hiểu rằng biên độ của sóng hấp dẫn sẽ rất nhỏ; hơn nữa, cho đến hội nghị Chapel Hill năm 1957, vẫn còn tranh luận đáng kể về thực tế vật lý của sóng hấp dẫn [3].
+
+Cũng trong năm 1916, Schwarzschild công bố một giải pháp cho phương trình trường [4] sau này được hiểu là mô tả một hố đen [5,6], và năm 1963, Kerr mở rộng giải pháp đó cho hố đen xoay [7]. Bắt đầu từ thập kỷ 1970, công việc 
+
+... [Xem file translated.md để đọc toàn bộ]</pre>
+                    </div>
+                    <div class="col-md-5">
+                        <h6><b>📚 Thuật Ngữ Học Thuật Trích Xuất (8 terms):</b></h6>
+                        <div style="max-height: 400px; overflow-y: auto;">
+                            <table class="table table-sm table-bordered">
+                                <thead class="thead-light">
+                                    <tr><th>Thuật ngữ</th><th>Nghĩa tiếng Việt</th><th>IPA</th></tr>
+                                </thead>
+                                <tbody><tr><td><b>gravitational waves</b></td><td>tiếng rung hấp dẫn</td><td><code>/ˌɡrævɪˈteɪʃənəl ˈweɪvz/</code></td></tr><tr><td><b>black holes</b></td><td>hố đen</td><td><code>/blæk hoʊlz/</code></td></tr><tr><td><b>binary black hole merger</b></td><td>hợp nhất hố đen kép</td><td><code>/ˈbɪnəri blæk hoʊl ˈmɜːrdʒər/</code></td></tr><tr><td><b>matched-filter signal-to-noise ratio</b></td><td>tỷ lệ tín hiệu trên nhiễu sử dụng bộ lọc phù hợp</td><td><code>/ˈmætʃt fɪltər ˈsɪgnəl tu nɔɪz ˈreɪʃioʊ/</code></td></tr><tr><td><b>quasinormal modes</b></td><td>chuỗi dao động gần bình thường</td><td><code>/ˈkwazɪnɔrməl moʊdz/</code></td></tr><tr><td><b>postNewtonian calculations</b></td><td>tính toán hậu Newton</td><td><code>/poʊstˈnuːtənɪən kælkjʊˈleɪʃənz/</code></td></tr><tr><td><b>relativistic two-body dynamics</b></td><td>động lực học hai vật thể tương đối</td><td><code>/ˌreləˈvɪstɪk tu ˈbaɪdi ˈdɪnæmɪks/</code></td></tr><tr><td><b>numerical relativity</b></td><td>tương đối số học</td><td><code>/njuːmɛrɪkl ˈrɛlətɪvi ti/</code></td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mb-4" id="card-3">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5><b>Bài 3:</b> 1706.03762v7.pdf <span class="badge badge-success">COMPLETED</span></h5>
+                <span class="text-muted">2.11 MB | 3m 29s | Model: vLLM (Qwen/Qwen2.5-14B-Instruct-AWQ)</span>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <h6><b>📂 File Liên Kết:</b></h6>
+                        <a href="03_1706.03762v7/original.pdf" target="_blank" class="btn btn-sm btn-outline-primary mr-2">📄 Mở Original PDF</a>
+                        <a href="03_1706.03762v7/translated.pdf" target="_blank" class="btn btn-sm btn-outline-success mr-2">📑 Mở Translated PDF</a>
+                        <a href="03_1706.03762v7/translated.md" target="_blank" class="btn btn-sm btn-outline-secondary mr-2">📝 Mở Translated Markdown</a>
+                        <a href="03_1706.03762v7/glossary.json" target="_blank" class="btn btn-sm btn-outline-info">📚 Mở Glossary JSON</a>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><b>🎯 Khung Chấm Điểm Thủ Công (Likert 1-5):</b></h6>
+                        <small class="text-muted">1. Thuật ngữ (___/5) | 2. LaTeX (___/5) | 3. Bảng biểu (___/5) | 4. Tên riêng (___/5) | 5. Mạch lạc (___/5)</small>
+                    </div>
+                </div>
+                <hr/>
+                <div class="row">
+                    <div class="col-md-7">
+                        <h6><b>📝 Trích Đoạn Văn Bản Đã Dịch (Markdown Preview):</b></h6>
+                        <pre class="bg-light p-3 border rounded text-dark" style="max-height: 400px; overflow-y: auto; white-space: pre-wrap; font-size: 13px;">Dưới đây là phiên bản dịch tiếng Việt của văn bản Markdown:
+
+Nội dung:
+Được cấp phép bởi Google, nếu có sự công nhận phù hợp, việc sao chép các bảng và hình vẽ trong bài viết này chỉ dành riêng cho mục đích sử dụng trong các tác phẩm báo chí hoặc học thuật.
+
+# **Chú ý là tất cả những gì bạn cần**
+
+**Ashish Vaswani**&lt;sup&gt;_∗_&lt;/sup&gt; **Noam Shazeer**&lt;sup&gt;_∗_&lt;/sup&gt; **Niki Parmar**&lt;sup&gt;_∗_&lt;/sup&gt; **Jakob Uszkoreit**&lt;sup&gt;_∗_&lt;/sup&gt; Google Brain Google Brain Google Research Google Research `avaswani@google.com noam@google.com nikip@google.com usz@google.com`
+
+**Llion Jones**&lt;sup&gt;_∗_&lt;/sup&gt; **Aidan N. Gomez**&lt;sup&gt;_∗†_&lt;/sup&gt; **Łukasz Kaiser**&lt;sup&gt;_∗_&lt;/sup&gt; Google Research Đại học Toronto Google Brain `llion@google.com aidan@cs.toronto.edu lukaszkaiser@google.com`
+
+**Illia Polosukhin**&lt;sup&gt;_∗‡_&lt;/sup&gt; `illia.polosukhin@gmail.com`
+
+## **Tóm tắt**
+
+Các mô hình chuyển đổi chuỗi hàng đầu dựa trên các mạng nơ-ron tái phát hoặc tích chập phức tạp bao gồm cả mã hóa và giải mã. Các mô hình hoạt động tốt nhất cũng kết nối mã hóa và giải mã thông qua một cơ chế chú ý. Chúng tôi đề xuất một kiến trúc mạng mới đơn giản, gọi là Biến đổi, dựa hoàn toàn vào các cơ chế chú ý, bỏ qua tái phát và tích chập hoàn toàn. Các thí nghiệm trên hai nhiệm vụ dịch máy cho thấy các mô hình này vượt trội về chất lượng trong khi dễ dàng song song hóa hơn và đòi hỏi ít thời gian huấn luyện hơn đáng kể. Mô hình của chúng tôi đạt được 28.4 điểm BLEU trên nhiệm vụ dịch tiếng Anh sang tiếng Đức của WMT 2014, cải thiện hơn kết quả hiện tại tốt nhất, bao gồm cả các nhóm, hơn 2 điểm BLEU. Trên nhiệm vụ dịch tiếng Anh sang tiếng Pháp của WMT 2014, mô hình của chúng tôi thiết lập điểm BLEU tốt nhất hiện tại cho một mô hình đơn là 41.8 sau khi huấn luyện trong 3.5 ngày trên tám GPU, một phần nhỏ chi phí huấn luyện của các mô hình tốt nhất từ các nghiên cứu trước đây. Chúng tôi chứng minh rằng mô hình Biến đổi tổng quát hóa tốt với các nhiệm vụ khác bằng cách áp dụng nó thành công vào phân tích cú pháp cấu trúc tiếng Anh, cả với dữ liệu huấn luyện lớn và giới hạn.
+
+&gt; _∗_ Tham gia bình đẳng. Thứ tự liệt kê ngẫu nhiên. Jakob đề xuất thay thế mạng nơ-ron tái phát bằng tự chú ý và bắt đầu nỗ lực đánh giá ý tưởng này. Ashish, cùng Illia, thiết kế và thực hiện các mô hình Biến đổi đầu tiên và đã đóng vai trò quan trọng trong mọi khía cạnh của công việc này. Noam đề xuất chú ý tích vô hướng đã chuẩn hóa, chú ý đa đầu và biểu diễn vị trí không tham số và trở thành người thứ hai tham gia gần như mọi chi tiết. Niki thiết k
+
+... [Xem file translated.md để đọc toàn bộ]</pre>
+                    </div>
+                    <div class="col-md-5">
+                        <h6><b>📚 Thuật Ngữ Học Thuật Trích Xuất (8 terms):</b></h6>
+                        <div style="max-height: 400px; overflow-y: auto;">
+                            <table class="table table-sm table-bordered">
+                                <thead class="thead-light">
+                                    <tr><th>Thuật ngữ</th><th>Nghĩa tiếng Việt</th><th>IPA</th></tr>
+                                </thead>
+                                <tbody><tr><td><b>Transformer</b></td><td>Biến đổi</td><td><code>/transformer/</code></td></tr><tr><td><b>Attention Mechanism</b></td><td>Cơ chế chú ý</td><td><code>/attention mechanism/</code></td></tr><tr><td><b>Encoder-Decoder</b></td><td>Mã hóa - Gi해설 해주실 수 있으신가요? 디코더</td><td><code>/encoder-decoder/</code></td></tr><tr><td><b>Recurrent Neural Network (RNN)</b></td><td>Mạng nơ-ron tái phát</td><td><code>/recurrent neural network/</code></td></tr><tr><td><b>Long Short-Term Memory (LSTM)</b></td><td>Hồi quy ngắn hạn dài hạn</td><td><code>/long short-term memory/</code></td></tr><tr><td><b>Gated Recurrent Unit (GRU)</b></td><td>Đơn vị tái phát có van</td><td><code>/gated recurrent unit/</code></td></tr><tr><td><b>Scaled Dot-Product Attention</b></td><td>Chú ý tích vô hướng đã chuẩn hóa</td><td><code>/scaled dot-product attention/</code></td></tr><tr><td><b>Multi-Head Attention</b></td><td>Chú ý đa đầu</td><td><code>/multi-head attention/</code></td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mb-4" id="card-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5><b>Bài 4:</b> kho1.pdf <span class="badge badge-success">COMPLETED</span></h5>
+                <span class="text-muted">3.48 MB | 5m 45s | Model: Gemini 2.5 Flash & vLLM (Qwen/Qwen2.5-14B-Instruct-AWQ)</span>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <h6><b>📂 File Liên Kết:</b></h6>
+                        <a href="04_kho1/original.pdf" target="_blank" class="btn btn-sm btn-outline-primary mr-2">📄 Mở Original PDF</a>
+                        <a href="04_kho1/translated.pdf" target="_blank" class="btn btn-sm btn-outline-success mr-2">📑 Mở Translated PDF</a>
+                        <a href="04_kho1/translated.md" target="_blank" class="btn btn-sm btn-outline-secondary mr-2">📝 Mở Translated Markdown</a>
+                        <a href="04_kho1/glossary.json" target="_blank" class="btn btn-sm btn-outline-info">📚 Mở Glossary JSON</a>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><b>🎯 Khung Chấm Điểm Thủ Công (Likert 1-5):</b></h6>
+                        <small class="text-muted">1. Thuật ngữ (___/5) | 2. LaTeX (___/5) | 3. Bảng biểu (___/5) | 4. Tên riêng (___/5) | 5. Mạch lạc (___/5)</small>
+                    </div>
+                </div>
+                <hr/>
+                <div class="row">
+                    <div class="col-md-7">
+                        <h6><b>📝 Trích Đoạn Văn Bản Đã Dịch (Markdown Preview):</b></h6>
+                        <pre class="bg-light p-3 border rounded text-dark" style="max-height: 400px; overflow-y: auto; white-space: pre-wrap; font-size: 13px;">Bài báo
+
+# **Đoán định cấu trúc protein với độ chính xác cao bằng AlphaFold**
+
+|https://doi.org/10.1038/s41586-021-03819-2&lt;br&gt;Ngày nhận: 11 tháng 5 năm 2021|**John Jumper**&lt;sup&gt;**1,4** ✉&lt;/sup&gt;**, Richard Evans**&lt;sup&gt;**1,4**&lt;/sup&gt;**, Alexander Pritzel**&lt;sup&gt;**1,4**&lt;/sup&gt;**, Tim Green**&lt;sup&gt;**1,4**&lt;/sup&gt;**, Michael Figurnov**&lt;sup&gt;**1,4**&lt;/sup&gt;**,**&lt;br&gt;**Olaf Ronneberger**&lt;sup&gt;**1,4**&lt;/sup&gt;**, Kathryn Tunyasuvunakool**&lt;sup&gt;**1,4**&lt;/sup&gt;**, Russ Bates**&lt;sup&gt;**1,4**&lt;/sup&gt;**, Augustin Žídek**&lt;sup&gt;**1,4**&lt;/sup&gt;**,**&lt;br&gt;**Anna Potapenko**&lt;sup&gt;**1,4**&lt;/sup&gt;**, Alex Bridgland**&lt;sup&gt;**1,4**&lt;/sup&gt;**, Clemens Meyer**&lt;sup&gt;**1,4**&lt;/sup&gt;**, Simon A. A. Kohl**&lt;sup&gt;**1,4**&lt;/sup&gt;**,**|
+|---|---|
+|Ngày chấp nhận: 12 tháng 7 năm 2021&lt;br&gt;Xuất bản trực tuyến: 15 tháng 7 năm 2021|**Andrew J. Ballard**&lt;sup&gt;**1,4**&lt;/sup&gt;**, Andrew Cowie**&lt;sup&gt;**1,4**&lt;/sup&gt;**, Bernardino Romera-Paredes**&lt;sup&gt;**1,4**&lt;/sup&gt;**, Stanislav Nikolov**&lt;sup&gt;**1,4**&lt;/sup&gt;**,**&lt;br&gt;**Rishub Jain**&lt;sup&gt;**1,4**&lt;/sup&gt;**, Jonas Adler**&lt;sup&gt;**1**&lt;/sup&gt;**, Trevor Back**&lt;sup&gt;**1**&lt;/sup&gt;**, Stig Petersen**&lt;sup&gt;**1**&lt;/sup&gt;**, David Reiman**&lt;sup&gt;**1**&lt;/sup&gt;**, Ellen Clancy**&lt;sup&gt;**1**&lt;/sup&gt;**,**&lt;br&gt;**Michal Zielinski**&lt;sup&gt;**1**&lt;/sup&gt;**, Martin Steinegger**&lt;sup&gt;**2,3**&lt;/sup&gt;**, Michalina Pacholska**&lt;sup&gt;**1**&lt;/sup&gt;**, Tamas Berghammer**&lt;sup&gt;**1**&lt;/sup&gt;**,**|
+|Truy cập mở|**Sebastian Bodenstein**&lt;sup&gt;**1**&lt;/sup&gt;**, David Silver**&lt;sup&gt;**1**&lt;/sup&gt;**, Oriol Vinyals**&lt;sup&gt;**1**&lt;/sup&gt;**, Andrew W. Senior**&lt;sup&gt;**1**&lt;/sup&gt;**, Koray Kavukcuoglu**&lt;sup&gt;**1**&lt;/sup&gt;**,**&lt;br&gt;|
+|Kiểm tra cập nhật|**Pushmeet Kohli**&lt;sup&gt;**1**&lt;/sup&gt;**& Demis Hassabis**&lt;sup&gt;**1,4** ✉&lt;/sup&gt;|
+||Protein rất cần thiết cho sự sống, và việc hiểu cấu trúc của chúng có thể tạo điều kiện cho sự hiểu biết cơ chế về chức năng của chúng. Thông qua nỗ lực thực nghiệm khổng lồ&lt;sup&gt;1–4&lt;/sup&gt;, cấu trúc của khoảng 100.000 protein độc đáo đã được xác định&lt;sup&gt;5&lt;/sup&gt;, nhưng con số này chỉ chiếm một phần nhỏ trong hàng tỷ chuỗi protein đã biết&lt;sup&gt;6,7&lt;/sup&gt;. Phạm vi bao phủ cấu trúc bị hạn chế bởi hàng tháng đến hàng năm nỗ lực tỉ mỉ cần thiết để xác định một cấu trúc protein duy nhất. Các phương pháp tính toán chính xác là cần thiết để giải quyết khoảng cách này và cho phép tin sinh học cấu trúc quy mô lớn. Dự đoán cấu trúc ba chiều mà một protein sẽ hình thành chỉ dựa trên trình tự axit amin của nó—thành phần đoán định cấu trúc của 'bài toán gấp protein'&lt;sup&gt;8&lt;/sup&gt;—đã là một vấn đề nghiên cứu mở quan trọng trong hơn 50 năm qua&lt;sup&gt;9&lt;/sup&gt;. Mặc dù có những tiến bộ gần đâ
+
+... [Xem file translated.md để đọc toàn bộ]</pre>
+                    </div>
+                    <div class="col-md-5">
+                        <h6><b>📚 Thuật Ngữ Học Thuật Trích Xuất (6 terms):</b></h6>
+                        <div style="max-height: 400px; overflow-y: auto;">
+                            <table class="table table-sm table-bordered">
+                                <thead class="thead-light">
+                                    <tr><th>Thuật ngữ</th><th>Nghĩa tiếng Việt</th><th>IPA</th></tr>
+                                </thead>
+                                <tbody><tr><td><b>protein structure prediction</b></td><td>đoán định cấu trúc protein</td><td><code>/protein structure prediction/</code></td></tr><tr><td><b>Critical Assessment of protein Structure Prediction (CASP)</b></td><td>Đánh giá phê duyệt về dự đoán cấu trúc protein (CASP)</td><td><code>/Critical Assessment of protein Structure Prediction/</code></td></tr><tr><td><b>machine learning</b></td><td>học máy</td><td><code>/machine learning/</code></td></tr><tr><td><b>multi-sequence alignment</b></td><td>đối sánh đa chuỗi</td><td><code>/multi-sequence alignment/</code></td></tr><tr><td><b>physical interaction programme</b></td><td>chương trình tương tác vật lý</td><td><code>/physical interaction programme/</code></td></tr><tr><td><b>evolutionary history</b></td><td>lịch sử tiến hóa</td><td><code>/evolutionary history/</code></td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mb-4" id="card-5">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5><b>Bài 5:</b> 2005.14165v4.pdf <span class="badge badge-success">COMPLETED</span></h5>
+                <span class="text-muted">6.45 MB | 12m 42s | Model: Gemini 2.5 Flash & vLLM (Qwen/Qwen2.5-14B-Instruct-AWQ)</span>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <h6><b>📂 File Liên Kết:</b></h6>
+                        <a href="05_2005.14165v4/original.pdf" target="_blank" class="btn btn-sm btn-outline-primary mr-2">📄 Mở Original PDF</a>
+                        <a href="05_2005.14165v4/translated.pdf" target="_blank" class="btn btn-sm btn-outline-success mr-2">📑 Mở Translated PDF</a>
+                        <a href="05_2005.14165v4/translated.md" target="_blank" class="btn btn-sm btn-outline-secondary mr-2">📝 Mở Translated Markdown</a>
+                        <a href="05_2005.14165v4/glossary.json" target="_blank" class="btn btn-sm btn-outline-info">📚 Mở Glossary JSON</a>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><b>🎯 Khung Chấm Điểm Thủ Công (Likert 1-5):</b></h6>
+                        <small class="text-muted">1. Thuật ngữ (___/5) | 2. LaTeX (___/5) | 3. Bảng biểu (___/5) | 4. Tên riêng (___/5) | 5. Mạch lạc (___/5)</small>
+                    </div>
+                </div>
+                <hr/>
+                <div class="row">
+                    <div class="col-md-7">
+                        <h6><b>📝 Trích Đoạn Văn Bản Đã Dịch (Markdown Preview):</b></h6>
+                        <pre class="bg-light p-3 border rounded text-dark" style="max-height: 400px; overflow-y: auto; white-space: pre-wrap; font-size: 13px;">**Mô hình Ngôn ngữ là Học ít Mẫu**
+
+|**Tom B. Bro**|**wn**&lt;sup&gt;_∗_&lt;/sup&gt;&lt;br&gt;**Benjamin**|**Mann**&lt;sup&gt;_∗_&lt;/sup&gt;&lt;br&gt;**Nick R**|**yder**&lt;sup&gt;_∗_&lt;/sup&gt;&lt;br&gt;**Melanie Subbiah**&lt;sup&gt;_∗_&lt;/sup&gt;|
+|---|---|---|---|
+|**Jared Kaplan**&lt;sup&gt;_†_&lt;/sup&gt;|**Prafulla Dhariwal**|**Arvind Neelakantan**|**Pranav Shyam**&lt;br&gt;**Girish Sastry**|
+|**Amanda Askell**|**Sandhini Agarwal**|**Ariel Herbert-Voss**|**Gretchen Krueger**&lt;br&gt;**Tom Henighan**|
+|**Rewon Child**|**Aditya Ramesh**|**Daniel M. Ziegler**|**Jeffrey Wu**&lt;br&gt;**Clemens Winter**|
+|**Christopher H**|**esse**&lt;br&gt;**Mark Chen**|**Eric Sigler**|**Mateusz Litwin**&lt;br&gt;**Scott Gray**|
+|**Benja**|**min Chess**|**Jack Clark**|**Christopher Berner**|
+|**Sam McCa**|**ndlish**&lt;br&gt;**Alec Ra**|**dford**&lt;br&gt;**Ilya Su**|**tskever**&lt;br&gt;**Dario Amodei**|
+
+# OpenAI
+
+# **Tóm tắt**
+
+Công trình gần đây đã chứng minh những lợi ích đáng kể trên nhiều nhiệm vụ và benchmark xử lý ngôn ngữ tự nhiên (NLP) bằng cách tiền huấn luyện trên một bộ dữ liệu lớn văn bản sau đó huấn luyện tinh chỉnh trên một nhiệm vụ cụ thể. Trong khi phương pháp này thường không phụ thuộc vào nhiệm vụ về mặt kiến trúc, nó vẫn còn đòi hỏi các tập huấn luyện tinh chỉnh riêng biệt cho mỗi nhiệm vụ, với hàng nghìn hoặc hàng chục nghìn ví dụ. Trái lại, con người có thể thực hiện một nhiệm vụ mới với ngôn ngữ từ chỉ vài ví dụ hoặc từ hướng dẫn đơn giản – điều mà các hệ thống NLP hiện tại vẫn còn gặp khó khăn. Trong bài viết này, chúng tôi chứng minh rằng việc mở rộng mô hình ngôn ngữ giúp cải thiện hiệu suất không phụ thuộc vào nhiệm vụ trong trường hợp học ít mẫu, đôi khi thậm chí đạt đến mức cạnh tranh với các phương pháp tiền huấn luyện tốt nhất hiện nay. Đặc biệt, chúng tôi huấn luyện mô hình GPT-3, một mô hình tự hồi quy (autoregressive) với 175 tỷ tham số, gấp 10 lần so với bất kỳ mô hình ngôn ngữ không gian trước đây nào, và kiểm tra hiệu suất của nó trong trường hợp học ít mẫu. Đối với tất cả các nhiệm vụ, GPT-3 được áp dụng mà không cần cập nhật gradient hoặc huấn luyện tinh chỉnh, với các nhiệm vụ và ví dụ học ít mẫu được chỉ định hoàn toàn thông qua tương tác văn bản với mô hình. GPT-3 đạt được hiệu suất mạnh mẽ trên nhiều tập dữ liệu NLP, bao gồm dịch, trả lời câu hỏi, và các bài tập điền từ, cũng như một số nhiệm vụ yêu cầu suy luận tức thì hoặc thích nghi với lĩnh vực mới, như giải mã từ, sử dụng từ mới trong câu, hoặc thực hiện tính toán ba chữ số. Đồng thời, chúng tôi cũng xác định một số tập dữ liệu nơi GPT-3 vẫn gặp khó khăn trong học ít mẫu, cũng như một số tập
+
+... [Xem file translated.md để đọc toàn bộ]</pre>
+                    </div>
+                    <div class="col-md-5">
+                        <h6><b>📚 Thuật Ngữ Học Thuật Trích Xuất (8 terms):</b></h6>
+                        <div style="max-height: 400px; overflow-y: auto;">
+                            <table class="table table-sm table-bordered">
+                                <thead class="thead-light">
+                                    <tr><th>Thuật ngữ</th><th>Nghĩa tiếng Việt</th><th>IPA</th></tr>
+                                </thead>
+                                <tbody><tr><td><b>language model</b></td><td>mô hình ngôn ngữ</td><td><code>/langɡwij/ /mɑdl/</code></td></tr><tr><td><b>few-shot learning</b></td><td>học ít mẫu</td><td><code>/fjuː/ /ʃɒt/ /lɜːnɪŋ/</code></td></tr><tr><td><b>autoregressive model</b></td><td>mô hình tự hồi quy</td><td><code>/ɔːtərɛɡrɛsɪv/ /mɑdl/</code></td></tr><tr><td><b>fine-tuning</b></td><td>huấn luyện tinh chỉnh</td><td><code>/faɪn tuːnɪŋ/</code></td></tr><tr><td><b>cloze task</b></td><td>bài tập điền từ</td><td><code>/kloʊz/ /tæsk/</code></td></tr><tr><td><b>closed book question answering</b></td><td>trả lời câu hỏi không cần sách tham khảo</td><td><code>/kləʊzd bʊk/ /kwɛstʃən/ /ˈænsərɪŋ/</code></td></tr><tr><td><b>common sense reasoning</b></td><td>phân tích logic thông thường</td><td><code>/ˈkɒmən sɛns/ /riːznɪŋ/</code></td></tr><tr><td><b>reading comprehension</b></td><td>hiểu nội dung khi đọc</td><td><code>/ˈredɪŋ/ /kəmˈprɛʃən/</code></td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+</body>
+</html>

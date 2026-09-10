@@ -1,0 +1,10 @@
+{
+  "file_name": "2005.14165v4.pdf",
+  "doc_id": "b5b8d8aa-8ee2-4bf0-a53f-65917094a362",
+  "result": "COMPLETED",
+  "elapsed_sec": 762.1,
+  "model_used": "Gemini 2.5 Flash & vLLM (Qwen/Qwen2.5-14B-Instruct-AWQ)",
+  "pages_processed": 75,
+  "glossary_count": 8,
+  "timestamp": "2026-09-01T12:03:33.790605"
+}

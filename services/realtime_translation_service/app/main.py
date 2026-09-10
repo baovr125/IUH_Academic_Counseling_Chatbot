@@ -5,10 +5,16 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.routers import translation
 from app.utils.logger import logger, request_id_var
 from app.rabbitmq_consumer import start_rabbitmq_tts_consumer
+from app.services.llm_service import preload_models
+from app.services.domain_dict_service import sync_dictionary_to_redis
+from app.services.minio_client import init_minio
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Starting up Real-time Translation Service...")
+    init_minio()
+    preload_models()
+    sync_dictionary_to_redis()
     rabbitmq_conn = await start_rabbitmq_tts_consumer()
     yield
     logger.info("Shutting down Real-time Translation Service...")
@@ -41,6 +47,10 @@ async def request_id_middleware(request: Request, call_next):
 
 app.include_router(translation.router, prefix="/api/v1/translate")
 app.include_router(translation.router, prefix="/api/translate")
+
+from app.routers import admin_dictionary
+app.include_router(admin_dictionary.router, prefix="/api/v1")
+app.include_router(admin_dictionary.router, prefix="/api")
 
 @app.get("/health", tags=["Health Check"])
 @app.get("/api/v1/translate/health", tags=["Health Check"])
