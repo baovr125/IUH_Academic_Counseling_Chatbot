@@ -45,3 +45,13 @@ hf_models/
 
 venv_marker/
 venv_marker_latest/
+
+# Evaluation and Test outputs
+services/doc_translation_service/eval_outputs/
+services/doc_translation_service/eval_reports/
+services/doc_translation_service/temp_translated/
+test_render.pdf
+Translated_*.pdf
+
+# Logs
+*.log
