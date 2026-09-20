@@ -119,6 +119,7 @@ class TranslateConverter(PDFConverterEx):
         envs: Dict = None,
         prompt: Template = None,
         ignore_cache: bool = False,
+        glossary: dict = None,
     ) -> None:
         super().__init__(rsrcmgr)
         self.vfont = vfont
@@ -132,7 +133,15 @@ class TranslateConverter(PDFConverterEx):
         param = service.split(":", 1)
         service_model = param[1] if len(param) > 1 else None
         
-        self.translator = OllamaPDFTranslator(lang_in=lang_in, lang_out=lang_out, model=service_model)
+        import hashlib
+        _cache_key = "opdf_" + hashlib.md5(service.encode()).hexdigest()[:8]
+        self.translator = OllamaPDFTranslator(
+            lang_in=lang_in, 
+            lang_out=lang_out, 
+            model=service_model,
+            glossary=glossary or {}
+        )
+        self.translator.name = _cache_key
 
     def receive_layout(self, ltpage: LTPage):
         # 段落
@@ -203,12 +212,34 @@ class TranslateConverter(PDFConverterEx):
                 cx, cy = np.clip(int(child.x0), 0, w - 1), np.clip(int(child.y0), 0, h - 1)
                 cls = layout[cy, cx]
                 # 锚定文档中 bullet 的位置
-                if child.get_text() == "•":
+                char_text = child.get_text()
+                STANDARD_BULLETS = {"•", "·", "◦", "▪", "▸", "▶", "–", "—", "○", "●"}
+                if char_text in STANDARD_BULLETS:
                     cls = 0
+                elif (
+                    char_text in ('x', '-', '*', '+')
+                    and len(sstk) > 0
+                    and not sstk[-1].strip()
+                ):
+                    cls = 0
+                
+                # GEOMETRIC GAP DETECTION FOR PARAGRAPHS
+                is_same_para_geom = True
+                if xt is not None:
+                    jumped_up = child.y0 > xt.y0 + child.size * 0.5
+                    gap_y = xt.y0 - child.y1
+                    jumped_down_far = gap_y > child.size * 0.5
+                    gap_x = child.x0 - xt.x1
+                    jumped_right_far = gap_x > child.size * 4.0 and abs(child.y0 - xt.y0) < child.size
+                    if jumped_up or jumped_down_far or jumped_right_far:
+                        is_same_para_geom = False
+                        
+                is_same_para = (cls == xt_cls) and is_same_para_geom
+
                 # 判定当前字符是否属于公式
                 if (                                                                                        # 判定当前字符是否属于公式
                     cls == 0                                                                                # 1. 类别为保留区域
-                    or (cls == xt_cls and len(sstk[-1].strip()) > 1 and child.size < pstk[-1].size * 0.79)  # 2. 角标字体，有 0.76 的角标和 0.799 的大写，这里用 0.79 取中，同时考虑首字母放大的情况
+                    or (is_same_para and len(sstk[-1].strip()) > 1 and child.size < pstk[-1].size * 0.79)  # 2. 角标字体，有 0.76 的角标和 0.799 的大写，这里用 0.79 取中，同时考虑首字母放大的情况
                     or vflag(child.fontname, child.get_text())                                              # 3. 公式字体
                     or (child.matrix[0] == 0 and child.matrix[3] == 0)                                      # 4. 垂直字体
                 ):
@@ -223,7 +254,7 @@ class TranslateConverter(PDFConverterEx):
                         vbkt -= 1
                 if (                                                        # 判定当前公式是否结束
                     not cur_v                                               # 1. 当前字符不属于公式
-                    or cls != xt_cls                                        # 2. 当前字符与前一个字符不属于同一段落
+                    or not is_same_para                                     # 2. 当前字符与前一个字符不属于同一段落
                     # or (abs(child.x0 - xt.x0) > vmax and cls != 0)        # 3. 段落内换行，可能是一长串斜体的段落，也可能是段内分式换行，这里设个阈值进行区分
                     # 禁止纯公式（代码）段落换行，直到文字开始再重开文字段落，保证只存在两种情况
                     # A. 纯公式（代码）段落（锚定绝对位置）sstk[-1]=="" -> sstk[-1]=="{v*}"
@@ -233,7 +264,7 @@ class TranslateConverter(PDFConverterEx):
                     if vstk:
                         if (                                                # 根据公式右侧的文字修正公式的纵向偏移
                             not cur_v                                       # 1. 当前字符不属于公式
-                            and cls == xt_cls                               # 2. 当前字符与前一个字符属于同一段落
+                            and is_same_para                                # 2. 当前字符与前一个字符属于同一段落
                             and child.x0 > max([vch.x0 for vch in vstk])    # 3. 当前字符在公式右侧
                         ):
                             vfix = vstk[0].y0 - child.y0
@@ -248,7 +279,7 @@ class TranslateConverter(PDFConverterEx):
                         vfix = 0
                 # 当前字符不属于公式或当前字符是公式的第一个字符
                 if not vstk:
-                    if cls == xt_cls:               # 当前字符与前一个字符属于同一段落
+                    if is_same_para:                # 当前字符与前一个字符属于同一段落
                         if child.x0 > xt.x1 + 1:    # 添加行内空格
                             sstk[-1] += " "
                         elif child.x1 < xt.x0:      # 添加换行空格并标记原文段落存在换行
@@ -268,7 +299,7 @@ class TranslateConverter(PDFConverterEx):
                 else:                                                       # 公式入栈
                     if (                                                    # 根据公式左侧的文字修正公式的纵向偏移
                         not vstk                                            # 1. 当前字符是公式的第一个字符
-                        and cls == xt_cls                                   # 2. 当前字符与前一个字符属于同一段落
+                        and is_same_para                                    # 2. 当前字符与前一个字符属于同一段落
                         and child.x0 > xt.x0                                # 3. 前一个字符在公式左侧
                     ):
                         vfix = child.y0 - xt.y0
@@ -313,11 +344,12 @@ class TranslateConverter(PDFConverterEx):
         log.debug("\n==========[SSTACK]==========\n")
 
         @retry(wait=wait_fixed(1))
-        def worker(s: str):  # 多线程翻译
+        def worker(idx: int, s: str):  # 多线程翻译
             if not s.strip() or re.match(r"^\{v\d+\}$", s):  # 空白和公式不翻译
                 return s
             try:
-                new = self.translator.translate(s)
+                context = sstk[idx - 1] if idx > 0 else None
+                new = self.translator.translate(s, context=context)
                 return new
             except BaseException as e:
                 if log.isEnabledFor(logging.DEBUG):
@@ -328,7 +360,7 @@ class TranslateConverter(PDFConverterEx):
         with concurrent.futures.ThreadPoolExecutor(
             max_workers=self.thread
         ) as executor:
-            news = list(executor.map(worker, sstk))
+            news = list(executor.map(worker, range(len(sstk)), sstk))
 
         ############################################################
         # C. 新文档排版
@@ -355,11 +387,21 @@ class TranslateConverter(PDFConverterEx):
         def gen_op_line(x, y, xlen, ylen, linewidth):
             return f"ET q 1 0 0 1 {x:f} {y:f} cm [] 0 d 0 J {linewidth:f} w 0 0 m {xlen:f} {ylen:f} l S Q BT "
 
+        def gen_op_rect(x, y, w, h):
+            return f"ET q 1 1 1 rg {x:f} {y:f} {w:f} {h:f} re f Q BT "
+
         for id, new in enumerate(news):
             original_size = pstk[id].size
             size_scale = 1.0
+            
+            # Detect table cell: single-line region, height nhỏ
+            height_box = pstk[id].y1 - pstk[id].y0
+            brk_flag = pstk[id].brk
+            is_table_cell = not brk_flag and height_box < original_size * 2.5
+            min_scale = 0.40 if is_table_cell else 0.50
+            scale_step = 0.05 if is_table_cell else 0.10
 
-            while size_scale >= 0.5:
+            while size_scale >= min_scale:
                 pstk[id].size = original_size * size_scale
 
                 x: float = pstk[id].x                       # 段落初始横坐标
@@ -396,8 +438,10 @@ class TranslateConverter(PDFConverterEx):
                         ch = new[ptr]
                         fcur_ = None
                         try:
-                            if fcur_ is None and self.fontmap["tiro"].to_unichr(ord(ch)) == ch:
-                                fcur_ = "tiro"  # 默认拉丁字体
+                            tiro_font = self.fontmap.get("tiro")
+                            if tiro_font and tiro_font.to_unichr(ord(ch)) == ch:
+                                if tiro_font.char_width(ord(ch)) > 0:
+                                    fcur_ = "tiro"
                         except Exception:
                             pass
                         if fcur_ is None:
@@ -407,8 +451,11 @@ class TranslateConverter(PDFConverterEx):
                         else:
                             adv = self.fontmap[fcur_].char_width(ord(ch)) * size
                         ptr += 1
-                    # Cài đặt giới hạn biên linh hoạt: nới lỏng cho text 1 dòng (Table cell)
-                    max_x_allowed = x1 + (0.1 * size if brk else 1.0 * size)
+                    # Cài đặt giới hạn biên linh hoạt
+                    if is_table_cell:
+                        max_x_allowed = x1 + 0.05 * size
+                    else:
+                        max_x_allowed = x1 + (0.1 * size if brk else 0.5 * size)
 
                     # WORD WRAP LOOKAHEAD FOR VIETNAMESE/ENGLISH
                     # Bỏ điều kiện "and brk" để cho phép Table cell được xuống dòng
@@ -533,13 +580,28 @@ class TranslateConverter(PDFConverterEx):
                     
                 # Auto-scale font size if text overflows paragraph box (Dọc & Ngang)
                 vertical_overflow = (lidx + 1) * size * line_height > height
-                horizontal_overflow = max_x_reached > x1 + 1.5 * size
+                if is_table_cell:
+                    horizontal_overflow = max_x_reached > x1 + 0.1 * size
+                else:
+                    horizontal_overflow = max_x_reached > x1 + 1.5 * size
                 
                 if vertical_overflow or horizontal_overflow:
-                    size_scale -= 0.1
+                    size_scale -= scale_step
                     continue
                 else:
                     break
+
+            if size_scale < min_scale and is_table_cell and ops_vals:
+                ops_vals = [v for v in ops_vals if v.get('lidx', 0) <= 1]
+
+            # Draw white background for the whole paragraph box
+            # x0, y0, width, height
+            if ops_vals:
+                box_x0 = pstk[id].x0
+                box_y0 = pstk[id].y0
+                box_w = pstk[id].x1 - pstk[id].x0
+                box_h = pstk[id].y1 - pstk[id].y0
+                ops_list.append(gen_op_rect(box_x0, box_y0, box_w, box_h))
 
             for vals in ops_vals:
                 if vals["type"] == OpType.TEXT:

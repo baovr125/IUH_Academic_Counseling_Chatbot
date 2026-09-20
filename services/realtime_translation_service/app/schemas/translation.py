@@ -5,6 +5,7 @@ class TranslateRequest(BaseModel):
     text: str = Field(..., min_length=1, max_length=1000)
     source_lang: str = "en"
     target_lang: str = "vi"
+    domain: Optional[str] = ""
 
 class StreamTranslateRequest(BaseModel):
     text: str = Field(..., min_length=1, max_length=3000)
@@ -26,6 +27,7 @@ class TranslateResponse(BaseModel):
     target_lang: str
     cached: bool
     latency_ms: float
+    warning: Optional[str] = None
 
 class ApiResult(BaseModel):
     ok: bool

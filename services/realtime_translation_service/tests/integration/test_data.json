@@ -1,0 +1,72 @@
+[
+  {
+    "id": "general_01",
+    "type": "text",
+    "input": "This is a simple sentence to test the latency of the translation model.",
+    "expected": "Đây là một câu đơn giản để kiểm tra độ trễ của mô hình dịch thuật.",
+    "domain": ""
+  },
+  {
+    "id": "general_02",
+    "type": "text",
+    "input": "Welcome to the Academic Counseling Chatbot. How can I help you today?",
+    "expected": "Chào mừng bạn đến với Chatbot Tư vấn Học vụ. Hôm nay tôi có thể giúp gì cho bạn?",
+    "domain": ""
+  },
+  {
+    "id": "it_domain_01",
+    "type": "text",
+    "input": "The prerequisite for this new course is Data Structures.",
+    "expected": "Môn học tiên quyết cho khóa học mới này là Cấu trúc dữ liệu.",
+    "domain": "IT"
+  },
+  {
+    "id": "it_domain_02",
+    "type": "text",
+    "input": "We need to optimize the database query to reduce latency.",
+    "expected": "Chúng ta cần tối ưu hóa truy vấn cơ sở dữ liệu để giảm độ trễ.",
+    "domain": "IT"
+  },
+  {
+    "id": "econ_domain_01",
+    "type": "text",
+    "input": "The inflation rate has a direct impact on the stock market.",
+    "expected": "Tỷ lệ lạm phát có tác động trực tiếp đến thị trường chứng khoán.",
+    "domain": "Kinh tế"
+  },
+  {
+    "id": "html_basic",
+    "type": "html",
+    "input": "<p>Hello <strong>world</strong>!</p>",
+    "expected": "<p>Xin chào <strong>thế giới</strong>!</p>",
+    "domain": ""
+  },
+  {
+    "id": "html_attributes",
+    "type": "html",
+    "input": "<a href=\"/courses/123\" class=\"course-link\" data-id=\"123\">View Course</a>",
+    "expected": "<a href=\"/courses/123\" class=\"course-link\" data-id=\"123\">Xem Khóa học</a>",
+    "domain": ""
+  },
+  {
+    "id": "html_complex",
+    "type": "html",
+    "input": "<div class=\"wrapper\">\n  <h1>Course Syllabus</h1>\n  <p>Please read the <a href=\"/syllabus\">syllabus</a> carefully.</p>\n  <script>alert('test');</script>\n  <style>.wrapper { color: red; }</style>\n</div>",
+    "expected": "<div class=\"wrapper\">\n  <h1>Đề cương môn học</h1>\n  <p>Vui lòng đọc kỹ <a href=\"/syllabus\">đề cương môn học</a>.</p>\n  <script>alert('test');</script>\n  <style>.wrapper { color: red; }</style>\n</div>",
+    "domain": ""
+  },
+  {
+    "id": "html_broken",
+    "type": "html",
+    "input": "<div>Unclosed div <p>Paragraph with missing closing tag",
+    "expected": "<div>Không đóng div<p>Phần có thẻ đóng cửa bị thiếu</p></div>",
+    "domain": ""
+  },
+  {
+    "id": "html_it_domain",
+    "type": "html",
+    "input": "<div class=\"alert\">Warning: The <strong>prerequisite</strong> for this module is <a href=\"/ds\">Data Structures</a>.</div>",
+    "expected": "<div class=\"alert\">Cảnh báo: <strong>Môn học tiên quyết</strong> cho học phần này là <a href=\"/ds\">Cấu trúc dữ liệu</a>.</div>",
+    "domain": "IT"
+  }
+]

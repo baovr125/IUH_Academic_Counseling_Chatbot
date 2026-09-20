@@ -1,0 +1,352 @@
+[
+    {
+        "id": 1,
+        "category": "Academic & IT",
+        "source": "Prerequisite courses must be completed.",
+        "reference": "Các môn học tiên quyết phải được hoàn thành.",
+        "note": ""
+    },
+    {
+        "id": 2,
+        "category": "Academic & IT",
+        "source": "Students must register for credits.",
+        "reference": "Sinh viên phải đăng ký tín chỉ.",
+        "note": ""
+    },
+    {
+        "id": 3,
+        "category": "Academic & IT",
+        "source": "Academic transcript",
+        "reference": "Bảng điểm học tập",
+        "note": ""
+    },
+    {
+        "id": 4,
+        "category": "Academic & IT",
+        "source": "Object-oriented programming",
+        "reference": "Lập trình hướng đối tượng",
+        "note": ""
+    },
+    {
+        "id": 5,
+        "category": "Academic & IT",
+        "source": "Data encapsulation hides internal states.",
+        "reference": "Tính đóng gói dữ liệu che giấu các trạng thái nội bộ.",
+        "note": ""
+    },
+    {
+        "id": 6,
+        "category": "Academic & IT",
+        "source": "Database Management System",
+        "reference": "Hệ quản trị cơ sở dữ liệu",
+        "note": ""
+    },
+    {
+        "id": 7,
+        "category": "Academic & IT",
+        "source": "Software Engineering",
+        "reference": "Công nghệ phần mềm",
+        "note": ""
+    },
+    {
+        "id": 8,
+        "category": "Academic & IT",
+        "source": "Artificial Intelligence",
+        "reference": "Trí tuệ nhân tạo",
+        "note": ""
+    },
+    {
+        "id": 9,
+        "category": "Academic & IT",
+        "source": "Machine Learning algorithms",
+        "reference": "Các thuật toán học máy",
+        "note": ""
+    },
+    {
+        "id": 10,
+        "category": "Academic & IT",
+        "source": "Tuition fee payment deadline",
+        "reference": "Hạn chót đóng học phí",
+        "note": ""
+    },
+    {
+        "id": 11,
+        "category": "Academic & IT",
+        "source": "Graduation thesis defense",
+        "reference": "Bảo vệ khóa luận tốt nghiệp",
+        "note": ""
+    },
+    {
+        "id": 12,
+        "category": "Academic & IT",
+        "source": "Cumulative Grade Point Average",
+        "reference": "Điểm trung bình tích lũy",
+        "note": ""
+    },
+    {
+        "id": 13,
+        "category": "Academic & IT",
+        "source": "Syllabus includes course objectives.",
+        "reference": "Đề cương chi tiết bao gồm các mục tiêu môn học.",
+        "note": ""
+    },
+    {
+        "id": 14,
+        "category": "Academic & IT",
+        "source": "Midterm examination",
+        "reference": "Kỳ thi giữa kỳ",
+        "note": ""
+    },
+    {
+        "id": 15,
+        "category": "Academic & IT",
+        "source": "The faculty of Information Technology",
+        "reference": "Khoa Công nghệ Thông tin",
+        "note": ""
+    },
+    {
+        "id": 16,
+        "category": "HTML Content",
+        "source": "<a href=\"/home\" class=\"btn\">Home</a>",
+        "reference": "<a href=\"/home\" class=\"btn\">Trang chủ</a>",
+        "note": ""
+    },
+    {
+        "id": 17,
+        "category": "HTML Content",
+        "source": "<b>Warning:</b> Do not refresh.",
+        "reference": "<b>Cảnh báo:</b> Không làm mới.",
+        "note": ""
+    },
+    {
+        "id": 18,
+        "category": "HTML Content",
+        "source": "<span style=\"color:red\">Error 404</span>",
+        "reference": "<span style=\"color:red\">Lỗi 404</span>",
+        "note": ""
+    },
+    {
+        "id": 19,
+        "category": "HTML Content",
+        "source": "Please click <button>Submit</button>",
+        "reference": "Vui lòng nhấn <button>Gửi</button>",
+        "note": ""
+    },
+    {
+        "id": 20,
+        "category": "HTML Content",
+        "source": "<ul><li>Item 1</li><li>Item 2</li></ul>",
+        "reference": "<ul><li>Mục 1</li><li>Mục 2</li></ul>",
+        "note": ""
+    },
+    {
+        "id": 21,
+        "category": "HTML Content",
+        "source": "<i>Italic text</i> formatting.",
+        "reference": "Định dạng <i>chữ in nghiêng</i>.",
+        "note": ""
+    },
+    {
+        "id": 22,
+        "category": "HTML Content",
+        "source": "<div id=\"main\">Content here</div>",
+        "reference": "<div id=\"main\">Nội dung ở đây</div>",
+        "note": ""
+    },
+    {
+        "id": 23,
+        "category": "HTML Content",
+        "source": "Code block: <code>print(\"hello\")</code>",
+        "reference": "Khối mã: <code>print(\"hello\")</code>",
+        "note": ""
+    },
+    {
+        "id": 24,
+        "category": "HTML Content",
+        "source": "Navigate to <strong>Dashboard</strong>.",
+        "reference": "Điều hướng đến <strong>Bảng điều khiển</strong>.",
+        "note": ""
+    },
+    {
+        "id": 25,
+        "category": "HTML Content",
+        "source": "<p class=\"lead\">Intro text</p>",
+        "reference": "<p class=\"lead\">Văn bản giới thiệu</p>",
+        "note": ""
+    },
+    {
+        "id": 26,
+        "category": "HTML Content",
+        "source": "<img src=\"logo.png\" alt=\"Logo\">",
+        "reference": "<img src=\"logo.png\" alt=\"Logo\">",
+        "note": ""
+    },
+    {
+        "id": 27,
+        "category": "HTML Content",
+        "source": "<form action=\"/login\">Login</form>",
+        "reference": "<form action=\"/login\">Đăng nhập</form>",
+        "note": ""
+    },
+    {
+        "id": 28,
+        "category": "General English",
+        "source": "Welcome to our website.",
+        "reference": "Chào mừng bạn đến với trang web của chúng tôi.",
+        "note": ""
+    },
+    {
+        "id": 29,
+        "category": "General English",
+        "source": "How can I help you today?",
+        "reference": "Hôm nay tôi có thể giúp gì cho bạn?",
+        "note": ""
+    },
+    {
+        "id": 30,
+        "category": "General English",
+        "source": "Please let me know your thoughts.",
+        "reference": "Vui lòng cho tôi biết suy nghĩ của bạn.",
+        "note": ""
+    },
+    {
+        "id": 31,
+        "category": "General English",
+        "source": "Have a great day!",
+        "reference": "Chúc một ngày tốt lành!",
+        "note": ""
+    },
+    {
+        "id": 32,
+        "category": "General English",
+        "source": "Thank you for contacting us.",
+        "reference": "Cảm ơn bạn đã liên hệ với chúng tôi.",
+        "note": ""
+    },
+    {
+        "id": 33,
+        "category": "General English",
+        "source": "We will respond as soon as possible.",
+        "reference": "Chúng tôi sẽ phản hồi sớm nhất có thể.",
+        "note": ""
+    },
+    {
+        "id": 34,
+        "category": "General English",
+        "source": "Can you repeat that, please?",
+        "reference": "Bạn có thể lặp lại điều đó được không?",
+        "note": ""
+    },
+    {
+        "id": 35,
+        "category": "General English",
+        "source": "Where is the nearest library?",
+        "reference": "Thư viện gần nhất ở đâu?",
+        "note": ""
+    },
+    {
+        "id": 36,
+        "category": "General English",
+        "source": "I would like to order a coffee.",
+        "reference": "Tôi muốn gọi một tách cà phê.",
+        "note": ""
+    },
+    {
+        "id": 37,
+        "category": "General English",
+        "source": "What time does the meeting start?",
+        "reference": "Cuộc họp bắt đầu lúc mấy giờ?",
+        "note": ""
+    },
+    {
+        "id": 38,
+        "category": "General English",
+        "source": "It is raining heavily outside.",
+        "reference": "Bên ngoài trời đang mưa to.",
+        "note": ""
+    },
+    {
+        "id": 39,
+        "category": "General English",
+        "source": "She is reading a book.",
+        "reference": "Cô ấy đang đọc sách.",
+        "note": ""
+    },
+    {
+        "id": 40,
+        "category": "General English",
+        "source": "They went to the park yesterday.",
+        "reference": "Họ đã đi đến công viên vào hôm qua.",
+        "note": ""
+    },
+    {
+        "id": 41,
+        "category": "Long Sentences",
+        "source": "Despite the challenging weather conditions, the rescue team successfully managed to reach the stranded hikers before nightfall.",
+        "reference": "Mặc dù điều kiện thời tiết đầy thử thách, đội cứu hộ đã tiếp cận thành công những người leo núi bị mắc kẹt trước khi trời tối.",
+        "note": ""
+    },
+    {
+        "id": 42,
+        "category": "Long Sentences",
+        "source": "The implementation of the new software system will require all employees to undergo an intensive training program over the next two weeks.",
+        "reference": "Việc triển khai hệ thống phần mềm mới sẽ yêu cầu tất cả nhân viên phải trải qua một chương trình đào tạo chuyên sâu trong hai tuần tới.",
+        "note": ""
+    },
+    {
+        "id": 43,
+        "category": "Long Sentences",
+        "source": "In order to improve overall efficiency, the management has decided to restructure several key departments starting from the next fiscal year.",
+        "reference": "Nhằm cải thiện hiệu quả tổng thể, ban quản lý đã quyết định tái cấu trúc một số phòng ban then chốt bắt đầu từ năm tài chính tiếp theo.",
+        "note": ""
+    },
+    {
+        "id": 44,
+        "category": "Long Sentences",
+        "source": "Students who wish to apply for the scholarship must submit their applications along with two letters of recommendation by the end of the month.",
+        "reference": "Sinh viên có nguyện vọng nộp đơn xin học bổng phải nộp hồ sơ cùng với hai thư giới thiệu trước cuối tháng.",
+        "note": ""
+    },
+    {
+        "id": 45,
+        "category": "Long Sentences",
+        "source": "The quick brown fox jumps over the lazy dog while the birds sing in the trees on a sunny morning.",
+        "reference": "Con cáo nâu nhanh nhẹn nhảy qua con chó lười biếng trong khi những chú chim hót trên cây vào một buổi sáng đầy nắng.",
+        "note": ""
+    },
+    {
+        "id": 46,
+        "category": "Long Sentences",
+        "source": "According to the latest scientific research, a balanced diet combined with regular physical exercise significantly reduces the risk of chronic diseases.",
+        "reference": "Theo nghiên cứu khoa học mới nhất, một chế độ ăn uống cân bằng kết hợp với tập thể dục thường xuyên làm giảm đáng kể rủi ro mắc các bệnh mãn tính.",
+        "note": ""
+    },
+    {
+        "id": 47,
+        "category": "Long Sentences",
+        "source": "The rapid advancement of artificial intelligence technologies has sparked a global debate regarding ethics, privacy, and the future of work.",
+        "reference": "Sự tiến bộ nhanh chóng của các công nghệ trí tuệ nhân tạo đã châm ngòi cho một cuộc tranh luận toàn cầu liên quan đến đạo đức, quyền riêng tư và tương lai của công việc.",
+        "note": ""
+    },
+    {
+        "id": 48,
+        "category": "Long Sentences",
+        "source": "After careful consideration of all available options, the board of directors ultimately chose to expand operations into the Southeast Asian market.",
+        "reference": "Sau khi cân nhắc cẩn thận tất cả các lựa chọn khả thi, hội đồng quản trị cuối cùng đã chọn mở rộng hoạt động sang thị trường Đông Nam Á.",
+        "note": ""
+    },
+    {
+        "id": 49,
+        "category": "Long Sentences",
+        "source": "Please ensure that all personal belongings are removed from the overhead compartments before disembarking from the aircraft.",
+        "reference": "Vui lòng đảm bảo rằng tất cả hành lý cá nhân được dọn sạch khỏi các ngăn chứa phía trên trước khi rời khỏi máy bay.",
+        "note": ""
+    },
+    {
+        "id": 50,
+        "category": "Long Sentences",
+        "source": "The novel explores themes of isolation and redemption through the perspective of a protagonist who struggles to adapt to modern society.",
+        "reference": "Cuốn tiểu thuyết khám phá các chủ đề về sự cô lập và cứu rỗi thông qua góc nhìn của một nhân vật chính phải vật lộn để thích nghi với xã hội hiện đại.",
+        "note": ""
+    }
+]

@@ -1,0 +1,62 @@
+[
+  {
+    "id": "text_basic",
+    "type": "text",
+    "input": "This is a simple sentence.",
+    "expected": "Đây là một câu đơn giản.",
+    "actual": "Đây là một câu đơn giản.",
+    "status": "PASS",
+    "latency_ms": 432.37,
+    "error": null
+  },
+  {
+    "id": "text_terminology",
+    "type": "text",
+    "input": "The prerequisite for this new course is Data Structures.",
+    "expected": "Môn học tiên quyết cho khóa học mới này là Cấu trúc Dữ liệu.",
+    "actual": "Môn học tiên quyết cho khóa học mới này là Cấu trúc dữ liệu.",
+    "status": "FAIL",
+    "latency_ms": 1974.8,
+    "error": null
+  },
+  {
+    "id": "html_basic",
+    "type": "html",
+    "input": "<p>Hello <strong>world</strong>!</p>",
+    "expected": "<p>Xin chào <strong>thế giới</strong>!</p>",
+    "actual": "<p>Xin chào.<strong>thế giới</strong>!</p>",
+    "status": "FAIL",
+    "latency_ms": 93.66,
+    "error": null
+  },
+  {
+    "id": "html_attributes",
+    "type": "html",
+    "input": "<a href=\"/courses/123\" class=\"course-link\" data-id=\"123\">View Course</a>",
+    "expected": "<a href=\"/courses/123\" class=\"course-link\" data-id=\"123\">Xem Khóa học</a>",
+    "actual": "<a class=\"course-link\" data-id=\"123\" href=\"/courses/123\">Xem khóa học</a>",
+    "status": "FAIL",
+    "latency_ms": 77.58,
+    "error": null
+  },
+  {
+    "id": "html_complex",
+    "type": "html",
+    "input": "<div class=\"wrapper\">\n  <h1>Course Syllabus</h1>\n  <p>Please read the <a href=\"/syllabus\">syllabus</a> carefully.</p>\n  <script>alert('test');</script>\n  <style>.wrapper { color: red; }</style>\n</div>",
+    "expected": "<div class=\"wrapper\">\n  <h1>Đề cương môn học</h1>\n  <p>Vui lòng đọc kỹ <a href=\"/syllabus\">đề cương môn học</a>.</p>\n  <script>alert('test');</script>\n  <style>.wrapper { color: red; }</style>\n</div>",
+    "actual": "<div class=\"wrapper\">\n  <h1>Đề cương môn học</h1>\n  <p>Vui lòng đọc kỹ <a href=\"/syllabus\">đề cương môn học</a>.</p>\n  <script>alert('test');</script>\n  <style>.wrapper { color: red; }</style>\n</div>",
+    "status": "PASS",
+    "latency_ms": 3841.15,
+    "error": null
+  },
+  {
+    "id": "html_broken",
+    "type": "html",
+    "input": "<div>Unclosed div <p>Paragraph with missing closing tag",
+    "expected": "<div>Unclosed div <p>Paragraph with missing closing tag</p></div>",
+    "actual": "<div>Không đóng div<p>Phần có thẻ đóng cửa bị thiếu</p></div>",
+    "status": "FAIL",
+    "latency_ms": 332.32,
+    "error": null
+  }
+]

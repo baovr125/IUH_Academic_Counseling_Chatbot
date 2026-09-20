@@ -1,0 +1,502 @@
+[
+    {
+        "id": 1,
+        "source": "Prerequisite courses must be completed.",
+        "reference": "Các môn học tiên quyết phải được hoàn thành.",
+        "category": "Academic & IT",
+        "sys_proposed": "",
+        "latency_ms": 0,
+        "status": "error",
+        "error": "HTTPConnectionPool(host='localhost', port=8003): Max retries exceeded with url: /api/v1/translate/text (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000002BC019FC450>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))"
+    },
+    {
+        "id": 2,
+        "source": "Students must register for credits.",
+        "reference": "Sinh viên phải đăng ký tín chỉ.",
+        "category": "Academic & IT",
+        "sys_proposed": "",
+        "latency_ms": 0,
+        "status": "error",
+        "error": "HTTPConnectionPool(host='localhost', port=8003): Max retries exceeded with url: /api/v1/translate/text (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000002BC019FE710>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))"
+    },
+    {
+        "id": 3,
+        "source": "Academic transcript",
+        "reference": "Bảng điểm học tập",
+        "category": "Academic & IT",
+        "sys_proposed": "",
+        "latency_ms": 0,
+        "status": "error",
+        "error": "HTTPConnectionPool(host='localhost', port=8003): Max retries exceeded with url: /api/v1/translate/text (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000002BC01D50AD0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))"
+    },
+    {
+        "id": 4,
+        "source": "Object-oriented programming",
+        "reference": "Lập trình hướng đối tượng",
+        "category": "Academic & IT",
+        "sys_proposed": "",
+        "latency_ms": 0,
+        "status": "error",
+        "error": "HTTPConnectionPool(host='localhost', port=8003): Max retries exceeded with url: /api/v1/translate/text (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000002BC019FCED0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))"
+    },
+    {
+        "id": 5,
+        "source": "Data encapsulation hides internal states.",
+        "reference": "Tính đóng gói dữ liệu che giấu các trạng thái nội bộ.",
+        "category": "Academic & IT",
+        "sys_proposed": "",
+        "latency_ms": 0,
+        "status": "error",
+        "error": "HTTPConnectionPool(host='localhost', port=8003): Max retries exceeded with url: /api/v1/translate/text (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000002BC01935F50>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))"
+    },
+    {
+        "id": 6,
+        "source": "Database Management System",
+        "reference": "Hệ quản trị cơ sở dữ liệu",
+        "category": "Academic & IT",
+        "sys_proposed": "",
+        "latency_ms": 0,
+        "status": "error",
+        "error": "HTTPConnectionPool(host='localhost', port=8003): Max retries exceeded with url: /api/v1/translate/text (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000002BC01D52F10>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))"
+    },
+    {
+        "id": 7,
+        "source": "Software Engineering",
+        "reference": "Công nghệ phần mềm",
+        "category": "Academic & IT",
+        "sys_proposed": "",
+        "latency_ms": 0,
+        "status": "error",
+        "error": "HTTPConnectionPool(host='localhost', port=8003): Max retries exceeded with url: /api/v1/translate/text (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000002BC01D5D2D0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))"
+    },
+    {
+        "id": 8,
+        "source": "Artificial Intelligence",
+        "reference": "Trí tuệ nhân tạo",
+        "category": "Academic & IT",
+        "sys_proposed": "",
+        "latency_ms": 0,
+        "status": "error",
+        "error": "HTTPConnectionPool(host='localhost', port=8003): Max retries exceeded with url: /api/v1/translate/text (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000002BC01D5F690>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))"
+    },
+    {
+        "id": 9,
+        "source": "Machine Learning algorithms",
+        "reference": "Các thuật toán học máy",
+        "category": "Academic & IT",
+        "sys_proposed": "",
+        "latency_ms": 0,
+        "status": "error",
+        "error": "HTTPConnectionPool(host='localhost', port=8003): Max retries exceeded with url: /api/v1/translate/text (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000002BC01D5C990>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))"
+    },
+    {
+        "id": 10,
+        "source": "Tuition fee payment deadline",
+        "reference": "Hạn chót đóng học phí",
+        "category": "Academic & IT",
+        "sys_proposed": "[Bản dịch: Tuition fee payment deadline]",
+        "latency_ms": 7201.75,
+        "status": "success",
+        "error": null
+    },
+    {
+        "id": 11,
+        "source": "Graduation thesis defense",
+        "reference": "Bảo vệ khóa luận tốt nghiệp",
+        "category": "Academic & IT",
+        "sys_proposed": "[Bản dịch: Graduation thesis defense]",
+        "latency_ms": 7278.3,
+        "status": "success",
+        "error": null
+    },
+    {
+        "id": 12,
+        "source": "Cumulative Grade Point Average",
+        "reference": "Điểm trung bình tích lũy",
+        "category": "Academic & IT",
+        "sys_proposed": "[Bản dịch: Cumulative Grade Point Average]",
+        "latency_ms": 7234.36,
+        "status": "success",
+        "error": null
+    },
+    {
+        "id": 13,
+        "source": "Syllabus includes course objectives.",
+        "reference": "Đề cương chi tiết bao gồm các mục tiêu môn học.",
+        "category": "Academic & IT",
+        "sys_proposed": "[Bản dịch: Syllabus includes course objectives.]",
+        "latency_ms": 7721.57,
+        "status": "success",
+        "error": null
+    },
+    {
+        "id": 14,
+        "source": "Midterm examination",
+        "reference": "Kỳ thi giữa kỳ",
+        "category": "Academic & IT",
+        "sys_proposed": "[Bản dịch: Midterm examination]",
+        "latency_ms": 7205.58,
+        "status": "success",
+        "error": null
+    },
+    {
+        "id": 15,
+        "source": "The faculty of Information Technology",
+        "reference": "Khoa Công nghệ Thông tin",
+        "category": "Academic & IT",
+        "sys_proposed": "[Bản dịch: The faculty of Information Technology]",
+        "latency_ms": 7275.81,
+        "status": "success",
+        "error": null
+    },
+    {
+        "id": 16,
+        "source": "<a href=\"/home\" class=\"btn\">Home</a>",
+        "reference": "<a href=\"/home\" class=\"btn\">Trang chủ</a>",
+        "category": "HTML Content",
+        "sys_proposed": "[Bản dịch: <a href=\"/home\" class=\"btn\">Home</a>]",
+        "latency_ms": 6811.85,
+        "status": "success",
+        "error": null
+    },
+    {
+        "id": 17,
+        "source": "<b>Warning:</b> Do not refresh.",
+        "reference": "<b>Cảnh báo:</b> Không làm mới.",
+        "category": "HTML Content",
+        "sys_proposed": "[Bản dịch: <b>Warning:</b> Do not refresh.]",
+        "latency_ms": 7178.32,
+        "status": "success",
+        "error": null
+    },
+    {
+        "id": 18,
+        "source": "<span style=\"color:red\">Error 404</span>",
+        "reference": "<span style=\"color:red\">Lỗi 404</span>",
+        "category": "HTML Content",
+        "sys_proposed": "[Bản dịch: <span style=\"color:red\">Error 404</span>]",
+        "latency_ms": 6746.51,
+        "status": "success",
+        "error": null
+    },
+    {
+        "id": 19,
+        "source": "Please click <button>Submit</button>",
+        "reference": "Vui lòng nhấn <button>Gửi</button>",
+        "category": "HTML Content",
+        "sys_proposed": "[Bản dịch: Please click <button>Submit</button>]",
+        "latency_ms": 7137.24,
+        "status": "success",
+        "error": null
+    },
+    {
+        "id": 20,
+        "source": "<ul><li>Item 1</li><li>Item 2</li></ul>",
+        "reference": "<ul><li>Mục 1</li><li>Mục 2</li></ul>",
+        "category": "HTML Content",
+        "sys_proposed": "[Bản dịch: <ul><li>Item 1</li><li>Item 2</li></ul>]",
+        "latency_ms": 7230.12,
+        "status": "success",
+        "error": null
+    },
+    {
+        "id": 21,
+        "source": "<i>Italic text</i> formatting.",
+        "reference": "Định dạng <i>chữ in nghiêng</i>.",
+        "category": "HTML Content",
+        "sys_proposed": "[Bản dịch: <i>Italic text</i> formatting.]",
+        "latency_ms": 7303.77,
+        "status": "success",
+        "error": null
+    },
+    {
+        "id": 22,
+        "source": "<div id=\"main\">Content here</div>",
+        "reference": "<div id=\"main\">Nội dung ở đây</div>",
+        "category": "HTML Content",
+        "sys_proposed": "[Bản dịch: <div id=\"main\">Content here</div>]",
+        "latency_ms": 7213.17,
+        "status": "success",
+        "error": null
+    },
+    {
+        "id": 23,
+        "source": "Code block: <code>print(\"hello\")</code>",
+        "reference": "Khối mã: <code>print(\"hello\")</code>",
+        "category": "HTML Content",
+        "sys_proposed": "[Bản dịch: Code block: <code>print(\"hello\")</code>]",
+        "latency_ms": 7229.34,
+        "status": "success",
+        "error": null
+    },
+    {
+        "id": 24,
+        "source": "Navigate to <strong>Dashboard</strong>.",
+        "reference": "Điều hướng đến <strong>Bảng điều khiển</strong>.",
+        "category": "HTML Content",
+        "sys_proposed": "[Bản dịch: Navigate to <strong>Dashboard</strong>.]",
+        "latency_ms": 7093.99,
+        "status": "success",
+        "error": null
+    },
+    {
+        "id": 25,
+        "source": "<p class=\"lead\">Intro text</p>",
+        "reference": "<p class=\"lead\">Văn bản giới thiệu</p>",
+        "category": "HTML Content",
+        "sys_proposed": "[Bản dịch: <p class=\"lead\">Intro text</p>]",
+        "latency_ms": 7117.47,
+        "status": "success",
+        "error": null
+    },
+    {
+        "id": 26,
+        "source": "<img src=\"logo.png\" alt=\"Logo\">",
+        "reference": "<img src=\"logo.png\" alt=\"Logo\">",
+        "category": "HTML Content",
+        "sys_proposed": "[Bản dịch: <img src=\"logo.png\" alt=\"Logo\">]",
+        "latency_ms": 7237.8,
+        "status": "success",
+        "error": null
+    },
+    {
+        "id": 27,
+        "source": "<form action=\"/login\">Login</form>",
+        "reference": "<form action=\"/login\">Đăng nhập</form>",
+        "category": "HTML Content",
+        "sys_proposed": "[Bản dịch: <form action=\"/login\">Login</form>]",
+        "latency_ms": 7174.6,
+        "status": "success",
+        "error": null
+    },
+    {
+        "id": 28,
+        "source": "Welcome to our website.",
+        "reference": "Chào mừng bạn đến với trang web của chúng tôi.",
+        "category": "General English",
+        "sys_proposed": "[Bản dịch: Welcome to our website.]",
+        "latency_ms": 7180.87,
+        "status": "success",
+        "error": null
+    },
+    {
+        "id": 29,
+        "source": "How can I help you today?",
+        "reference": "Hôm nay tôi có thể giúp gì cho bạn?",
+        "category": "General English",
+        "sys_proposed": "[Bản dịch: How can I help you today?]",
+        "latency_ms": 7080.66,
+        "status": "success",
+        "error": null
+    },
+    {
+        "id": 30,
+        "source": "Please let me know your thoughts.",
+        "reference": "Vui lòng cho tôi biết suy nghĩ của bạn.",
+        "category": "General English",
+        "sys_proposed": "[Bản dịch: Please let me know your thoughts.]",
+        "latency_ms": 7181.05,
+        "status": "success",
+        "error": null
+    },
+    {
+        "id": 31,
+        "source": "Have a great day!",
+        "reference": "Chúc một ngày tốt lành!",
+        "category": "General English",
+        "sys_proposed": "[Bản dịch: Have a great day!]",
+        "latency_ms": 7185.62,
+        "status": "success",
+        "error": null
+    },
+    {
+        "id": 32,
+        "source": "Thank you for contacting us.",
+        "reference": "Cảm ơn bạn đã liên hệ với chúng tôi.",
+        "category": "General English",
+        "sys_proposed": "[Bản dịch: Thank you for contacting us.]",
+        "latency_ms": 7087.9,
+        "status": "success",
+        "error": null
+    },
+    {
+        "id": 33,
+        "source": "We will respond as soon as possible.",
+        "reference": "Chúng tôi sẽ phản hồi sớm nhất có thể.",
+        "category": "General English",
+        "sys_proposed": "[Bản dịch: We will respond as soon as possible.]",
+        "latency_ms": 7157.21,
+        "status": "success",
+        "error": null
+    },
+    {
+        "id": 34,
+        "source": "Can you repeat that, please?",
+        "reference": "Bạn có thể lặp lại điều đó được không?",
+        "category": "General English",
+        "sys_proposed": "[Bản dịch: Can you repeat that, please?]",
+        "latency_ms": 7181.65,
+        "status": "success",
+        "error": null
+    },
+    {
+        "id": 35,
+        "source": "Where is the nearest library?",
+        "reference": "Thư viện gần nhất ở đâu?",
+        "category": "General English",
+        "sys_proposed": "[Bản dịch: Where is the nearest library?]",
+        "latency_ms": 6983.5,
+        "status": "success",
+        "error": null
+    },
+    {
+        "id": 36,
+        "source": "I would like to order a coffee.",
+        "reference": "Tôi muốn gọi một tách cà phê.",
+        "category": "General English",
+        "sys_proposed": "[Bản dịch: I would like to order a coffee.]",
+        "latency_ms": 10969.69,
+        "status": "success",
+        "error": null
+    },
+    {
+        "id": 37,
+        "source": "What time does the meeting start?",
+        "reference": "Cuộc họp bắt đầu lúc mấy giờ?",
+        "category": "General English",
+        "sys_proposed": "[Bản dịch: What time does the meeting start?]",
+        "latency_ms": 7136.09,
+        "status": "success",
+        "error": null
+    },
+    {
+        "id": 38,
+        "source": "It is raining heavily outside.",
+        "reference": "Bên ngoài trời đang mưa to.",
+        "category": "General English",
+        "sys_proposed": "",
+        "latency_ms": 0,
+        "status": "error",
+        "error": "HTTPConnectionPool(host='localhost', port=8003): Read timed out. (read timeout=10)"
+    },
+    {
+        "id": 39,
+        "source": "She is reading a book.",
+        "reference": "Cô ấy đang đọc sách.",
+        "category": "General English",
+        "sys_proposed": "[Bản dịch: She is reading a book.]",
+        "latency_ms": 7759.56,
+        "status": "success",
+        "error": null
+    },
+    {
+        "id": 40,
+        "source": "They went to the park yesterday.",
+        "reference": "Họ đã đi đến công viên vào hôm qua.",
+        "category": "General English",
+        "sys_proposed": "[Bản dịch: They went to the park yesterday.]",
+        "latency_ms": 7328.62,
+        "status": "success",
+        "error": null
+    },
+    {
+        "id": 41,
+        "source": "Despite the challenging weather conditions, the rescue team successfully managed to reach the stranded hikers before nightfall.",
+        "reference": "Mặc dù điều kiện thời tiết đầy thử thách, đội cứu hộ đã tiếp cận thành công những người leo núi bị mắc kẹt trước khi trời tối.",
+        "category": "Long Sentences",
+        "sys_proposed": "[Bản dịch: Despite the challenging weather conditions, the rescue team successfully managed to reach the stranded hikers before nightfall.]",
+        "latency_ms": 7202.08,
+        "status": "success",
+        "error": null
+    },
+    {
+        "id": 42,
+        "source": "The implementation of the new software system will require all employees to undergo an intensive training program over the next two weeks.",
+        "reference": "Việc triển khai hệ thống phần mềm mới sẽ yêu cầu tất cả nhân viên phải trải qua một chương trình đào tạo chuyên sâu trong hai tuần tới.",
+        "category": "Long Sentences",
+        "sys_proposed": "[Bản dịch: The implementation of the new software system will require all employees to undergo an intensive training program over the next two weeks.]",
+        "latency_ms": 6814.81,
+        "status": "success",
+        "error": null
+    },
+    {
+        "id": 43,
+        "source": "In order to improve overall efficiency, the management has decided to restructure several key departments starting from the next fiscal year.",
+        "reference": "Nhằm cải thiện hiệu quả tổng thể, ban quản lý đã quyết định tái cấu trúc một số phòng ban then chốt bắt đầu từ năm tài chính tiếp theo.",
+        "category": "Long Sentences",
+        "sys_proposed": "[Bản dịch: In order to improve overall efficiency, the management has decided to restructure several key departments starting from the next fiscal year.]",
+        "latency_ms": 7201.48,
+        "status": "success",
+        "error": null
+    },
+    {
+        "id": 44,
+        "source": "Students who wish to apply for the scholarship must submit their applications along with two letters of recommendation by the end of the month.",
+        "reference": "Sinh viên có nguyện vọng nộp đơn xin học bổng phải nộp hồ sơ cùng với hai thư giới thiệu trước cuối tháng.",
+        "category": "Long Sentences",
+        "sys_proposed": "[Bản dịch: Students who wish to apply for the scholarship must submit their applications along with two letters of recommendation by the end of the month.]",
+        "latency_ms": 6704.42,
+        "status": "success",
+        "error": null
+    },
+    {
+        "id": 45,
+        "source": "The quick brown fox jumps over the lazy dog while the birds sing in the trees on a sunny morning.",
+        "reference": "Con cáo nâu nhanh nhẹn nhảy qua con chó lười biếng trong khi những chú chim hót trên cây vào một buổi sáng đầy nắng.",
+        "category": "Long Sentences",
+        "sys_proposed": "[Bản dịch: The quick brown fox jumps over the lazy dog while the birds sing in the trees on a sunny morning.]",
+        "latency_ms": 7374.14,
+        "status": "success",
+        "error": null
+    },
+    {
+        "id": 46,
+        "source": "According to the latest scientific research, a balanced diet combined with regular physical exercise significantly reduces the risk of chronic diseases.",
+        "reference": "Theo nghiên cứu khoa học mới nhất, một chế độ ăn uống cân bằng kết hợp với tập thể dục thường xuyên làm giảm đáng kể rủi ro mắc các bệnh mãn tính.",
+        "category": "Long Sentences",
+        "sys_proposed": "[Bản dịch: According to the latest scientific research, a balanced diet combined with regular physical exercise significantly reduces the risk of chronic diseases.]",
+        "latency_ms": 7829.73,
+        "status": "success",
+        "error": null
+    },
+    {
+        "id": 47,
+        "source": "The rapid advancement of artificial intelligence technologies has sparked a global debate regarding ethics, privacy, and the future of work.",
+        "reference": "Sự tiến bộ nhanh chóng của các công nghệ trí tuệ nhân tạo đã châm ngòi cho một cuộc tranh luận toàn cầu liên quan đến đạo đức, quyền riêng tư và tương lai của công việc.",
+        "category": "Long Sentences",
+        "sys_proposed": "[Bản dịch: The rapid advancement of artificial intelligence technologies has sparked a global debate regarding ethics, privacy, and the future of work.]",
+        "latency_ms": 7459.51,
+        "status": "success",
+        "error": null
+    },
+    {
+        "id": 48,
+        "source": "After careful consideration of all available options, the board of directors ultimately chose to expand operations into the Southeast Asian market.",
+        "reference": "Sau khi cân nhắc cẩn thận tất cả các lựa chọn khả thi, hội đồng quản trị cuối cùng đã chọn mở rộng hoạt động sang thị trường Đông Nam Á.",
+        "category": "Long Sentences",
+        "sys_proposed": "[Bản dịch: After careful consideration of all available options, the board of directors ultimately chose to expand operations into the Southeast Asian market.]",
+        "latency_ms": 7339.21,
+        "status": "success",
+        "error": null
+    },
+    {
+        "id": 49,
+        "source": "Please ensure that all personal belongings are removed from the overhead compartments before disembarking from the aircraft.",
+        "reference": "Vui lòng đảm bảo rằng tất cả hành lý cá nhân được dọn sạch khỏi các ngăn chứa phía trên trước khi rời khỏi máy bay.",
+        "category": "Long Sentences",
+        "sys_proposed": "[Bản dịch: Please ensure that all personal belongings are removed from the overhead compartments before disembarking from the aircraft.]",
+        "latency_ms": 7201.48,
+        "status": "success",
+        "error": null
+    },
+    {
+        "id": 50,
+        "source": "The novel explores themes of isolation and redemption through the perspective of a protagonist who struggles to adapt to modern society.",
+        "reference": "Cuốn tiểu thuyết khám phá các chủ đề về sự cô lập và cứu rỗi thông qua góc nhìn của một nhân vật chính phải vật lộn để thích nghi với xã hội hiện đại.",
+        "category": "Long Sentences",
+        "sys_proposed": "[Bản dịch: The novel explores themes of isolation and redemption through the perspective of a protagonist who struggles to adapt to modern society.]",
+        "latency_ms": 6842.19,
+        "status": "success",
+        "error": null
+    }
+]

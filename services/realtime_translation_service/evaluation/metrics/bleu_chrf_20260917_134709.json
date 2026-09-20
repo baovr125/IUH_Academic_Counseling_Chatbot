@@ -1,0 +1,22 @@
+{
+    "overall": {
+        "bleu": 18.78,
+        "chrf": 19.27
+    },
+    "Academic & IT": {
+        "bleu": 0.81,
+        "chrf": 8.42
+    },
+    "HTML Content": {
+        "bleu": 52.36,
+        "chrf": 55.19
+    },
+    "Long Sentences": {
+        "bleu": 0.23,
+        "chrf": 10.73
+    },
+    "General English": {
+        "bleu": 0.55,
+        "chrf": 7.24
+    }
+}

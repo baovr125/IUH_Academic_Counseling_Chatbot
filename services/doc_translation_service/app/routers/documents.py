@@ -38,15 +38,16 @@ async def upload_document(
             detail="Định dạng file không được hỗ trợ. Hệ thống chuyên biệt dịch tài liệu học thuật định dạng PDF (.pdf)."
         )
 
-    # Validate file size (Max 10MB)
-    MAX_FILE_SIZE = 10 * 1024 * 1024
+    # Validate file size
+    max_mb = int(os.getenv("MAX_UPLOAD_SIZE_MB", "50"))
+    MAX_FILE_SIZE = max_mb * 1024 * 1024
     file.file.seek(0, 2)
     file_size = file.file.tell()
     file.file.seek(0)
     if file_size > MAX_FILE_SIZE:
         raise HTTPException(
             status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
-            detail="Kích thước file vượt quá giới hạn 10MB."
+            detail=f"Kích thước file vượt quá giới hạn {max_mb}MB."
         )
 
     doc_id = str(uuid.uuid4())
