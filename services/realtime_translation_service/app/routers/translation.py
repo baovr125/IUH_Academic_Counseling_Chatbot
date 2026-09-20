@@ -14,6 +14,8 @@ from app.services.dictionary_service import get_word_audio
 from app.services.cache_service import get_cached_audio_url, set_cached_audio_url
 from app.utils.minio_client import upload_audio_bytes, get_audio_bytes, audio_exists
 from app.utils.logger import logger
+from fastapi import Depends
+from app.utils.security import get_current_user_id
 
 router = APIRouter(tags=["Real-time Translation Service"])
 
@@ -131,11 +133,12 @@ async def get_audio_endpoint(object_name: str):
 
 
 @router.post("/text")
-async def translate_endpoint(payload: TranslateRequest):
-    translated_text, cached, latency_ms = await translate_text(
+async def translate_endpoint(payload: TranslateRequest, user_id: str = Depends(get_current_user_id)):
+    translated_text, cached, latency_ms, warning = await translate_text(
         text=payload.text,
         source_lang=payload.source_lang,
-        target_lang=payload.target_lang
+        target_lang=payload.target_lang,
+        domain=payload.domain
     )
     return ApiResult(
         ok=True,
@@ -144,12 +147,13 @@ async def translate_endpoint(payload: TranslateRequest):
             source_lang=payload.source_lang,
             target_lang=payload.target_lang,
             cached=cached,
-            latency_ms=latency_ms
+            latency_ms=latency_ms,
+            warning=warning
         )
     )
 
 @router.post("/stream")
-async def stream_translate_endpoint(payload: StreamTranslateRequest):
+async def stream_translate_endpoint(payload: StreamTranslateRequest, user_id: str = Depends(get_current_user_id)):
     return EventSourceResponse(
         stream_translation(
             text=payload.text,
@@ -160,7 +164,7 @@ async def stream_translate_endpoint(payload: StreamTranslateRequest):
     )
 
 @router.post("/flashcard")
-async def flashcard_endpoint(payload: FlashcardExtractRequest):
+async def flashcard_endpoint(payload: FlashcardExtractRequest, user_id: str = Depends(get_current_user_id)):
     # 1. Extract vocabulary info using LLM (JSON Mode)
     flashcard_data = await extract_flashcard(
         word=payload.word,
@@ -182,8 +186,8 @@ async def flashcard_endpoint(payload: FlashcardExtractRequest):
     )
 
 @router.post("/lookup")
-async def lookup_endpoint(payload: LookupRequest):
-    translated_text, cached, latency_ms = await translate_text(
+async def lookup_endpoint(payload: LookupRequest, user_id: str = Depends(get_current_user_id)):
+    translated_text, cached, latency_ms, _ = await translate_text(
         text=payload.word,
         source_lang="en",
         target_lang="vi"

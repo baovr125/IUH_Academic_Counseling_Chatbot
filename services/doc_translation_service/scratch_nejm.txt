@@ -1,0 +1,302 @@
+PHU LUC: CAC BANG DA DICH
+Bang 1 (Tham chieu tu trang 6):
+Bảng 1. Các đặc điểm dân số và lâm sàng tại
+thời điểm bắt đầu.*
+Cột 2
+Cột 3
+Cột 4
+Đặc điểm
+Placbo
+(N=15,170)
+mRNA-1273
+(N=15,181)
+Tổng cộng
+(N=30,351)
+Đặc điểm
+Placbo
+(N=15,170)
+mRNA-1273
+(N=15,181)
+Tổng cộng
+(N=30,351)
+Đặc điểm
+Placbo
+(N=15,170)
+mRNA-1273
+(N=15,181)
+Tổng cộng
+(N=30,351)
+Đặc điểm
+Placbo
+(N=15,170)
+mRNA-1273
+(N=15,181)
+Tổng cộng
+(N=30,351)
+Giới tính — số người tham gia (%)
+Males
+8,062 (53.1)
+7,923 (52.2)
+15,985 (52.7)
+Males
+8,062 (53.1)
+7,923 (52.2)
+15,985 (52.7)
+Males
+8,062 (53.1)
+7,923 (52.2)
+15,985 (52.7)
+Males
+8,062 (53.1)
+7,923 (52.2)
+15,985 (52.7)
+Female
+7,108 (46.9)
+7,258 (47.8)
+14,366 (47.3)
+Tuổi trung bình (khoảng từ) — tuổi
+51.3 (18–95)
+51.4 (18–95)
+51.4 (18–95)
+Tuổi trung bình (khoảng từ) —
+tuổi
+51.3 (18–95)
+51.4 (18–95)
+51.4 (18–95)
+Tuổi trung bình (khoảng từ) —
+tuổi
+51.3 (18–95)
+51.4 (18–95)
+51.4 (18–95)
+Tuổi trung bình (khoảng từ) —
+tuổi
+51.3 (18–95)
+51.4 (18–95)
+51.4 (18–95)
+Nhóm độ tuổi và nguy cơ mắc bệnh nặng
+COVID-19 — số người tham gia (%)†
+18 đến <65 tuổi, không ở trong nhóm nguy hiểm
+8,886 (58.6)
+8,888 (58.5)
+17,774 (58.6)
+18 đến <65 tuổi, không ở trong
+nhóm nguy hiểm
+8,886 (58.6)
+8,888 (58.5)
+17,774 (58.6)
+18 đến <65 tuổi, không ở trong
+nhóm nguy hiểm
+8,886 (58.6)
+8,888 (58.5)
+17,774 (58.6)
+18 đến <65 tuổi, không ở trong
+nhóm nguy hiểm
+8,886 (58.6)
+8,888 (58.5)
+17,774 (58.6)
+18 đến <65 tuổi, ở trong nhóm nguy hiểm
+2,535 (16.7)
+2,530 (16.7)
+5,065 (16.7)
+≥65 tuổi
+3,749 (24.7)
+3,763 (24.8)
+7,512 (24.8)
+≥65 tuổi
+3,749 (24.7)
+3,763 (24.8)
+7,512 (24.8)
+≥65 tuổi
+3,749 (24.7)
+3,763 (24.8)
+7,512 (24.8)
+≥65 tuổi
+3,749 (24.7)
+3,763 (24.8)
+7,512 (24.8)
+Dân tộc Mỹ La Tinh hoặc Latino — số người
+tham gia (%)‡
+Dân tộc Mỹ La Tinh hoặc Latino
+3,114 (20.5)
+3,121 (20.6)
+6,235 (20.5)
+Dân tộc Mỹ La Tinh hoặc Latino
+3,114 (20.5)
+3,121 (20.6)
+6,235 (20.5)
+Dân tộc Mỹ La Tinh hoặc Latino
+3,114 (20.5)
+3,121 (20.6)
+6,235 (20.5)
+Dân tộc Mỹ La Tinh hoặc Latino
+3,114 (20.5)
+3,121 (20.6)
+6,235 (20.5)
+Không phải dân tộc Mỹ La Tinh
+11,917 (78.6)
+11,918 (78.5)
+23,835 (78.5)
+Không báo cáo và không rõ ràng
+139 (0.9)
+142 (0.9)
+281 (0.9)
+Không báo cáo và không rõ
+ràng
+139 (0.9)
+142 (0.9)
+281 (0.9)
+Không báo cáo và không rõ
+ràng
+139 (0.9)
+142 (0.9)
+281 (0.9)
+Không báo cáo và không rõ
+ràng
+139 (0.9)
+142 (0.9)
+281 (0.9)
+Nhóm sắc tộc hoặc dân tộc — số người tham gia
+(%)‡
+Trắng
+11,995 (79.1)
+12,029 (79.2)
+24,024 (79.2)
+Trắng
+11,995 (79.1)
+12,029 (79.2)
+24,024 (79.2)
+Trắng
+11,995 (79.1)
+12,029 (79.2)
+24,024 (79.2)
+Trắng
+11,995 (79.1)
+12,029 (79.2)
+24,024 (79.2)
+Đen hoặc Người Mỹ Phi
+1,527 (10.1)
+1,563 (10.3)
+3,090 (10.2)
+Ásian
+731 (4.8)
+651 (4.3)
+1,382 (4.6)
+Ásian
+731 (4.8)
+651 (4.3)
+1,382 (4.6)
+Ásian
+731 (4.8)
+651 (4.3)
+1,382 (4.6)
+Ásian
+731 (4.8)
+651 (4.3)
+1,382 (4.6)
+Người Mỹ bản địa hoặc Alaska Native
+12
+Bang 2 (Tham chieu tu trang 7):
+Bảng 1. (Tiếp tục.)
+Cột2
+Cột3
+Cột4
+Tính chất
+Placembo
+(N=15,170)
+mRNA-1273
+(N=15,181)
+Tổng cộng
+(N=30,351)
+Tính chất
+Placembo
+(N=15,170)
+mRNA-1273
+(N=15,181)
+Tổng cộng
+(N=30,351)
+Tính chất
+Placembo
+(N=15,170)
+mRNA-1273
+(N=15,181)
+Tổng cộng
+(N=30,351)
+Tính chất
+Placembo
+(N=15,170)
+mRNA-1273
+(N=15,181)
+Tổng cộng
+(N=30,351)
+Chỉ số khối cơ thể¶
+Số lượng người tham
+gia
+15,007
+14,985
+29,992
+Số lượng người tham
+gia
+15,007
+14,985
+29,992
+Số lượng người tham
+gia
+15,007
+14,985
+29,992
+Số lượng người tham
+gia
+15,007
+14,985
+29,992
+Trung bình ±CHS
+29.3±6.7
+29.3±6.9
+29.3±6.8
+Bang 3 (Tham chieu tu trang 12):
+Tuổi
+≥18 đến <65 tuổi 156/10,521 7/10,551
+95.6 (90.6–97.9)
+≥65 tuổi
+Tuổi, nguy cơ mắc COVID-19 nặng
+18 đến <65 tuổi, không ở trong nhóm nguy cơ
+18 6 ik
+29/3552
+121/8403
+352118
+4/3583
+5/8396
+221
+95.9 (90.0–98.3)
+944 769987
+86.4 (61.4–95.2)
+đến <5 tuổi, ở trong nhóm nguy cơ
+≥65 tuổi
+Lý thuyết giới tính
+Nam giới
+/
+29/3552
+87/7462
+/55
+4/3583
+4/7366
+95.4 (87.4–98.3)
+86.4 (61.4–95.2)
+. (..–.)
+Nữ giới
+Nguy cơ mắc COVID-19 nặng
+Có
+98/6611
+43/3167
+7/6768
+4/3206
+90.9 (74.7–96.7)
+93.1 (85.2–96.8)
+Không
+Dân tộc và sắc tộc dân tộc<br-Trắng
+142/10,906
+144/8916
+7/10,928
+10/9023
+95.1 (89.6–97.7)
+93.2 (87.1–96.4)

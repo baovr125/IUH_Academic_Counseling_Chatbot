@@ -20,7 +20,8 @@ services_dir = os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(os.p
 if services_dir not in sys.path:
     sys.path.insert(0, services_dir)
 
-redis_client = redis.Redis.from_url(REDIS_URL, decode_responses=True)
+redis_pool = redis.ConnectionPool.from_url(REDIS_URL, decode_responses=True, max_connections=50)
+redis_client = redis.Redis(connection_pool=redis_pool)
 
 def update_job_status(
     doc_id: str,
@@ -161,6 +162,17 @@ def process_document_translation_job_sync(
         # 3. Dịch thuật bằng PDFMathTranslate pipeline
         update_job_status(doc_id, "processing", 50, "Bắt đầu dịch trực tiếp trên PDF (giữ nguyên định dạng)...")
         
+        glossary_dict = {}
+        if isinstance(glossary_items, list):
+            for item in glossary_items:
+                if isinstance(item, dict):
+                    if "term" in item and "translation" in item:
+                        glossary_dict[item["term"]] = item["translation"]
+                    elif "source" in item and "target" in item:
+                        glossary_dict[item["source"]] = item["target"]
+        elif isinstance(glossary_items, dict):
+            glossary_dict = glossary_items
+            
         out_dir = tempfile.gettempdir()
         result_files = translate(
             files=[local_input_file],
@@ -171,6 +183,7 @@ def process_document_translation_job_sync(
             thread=4,
             callback=status_cb,
             model=ModelInstance.value,
+            glossary=glossary_dict,
         )
         
         # translate trả về danh sách các tuple: (mono_pdf_path, dual_pdf_path)
