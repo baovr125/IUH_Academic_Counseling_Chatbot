@@ -14,6 +14,11 @@ async def lifespan(app: FastAPI):
     logger.info("Starting up Real-time Translation Service...")
     init_minio()
     preload_models()
+    
+    # Preload NLP models for Word Analysis
+    from app.services.word_analysis_service import preload_nlp_models
+    preload_nlp_models()
+    
     sync_dictionary_to_redis()
     rabbitmq_conn = await start_rabbitmq_tts_consumer()
     yield
