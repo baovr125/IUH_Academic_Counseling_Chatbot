@@ -6,7 +6,8 @@ import hashlib
 from typing import Optional
 from app.schemas.translation import (
     TranslateRequest, LookupRequest, TranslateResponse, ApiResult,
-    StreamTranslateRequest, FlashcardExtractRequest
+    StreamTranslateRequest, FlashcardExtractRequest,
+    WordAnalysisRequest, WordAnalysisResponse
 )
 from app.services.translation_service import translate_text
 from app.services.llm_service import stream_translation, extract_flashcard
@@ -209,4 +210,14 @@ async def lookup_endpoint(payload: LookupRequest, user_id: str = Depends(get_cur
             "cached": cached,
             "latencyMs": latency_ms
         }
+    )
+
+@router.post("/analyze_word")
+async def analyze_word_endpoint(payload: WordAnalysisRequest, user_id: str = Depends(get_current_user_id)):
+    from app.services.word_analysis_service import process_word_analysis
+    
+    result = await process_word_analysis(payload)
+    return ApiResult(
+        ok=True,
+        data=result
     )

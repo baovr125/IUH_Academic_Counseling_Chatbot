@@ -55,7 +55,7 @@ services:
           memory: 128M
 
   minio:
-    image: minio/minio:latest
+    image: quay.io/minio/minio:latest
     container_name: iuh_minio
     ports:
       - "9000:9000"
