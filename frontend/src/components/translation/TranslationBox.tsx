@@ -5,6 +5,8 @@ import { DomainSelector } from "./DomainSelector";
 import { BookmarkPlus, ArrowRightLeft, Volume2, X, Loader2, Copy, Check } from "lucide-react";
 import { LANG_CONFIG } from "../../services/deckStorage";
 import { SaveFlashcardModal } from "./SaveFlashcardModal";
+import { useWordAnalysis } from "../../hooks/useWordAnalysis";
+import { WordAnalysisPopup } from "./WordAnalysisPopup";
 
 export interface TranslationBoxProps {
   sourceLang: string;
@@ -74,10 +76,12 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
       setToastMessage("Không thể sao chép văn bản.");
     });
   };
-
   const containerRef = useRef<HTMLDivElement>(null);
+  const sourceTextareaRef = useRef<HTMLTextAreaElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioCache = useRef<Map<string, string>>(new Map());
+  
+  const wordAnalysis = useWordAnalysis();
 
   // Debounce ref to handle real-time streaming
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -314,38 +318,76 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
     }
   };
 
-  const handleSelection = () => {
+  const handleSelection = (e?: React.MouseEvent) => {
     const selection = window.getSelection();
-    if (!selection || selection.isCollapsed || !containerRef.current) {
-      if (!isSavingFlashcard) setMenuPosition(null);
-      return;
+    
+    // Check if selection is in textarea
+    let text = "";
+    let context = "";
+    let posX = 0;
+    let posY = 0;
+    let isSource = false;
+
+    if (sourceTextareaRef.current && document.activeElement === sourceTextareaRef.current) {
+      const start = sourceTextareaRef.current.selectionStart;
+      const end = sourceTextareaRef.current.selectionEnd;
+      text = sourceText.substring(start, end).trim();
+      if (text) {
+        // Get context from sourceText
+        const sentenceRegex = new RegExp(`[^.?!]*(?<=[.?\\s!])${text.replace(/[.*+?^$\\{}()[\]\\]/g, '\\$&')}(?=[\\s.?!])[^.?!]*[.?!]?`, 'i');
+        const match = sourceText.match(sentenceRegex);
+        context = match ? match[0].trim() : sourceText.slice(0, 150);
+        
+        // Use mouse position if available, otherwise center of textarea
+        if (e) {
+          posX = e.clientX;
+          posY = e.clientY + window.scrollY;
+        } else {
+          const rect = sourceTextareaRef.current.getBoundingClientRect();
+          posX = rect.left + rect.width / 2;
+          posY = rect.top + rect.height / 2 + window.scrollY;
+        }
+        isSource = true;
+      }
+    } else if (selection && !selection.isCollapsed && containerRef.current && containerRef.current.contains(selection.anchorNode)) {
+      text = selection.toString().trim();
+      if (text) {
+        const range = selection.getRangeAt(0);
+        const rect = range.getBoundingClientRect();
+        
+        const allText = translatedTokens.join("");
+        const sentenceRegex = new RegExp(`[^.?!]*(?<=[.?\\s!])${text.replace(/[.*+?^$\\{}()[\]\\]/g, '\\$&')}(?=[\\s.?!])[^.?!]*[.?!]?`, 'i');
+        const match = allText.match(sentenceRegex);
+        context = match ? match[0].trim() : allText.slice(0, 150);
+        
+        posX = rect.left + rect.width / 2;
+        posY = rect.top + window.scrollY;
+      }
     }
 
-    // Ensure selection is inside our container
-    if (!containerRef.current.contains(selection.anchorNode)) {
+    if (!text) {
+      if (!isSavingFlashcard) {
+        setMenuPosition(null);
+        wordAnalysis.reset();
+      }
       return;
     }
-
-    const text = selection.toString().trim();
-    if (!text) return;
-
-    // Get position for the floating menu
-    const range = selection.getRangeAt(0);
-    const rect = range.getBoundingClientRect();
-
-    // Get full sentence context (rough approximation)
-    const allText = translatedTokens.join("");
-    // Find the sentence containing the text
-    const sentenceRegex = new RegExp(`[^.?!]*(?<=[.?\\s!])${text.replace(/[.*+?^$\\{}()[\]\\]/g, '\\$&')}(?=[\\s.?!])[^.?!]*[.?!]?`, 'i');
-    const match = allText.match(sentenceRegex);
-    const context = match ? match[0].trim() : allText.slice(0, 150);
 
     setSelectedWord(text);
     setSelectedContext(context);
-    setMenuPosition({
-      x: rect.left + rect.width / 2,
-      y: rect.top + window.scrollY
-    });
+    setMenuPosition({ x: posX, y: posY });
+    
+    // Trigger Word Analysis if Source is English
+    if (sourceLang === "en") {
+      wordAnalysis.analyze(
+        context, 
+        text, 
+        "en", 
+        targetLang
+      );
+    } else {
+      wordAnalysis.reset();
+    }
   };
 
   const saveFlashcard = async () => {
@@ -402,7 +444,6 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
 
   const speakSelection = () => {
     speakText(selectedWord, getTTSLangCode(targetLang === "vi" ? sourceLang : targetLang), "selection");
-    setMenuPosition(null);
   };
 
   return (
@@ -428,10 +469,13 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
           </div>
 
           <textarea
+            ref={sourceTextareaRef}
             className="flex-1 w-full px-6 py-5 bg-transparent resize-none outline-none text-slate-800 text-lg leading-relaxed placeholder:text-slate-400"
             placeholder="Nhập văn bản cần dịch tại đây..."
             value={sourceText}
             onChange={(e) => setSourceText(e.target.value.slice(0, 3000))}
+            onMouseUp={handleSelection}
+            onKeyUp={() => handleSelection()}
           />
           <div className="px-6 py-3 flex items-center justify-between text-xs font-medium text-slate-400 bg-white">
             <div className="flex items-center gap-1">
@@ -549,8 +593,27 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
           y={menuPosition.y}
           onSave={saveFlashcard}
           onSpeak={speakSelection}
-          onClose={() => setMenuPosition(null)}
+          onClose={() => {
+            setMenuPosition(null);
+            wordAnalysis.reset();
+          }}
           isSaving={isSavingFlashcard}
+        />
+      )}
+      
+      {/* Word Analysis Popup */}
+      {(wordAnalysis.isLoading || wordAnalysis.data || wordAnalysis.error) && sourceLang === "en" && menuPosition && (
+        <WordAnalysisPopup
+          position={{ x: menuPosition.x, y: menuPosition.y + 50 }} // slightly below floating menu
+          isLoading={wordAnalysis.isLoading}
+          data={wordAnalysis.data}
+          error={wordAnalysis.error}
+          onClose={() => wordAnalysis.reset()}
+          onRetry={() => {
+            if (selectedWord && selectedContext) {
+              wordAnalysis.analyze(selectedContext, selectedWord, "en", targetLang);
+            }
+          }}
         />
       )}
 

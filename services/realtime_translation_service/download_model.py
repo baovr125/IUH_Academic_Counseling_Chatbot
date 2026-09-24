@@ -2,7 +2,7 @@ import os
 from huggingface_hub import snapshot_download
 
 MODEL_ID = "JustFrederik/nllb-200-distilled-600M-ct2-int8"
-LOCAL_DIR = "/app/models/nllb-200-distilled-600M-ct2-int8"
+LOCAL_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "models", "nllb-200-distilled-600M-ct2-int8")
 
 def download_model():
     print(f"Downloading model {MODEL_ID} to {LOCAL_DIR}...")

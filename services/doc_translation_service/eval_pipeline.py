@@ -345,6 +345,9 @@ def analyze_translation_quality(translated_text: str, filename: str) -> Dict[str
             
         client = Groq(api_key=groq_api_key)
         
+        # Kiểm tra xem văn bản có phải là placeholder báo hiệu tắt markdown hay không
+        if translated_text.startswith("Tính năng xem Markdown bị vô hiệu hóa"):
+            return {"analysis_possible": False, "error": "Markdown output disabled by service."}
         # Chỉ lấy 2500 ký tự đầu để tiết kiệm token và thời gian đánh giá
         sample = translated_text[:2500] 
         
@@ -445,8 +448,11 @@ def generate_side_by_side_html(run_ts: str, file_results: List[Dict], out_html_p
 
         # Translated preview
         md_text = poll.get("translated_text", "")
-        preview_text = (md_text[:2500] + "\n\n... [Xem file translated.md để đọc toàn bộ]") if md_text else "<i>(Không có nội dung dịch)</i>"
-        preview_escaped = preview_text.replace("<", "&lt;").replace(">", "&gt;")
+        if md_text.startswith("Tính năng xem Markdown bị vô hiệu hóa"):
+            preview_escaped = "<i>(Văn bản Markdown đã bị vô hiệu hóa do sử dụng Layout Analysis PDF)</i>"
+        else:
+            preview_text = (md_text[:2500] + "\n\n... [Xem file translated.md để đọc toàn bộ]") if md_text else "<i>(Không có nội dung dịch)</i>"
+            preview_escaped = preview_text.replace("<", "&lt;").replace(">", "&gt;")
 
         cards_html.append(f"""
         <div class="card mb-4" id="card-{i}">
@@ -460,7 +466,6 @@ def generate_side_by_side_html(run_ts: str, file_results: List[Dict], out_html_p
                         <h6><b>📂 File Liên Kết:</b></h6>
                         <a href="{orig_pdf_rel}" target="_blank" class="btn btn-sm btn-outline-primary mr-2">📄 Mở Original PDF</a>
                         <a href="{trans_pdf_rel}" target="_blank" class="btn btn-sm btn-outline-success mr-2">📑 Mở Translated PDF</a>
-                        <a href="{trans_md_rel}" target="_blank" class="btn btn-sm btn-outline-secondary mr-2">📝 Mở Translated Markdown</a>
                         <a href="{glossary_rel}" target="_blank" class="btn btn-sm btn-outline-info">📚 Mở Glossary JSON</a>
                     </div>
                     <div class="col-md-6">
@@ -860,7 +865,6 @@ def main():
     log("Running technical benchmark scripts...", "STEP")
     benchmarks = {}
     bench_map = {
-        "chunking":   "bench_chunking.py",
         "parsers":    "bench_pdf_parsers.py",
         "glossary":   "bench_glossary_translation.py",
         "throughput": "bench_e2e_throughput.py",

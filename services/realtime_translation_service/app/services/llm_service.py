@@ -131,19 +131,159 @@ LANG_MAP = {
     "vi": "vie_Latn",
 }
 
-async def stream_translation(text: str, source_lang: str, target_lang: str, domain: str = "") -> AsyncGenerator[str, None]:
-    """Translates text using local NLLB model via CTranslate2. Falls back to Groq/Gemini."""
-    # Length-based routing: if <= 3 words and domain is provided, check Redis first
-    words = text.strip().split()
-    if domain and len(words) <= 3:
-        from app.services.cache_service import get_redis
-        redis_client = get_redis()
-        if redis_client:
-            cached_trans = redis_client.hget(f"domain_dict:{domain}", text.strip().lower())
-            if cached_trans:
-                yield json.dumps({'text': cached_trans})
+async def handle_flow_2_stream_translation(text: str, source_lang: str, target_lang: str, domain: str) -> AsyncGenerator[str, None]:
+    clean_lower = text.strip().lower()
+    words = clean_lower.split()
+    keyword_count = len(words)
+    
+    from app.services.supabase_client import get_supabase
+    import re
+    
+    supabase = get_supabase()
+    domain_dict = {}
+    if supabase:
+        try:
+            res = supabase.table("domain_dictionaries").select("word, translation").eq("domain", domain).execute()
+            if res.data:
+                for entry in res.data:
+                    domain_dict[entry["word"].lower()] = entry["translation"]
+        except Exception as e:
+            logger.error(f"Supabase query error: {e}")
+
+    async def yield_nllb(t, warning_msg=None):
+        translator, tokenizer = get_nllb_translator()
+        if not translator or not tokenizer:
+            yield json.dumps({'error': "NLLB model is not available."})
+            return
+            
+        nllb_src = LANG_MAP.get(source_lang, "eng_Latn")
+        nllb_tgt = LANG_MAP.get(target_lang, "vie_Latn")
+        
+        try:
+            from app.utils.html_parser import HTMLTranslator
+            html_translator = HTMLTranslator()
+            html_with_placeholders, texts_to_translate = html_translator.extract_text(t)
+            
+            if not texts_to_translate:
+                if warning_msg:
+                    yield json.dumps({'text': html_with_placeholders, 'warning': warning_msg})
+                else:
+                    yield json.dumps({'text': html_with_placeholders})
                 return
                 
+            tokenizer.src_lang = nllb_src
+            source_tokens_list = [tokenizer.convert_ids_to_tokens(tokenizer.encode(tt)) for tt in texts_to_translate]
+            target_prefix = [nllb_tgt]
+
+            results = await asyncio.to_thread(
+                translator.translate_batch,
+                source_tokens_list,
+                target_prefix=[target_prefix] * len(texts_to_translate)
+            )
+            
+            translated_texts = []
+            for res in results:
+                target_tokens = res.hypotheses[0][1:] 
+                translated = tokenizer.decode(tokenizer.convert_tokens_to_ids(target_tokens))
+                translated_texts.append(translated)
+                
+            final_translated = html_translator.reconstruct_html(html_with_placeholders, translated_texts)
+            
+            if warning_msg:
+                yield json.dumps({'text': final_translated, 'warning': warning_msg})
+            else:
+                yield json.dumps({'text': final_translated})
+        except Exception as e:
+            logger.error(f"NLLB failed: {e}")
+            yield json.dumps({'error': "Dịch vụ dịch thuật tạm thời gián đoạn. Không thể dịch."})
+
+    # Case 1: < 3 keywords
+    if keyword_count < 3:
+        if clean_lower in domain_dict:
+            yield json.dumps({'text': domain_dict[clean_lower]})
+            return
+        else:
+            warning = f"Từ/cụm từ này không được tìm thấy trong từ điển chuyên ngành '{domain}'. Hệ thống sử dụng NLLB để dịch thông thường, kết quả có thể không phản ánh đầy đủ nghĩa chuyên ngành."
+            async for chunk in yield_nllb(text, warning):
+                yield chunk
+            return
+
+    # Case 2: >= 3 keywords
+    found_terms = {}
+    sorted_keys = sorted(domain_dict.keys(), key=len, reverse=True)
+    for k in sorted_keys:
+        pattern = r'\b' + re.escape(k) + r'\b'
+        if re.search(pattern, clean_lower):
+            found_terms[k] = domain_dict[k]
+
+    if found_terms:
+        # LLM streaming (Groq/Gemini bypass)
+        groq_client = get_groq_client()
+        system_prompt = f"You are a professional translator. You specialize in the '{domain}' domain. Ensure accurate terminology for this field."
+        glossary_str = "\n".join([f"- {k} -> {v}" for k, v in found_terms.items()])
+        system_prompt += f"\n\nYou MUST use the following glossary for terminology:\n{glossary_str}"
+        system_prompt += f"\n\nTranslate the following text from {source_lang} to {target_lang}. Only output the direct translation, do not explain or converse. Preserve all HTML tags perfectly if present."
+        
+        use_fallback = False
+        if groq_client:
+            try:
+                stream = await groq_client.chat.completions.create(
+                    model="llama-3.1-8b-instant",
+                    messages=[
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": text}
+                    ],
+                    stream=True,
+                    temperature=0.3
+                )
+                async for chunk in stream:
+                    if chunk.choices and chunk.choices[0].delta.content:
+                        content = chunk.choices[0].delta.content
+                        yield json.dumps({'text': content})
+                return
+            except Exception as e:
+                logger.warning(f"Groq API streaming failed: {e}. Falling back to Gemini.")
+                use_fallback = True
+        else:
+            use_fallback = True
+
+        if use_fallback:
+            gemini_client = get_gemini_client()
+            if gemini_client:
+                try:
+                    full_prompt = f"{system_prompt}\n\nText:\n{text}"
+                    response_stream = gemini_client.models.generate_content_stream(
+                        model="gemini-2.5-flash",
+                        contents=full_prompt
+                    )
+                    for chunk in response_stream:
+                        if chunk.text:
+                            yield json.dumps({'text': chunk.text})
+                    return
+                except Exception as e:
+                    logger.error(f"Gemini fallback failed: {e}")
+        
+        # If both LLMs failed, fallback to NLLB with warning
+        warning = f"Hệ thống không thể dịch bằng AI model chuyên ngành. Đã sử dụng NLLB, kết quả có thể không phản ánh đầy đủ nghĩa chuyên ngành."
+        async for chunk in yield_nllb(text, warning):
+            yield chunk
+        return
+    else:
+        # Terminology not found -> NLLB
+        async for chunk in yield_nllb(text, None):
+            yield chunk
+        return
+
+async def stream_translation(text: str, source_lang: str, target_lang: str, domain: str = "") -> AsyncGenerator[str, None]:
+    """Translates text using local NLLB model via CTranslate2. Falls back to Groq/Gemini."""
+    
+    is_flow_2 = domain and domain != "Dịch thông thường (Mặc định)"
+    if is_flow_2:
+        async for chunk in handle_flow_2_stream_translation(text, source_lang, target_lang, domain):
+            yield chunk
+        return
+        
+    # --- FLOW 1 BEGIN ---
     translator, tokenizer = get_nllb_translator()
     
     if translator and tokenizer:
@@ -151,31 +291,40 @@ async def stream_translation(text: str, source_lang: str, target_lang: str, doma
         nllb_tgt = LANG_MAP.get(target_lang, "vie_Latn")
 
         try:
+            from app.utils.html_parser import HTMLTranslator
+            html_translator = HTMLTranslator()
+            html_with_placeholders, texts_to_translate = html_translator.extract_text(text)
+            
+            if not texts_to_translate:
+                yield json.dumps({'text': html_with_placeholders})
+                return
+                
             tokenizer.src_lang = nllb_src
-            source_tokens = tokenizer.convert_ids_to_tokens(tokenizer.encode(text))
+            source_tokens_list = [tokenizer.convert_ids_to_tokens(tokenizer.encode(t)) for t in texts_to_translate]
             target_prefix = [nllb_tgt]
 
             results = await asyncio.to_thread(
                 translator.translate_batch,
-                [source_tokens],
-                target_prefix=[target_prefix]
+                source_tokens_list,
+                target_prefix=[target_prefix] * len(texts_to_translate)
             )
             
-            target_tokens = results[0].hypotheses[0][1:] 
-            translated_text = tokenizer.decode(tokenizer.convert_tokens_to_ids(target_tokens))
+            translated_texts = []
+            for res in results:
+                target_tokens = res.hypotheses[0][1:] 
+                translated = tokenizer.decode(tokenizer.convert_tokens_to_ids(target_tokens))
+                translated_texts.append(translated)
+                
+            final_translated = html_translator.reconstruct_html(html_with_placeholders, translated_texts)
             
-            yield json.dumps({'text': translated_text})
+            yield json.dumps({'text': final_translated})
             return
         except Exception as e:
             logger.error(f"NLLB translation failed: {e}. Falling back to LLM.")
 
     # Fallback to LLMs if NLLB fails or is not available
     groq_client = get_groq_client()
-    
-    system_prompt = f"You are a professional translator."
-    if domain:
-        system_prompt += f" You specialize in the '{domain}' domain. Ensure accurate terminology for this field."
-    system_prompt += f" Translate the following text from {source_lang} to {target_lang}. Only output the direct translation, do not explain or converse."
+    system_prompt = f"You are a professional translator.\n\nTranslate the following text from {source_lang} to {target_lang}. Only output the direct translation, do not explain or converse. Preserve all HTML tags perfectly if present."
 
     messages = [
         {"role": "system", "content": system_prompt},
@@ -183,11 +332,10 @@ async def stream_translation(text: str, source_lang: str, target_lang: str, doma
     ]
 
     use_fallback = False
-
     if groq_client:
         try:
             stream = await groq_client.chat.completions.create(
-                model="llama-3.1-8b-instant", # or llama3-70b-8192
+                model="llama-3.1-8b-instant",
                 messages=messages,
                 stream=True,
                 temperature=0.3
@@ -211,7 +359,6 @@ async def stream_translation(text: str, source_lang: str, target_lang: str, doma
             return
 
         try:
-            # Gemini streaming using new SDK
             full_prompt = f"{system_prompt}\n\nText:\n{text}"
             response_stream = gemini_client.models.generate_content_stream(
                 model="gemini-2.5-flash",

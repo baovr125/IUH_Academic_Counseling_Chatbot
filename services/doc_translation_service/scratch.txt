@@ -1,0 +1,86 @@
+Cung cấp đủ sự ghi nhận nguồn, Google truy cập và cho phép tái sản
+xuất các bảng và hình đồ trong bài viết này chỉ để sử dụng trong công
+trình báo chí hoặc học thuật.
+Quan Trắc Là Tất Cả Bạn Cần
+Ashish Vaswani∗
+Google Brain
+avaswani@google.com
+Noam Shazeer∗
+Google Brain
+noam@google.com
+Niki Parmar∗
+Google Research
+nikip@google.com
+Jakob Uszkoreit∗
+Nghiên cứu Google
+usz@google.com
+Llion Jones∗
+Google Research
+llion@google.com
+Aidan N. Gomez∗†
+Đại học Toronto
+aidan@cs.toronto.edu
+Łukasz Kaiser∗
+Google Brain
+lukaszkaiser@google.com
+Illia Polosukhin∗‡
+illia.polosukhin@gmail.com
+Tóm tắt
+Những mô hình chuyển đổi chuỗi chi phối hiện nay dựa trên các mạng nơ-ron
+hồi tiếp hoặc tích chập phức tạp, bao gồm bộ mã hoá và bộ giải mã. Các mô
+hình đạt hiệu suất tốt nhất cũng kết nối bộ mã hoá và bộ giải mã thông qua cơ
+chế chú ý. Chúng tôi đề xuất một kiến trúc mạng mới đơn giản, Transformer,
+dựa hoàn toàn trên các cơ chế chú ý, loại bỏ hoàn toàn việc sử dụng hồi tiếp và
+tích chập. Các thí nghiệm trên hai nhiệm vụ dịch máy cho thấy các mô hình này
+vượt trội về chất lượng đồng thời có khả năng song song cao hơn và yêu cầu
+thời gian huấn luyện đáng kể ít hơn. Mô hình của chúng tôi đạt 28.4 BLEU
+trên nhiệm vụ dịch tiếng Anh sang tiếng Đức của WMT 2014, cải thiện hơn 2
+BLEU so với các kết quả tốt nhất hiện có, bao gồm cả các mô hình hợp nhất.
+Trên nhiệm vụ dịch tiếng Anh sang tiếng Pháp của WMT 2014, mô hình của
+chúng tôi thiết lập điểm BLEU mới đạt 41.8 cho một mô hình đơn, sau
+3.5 ngày huấn luyện trên tám GPU, chỉ chiếm một phần rất nhỏ chi phí huấn
+luyện so với các mô hình tốt nhất trong tài liệu. Chúng tôi chứng minh rằng
+Transformer tổng quát tốt cho các nhiệm vụ khác bằng cách áp dụng thành công
+vào việc phân tích cú pháp thành phần tiếng Anh cả với dữ liệu huấn luyện lớn
+và hạn chế.
+∗Equal contribution. Listing order is random. Jakob proposed replacing RNNs with self-attention and started
+the effort to evaluate this idea. Ashish, with Illia, designed and implemented the first Transformer models and
+has been crucially involved in every aspect of this work. Noam proposed scaled dot-product attention, multi-head
+attention and the parameter-free position representation and became the other person involved in nearly every
+detail. Niki designed, implemented, tuned and evaluated countless model variants in our original codebase and
+tensor2tensor. Llion also experimented with novel model variants, was responsible for our initial codebase, and
+efficient inference and visualizations. Lukasz and Aidan spent countless long days designing various parts of and
+implementing tensor2tensor, replacing our earlier codebase, greatly improving results and massively accelerating
+our research.
+†Work performed while at Google Brain.
+‡Work performed while at Google Research.
+31st Conference on Neural Information Processing Systems (NIPS 2017), Long Beach, CA, USA.
+a
+rX
+iv
+:1
+7
+0
+6
+.0
+3
+7
+6
+2
+v
+7
+ 
+ [c
+s
+.C
+L
+]
+ 
+ 2
+ A
+u
+g
+ 2
+0
+2
+3

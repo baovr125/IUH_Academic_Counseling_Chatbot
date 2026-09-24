@@ -185,3 +185,37 @@ export async function clearTranslationHistory(): Promise<ApiResult<null>> {
   historyStore = [];
   return { ok: true, data: null };
 }
+
+export async function analyzeWord(
+  request: {
+    text: string;
+    selected_text: string;
+    source_lang: string;
+    target_lang: string;
+  },
+  signal?: AbortSignal
+): Promise<ApiResult<any>> {
+  try {
+    const token = getToken();
+    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+
+    const res = await fetch(getApiUrl("/api/v1/translate/analyze_word"), {
+      method: "POST",
+      headers,
+      body: JSON.stringify(request),
+      signal,
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      return { ok: true, data: data.data };
+    }
+    return { ok: false, error: { message: "Failed to analyze word" } };
+  } catch (error: any) {
+    if (error?.name === "AbortError") {
+      throw error; // Let the hook handle it
+    }
+    return { ok: false, error: { message: "Network error" } };
+  }
+}

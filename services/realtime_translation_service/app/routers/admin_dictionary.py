@@ -5,6 +5,8 @@ from app.services.supabase_client import get_supabase
 from app.services.domain_dict_service import sync_dictionary_to_redis
 from app.utils.logger import logger
 from app.schemas.translation import ApiResult
+from fastapi import Depends
+from app.utils.security import get_current_user_id
 
 router = APIRouter(tags=["Dictionary Admin"])
 
@@ -23,7 +25,7 @@ class BulkDeleteRequest(BaseModel):
     ids: List[str]
 
 @router.get("/admin/dictionary", response_model=ApiResult)
-def get_dictionary():
+def get_dictionary(user_id: str = Depends(get_current_user_id)):
     supabase = get_supabase()
     if not supabase:
         raise HTTPException(status_code=500, detail="Supabase not configured")
@@ -35,7 +37,7 @@ def get_dictionary():
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/admin/dictionary", response_model=ApiResult)
-def add_dictionary_entry(background_tasks: BackgroundTasks, entry: DictionaryEntry):
+def add_dictionary_entry(background_tasks: BackgroundTasks, entry: DictionaryEntry, user_id: str = Depends(get_current_user_id)):
     supabase = get_supabase()
     if not supabase:
         raise HTTPException(status_code=500, detail="Supabase not configured")
@@ -67,7 +69,7 @@ def add_dictionary_entry(background_tasks: BackgroundTasks, entry: DictionaryEnt
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.delete("/admin/dictionary/{entry_id}", response_model=ApiResult)
-def delete_dictionary_entry(entry_id: str):
+def delete_dictionary_entry(entry_id: str, user_id: str = Depends(get_current_user_id)):
     supabase = get_supabase()
     if not supabase:
         raise HTTPException(status_code=500, detail="Supabase not configured")
@@ -80,7 +82,7 @@ def delete_dictionary_entry(entry_id: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/admin/dictionary/bulk-delete", response_model=ApiResult)
-def bulk_delete_dictionary_entries(req: BulkDeleteRequest):
+def bulk_delete_dictionary_entries(req: BulkDeleteRequest, user_id: str = Depends(get_current_user_id)):
     supabase = get_supabase()
     if not supabase:
         raise HTTPException(status_code=500, detail="Supabase not configured")
@@ -93,7 +95,7 @@ def bulk_delete_dictionary_entries(req: BulkDeleteRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.put("/admin/dictionary/{entry_id}", response_model=ApiResult)
-def update_dictionary_entry(entry_id: str, background_tasks: BackgroundTasks, entry: DictionaryEntry):
+def update_dictionary_entry(entry_id: str, background_tasks: BackgroundTasks, entry: DictionaryEntry, user_id: str = Depends(get_current_user_id)):
     supabase = get_supabase()
     if not supabase:
         raise HTTPException(status_code=500, detail="Supabase not configured")
@@ -133,7 +135,7 @@ import json
 from app.services.audio_generator import generate_audio_for_entries
 
 @router.post("/admin/dictionary/import", response_model=ApiResult)
-async def import_dictionary(background_tasks: BackgroundTasks, file: UploadFile = File(...)):
+async def import_dictionary(background_tasks: BackgroundTasks, file: UploadFile = File(...), user_id: str = Depends(get_current_user_id)):
     supabase = get_supabase()
     if not supabase:
         raise HTTPException(status_code=500, detail="Supabase not configured")
