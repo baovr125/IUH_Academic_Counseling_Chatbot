@@ -8,6 +8,7 @@ import httpx
 from google import genai
 from groq import Groq, AsyncGroq
 from app.utils.logger import logger
+from app.utils.text_normalizer import find_domain_terms, build_context_aware_prompt
 
 # Initialize Clients
 _translator = None
@@ -198,7 +199,7 @@ async def handle_flow_2_stream_translation(text: str, source_lang: str, target_l
             yield json.dumps({'error': "Dịch vụ dịch thuật tạm thời gián đoạn. Không thể dịch."})
 
     # Case 1: < 3 keywords
-    if keyword_count < 3:
+    if keyword_count <= 3:
         if clean_lower in domain_dict:
             yield json.dumps({'text': domain_dict[clean_lower]})
             return
@@ -209,20 +210,12 @@ async def handle_flow_2_stream_translation(text: str, source_lang: str, target_l
             return
 
     # Case 2: >= 3 keywords
-    found_terms = {}
-    sorted_keys = sorted(domain_dict.keys(), key=len, reverse=True)
-    for k in sorted_keys:
-        pattern = r'\b' + re.escape(k) + r'\b'
-        if re.search(pattern, clean_lower):
-            found_terms[k] = domain_dict[k]
+    found_terms = find_domain_terms(text, domain_dict)
 
     if found_terms:
         # LLM streaming (Groq/Gemini bypass)
         groq_client = get_groq_client()
-        system_prompt = f"You are a professional translator. You specialize in the '{domain}' domain. Ensure accurate terminology for this field."
-        glossary_str = "\n".join([f"- {k} -> {v}" for k, v in found_terms.items()])
-        system_prompt += f"\n\nYou MUST use the following glossary for terminology:\n{glossary_str}"
-        system_prompt += f"\n\nTranslate the following text from {source_lang} to {target_lang}. Only output the direct translation, do not explain or converse. Preserve all HTML tags perfectly if present."
+        system_prompt = build_context_aware_prompt(domain, found_terms, source_lang, target_lang)
         
         use_fallback = False
         if groq_client:

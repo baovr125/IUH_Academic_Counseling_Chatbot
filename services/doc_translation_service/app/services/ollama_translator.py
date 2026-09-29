@@ -11,6 +11,12 @@ logger = logging.getLogger(__name__)
 OLLAMA_DEFAULT_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
 OLLAMA_DEFAULT_MODEL = os.getenv("OLLAMA_MODEL", "qwen2.5:7b")
 
+FALLBACK_USED_IN_CURRENT_JOB = False
+
+def reset_fallback_flag():
+    global FALLBACK_USED_IN_CURRENT_JOB
+    FALLBACK_USED_IN_CURRENT_JOB = False
+
 LANGUAGE_MAP = {
     "vi": "Vietnamese (Tiếng Việt)",
     "en": "English",
@@ -190,7 +196,6 @@ def call_ollama_generate(prompt: str, system_instruction: str, model: str, tempe
             "model": model,
             "prompt": prompt,
             "system": system_instruction,
-            "stream": False,
             "options": {
                 "temperature": temperature,
                 "top_p": 0.9,
@@ -203,15 +208,42 @@ def call_ollama_generate(prompt: str, system_instruction: str, model: str, tempe
             **_TUNNEL_BYPASS_HEADERS,
         }
 
+    import json
+    if is_vllm:
+        payload["stream"] = True
+    else:
+        payload["stream"] = True
+
     try:
-        with httpx.Client(timeout=45.0, verify=False, http2=False) as client:
-            resp = client.post(url, json=payload, headers=headers)
-            resp.raise_for_status()
-            data = resp.json()
-            if is_vllm:
-                return data["choices"][0]["message"]["content"].strip()
-            else:
-                return data.get("response", "").strip()
+        timeout_sec = float(os.getenv("OLLAMA_TIMEOUT_SECONDS", "180"))
+        result_text = ""
+        with httpx.Client(timeout=timeout_sec, verify=False, http2=False) as client:
+            with client.stream("POST", url, json=payload, headers=headers) as resp:
+                resp.raise_for_status()
+                for line in resp.iter_lines():
+                    if line:
+                        if is_vllm:
+                            if line.startswith("data: "):
+                                data_str = line[6:]
+                                if data_str.strip() == "[DONE]":
+                                    break
+                                try:
+                                    chunk = json.loads(data_str)
+                                    if chunk["choices"][0].get("delta", {}):
+                                        delta = chunk["choices"][0]["delta"].get("content", "")
+                                        result_text += delta
+                                    # Fallback for some vLLM versions that might emit text directly
+                                    elif chunk["choices"][0].get("text", ""):
+                                        result_text += chunk["choices"][0]["text"]
+                                except Exception:
+                                    pass
+                        else:
+                            try:
+                                chunk = json.loads(line)
+                                result_text += chunk.get("response", "")
+                            except Exception:
+                                pass
+        return result_text.strip()
     except Exception as e:
         logger.error(f"Error calling Ollama/vLLM: {e}")
         raise RuntimeError(f"Ollama/vLLM API error: {e}")
@@ -363,6 +395,8 @@ class OllamaPDFTranslator:
 
             return cleaned
         except Exception as vllm_err:
+            global FALLBACK_USED_IN_CURRENT_JOB
+            FALLBACK_USED_IN_CURRENT_JOB = True
             logger.warning(f"vLLM failed ({vllm_err}). Triggering Groq Fallback...")
             try:
                 # 2. Try Groq

@@ -34,6 +34,7 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
   const [domain, setDomain] = useState("");
   const [isTranslating, setIsTranslating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [translationWarning, setTranslationWarning] = useState<string | null>(null);
 
   // Array of parsed tokens/words for the UI
   const [translatedTokens, setTranslatedTokens] = useState<string[]>([]);
@@ -230,6 +231,7 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
 
     setIsTranslating(true);
     setError(null);
+    setTranslationWarning(null);
     setTranslatedTokens([]);
     setMenuPosition(null);
 
@@ -249,6 +251,9 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
       (err: string) => {
         setIsTranslating(false);
         setError(err || "Đã xảy ra lỗi trong quá trình dịch thuật.");
+      },
+      (warn: string) => {
+        setTranslationWarning(warn);
       },
       () => {
         setIsTranslating(false);
@@ -543,8 +548,15 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
             )}
 
             {error && (
-              <div className="p-4 bg-red-50 text-red-600 rounded-xl text-sm border border-red-100">
+              <div className="p-4 bg-red-50 text-red-600 rounded-xl text-sm border border-red-100 mb-4">
                 {error}
+              </div>
+            )}
+
+            {translationWarning && (
+              <div className="p-4 bg-amber-50 text-amber-700 rounded-xl text-sm border border-amber-200 mb-4 flex items-start gap-2">
+                <span className="font-bold text-amber-500">⚠️ Cảnh báo:</span>
+                <span>{translationWarning}</span>
               </div>
             )}
 

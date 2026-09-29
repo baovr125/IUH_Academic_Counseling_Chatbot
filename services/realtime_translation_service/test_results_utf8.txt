@@ -1,0 +1,442 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.11.8, pytest-8.4.2, pluggy-1.6.0 -- C:\Users\VanBao\AppData\Local\Programs\Python\Python311\python.exe
+cachedir: .pytest_cache
+rootdir: G:\Khoa_Luan\IUH_Academic_Counseling_Chatbot\services\realtime_translation_service
+configfile: pytest.ini
+plugins: anyio-4.10.0, langsmith-0.4.30, locust-2.46.5, asyncio-1.4.0, cov-7.1.0, docker-3.1.2, mock-3.15.1
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 6 items
+
+tests/unit/test_word_analysis.py::test_spacy_to_wordnet_pos FAILED       [ 16%]
+tests/unit/test_word_analysis.py::test_analyze_word_endpoint_success FAILED [ 33%]
+tests/unit/test_word_analysis.py::test_analyze_word_endpoint_noun FAILED [ 50%]
+tests/unit/test_word_analysis.py::test_analyze_word_non_english FAILED   [ 66%]
+tests/integration/test_translation_regression.py::test_translation_flow_1_default FAILED [ 83%]
+pytest : C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\coverage\inorout.py:558: 
+CoverageWarning: Module app/services/word_analysis_service.py was never imported. (module-not-imported); see 
+https://coverage.readthedocs.io/en/7.15.4/messages.html#warning-module-not-imported
+At line:1 char:1
++ pytest tests/unit/test_word_analysis.py tests/integration/test_transl ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (C:\Users\VanBao...le-not-imported:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  self.warn(f"Module {pkg} was never imported.", slug="module-not-imported")
+C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\coverage\control.py:963: CoverageWarning: No 
+data was collected. (no-data-collected); see 
+https://coverage.readthedocs.io/en/7.15.4/messages.html#warning-no-data-collected
+  self._warn("No data was collected.", slug="no-data-collected")
+C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\pytest_cov\plugin.py:366: CovReportWarning: 
+Failed to generate report: No data to report.
+
+  warnings.warn(CovReportWarning(message), stacklevel=1)
+tests/integration/test_translation_regression.py::test_translation_flow_2_domain FAILED [100%]
+WARNING: Failed to generate report: No data to report.
+
+
+
+================================== FAILURES ===================================
+__________________________ test_spacy_to_wordnet_pos __________________________
+C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\nltk\corpus\util.py:84: in __load
+    root = nltk.data.find(f"{self.subdir}/{zip_name}")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\nltk\data.py:579: in find
+    raise LookupError(resource_not_found)
+E   LookupError: 
+E   **********************************************************************
+E     Resource [93mwordnet[0m not found.
+E     Please use the NLTK Downloader to obtain the resource:
+E   
+E     [31m>>> import nltk
+E     >>> nltk.download('wordnet')
+E     [0m
+E     For more information see: https://www.nltk.org/data.html
+E   
+E     Attempted to load [93mcorpora/wordnet.zip/wordnet/[0m
+E   
+E     Searched in:
+E       - 'C:\\Users\\VanBao/nltk_data'
+E       - 'C:\\Users\\VanBao\\AppData\\Local\\Programs\\Python\\Python311\\nltk_data'
+E       - 'C:\\Users\\VanBao\\AppData\\Local\\Programs\\Python\\Python311\\share\\nltk_data'
+E       - 'C:\\Users\\VanBao\\AppData\\Local\\Programs\\Python\\Python311\\lib\\nltk_data'
+E       - 'C:\\Users\\VanBao\\AppData\\Roaming\\nltk_data'
+E       - 'C:\\nltk_data'
+E       - 'D:\\nltk_data'
+E       - 'E:\\nltk_data'
+E   **********************************************************************
+
+During handling of the above exception, another exception occurred:
+tests\unit\test_word_analysis.py:7: in test_spacy_to_wordnet_pos
+    assert spacy_to_wordnet_pos("NOUN") == wn.NOUN
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\services\word_analysis_service.py:58: in spacy_to_wordnet_pos
+    'ADJ': wn.ADJ,
+           ^^^^^^
+C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\nltk\corpus\util.py:120: in __getattr__
+    self.__load()
+C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\nltk\corpus\util.py:86: in __load
+    raise e
+C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\nltk\corpus\util.py:81: in __load
+    root = nltk.data.find(f"{self.subdir}/{self.__name}")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\nltk\data.py:579: in find
+    raise LookupError(resource_not_found)
+E   LookupError: 
+E   **********************************************************************
+E     Resource [93mwordnet[0m not found.
+E     Please use the NLTK Downloader to obtain the resource:
+E   
+E     [31m>>> import nltk
+E     >>> nltk.download('wordnet')
+E     [0m
+E     For more information see: https://www.nltk.org/data.html
+E   
+E     Attempted to load [93mcorpora/wordnet[0m
+E   
+E     Searched in:
+E       - 'C:\\Users\\VanBao/nltk_data'
+E       - 'C:\\Users\\VanBao\\AppData\\Local\\Programs\\Python\\Python311\\nltk_data'
+E       - 'C:\\Users\\VanBao\\AppData\\Local\\Programs\\Python\\Python311\\share\\nltk_data'
+E       - 'C:\\Users\\VanBao\\AppData\\Local\\Programs\\Python\\Python311\\lib\\nltk_data'
+E       - 'C:\\Users\\VanBao\\AppData\\Roaming\\nltk_data'
+E       - 'C:\\nltk_data'
+E       - 'D:\\nltk_data'
+E       - 'E:\\nltk_data'
+E   **********************************************************************
+_____________________ test_analyze_word_endpoint_success ______________________
+tests\unit\test_word_analysis.py:28: in test_analyze_word_endpoint_success
+    assert response.status_code == 200
+E   assert 401 == 200
+E    +  where 401 = <Response [401 Unauthorized]>.status_code
+---------------------------- Captured stderr setup ----------------------------
+{"timestamp": null, "level": null, "service": "realtime_translation_service", "request_id": "N/A", "message": "Starting up Real-time Translation Service..."}
+{"timestamp": null, "level": null, "service": "realtime_translation_service", "request_id": "N/A", "message": "MinIO bucket 'dictionary-audio' \u0111\u00e3 t\u1ed3n t\u1ea1i."}
+{"timestamp": null, "level": null, "service": "realtime_translation_service", "request_id": "N/A", "message": "Preloading local NLLB models..."}
+{"timestamp": null, "level": null, "service": "realtime_translation_service", "request_id": "N/A", "message": "NLLB model directory not found in candidate paths: ['/app/models/nllb-200-distilled-600M-ct2-int8', 'G:\\\\Khoa_Luan\\\\IUH_Academic_Counseling_Chatbot\\\\services\\\\models\\\\nllb-200-distilled-600M-ct2-int8', 'G:\\\\Khoa_Luan\\\\IUH_Academic_Counseling_Chatbot\\\\services\\\\realtime_translation_service\\\\models\\\\nllb-200-distilled-600M-ct2-int8', './models/nllb-200-distilled-600M-ct2-int8']. Cannot initialize CTranslate2."}
+{"timestamp": null, "level": null, "service": "realtime_translation_service", "request_id": "N/A", "message": "Local models preloaded successfully."}
+{"timestamp": null, "level": null, "service": "realtime_translation_service", "request_id": "N/A", "message": "Preloading NLP models for Word Analysis..."}
+2026-09-20 22:03:28.047678: I tensorflow/core/util/port.cc:113] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+
+A module that was compiled using NumPy 1.x cannot be run in
+NumPy 2.4.6 as it may crash. To support both 1.x and 2.x
+versions of NumPy, modules must be compiled with NumPy 2.0.
+Some module may need to rebuild instead e.g. with 'pybind11>=2.12'.
+
+If you are a user of the module, the easiest solution will be to
+downgrade to 'numpy<2' or try to upgrade the affected module.
+We expect that some modules will need time to support NumPy 2.
+
+Traceback (most recent call last):  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\anyio\from_thread.py", line 489, in run_blocking_portal
+    _eventloop.run(
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\anyio\_core\_eventloop.py", line 74, in run
+    return async_backend.run(func, args, {}, backend_options)
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\anyio\_backends\_asyncio.py", line 2316, in run
+    return runner.run(wrapper())
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\asyncio\runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\asyncio\base_events.py", line 641, in run_until_complete
+    self.run_forever()
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\asyncio\windows_events.py", line 321, in run_forever
+    super().run_forever()
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\asyncio\base_events.py", line 608, in run_forever
+    self._run_once()
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\asyncio\base_events.py", line 1936, in _run_once
+    handle._run()
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\asyncio\events.py", line 84, in _run
+    self._context.run(self._callback, *self._args)
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\anyio\from_thread.py", line 222, in _call_func
+    retval = await retval_or_awaitable
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\testclient.py", line 689, in lifespan
+    await self.app(scope, self.stream_receive.receive, self.stream_send.send)
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\applications.py", line 1054, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\applications.py", line 112, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\errors.py", line 152, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\base.py", line 100, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\cors.py", line 77, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\exceptions.py", line 48, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\routing.py", line 715, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\routing.py", line 724, in app
+    await self.lifespan(scope, receive, send)
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\routing.py", line 693, in lifespan
+    async with self.lifespan_context(app) as maybe_state:
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\contextlib.py", line 210, in __aenter__
+    return await anext(self.gen)
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py", line 133, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\contextlib.py", line 210, in __aenter__
+    return await anext(self.gen)
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py", line 133, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\contextlib.py", line 210, in __aenter__
+    return await anext(self.gen)
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py", line 133, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\contextlib.py", line 210, in __aenter__
+    return await anext(self.gen)
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py", line 133, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\contextlib.py", line 210, in __aenter__
+    return await anext(self.gen)
+  File "G:\Khoa_Luan\IUH_Academic_Counseling_Chatbot\services\realtime_translation_service\app\main.py", line 20, in lifespan
+    preload_nlp_models()
+  File "G:\Khoa_Luan\IUH_Academic_Counseling_Chatbot\services\realtime_translation_service\app\services\word_analysis_service.py", line 26, in preload_nlp_models
+    spacy.load("en_core_web_sm")
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\spacy\__init__.py", line 74, in load
+    return util.load_model(
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\spacy\util.py", line 524, in load_model
+    return load_model_from_package(name, **kwargs)  # type: ignore[arg-type]
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\spacy\util.py", line 560, in load_model_from_package
+    return cls.load(
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\en_core_web_sm\__init__.py", line 10, in load
+    return load_model_from_init_py(__file__, **overrides)
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\spacy\util.py", line 743, in load_model_from_init_py
+    return load_model_from_path(
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\spacy\util.py", line 600, in load_model_from_path
+    nlp = load_model_from_config(
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\spacy\util.py", line 648, in load_model_from_config
+    nlp = lang_cls.from_config(
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\spacy\language.py", line 1861, in from_config
+    nlp = lang_cls(
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\spacy\language.py", line 192, in __init__
+    util.registry._entry_point_factories.get_all()
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\catalogue\__init__.py", line 110, in get_all
+    result.update(self.get_entry_points())
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\catalogue\__init__.py", line 125, in get_entry_points
+    result[entry_point.name] = entry_point.load()
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\importlib_metadata\__init__.py", line 221, in load
+    module = import_module(self.module)
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\importlib\__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\span_marker\__init__.py", line 10, in <module>
+    from transformers.pipelines import PIPELINE_REGISTRY, pipeline
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\transformers\pipelines\__init__.py", line 26, in <module>
+    from ..image_processing_utils import BaseImageProcessor
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\transformers\image_processing_utils.py", line 22, in <module>
+    from .image_transforms import center_crop, normalize, rescale
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\transformers\image_transforms.py", line 48, in <module>
+    import tensorflow as tf
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\tensorflow\__init__.py", line 49, in <module>
+    from tensorflow._api.v2 import __internal__
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\tensorflow\_api\v2\__internal__\__init__.py", line 8, in <module>
+    from tensorflow._api.v2.__internal__ import autograph
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\tensorflow\_api\v2\__internal__\autograph\__init__.py", line 8, in <module>
+    from tensorflow.python.autograph.core.ag_ctx import control_status_ctx # line: 34
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\tensorflow\python\autograph\core\ag_ctx.py", line 21, in <module>
+    from tensorflow.python.autograph.utils import ag_logging
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\tensorflow\python\autograph\utils\__init__.py", line 17, in <module>
+    from tensorflow.python.autograph.utils.context_managers import control_dependency_on_returns
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\tensorflow\python\autograph\utils\context_managers.py", line 19, in <module>
+    from tensorflow.python.framework import ops
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\tensorflow\python\framework\ops.py", line 46, in <module>
+    from tensorflow.python import pywrap_tfe
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\tensorflow\python\pywrap_tfe.py", line 25, in <module>
+    from tensorflow.python._pywrap_tfe import *
+AttributeError: _ARRAY_API not found
+AttributeError: 'MessageFactory' object has no attribute 'GetPrototype'
+
+A module that was compiled using NumPy 1.x cannot be run in
+NumPy 2.4.6 as it may crash. To support both 1.x and 2.x
+versions of NumPy, modules must be compiled with NumPy 2.0.
+Some module may need to rebuild instead e.g. with 'pybind11>=2.12'.
+
+If you are a user of the module, the easiest solution will be to
+downgrade to 'numpy<2' or try to upgrade the affected module.
+We expect that some modules will need time to support NumPy 2.
+
+Traceback (most recent call last):  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\anyio\from_thread.py", line 489, in run_blocking_portal
+    _eventloop.run(
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\anyio\_core\_eventloop.py", line 74, in run
+    return async_backend.run(func, args, {}, backend_options)
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\anyio\_backends\_asyncio.py", line 2316, in run
+    return runner.run(wrapper())
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\asyncio\runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\asyncio\base_events.py", line 641, in run_until_complete
+    self.run_forever()
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\asyncio\windows_events.py", line 321, in run_forever
+    super().run_forever()
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\asyncio\base_events.py", line 608, in run_forever
+    self._run_once()
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\asyncio\base_events.py", line 1936, in _run_once
+    handle._run()
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\asyncio\events.py", line 84, in _run
+    self._context.run(self._callback, *self._args)
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\anyio\from_thread.py", line 222, in _call_func
+    retval = await retval_or_awaitable
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\testclient.py", line 689, in lifespan
+    await self.app(scope, self.stream_receive.receive, self.stream_send.send)
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\applications.py", line 1054, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\applications.py", line 112, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\errors.py", line 152, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\base.py", line 100, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\cors.py", line 77, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\exceptions.py", line 48, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\routing.py", line 715, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\routing.py", line 724, in app
+    await self.lifespan(scope, receive, send)
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\routing.py", line 693, in lifespan
+    async with self.lifespan_context(app) as maybe_state:
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\contextlib.py", line 210, in __aenter__
+    return await anext(self.gen)
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py", line 133, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\contextlib.py", line 210, in __aenter__
+    return await anext(self.gen)
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py", line 133, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\contextlib.py", line 210, in __aenter__
+    return await anext(self.gen)
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py", line 133, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\contextlib.py", line 210, in __aenter__
+    return await anext(self.gen)
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\routing.py", line 133, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\contextlib.py", line 210, in __aenter__
+    return await anext(self.gen)
+  File "G:\Khoa_Luan\IUH_Academic_Counseling_Chatbot\services\realtime_translation_service\app\main.py", line 20, in lifespan
+    preload_nlp_models()
+  File "G:\Khoa_Luan\IUH_Academic_Counseling_Chatbot\services\realtime_translation_service\app\services\word_analysis_service.py", line 26, in preload_nlp_models
+    spacy.load("en_core_web_sm")
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\spacy\__init__.py", line 74, in load
+    return util.load_model(
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\spacy\util.py", line 524, in load_model
+    return load_model_from_package(name, **kwargs)  # type: ignore[arg-type]
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\spacy\util.py", line 560, in load_model_from_package
+    return cls.load(
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\en_core_web_sm\__init__.py", line 10, in load
+    return load_model_from_init_py(__file__, **overrides)
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\spacy\util.py", line 743, in load_model_from_init_py
+    return load_model_from_path(
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\spacy\util.py", line 600, in load_model_from_path
+    nlp = load_model_from_config(
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\spacy\util.py", line 648, in load_model_from_config
+    nlp = lang_cls.from_config(
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\spacy\language.py", line 1861, in from_config
+    nlp = lang_cls(
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\spacy\language.py", line 192, in __init__
+    util.registry._entry_point_factories.get_all()
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\catalogue\__init__.py", line 110, in get_all
+    result.update(self.get_entry_points())
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\catalogue\__init__.py", line 125, in get_entry_points
+    result[entry_point.name] = entry_point.load()
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\importlib_metadata\__init__.py", line 221, in load
+    module = import_module(self.module)
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\importlib\__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\span_marker\__init__.py", line 10, in <module>
+    from transformers.pipelines import PIPELINE_REGISTRY, pipeline
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\transformers\pipelines\__init__.py", line 26, in <module>
+    from ..image_processing_utils import BaseImageProcessor
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\transformers\image_processing_utils.py", line 22, in <module>
+    from .image_transforms import center_crop, normalize, rescale
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\transformers\image_transforms.py", line 48, in <module>
+    import tensorflow as tf
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\tensorflow\__init__.py", line 49, in <module>
+    from tensorflow._api.v2 import __internal__
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\tensorflow\_api\v2\__internal__\__init__.py", line 8, in <module>
+    from tensorflow._api.v2.__internal__ import autograph
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\tensorflow\_api\v2\__internal__\autograph\__init__.py", line 8, in <module>
+    from tensorflow.python.autograph.core.ag_ctx import control_status_ctx # line: 34
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\tensorflow\python\autograph\core\ag_ctx.py", line 21, in <module>
+    from tensorflow.python.autograph.utils import ag_logging
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\tensorflow\python\autograph\utils\__init__.py", line 17, in <module>
+    from tensorflow.python.autograph.utils.context_managers import control_dependency_on_returns
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\tensorflow\python\autograph\utils\context_managers.py", line 19, in <module>
+    from tensorflow.python.framework import ops
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\tensorflow\python\framework\ops.py", line 49, in <module>
+    from tensorflow.python.client import pywrap_tf_session
+  File "C:\Users\VanBao\AppData\Local\Programs\Python\Python311\Lib\site-packages\tensorflow\python\client\pywrap_tf_session.py", line 19, in <module>
+    from tensorflow.python.client._pywrap_tf_session import *
+AttributeError: _ARRAY_API not found
+AttributeError: 'MessageFactory' object has no attribute 'GetPrototype'
+{"timestamp": null, "level": null, "service": "realtime_translation_service", "request_id": "N/A", "message": "Failed to preload NLP models: `np.complex_` was removed in the NumPy 2.0 release. Use `np.complex128` instead."}
+{"timestamp": null, "level": null, "service": "realtime_translation_service", "request_id": "N/A", "message": "Supabase URL or Key not found in environment variables. DB integration disabled."}
+{"timestamp": null, "level": null, "service": "realtime_translation_service", "request_id": "N/A", "message": "Cannot sync dictionary to Redis: Supabase client is not available."}
+{"timestamp": null, "level": null, "service": "realtime_translation_service", "request_id": "N/A", "message": "Failed to start RabbitMQ TTS consumer: [Errno 11001] getaddrinfo failed"}
+----------------------------- Captured log setup ------------------------------
+INFO     realtime_translation_service:main.py:14 Starting up Real-time Translation Service...\nINFO     realtime_translation_service:minio_client.py:41 MinIO bucket 'dictionary-audio' \u0111\xe3 t\u1ed3n t\u1ea1i.\nINFO     realtime_translation_service:llm_service.py:77 Preloading local NLLB models...\nWARNING  realtime_translation_service:llm_service.py:34 NLLB model directory not found in candidate paths: ['/app/models/nllb-200-distilled-600M-ct2-int8', 'G:\\\\Khoa_Luan\\\\IUH_Academic_Counseling_Chatbot\\\\services\\\\models\\\\nllb-200-distilled-600M-ct2-int8', 'G:\\\\Khoa_Luan\\\\IUH_Academic_Counseling_Chatbot\\\\services\\\\realtime_translation_service\\\\models\\\\nllb-200-distilled-600M-ct2-int8', './models/nllb-200-distilled-600M-ct2-int8']. Cannot initialize CTranslate2.\nINFO     realtime_translation_service:llm_service.py:99 Local models preloaded successfully.\nINFO     realtime_translation_service:word_analysis_service.py:15 Preloading NLP models for Word Analysis...\nERROR    realtime_translation_service:word_analysis_service.py:35 Failed to preload NLP models: `np.complex_` was removed in the NumPy 2.0 release. Use `np.complex128` instead.\nWARNING  realtime_translation_service:supabase_client.py:17 Supabase URL or Key not found in environment variables. DB integration disabled.\nWARNING  realtime_translation_service:domain_dict_service.py:11 Cannot sync dictionary to Redis: Supabase client is not available.\nERROR    aiormq.connection:connection.py:550 error when creating transport: <AMQPConnectionError: (11001, 'getaddrinfo failed')>\nERROR    realtime_translation_service:rabbitmq_consumer.py:136 Failed to start RabbitMQ TTS consumer: [Errno 11001] getaddrinfo failed
+_______________________ test_analyze_word_endpoint_noun _______________________
+tests\unit\test_word_analysis.py:55: in test_analyze_word_endpoint_noun
+    assert response.status_code == 200
+E   assert 401 == 200
+E    +  where 401 = <Response [401 Unauthorized]>.status_code
+________________________ test_analyze_word_non_english ________________________
+tests\unit\test_word_analysis.py:72: in test_analyze_word_non_english
+    assert response.status_code == 200
+E   assert 401 == 200
+E    +  where 401 = <Response [401 Unauthorized]>.status_code
+_______________________ test_translation_flow_1_default _______________________
+tests\integration\test_translation_regression.py:13: in test_translation_flow_1_default
+    assert response.status_code == 200
+E   assert 401 == 200
+E    +  where 401 = <Response [401 Unauthorized]>.status_code
+_______________________ test_translation_flow_2_domain ________________________
+tests\integration\test_translation_regression.py:30: in test_translation_flow_2_domain
+    assert response.status_code == 200
+E   assert 401 == 200
+E    +  where 401 = <Response [401 Unauthorized]>.status_code
+-------------------------- Captured stderr teardown ---------------------------
+{"timestamp": null, "level": null, "service": "realtime_translation_service", "request_id": "N/A", "message": "Shutting down Real-time Translation Service..."}
+---------------------------- Captured log teardown ----------------------------
+INFO     realtime_translation_service:main.py:25 Shutting down Real-time Translation Service...
+=========================== short test summary info ===========================
+FAILED tests/unit/test_word_analysis.py::test_spacy_to_wordnet_pos - LookupError: 
+**********************************************************************
+  Resource [93mwordnet[0m not found.
+  Please use the NLTK Downloader to obtain the resource:
+
+  [31m>>> import nltk
+  >>> nltk.download('wordnet')
+  [0m
+  For more information see: https://www.nltk.org/data.html
+
+  Attempted to load [93mcorpora/wordnet[0m
+
+  Searched in:
+    - 'C:\\Users\\VanBao/nltk_data'
+    - 'C:\\Users\\VanBao\\AppData\\Local\\Programs\\Python\\Python311\\nltk_data'
+    - 'C:\\Users\\VanBao\\AppData\\Local\\Programs\\Python\\Python311\\share\\nltk_data'
+    - 'C:\\Users\\VanBao\\AppData\\Local\\Programs\\Python\\Python311\\lib\\nltk_data'
+    - 'C:\\Users\\VanBao\\AppData\\Roaming\\nltk_data'
+    - 'C:\\nltk_data'
+    - 'D:\\nltk_data'
+    - 'E:\\nltk_data'
+**********************************************************************
+FAILED tests/unit/test_word_analysis.py::test_analyze_word_endpoint_success - assert 401 == 200
+ +  where 401 = <Response [401 Unauthorized]>.status_code
+FAILED tests/unit/test_word_analysis.py::test_analyze_word_endpoint_noun - assert 401 == 200
+ +  where 401 = <Response [401 Unauthorized]>.status_code
+FAILED tests/unit/test_word_analysis.py::test_analyze_word_non_english - assert 401 == 200
+ +  where 401 = <Response [401 Unauthorized]>.status_code
+FAILED tests/integration/test_translation_regression.py::test_translation_flow_1_default - assert 401 == 200
+ +  where 401 = <Response [401 Unauthorized]>.status_code
+FAILED tests/integration/test_translation_regression.py::test_translation_flow_2_domain - assert 401 == 200
+ +  where 401 = <Response [401 Unauthorized]>.status_code
+============================= 6 failed in 32.28s ==============================

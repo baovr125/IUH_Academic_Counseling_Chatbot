@@ -4,10 +4,12 @@ import asyncio
 import re
 from typing import Tuple, Optional
 from fastapi import HTTPException
-from app.services.cache_service import get_cached_translation, set_cached_translation
+from app.services.cache_service import get_cached_translation, set_cached_translation, get_domain_version
 from app.services.llm_service import get_nllb_translator, LANG_MAP, get_gemini_client
 from app.services.supabase_client import get_supabase
 from app.utils.logger import logger
+from app.utils.text_normalizer import find_domain_terms, build_context_aware_prompt
+import hashlib
 
 async def run_nllb_only(text: str, source_lang: str, target_lang: str) -> str:
     translator, tokenizer = get_nllb_translator()
@@ -80,21 +82,15 @@ async def handle_flow_2_domain_translation(text: str, source_lang: str, target_l
                 raise HTTPException(status_code=500, detail="Dịch vụ dịch thuật tạm thời gián đoạn. Không thể dịch.")
 
     # Case 2: > 3 keywords
-    # Terminology scanning with regex \b for whole-word boundary matching
-    found_terms = {}
-    # Sort keys by length descending to match longest terms first (multi-word)
-    sorted_keys = sorted(domain_dict.keys(), key=len, reverse=True)
-    for k in sorted_keys:
-        pattern = r'\b' + re.escape(k) + r'\b'
-        if re.search(pattern, clean_lower):
-            found_terms[k] = domain_dict[k]
+    # Terminology scanning with morphological suffix matching
+    found_terms = find_domain_terms(text, domain_dict)
 
     if found_terms:
         # Terminology Found -> Groq/Gemini bypass
         client = get_gemini_client()
         if client:
-            glossary_str = "\n".join([f"- {k} -> {v}" for k, v in found_terms.items()])
-            prompt = f"Translate the following text accurately from {source_lang} to {target_lang}. You MUST use the following glossary for terminology:\n{glossary_str}\n\nOnly output the direct translation without quotes or extra text. Preserve all HTML tags perfectly if present.\n\nText:\n{text}"
+            prompt = build_context_aware_prompt(domain, found_terms, source_lang, target_lang, text)
+            prompt += f"\n\nText:\n{text}"
             try:
                 res = client.models.generate_content(
                     model="gemini-2.5-flash",
@@ -129,7 +125,11 @@ async def handle_flow_2_domain_translation(text: str, source_lang: str, target_l
 
 async def translate_text(text: str, source_lang: str = "en", target_lang: str = "vi", domain: str = "") -> Tuple[str, bool, float, Optional[str]]:
     start_time = time.perf_counter()
-    cache_key = f"{source_lang}_{target_lang}_{domain}_{text.strip().lower()}"
+    
+    # Generate versioned cache key
+    domain_ver = get_domain_version(domain)
+    text_md5 = hashlib.md5(text.strip().lower().encode('utf-8')).hexdigest()
+    cache_key = f"{source_lang}_{target_lang}_{domain}_v{domain_ver}_{text_md5}"
     
     cached = get_cached_translation(cache_key)
     if cached:
