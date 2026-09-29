@@ -56,6 +56,7 @@ export async function streamTranslation(
   req: TranslateRequest,
   onChunk: (text: string) => void,
   onError: (error: string) => void,
+  onWarning: (warning: string) => void,
   onComplete: () => void,
   signal?: AbortSignal
 ): Promise<void> {
@@ -90,26 +91,35 @@ export async function streamTranslation(
 
     const reader = res.body.getReader();
     const decoder = new TextDecoder();
+    let buffer = "";
 
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
 
-      const chunk = decoder.decode(value, { stream: true });
-      const lines = chunk.split('\n');
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      
+      // Keep the last incomplete line in the buffer
+      buffer = lines.pop() || "";
+      
       for (const line of lines) {
-        if (line.startsWith('data: ')) {
-          const dataStr = line.replace('data: ', '').trim();
+        const trimmedLine = line.trim();
+        if (trimmedLine.startsWith('data: ')) {
+          const dataStr = trimmedLine.replace('data: ', '').trim();
           if (dataStr) {
             try {
               const data = JSON.parse(dataStr);
+              if (data.warning) {
+                onWarning(data.warning);
+              }
               if (data.text) {
                 onChunk(data.text);
               } else if (data.error) {
                 onError(data.error);
               }
             } catch (err) {
-              console.error("Failed to parse SSE data:", err);
+              console.error("Failed to parse SSE data:", err, dataStr);
             }
           }
         }

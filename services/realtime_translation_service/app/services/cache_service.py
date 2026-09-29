@@ -54,3 +54,23 @@ def set_cached_audio_url(key: str, audio_url: str, ttl: int = 604800): # Cache U
         except Exception as e:
             logger.warning(f"Redis set audio url error: {e}")
 
+def get_domain_version(domain: str) -> int:
+    r = get_redis()
+    if not r or not domain or domain == "Dịch thông thường (Mặc định)":
+        return 0
+    try:
+        v = r.get(f"domain_ver:{domain}")
+        return int(v) if v else 1
+    except Exception as e:
+        logger.warning(f"Redis get domain_ver error: {e}")
+        return 1
+
+def increment_domain_version(domain: str) -> int:
+    r = get_redis()
+    if r and domain and domain != "Dịch thông thường (Mặc định)":
+        try:
+            return r.incr(f"domain_ver:{domain}")
+        except Exception as e:
+            logger.warning(f"Redis incr domain_ver error: {e}")
+    return 0
+
