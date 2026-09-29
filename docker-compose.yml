@@ -55,7 +55,7 @@ services:
           memory: 128M
 
   minio:
-    image: minio/minio:latest
+    image: quay.io/minio/minio:latest
     container_name: iuh_minio
     ports:
       - "9000:9000"
@@ -155,6 +155,8 @@ services:
         limits:
           cpus: '0.5'
           memory: 384M
+    volumes:
+      - ./data/babeldoc_cache:/root/.cache/babeldoc
 
   doc-translation-worker:
     image: doc-translation-worker:latest
@@ -178,6 +180,8 @@ services:
             - driver: nvidia
               count: 1
               capabilities: [gpu]
+    volumes:
+      - ./data/babeldoc_cache:/root/.cache/babeldoc
 
   flashcard-service:
     image: flashcard-service:latest

@@ -3,8 +3,11 @@ from pydantic import BaseModel
 from typing import List, Optional
 from app.services.supabase_client import get_supabase
 from app.services.domain_dict_service import sync_dictionary_to_redis
+from app.services.cache_service import increment_domain_version
 from app.utils.logger import logger
 from app.schemas.translation import ApiResult
+from fastapi import Depends
+from app.utils.security import get_current_user_id
 
 router = APIRouter(tags=["Dictionary Admin"])
 
@@ -23,7 +26,7 @@ class BulkDeleteRequest(BaseModel):
     ids: List[str]
 
 @router.get("/admin/dictionary", response_model=ApiResult)
-def get_dictionary():
+def get_dictionary(user_id: str = Depends(get_current_user_id)):
     supabase = get_supabase()
     if not supabase:
         raise HTTPException(status_code=500, detail="Supabase not configured")
@@ -35,7 +38,7 @@ def get_dictionary():
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/admin/dictionary", response_model=ApiResult)
-def add_dictionary_entry(background_tasks: BackgroundTasks, entry: DictionaryEntry):
+def add_dictionary_entry(background_tasks: BackgroundTasks, entry: DictionaryEntry, user_id: str = Depends(get_current_user_id)):
     supabase = get_supabase()
     if not supabase:
         raise HTTPException(status_code=500, detail="Supabase not configured")
@@ -56,6 +59,7 @@ def add_dictionary_entry(background_tasks: BackgroundTasks, entry: DictionaryEnt
         
         # Sync to Redis
         sync_dictionary_to_redis()
+        increment_domain_version(entry.domain)
         
         # Tạo âm thanh ngầm nếu chưa có
         if res.data:
@@ -67,33 +71,47 @@ def add_dictionary_entry(background_tasks: BackgroundTasks, entry: DictionaryEnt
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.delete("/admin/dictionary/{entry_id}", response_model=ApiResult)
-def delete_dictionary_entry(entry_id: str):
+def delete_dictionary_entry(entry_id: str, user_id: str = Depends(get_current_user_id)):
     supabase = get_supabase()
     if not supabase:
         raise HTTPException(status_code=500, detail="Supabase not configured")
     try:
+        existing = supabase.table("domain_dictionaries").select("domain").eq("id", entry_id).execute()
+        domain = existing.data[0]["domain"] if existing.data else None
+
         supabase.table("domain_dictionaries").delete().eq("id", entry_id).execute()
         sync_dictionary_to_redis()
+        
+        if domain:
+            increment_domain_version(domain)
+            
         return ApiResult(ok=True, data=None)
     except Exception as e:
         logger.error(f"Error deleting dictionary entry: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/admin/dictionary/bulk-delete", response_model=ApiResult)
-def bulk_delete_dictionary_entries(req: BulkDeleteRequest):
+def bulk_delete_dictionary_entries(req: BulkDeleteRequest, user_id: str = Depends(get_current_user_id)):
     supabase = get_supabase()
     if not supabase:
         raise HTTPException(status_code=500, detail="Supabase not configured")
     try:
+        existing = supabase.table("domain_dictionaries").select("domain").in_("id", req.ids).execute()
+        domains = set(item["domain"] for item in existing.data) if existing.data else set()
+
         supabase.table("domain_dictionaries").delete().in_("id", req.ids).execute()
         sync_dictionary_to_redis()
+        
+        for d in domains:
+            increment_domain_version(d)
+            
         return ApiResult(ok=True, data=None)
     except Exception as e:
         logger.error(f"Error bulk deleting dictionary entries: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.put("/admin/dictionary/{entry_id}", response_model=ApiResult)
-def update_dictionary_entry(entry_id: str, background_tasks: BackgroundTasks, entry: DictionaryEntry):
+def update_dictionary_entry(entry_id: str, background_tasks: BackgroundTasks, entry: DictionaryEntry, user_id: str = Depends(get_current_user_id)):
     supabase = get_supabase()
     if not supabase:
         raise HTTPException(status_code=500, detail="Supabase not configured")
@@ -116,6 +134,7 @@ def update_dictionary_entry(entry_id: str, background_tasks: BackgroundTasks, en
         }).eq("id", entry_id).execute()
         
         sync_dictionary_to_redis()
+        increment_domain_version(entry.domain)
         
         # Nếu word thay đổi, ta xoá file cũ (tùy chọn) và sinh lại audio mới
         if res.data and old_word != new_word:
@@ -133,7 +152,7 @@ import json
 from app.services.audio_generator import generate_audio_for_entries
 
 @router.post("/admin/dictionary/import", response_model=ApiResult)
-async def import_dictionary(background_tasks: BackgroundTasks, file: UploadFile = File(...)):
+async def import_dictionary(background_tasks: BackgroundTasks, file: UploadFile = File(...), user_id: str = Depends(get_current_user_id)):
     supabase = get_supabase()
     if not supabase:
         raise HTTPException(status_code=500, detail="Supabase not configured")
@@ -181,6 +200,9 @@ async def import_dictionary(background_tasks: BackgroundTasks, file: UploadFile 
         ).execute()
         
         sync_dictionary_to_redis()
+        unique_domains = set(e["domain"] for e in entries_to_insert)
+        for d in unique_domains:
+            increment_domain_version(d)
         
         # Thêm Background Task xử lý sinh âm thanh Edge-TTS
         if res.data:
