@@ -26,7 +26,7 @@ def get_session_history_from_db(session_id: str) -> list:
         logger.exception(f"Failed to load session history for {clean_id}: {e}")
     return session_memory.get(clean_id, [])
 
-def save_user_msg_to_db(session_id: str, user_content: str, title: str, user_id: Optional[str] = None) -> str:
+def save_user_msg_to_db(session_id: str, user_content: str, title: str, user_id: Optional[str] = None) -> tuple[str, str]:
     clean_id = ensure_uuid(session_id)
     supabase = get_supabase_client()
     if supabase:
@@ -49,8 +49,10 @@ def save_user_msg_to_db(session_id: str, user_content: str, title: str, user_id:
         except Exception as e:
             logger.exception(f"Failed to upsert conversation {clean_id}: {e}")
 
+        msg_id = str(uuid.uuid4())
         try:
             supabase.table("messages").insert({
+                "id": msg_id,
                 "conversation_id": clean_id,
                 "role": "user",
                 "content": user_content
@@ -61,7 +63,7 @@ def save_user_msg_to_db(session_id: str, user_content: str, title: str, user_id:
     if clean_id not in session_memory:
         session_memory[clean_id] = []
     session_memory[clean_id].append({"role": "user", "content": user_content})
-    return clean_id
+    return clean_id, msg_id
 
 def save_assistant_msg_to_db(session_id: str, assistant_content: str, retrieved_chunk_ids: list = None, latency_ms: int = None, prompt_tokens: int = None, completion_tokens: int = None):
     clean_id = ensure_uuid(session_id)
@@ -94,5 +96,13 @@ def save_assistant_msg_to_db(session_id: str, assistant_content: str, retrieved_
     session_memory[clean_id].append({"role": "assistant", "content": assistant_content})
 
 def save_turn_to_db(session_id: str, user_content: str, assistant_content: str, title: str, retrieved_chunk_ids: list = None, user_id: Optional[str] = None, latency_ms: int = None, prompt_tokens: int = None, completion_tokens: int = None):
-    clean_id = save_user_msg_to_db(session_id, user_content, title, user_id=user_id)
+    clean_id, _ = save_user_msg_to_db(session_id, user_content, title, user_id=user_id)
     save_assistant_msg_to_db(clean_id, assistant_content, retrieved_chunk_ids, latency_ms, prompt_tokens, completion_tokens)
+
+def update_message_embedding_in_db(message_id: str, embedding: list):
+    supabase = get_supabase_client()
+    if supabase and embedding:
+        try:
+            supabase.table("messages").update({"embedding": embedding}).eq("id", message_id).execute()
+        except Exception as e:
+            logger.exception(f"Failed to update embedding for message {message_id}: {e}")
