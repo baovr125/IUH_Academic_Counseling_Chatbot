@@ -184,13 +184,17 @@ async def check_semantic_cache(query_text: str, query_embedding: list = None, th
     if not supabase:
         return None
 
+    # TWO-STAGE CACHE: LOWER THRESHOLD TO 0.6 FOR BI-ENCODER (High Recall)
+    # The Supabase RPC currently has LIMIT 1, so we get the top 1 candidate.
+    bi_encoder_threshold = min(threshold, 0.60)
+    
     try:
         def _call_rpc():
             return supabase.rpc(
                 "match_semantic_cache",
                 {
                     "query_vec": query_vector,
-                    "match_threshold": threshold
+                    "match_threshold": bi_encoder_threshold
                 }
             ).execute()
 
@@ -198,17 +202,36 @@ async def check_semantic_cache(query_text: str, query_embedding: list = None, th
         data = response.data or []
         if data and len(data) > 0:
             hit = data[0]
-            hit['source'] = 'Supabase pgvector'
+            hit['source'] = 'Supabase pgvector + Cross-Encoder'
             
             canonical_query = hit.get("canonical_query", "")
-            nums_q = sorted(re.findall(r'\d+', query_text))
-            nums_c = sorted(re.findall(r'\d+', canonical_query))
+            bi_score = hit.get('similarity')
             
-            if nums_q != nums_c:
-                logger.info(f"Semantic Cache MISS: Entity mismatch {nums_q} vs {nums_c} (Score: {hit.get('similarity')})")
+            # STAGE 2: CROSS-ENCODER RERANKER (High Precision)
+            reranker = get_reranker()
+            try:
+                # reranker.predict expects a list of tuples: [(query, doc)]
+                rerank_scores = reranker.predict([(query_text, canonical_query)])
+                rerank_score = float(rerank_scores[0])
+            except Exception as e:
+                logger.error(f"Reranker failed during cache check: {e}")
                 return None
                 
-            logger.info(f"Semantic Cache HIT! Score: {hit.get('similarity')} (Passed entity check)")
+            logger.info(f"Two-Stage Cache Check -> Bi-Encoder: {bi_score:.4f} | Cross-Encoder: {rerank_score:.4f}")
+            
+            # We set a strict threshold of 0.80 for the Cross-Encoder
+            if rerank_score < 0.80:
+                logger.info(f"Semantic Cache MISS: Reranker rejected ({rerank_score:.4f} < 0.80). Pairs: '{query_text}' vs '{canonical_query}'")
+                return None
+            
+            # Double check entities (numbers) just to be absolutely safe
+            nums_q = sorted(re.findall(r'\d+', query_text))
+            nums_c = sorted(re.findall(r'\d+', canonical_query))
+            if nums_q != nums_c:
+                logger.info(f"Semantic Cache MISS: Entity mismatch {nums_q} vs {nums_c} despite high rerank score.")
+                return None
+                
+            logger.info(f"Semantic Cache HIT! Validated by Reranker: {rerank_score:.4f}")
             
             # Asynchronously increment hit count
             cache_id = hit.get("id")
