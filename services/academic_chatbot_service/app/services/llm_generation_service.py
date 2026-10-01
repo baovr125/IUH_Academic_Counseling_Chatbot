@@ -85,7 +85,7 @@ async def process_chat_message(
             cached_answer = cache_hit.get("cached_answer", "")
             
             # --- CACHE LOGGING ---
-            asyncio.create_task(log_cache_hit_to_md(clean_session_id, retrieval_query, cache_hit, latency_ms))
+            asyncio.create_task(log_cache_hit_to_md(clean_session_id, normalized_query, retrieval_query, cache_hit, latency_ms))
             
             # Save the turn to DB to keep the conversation history continuous
             save_turn_to_db(
@@ -226,7 +226,7 @@ async def process_chat_message_stream(
             cached_answer = cache_hit.get("cached_answer", "")
             
             # --- CACHE LOGGING ---
-            asyncio.create_task(log_cache_hit_to_md(clean_session_id, retrieval_query, cache_hit, latency_ms))
+            asyncio.create_task(log_cache_hit_to_md(clean_session_id, normalized_query, retrieval_query, cache_hit, latency_ms))
             
             # Yield metadata with cacheStatus as HIT
             yield _build_sse_metadata(clean_session_id, cache_status="HIT")
@@ -284,7 +284,7 @@ async def process_chat_message_stream(
                     _ct = completion_tokens if 'completion_tokens' in locals() else 0
                     
                     asyncio.create_task(write_full_rag_log_to_md(
-                        clean_session_id, retrieval_query, rag_data['chunks'], rag_data['past_memories'],
+                        clean_session_id, normalized_query, retrieval_query, rag_data['chunks'], rag_data['past_memories'],
                         _rlat, _rl, _ll, _pt, _ct, accumulated_text
                     ))
             except Exception as _e:
@@ -292,7 +292,11 @@ async def process_chat_message_stream(
             
             # Trigger async cache write-back in background
             if not accumulated_text.startswith("⚠️"):
-                asyncio.create_task(async_cache_writeback(retrieval_query, accumulated_text, top_doc_score, query_embedding))
+                _rq = retrieval_query if 'retrieval_query' in locals() else ""
+                _tds = top_doc_score if 'top_doc_score' in locals() else 0.0
+                _qe = query_embedding if 'query_embedding' in locals() else None
+                if _rq and _qe:
+                    asyncio.create_task(async_cache_writeback(_rq, accumulated_text, _tds, _qe))
 
 # --- Helper Methods ---
 

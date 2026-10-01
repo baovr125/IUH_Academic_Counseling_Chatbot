@@ -7,6 +7,7 @@ import math
 import threading
 from typing import List, Optional
 import json
+import httpx
 import redis.asyncio as redis
 from cachetools import TTLCache
 import warnings
@@ -133,7 +134,22 @@ def preload_models():
     try:
         embedder.encode("IUH kiểm tra khởi động", normalize_embeddings=True)
         reranker.predict([("IUH kiểm tra", "Đại học Công nghiệp TP.HCM")])
-        logger.info("ML Models Warmup completed successfully.")
+        logger.info("SentenceTransformers Warmup completed successfully.")
+        
+        # Warmup Ollama Models
+        import httpx
+        import os
+        llm_provider = os.getenv("LLM_PROVIDER", "gemini").lower()
+        if llm_provider == "openai":
+            ollama_url = os.getenv("OPENAI_BASE_URL", "http://host.docker.internal:11434/v1").replace("/v1", "/api/generate")
+            rewriter_model = os.getenv("OLLAMA_REWRITER_MODEL", "qwen2.5:1.5b")
+            generator_model = os.getenv("OPENAI_MODEL_NAME", "qwen2.5:7b")
+            
+            logger.info(f"Preloading Ollama Models into VRAM: {rewriter_model} and {generator_model}...")
+            with httpx.Client(timeout=120.0) as client:
+                client.post(ollama_url, json={"model": rewriter_model, "prompt": "warmup", "stream": False, "keep_alive": "1h", "options": {"num_predict": 1}})
+                client.post(ollama_url, json={"model": generator_model, "prompt": "warmup", "stream": False, "keep_alive": "1h", "options": {"num_predict": 1}})
+            logger.info("Ollama Models Warmup completed.")
     except Exception as e:
         logger.warning(f"Warmup warning: {e}")
 
@@ -426,43 +442,45 @@ async def generate_standalone_query(history: list, current_query: str) -> str:
                 last_user_msg = msg['content']
                 break
 
-    context_str = f"Previous User Question: {last_user_msg}\n" if last_user_msg and last_user_msg != current_query else "Previous User Question: None (First turn)\n"
+    context_str = f"Lịch sử chat:\n- Sinh viên: {last_user_msg}\n" if last_user_msg and last_user_msg != current_query else ""
 
     rewrite_prompt = (
-        "You are an intelligent Intent Router and Search Query Rewriter for an academic counselor chatbot at IUH University.\n"
-        "Your job is to evaluate if the user's question is related to academics, university life, policies, IUH services, or general chatbot greetings.\n\n"
-        "CRITICAL INSTRUCTIONS:\n"
-        "1. If the question is completely OFF-TOPIC (e.g., cooking recipes, coding tutorials, politics, buying shoes), output exactly one word: <FALSE>\n"
-        "2. If the question is ON-TOPIC (e.g., tuition, course registration, exams, changing majors, IT portal, greeting/chit-chat):\n"
-        "   - Rewrite the user's question into a highly optimized, formal search query in Vietnamese.\n"
-        "   - Expand all Vietnamese student abbreviations (e.g., 'dkhp' -> 'đăng ký học phần', 'sv' -> 'sinh viên', 'cntt' -> 'công nghệ thông tin').\n"
-        "   - STRIP OUT AND DELETE the university name ('IUH', 'Đại học Công nghiệp TP.HCM', etc.) to improve search rankings.\n"
-        "   - Output your response prefixed with '<TRUE> ' followed by the rewritten query.\n"
-        "Do NOT answer the question. Only output <FALSE> or <TRUE> rewritten_query.\n\n"
+        "Nhiệm vụ: Phân loại ý định và Viết lại câu hỏi MỚI NHẤT của sinh viên IUH.\n"
+        "Quy tắc:\n"
+        "1. KIỂM TRA Ý ĐỊNH (Quan trọng nhất): Nếu 'Câu gốc' CHỈ LÀ câu chào hỏi (alo, hi, chào), cảm ơn, hoặc HỎI NGOÀI LỀ (không liên quan trường học, lịch học, học phí, v.v.), BẮT BUỘC in ra đúng một chữ: <FALSE> và dừng lại.\n"
+        "2. Nếu là câu hỏi hợp lệ: Viết lại thành câu tìm kiếm độc lập.\n"
+        "   - Nếu 'Câu gốc' CHƯA HOÀN CHỈNH, hãy lấy ngữ cảnh từ 'Lịch sử chat' đắp vào. Nếu đổi sang CHỦ THỂ MỚI (LMS -> trang sinh viên), phải thay thế chủ thể cũ.\n"
+        "   - Nếu 'Câu gốc' ĐÃ LÀ MỘT CÂU HOÀN CHỈNH, CHỈ viết lại 'Câu gốc', bỏ qua Lịch sử chat.\n"
+        "3. Xóa các từ thừa (dạ, vâng, ạ, ad ơi) và dịch viết tắt (dkhp -> đăng ký học phần).\n"
+        "4. CHỈ in ra câu đã viết lại (hoặc <FALSE>), KHÔNG giải thích.\n\n"
+        "--- VÍ DỤ ---\n"
+        "Lịch sử chat:\n- Sinh viên: Lịch học xem ở đâu?\n"
+        "Câu gốc: Dạ em muốn hỏi cách đăng ký học phần bổ sung ạ?\n"
+        "Chuẩn hóa: cách đăng ký học phần bổ sung\n\n"
+        "Lịch sử chat:\n- Sinh viên: Không có.\n"
+        "Câu gốc: alo ad ơi\n"
+        "Chuẩn hóa: <FALSE>\n\n"
+        "--- THỰC HÀNH ---\n"
         f"{context_str}"
-        f"User Question: {current_query}\n"
-        "Response:"
+        f"Câu gốc: {current_query}\n"
+        "Chuẩn hóa:"
     )
-    gemini_client = get_gemini()
-    if gemini_client:
-        for m in GEMINI_MODELS:
-            try:
-                def _gen_rewrite():
-                    return gemini_client.models.generate_content(
-                        model=m,
-                        contents=rewrite_prompt,
-                        config=types.GenerateContentConfig(
-                            temperature=0.0
-                        )
-                    )
-                res = await asyncio.to_thread(_gen_rewrite)
-                if res and res.text:
-                    return res.text.strip()
-            except Exception as e:
-                logger.warning(f"Gemini {m} standalone query failed: {e}")
-                
-    # Fallback if API fails
-    return f"<TRUE> {current_query}" 
+
+    from app.services.llm_providers import get_rewriter_provider
+    provider = get_rewriter_provider()
+    
+    res = await provider.generate_text(prompt=rewrite_prompt, temperature=0.0)
+    
+    if res:
+        if "<FALSE>" in res.upper():
+            return "<FALSE>"
+        return f"<TRUE> {res}"
+        
+    return f"<TRUE> {current_query}"
+
+
+
+ 
 
 
 async def retrieve_past_memory(session_id: str, query_embedding: list, current_query: str, match_threshold: float = 0.8, limit: int = 3) -> list:
