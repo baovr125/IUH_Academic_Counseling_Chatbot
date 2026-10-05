@@ -7,7 +7,7 @@ services:
       KONG_DECLARATIVE_CONFIG: /usr/local/kong/declarative/kong.yml
       KONG_PROXY_LISTEN: 0.0.0.0:8000, 0.0.0.0:8443 ssl
     ports:
-      - "80:8000"     # Map Kong to port 80 for production access
+      - "8080:8000"   # Map Kong to 8080 to avoid clashing with Host vLLM on 8000
       - "443:8443"
     volumes:
       - ./gateway/kong.yml:/usr/local/kong/declarative/kong.yml
@@ -52,25 +52,6 @@ services:
       - minio_data_prod:/data
     restart: unless-stopped
 
-  # --- THÊM MỚI: vLLM SERVER ---
-  vllm-server:
-    image: vllm/vllm-openai:latest
-    container_name: iuh_vllm_prod
-    # Giới hạn vLLM sử dụng 80% VRAM GPU, để lại 20% cho Bi-Encoder & Reranker
-    command: --model QuantTrio/Qwen3.6-35B-A3B-AWQ --quantization awq --gpu-memory-utilization 0.80 --max-model-len 8192
-    ports:
-      - "8080:8000"
-    volumes:
-      - hf_cache_prod:/root/.cache/huggingface
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
-    restart: unless-stopped
-    shm_size: '8gb' # vLLM requires large shared memory
 
   auth-service:
     image: auth-service:latest
@@ -90,7 +71,6 @@ services:
       - .env.prod
     depends_on:
       - redis
-      - vllm-server
     deploy:
       resources:
         reservations:
