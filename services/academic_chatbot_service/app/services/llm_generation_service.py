@@ -57,10 +57,11 @@ async def process_chat_message(
         history = await asyncio.to_thread(get_session_history_from_db, session_id)
         filtered_history = [msg for msg in history if not (msg["role"] == "user" and msg["content"] == normalized_query)]
         start_rewrite = time.perf_counter()
-        retrieval_query_raw = await generate_standalone_query(filtered_history, normalized_query)
+        retrieval_query_raw, router_model = await generate_standalone_query(filtered_history, normalized_query)
         rewrite_latency_ms = int((time.perf_counter() - start_rewrite) * 1000)
         
         # Step 2: Extract Intent Router Flag
+        print(f"HEY! retrieval_query_raw IS: {repr(retrieval_query_raw)}", flush=True)
         if retrieval_query_raw.strip() == "<FALSE>":
             clean_id = save_user_msg_to_db(session_id, payload.content, retrieval_query_raw, user_id=current_user_id)
             save_assistant_msg_to_db(clean_id, OFF_TOPIC_MESSAGE)
@@ -198,10 +199,11 @@ async def process_chat_message_stream(
         history = await asyncio.to_thread(get_session_history_from_db, session_id)
         filtered_history = [msg for msg in history if not (msg["role"] == "user" and msg["content"] == normalized_query)]
         start_rewrite = time.perf_counter()
-        retrieval_query_raw = await generate_standalone_query(filtered_history, normalized_query)
+        retrieval_query_raw, router_model = await generate_standalone_query(filtered_history, normalized_query)
         rewrite_latency_ms = int((time.perf_counter() - start_rewrite) * 1000)
 
         # Step 2: Extract Intent Router Flag
+        print(f"HEY! retrieval_query_raw IS: {repr(retrieval_query_raw)}", flush=True)
         if retrieval_query_raw.strip() == "<FALSE>":
             yield _build_sse_metadata(clean_session_id)
             yield _build_sse_delta(OFF_TOPIC_MESSAGE)
@@ -250,6 +252,10 @@ async def process_chat_message_stream(
         completion_tokens = 0
         llm_latency_ms = 0
         
+        in_thinking = False
+        strip_next_whitespace = False
+        buffer = ""
+        
         async for chunk_data in stream_generator:
             if "prompt_tokens" in chunk_data:
                 prompt_tokens = chunk_data["prompt_tokens"]
@@ -259,7 +265,62 @@ async def process_chat_message_stream(
             text = chunk_data.get("text", "")
             if text:
                 accumulated_text += text
-                yield _build_sse_delta(text)
+                buffer += text
+                
+                while buffer:
+                    if strip_next_whitespace:
+                        buffer = buffer.lstrip()
+                        if not buffer:
+                            break
+                        strip_next_whitespace = False
+                        
+                    if not in_thinking:
+                        start_idx = buffer.find("<thinking>")
+                        if start_idx != -1:
+                            if start_idx > 0:
+                                yield _build_sse_delta(buffer[:start_idx])
+                            in_thinking = True
+                            buffer = buffer[start_idx + len("<thinking>"):]
+                        else:
+                            partial_match = False
+                            for i in range(len("<thinking>") - 1, 0, -1):
+                                if len(buffer) >= i:
+                                    suffix = buffer[-i:]
+                                    if "<thinking>".startswith(suffix):
+                                        if len(buffer) > i:
+                                            yield _build_sse_delta(buffer[:-i])
+                                            buffer = suffix
+                                        partial_match = True
+                                        break
+                            
+                            if not partial_match:
+                                yield _build_sse_delta(buffer)
+                                buffer = ""
+                            else:
+                                break
+                    else:
+                        end_idx = buffer.find("</thinking>")
+                        if end_idx != -1:
+                            in_thinking = False
+                            buffer = buffer[end_idx + len("</thinking>"):]
+                            strip_next_whitespace = True
+                        else:
+                            partial_match = False
+                            for i in range(len("</thinking>") - 1, 0, -1):
+                                if len(buffer) >= i:
+                                    suffix = buffer[-i:]
+                                    if "</thinking>".startswith(suffix):
+                                        buffer = suffix
+                                        partial_match = True
+                                        break
+                            
+                            if not partial_match:
+                                buffer = ""
+                            else:
+                                break
+                                
+        if buffer and not in_thinking:
+            yield _build_sse_delta(buffer)
 
         llm_latency_ms = int((time.perf_counter() - start_llm) * 1000)
         yield _build_sse_done()
@@ -283,9 +344,12 @@ async def process_chat_message_stream(
                     _pt = prompt_tokens if 'prompt_tokens' in locals() else 0
                     _ct = completion_tokens if 'completion_tokens' in locals() else 0
                     
+                    _rm = router_model if 'router_model' in locals() else "Unknown"
+                    _lm = provider.last_used_model if 'provider' in locals() else "Unknown"
+                    
                     asyncio.create_task(write_full_rag_log_to_md(
                         clean_session_id, normalized_query, retrieval_query, rag_data['chunks'], rag_data['past_memories'],
-                        _rlat, _rl, _ll, _pt, _ct, accumulated_text
+                        _rlat, _rl, _ll, _pt, _ct, accumulated_text, _rm, _lm
                     ))
             except Exception as _e:
                 logger.error(f"Failed to write full markdown log: {_e}")

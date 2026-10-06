@@ -110,6 +110,7 @@ services:
               capabilities: [gpu]
     volumes:
       - ./logs/academic_chatbot:/app/logs/academic_chatbot
+      - ./services/academic_chatbot_service/app:/app/app
       - ./hf_models:/app/hf_models
       - ./data/ingestion:/app/app/data_ingestion/data
 

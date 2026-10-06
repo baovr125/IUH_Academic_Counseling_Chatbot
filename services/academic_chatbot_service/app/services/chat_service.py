@@ -34,7 +34,7 @@ def save_user_msg_to_db(session_id: str, user_content: str, title: str, user_id:
             existing_res = supabase.table("conversations").select("id, title").eq("id", clean_id).execute()
             if existing_res.data and len(existing_res.data) > 0:
                 update_payload = {"updated_at": datetime.now(timezone.utc).isoformat()}
-                if user_id:
+                if user_id and user_id != "anonymous":
                     update_payload["user_id"] = user_id
                 supabase.table("conversations").update(update_payload).eq("id", clean_id).execute()
             else:
@@ -43,9 +43,16 @@ def save_user_msg_to_db(session_id: str, user_content: str, title: str, user_id:
                     "title": title[:50] or "Cuộc trò chuyện mới",
                     "updated_at": datetime.now(timezone.utc).isoformat()
                 }
-                if user_id:
+                if user_id and user_id != "anonymous":
                     conv_payload["user_id"] = user_id
-                supabase.table("conversations").insert(conv_payload).execute()
+                
+                try:
+                    supabase.table("conversations").insert(conv_payload).execute()
+                except Exception as insert_e:
+                    logger.warning(f"Failed to insert conversation with user_id, trying without user_id: {insert_e}")
+                    if "user_id" in conv_payload:
+                        del conv_payload["user_id"]
+                        supabase.table("conversations").insert(conv_payload).execute()
         except Exception as e:
             logger.exception(f"Failed to upsert conversation {clean_id}: {e}")
 

@@ -112,7 +112,7 @@ def _write_cache_hit_log(session_id: str, original_query: str, rewritten_query: 
 async def log_cache_hit_to_md(session_id: str, original_query: str, rewritten_query: str, cache_hit_data: dict, latency_ms: int) -> str:
     return await asyncio.to_thread(_write_cache_hit_log, session_id, original_query, rewritten_query, cache_hit_data, latency_ms)
 
-def _write_full_log(session_id: str, original_query: str, rewritten_query: str, chunks: list, past_memories: list, retrieval_latency_ms: int, rewrite_latency_ms: int, llm_latency_ms: int, prompt_tokens: int, completion_tokens: int, ai_answer: str) -> str:
+def _write_full_log(session_id: str, original_query: str, rewritten_query: str, chunks: list, past_memories: list, retrieval_latency_ms: int, rewrite_latency_ms: int, llm_latency_ms: int, prompt_tokens: int, completion_tokens: int, ai_answer: str, router_model: str = "Unknown", llm_model: str = "Unknown") -> str:
     now = datetime.now()
     date_str = now.strftime("%Y-%m-%d")
     time_str = now.strftime("%H%M%S")
@@ -134,11 +134,11 @@ def _write_full_log(session_id: str, original_query: str, rewritten_query: str, 
             
             f.write("## AI Performance Metrics\n\n")
             if rewrite_latency_ms:
-                f.write(f"- **Standalone Router Latency:** {rewrite_latency_ms} ms\n")
+                f.write(f"## {router_model} - **Standalone Router Latency:** {rewrite_latency_ms} ms\n")
             if retrieval_latency_ms:
-                f.write(f"- **Retrieval Latency:** {retrieval_latency_ms} ms\n")
+                f.write(f"## Retrieval - **Latency:** {retrieval_latency_ms} ms\n")
             if llm_latency_ms:
-                f.write(f"- **LLM Generation Latency:** {llm_latency_ms} ms\n")
+                f.write(f"## {llm_model} - **LLM Generation Latency:** {llm_latency_ms} ms\n")
             if prompt_tokens:
                 f.write(f"- **Prompt Tokens:** {prompt_tokens}\n")
                 f.write(f"- **Completion Tokens:** {completion_tokens}\n")
@@ -182,5 +182,5 @@ def _write_full_log(session_id: str, original_query: str, rewritten_query: str, 
         print(f"Error writing full log: {e}")
         return ""
 
-async def write_full_rag_log_to_md(session_id: str, original_query: str, rewritten_query: str, chunks: list, past_memories: list, retrieval_latency_ms: int, rewrite_latency_ms: int, llm_latency_ms: int, prompt_tokens: int, completion_tokens: int, ai_answer: str) -> str:
-    return await asyncio.to_thread(_write_full_log, session_id, original_query, rewritten_query, chunks, past_memories, retrieval_latency_ms, rewrite_latency_ms, llm_latency_ms, prompt_tokens, completion_tokens, ai_answer)
+async def write_full_rag_log_to_md(session_id: str, original_query: str, rewritten_query: str, chunks: list, past_memories: list, retrieval_latency_ms: int, rewrite_latency_ms: int, llm_latency_ms: int, prompt_tokens: int, completion_tokens: int, ai_answer: str, router_model: str = "Unknown", llm_model: str = "Unknown") -> str:
+    return await asyncio.to_thread(_write_full_log, session_id, original_query, rewritten_query, chunks, past_memories, retrieval_latency_ms, rewrite_latency_ms, llm_latency_ms, prompt_tokens, completion_tokens, ai_answer, router_model, llm_model)

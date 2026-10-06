@@ -10,12 +10,15 @@ from app.utils.logger import logger
 from app.services.rag_service import get_gemini, GEMINI_MODELS
 
 class BaseLLMProvider(ABC):
+    def __init__(self):
+        self.last_used_model = "Unknown"
+
     @abstractmethod
     async def generate_stream(self, system_instruction: str, history_dicts: List[Dict[str, str]]) -> AsyncGenerator[Dict[str, Any], None]:
         pass
         
     @abstractmethod
-    async def generate_text(self, prompt: str, system_instruction: str = "", temperature: float = 0.0) -> str:
+    async def generate_text(self, prompt: str, system_instruction: str = "", temperature: float = 0.0, max_tokens: int = 2048) -> str:
         pass
 
 class GeminiProvider(BaseLLMProvider):
@@ -52,6 +55,7 @@ class GeminiProvider(BaseLLMProvider):
                     return it, fc
 
                 stream_iter, first_chunk = await asyncio.to_thread(_start_stream)
+                self.last_used_model = model_name
                 break
             except Exception as e:
                 logger.warning(f"Error streaming content with model {model_name}: {e}")
@@ -78,7 +82,7 @@ class GeminiProvider(BaseLLMProvider):
             
             if chunk_data["text"] or "prompt_tokens" in chunk_data:
                 yield chunk_data
-    async def generate_text(self, prompt: str, system_instruction: str = "", temperature: float = 0.0) -> str:
+    async def generate_text(self, prompt: str, system_instruction: str = "", temperature: float = 0.0, max_tokens: int = 2048) -> str:
         gemini_client = get_gemini()
         if not gemini_client:
             return prompt
@@ -96,6 +100,7 @@ class GeminiProvider(BaseLLMProvider):
                         config=types.GenerateContentConfig(**cfg_kwargs)
                     )
                 response = await asyncio.to_thread(_generate)
+                self.last_used_model = model_name
                 return response.text.strip()
             except Exception as e:
                 logger.warning(f"Gemini generate_text failed for model {model_name}: {e}")
@@ -109,6 +114,7 @@ class OpenAICompatibleProvider(BaseLLMProvider):
         self.api_key = api_key
         self.model_name = model_name
         self.fallback_provider = fallback_provider
+        self.last_used_model = model_name
 
     async def generate_stream(self, system_instruction: str, history_dicts: List[Dict[str, str]]) -> AsyncGenerator[Dict[str, Any], None]:
         messages = [{"role": "system", "content": system_instruction}]
@@ -125,10 +131,14 @@ class OpenAICompatibleProvider(BaseLLMProvider):
             "model": self.model_name,
             "messages": messages,
             "stream": True,
-            "temperature": 0.2
+            "temperature": 0.2,
+            "top_p": 0.8,
+            "chat_template_kwargs": {"enable_thinking": False}
         }
 
         fallback_triggered = False
+        buffer_str = ""
+        
         try:
             async with httpx.AsyncClient(timeout=120.0) as client:
                 async with client.stream("POST", f"{self.base_url}/chat/completions", headers=headers, json=payload) as response:
@@ -144,31 +154,41 @@ class OpenAICompatibleProvider(BaseLLMProvider):
                                 data = json.loads(data_str)
                                 chunk_data = {"text": ""}
                                 
+                                if "usage" in data and data["usage"]:
+                                    chunk_data["prompt_tokens"] = data["usage"].get("prompt_tokens", 0)
+                                    chunk_data["completion_tokens"] = data["usage"].get("completion_tokens", 0)
+                                    
                                 if "choices" in data and len(data["choices"]) > 0:
                                     delta = data["choices"][0].get("delta", {})
                                     content = delta.get("content", "")
                                     if content:
-                                        chunk_data["text"] = content
-                                
-                                if "usage" in data and data["usage"]:
-                                    chunk_data["prompt_tokens"] = data["usage"].get("prompt_tokens", 0)
-                                    chunk_data["completion_tokens"] = data["usage"].get("completion_tokens", 0)
-                                
-                                if chunk_data["text"] or "prompt_tokens" in chunk_data:
+                                        buffer_str += content
+                                        
+                                        if len(buffer_str) > 0:
+                                            chunk_data["text"] = buffer_str
+                                            buffer_str = ""
+                                            yield chunk_data
+                                            continue
+                                            
+                                if "prompt_tokens" in chunk_data and "text" not in chunk_data:
                                     yield chunk_data
                             except json.JSONDecodeError:
                                 logger.warning(f"Failed to parse SSE JSON: {data_str}")
+                                
+                    if buffer_str:
+                        yield {"text": buffer_str}
         except Exception as e:
             logger.warning(f"Local LLM stream failed: {e}. Falling back to Gemini...")
             fallback_triggered = True
             
         if fallback_triggered and self.fallback_provider:
             async for chunk in self.fallback_provider.generate_stream(system_instruction, history_dicts):
+                self.last_used_model = getattr(self.fallback_provider, "last_used_model", "Gemini-Fallback")
                 yield chunk
         elif fallback_triggered:
             yield {"text": f"⚠️ Lỗi AI Local và không có Fallback: {str(e)}"}
 
-    async def generate_text(self, prompt: str, system_instruction: str = "", temperature: float = 0.0) -> str:
+    async def generate_text(self, prompt: str, system_instruction: str = "", temperature: float = 0.0, max_tokens: int = 2048) -> str:
         messages = []
         if system_instruction:
             messages.append({"role": "system", "content": system_instruction})
@@ -183,7 +203,10 @@ class OpenAICompatibleProvider(BaseLLMProvider):
             "model": self.model_name,
             "messages": messages,
             "stream": False,
-            "temperature": temperature
+            "temperature": temperature if temperature > 0 else 0.2,
+            "top_p": 0.8,
+            "max_tokens": max_tokens,
+            "chat_template_kwargs": {"enable_thinking": False}
         }
         
         try:
@@ -192,11 +215,17 @@ class OpenAICompatibleProvider(BaseLLMProvider):
                 response.raise_for_status()
                 data = response.json()
                 if "choices" in data and len(data["choices"]) > 0:
-                    return data["choices"][0]["message"]["content"].strip()
+                    text = data["choices"][0]["message"]["content"].strip()
+                    import re
+                    text = re.sub(r'<think[\s\S]*?</think>\n*', '', text, flags=re.IGNORECASE)
+                    text = re.sub(r'<thinking[\s\S]*?</thinking>\n*', '', text, flags=re.IGNORECASE)
+                    return text.strip()
         except Exception as e:
             logger.warning(f"Local LLM generate_text failed: {e}. Falling back to Gemini...")
             if self.fallback_provider:
-                return await self.fallback_provider.generate_text(prompt, system_instruction, temperature)
+                res = await self.fallback_provider.generate_text(prompt, system_instruction, temperature)
+                self.last_used_model = getattr(self.fallback_provider, "last_used_model", "Gemini-Fallback")
+                return res
         
         return prompt
 
@@ -212,7 +241,7 @@ def get_llm_provider() -> BaseLLMProvider:
     return GeminiProvider()
 
 def get_rewriter_provider() -> BaseLLMProvider:
-    provider = os.getenv("LLM_PROVIDER", "openai").lower()
+    provider = os.getenv("REWRITER_PROVIDER", "openai").lower()
     if provider == "openai":
         return OpenAICompatibleProvider(
             base_url=os.getenv("OPENAI_BASE_URL", "http://host.docker.internal:11434/v1"),
