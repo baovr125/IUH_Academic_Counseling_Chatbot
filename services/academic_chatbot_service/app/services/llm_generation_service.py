@@ -3,8 +3,13 @@ import uuid
 import json
 import time
 import asyncio
+import re
 from datetime import datetime, timezone
 from typing import Optional, AsyncGenerator
+
+def _strip_thinking_tags(text: str) -> str:
+    """Removes <thinking>...</thinking> blocks and trailing whitespace from a completed text."""
+    return re.sub(r'<thinking>.*?</thinking>\s*', '', text, flags=re.DOTALL)
 
 from app.services.llm_providers import get_llm_provider
 
@@ -89,13 +94,16 @@ async def process_chat_message(
             asyncio.create_task(log_cache_hit_to_md(clean_session_id, normalized_query, retrieval_query, cache_hit, latency_ms))
             
             # Save the turn to DB to keep the conversation history continuous
+            # Full cached_answer goes to DB
             save_turn_to_db(
                 session_id, payload.content, cached_answer, payload.content, 
                 retrieved_chunk_ids=[], user_id=current_user_id,
                 latency_ms=latency_ms, prompt_tokens=0, completion_tokens=0
             )
 
-            assistant_msg = _build_assistant_message(cached_answer)
+            # UI gets the stripped version
+            ui_answer = _strip_thinking_tags(cached_answer)
+            assistant_msg = _build_assistant_message(ui_answer)
             return ApiResult(
                 ok=True, 
                 data={
@@ -232,7 +240,12 @@ async def process_chat_message_stream(
             
             # Yield metadata with cacheStatus as HIT
             yield _build_sse_metadata(clean_session_id, cache_status="HIT")
-            yield _build_sse_delta(cached_answer)
+            
+            # UI gets the stripped version
+            ui_answer = _strip_thinking_tags(cached_answer)
+            yield _build_sse_delta(ui_answer)
+            
+            # Accumulated text keeps the full answer so it gets saved to DB properly
             accumulated_text = cached_answer
             yield _build_sse_done()
             return
