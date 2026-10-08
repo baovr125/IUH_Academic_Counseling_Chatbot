@@ -135,12 +135,13 @@ async def get_audio_endpoint(object_name: str):
 
 @router.post("/text")
 async def translate_endpoint(payload: TranslateRequest, user_id: str = Depends(get_current_user_id)):
-    translated_text, cached, latency_ms, warning = await translate_text(
+    translated_text, cached, latency_ms, warning, detected_source_lang = await translate_text(
         text=payload.text,
         source_lang=payload.source_lang,
         target_lang=payload.target_lang,
         domain=payload.domain
     )
+    resolved_lang = detected_source_lang if payload.source_lang == "auto" else payload.source_lang
     return ApiResult(
         ok=True,
         data=TranslateResponse(
@@ -149,12 +150,14 @@ async def translate_endpoint(payload: TranslateRequest, user_id: str = Depends(g
             target_lang=payload.target_lang,
             cached=cached,
             latency_ms=latency_ms,
-            warning=warning
+            warning=warning,
+            resolved_source_lang=resolved_lang
         )
     )
 
 @router.post("/stream")
 async def stream_translate_endpoint(payload: StreamTranslateRequest, user_id: str = Depends(get_current_user_id)):
+    print(f'DEBUG: stream_translate_endpoint CALLED with domain={payload.domain} text={payload.text}', flush=True)
     return EventSourceResponse(
         stream_translation(
             text=payload.text,
@@ -188,7 +191,7 @@ async def flashcard_endpoint(payload: FlashcardExtractRequest, user_id: str = De
 
 @router.post("/lookup")
 async def lookup_endpoint(payload: LookupRequest, user_id: str = Depends(get_current_user_id)):
-    translated_text, cached, latency_ms, _ = await translate_text(
+    translated_text, cached, latency_ms, _, _ = await translate_text(
         text=payload.word,
         source_lang="en",
         target_lang="vi"

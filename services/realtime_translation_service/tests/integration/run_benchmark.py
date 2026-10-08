@@ -36,7 +36,7 @@ async def test_text_endpoint(client, test_case):
     }
     start = time.perf_counter()
     try:
-        response = await client.post(API_URL, json=payload, timeout=30.0)
+        response = await client.post(API_URL, json=payload, headers={"X-User-ID": "test-user-123"}, timeout=30.0)
         response.raise_for_status()
         data = response.json()
         latency = (time.perf_counter() - start) * 1000

@@ -16,7 +16,7 @@ class TranslationUser(HttpUser):
             "text": "The Industrial University of Ho Chi Minh City is a large university in Vietnam.",
             "source_lang": "en",
             "target_lang": "vi",
-            "domain": "general"
+            "domain": "Dịch thông thường (Mặc định)"
         }
         self.client.post("/api/v1/translate/text", json=payload, name="/text (General)")
 
@@ -26,7 +26,7 @@ class TranslationUser(HttpUser):
             "text": "Students must complete all prerequisite courses before registering for the thesis.",
             "source_lang": "en",
             "target_lang": "vi",
-            "domain": "academic"
+            "domain": "Công nghệ Thông tin (IT)"
         }
         self.client.post("/api/v1/translate/text", json=payload, name="/text (Academic)")
         
@@ -36,7 +36,7 @@ class TranslationUser(HttpUser):
             "text": "The Realtime Translation Service aims to solve the latency problem.",
             "source_lang": "en",
             "target_lang": "vi",
-            "domain": "general"
+            "domain": "Dịch thông thường (Mặc định)"
         }
         # Lưu ý: stream=True để đọc SSE chunk
         with self.client.post("/api/v1/translate/stream", json=payload, stream=True, name="/stream (SSE)") as response:

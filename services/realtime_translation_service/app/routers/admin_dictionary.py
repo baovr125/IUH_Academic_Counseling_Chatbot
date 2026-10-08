@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from typing import List, Optional
 from app.services.supabase_client import get_supabase
 from app.services.domain_dict_service import sync_dictionary_to_redis
-from app.services.cache_service import increment_domain_version
+from app.services.cache_service import increment_domain_version, increment_global_dict_version
 from app.utils.logger import logger
 from app.schemas.translation import ApiResult
 from fastapi import Depends
@@ -60,6 +60,7 @@ def add_dictionary_entry(background_tasks: BackgroundTasks, entry: DictionaryEnt
         # Sync to Redis
         sync_dictionary_to_redis()
         increment_domain_version(entry.domain)
+        increment_global_dict_version()
         
         # Tạo âm thanh ngầm nếu chưa có
         if res.data:
@@ -84,6 +85,7 @@ def delete_dictionary_entry(entry_id: str, user_id: str = Depends(get_current_us
         
         if domain:
             increment_domain_version(domain)
+        increment_global_dict_version()
             
         return ApiResult(ok=True, data=None)
     except Exception as e:
@@ -104,6 +106,7 @@ def bulk_delete_dictionary_entries(req: BulkDeleteRequest, user_id: str = Depend
         
         for d in domains:
             increment_domain_version(d)
+        increment_global_dict_version()
             
         return ApiResult(ok=True, data=None)
     except Exception as e:
@@ -135,6 +138,7 @@ def update_dictionary_entry(entry_id: str, background_tasks: BackgroundTasks, en
         
         sync_dictionary_to_redis()
         increment_domain_version(entry.domain)
+        increment_global_dict_version()
         
         # Nếu word thay đổi, ta xoá file cũ (tùy chọn) và sinh lại audio mới
         if res.data and old_word != new_word:
@@ -203,6 +207,7 @@ async def import_dictionary(background_tasks: BackgroundTasks, file: UploadFile 
         unique_domains = set(e["domain"] for e in entries_to_insert)
         for d in unique_domains:
             increment_domain_version(d)
+        increment_global_dict_version()
         
         # Thêm Background Task xử lý sinh âm thanh Edge-TTS
         if res.data:

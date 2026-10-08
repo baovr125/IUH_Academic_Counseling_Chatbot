@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { streamTranslation, extractFlashcard } from "../../services/translationService";
 import { FloatingMenu } from "./FloatingMenu";
 import { DomainSelector } from "./DomainSelector";
-import { BookmarkPlus, ArrowRightLeft, Volume2, X, Loader2, Copy, Check } from "lucide-react";
+import { BookmarkPlus, ArrowRightLeft, Volume2, X, Loader2, Copy, Check, Info } from "lucide-react";
 import { LANG_CONFIG } from "../../services/deckStorage";
 import { SaveFlashcardModal } from "./SaveFlashcardModal";
 import { useWordAnalysis } from "../../hooks/useWordAnalysis";
@@ -35,6 +35,7 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
   const [isTranslating, setIsTranslating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [translationWarning, setTranslationWarning] = useState<string | null>(null);
+  const [detectedLangCode, setDetectedLangCode] = useState<string | null>(null);
 
   // Array of parsed tokens/words for the UI
   const [translatedTokens, setTranslatedTokens] = useState<string[]>([]);
@@ -234,6 +235,7 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
     setTranslationWarning(null);
     setTranslatedTokens([]);
     setMenuPosition(null);
+    setDetectedLangCode(null);
 
     let currentBuffer = "";
 
@@ -258,7 +260,10 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
       () => {
         setIsTranslating(false);
       },
-      newAbortController.signal
+      newAbortController.signal,
+      (lang: string) => {
+        setDetectedLangCode(lang);
+      }
     );
   };
 
@@ -275,6 +280,7 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
         abortControllerRef.current.abort();
         abortControllerRef.current = null;
       }
+      setDetectedLangCode(null);
       setTranslatedTokens([]);
       setIsTranslating(false);
     }
@@ -300,7 +306,7 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
             prefetchAudio(translated.trim(), getTTSLangCode(targetLang));
           }
           if (hasValidSource) {
-            prefetchAudio(sourceText.trim(), getTTSLangCode(sourceLang));
+            prefetchAudio(sourceText.trim(), getTTSLangCode(detectedLangCode || sourceLang));
           }
         }, 900); // 900ms (0.9s) debounce for TTS
       }
@@ -315,8 +321,9 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
 
   const handleSwap = () => {
     const currentTranslated = translatedTokens.join("");
+    const newTargetLang = sourceLang === "auto" ? (detectedLangCode || "en") : sourceLang;
     setSourceLang(targetLang);
-    setTargetLang(sourceLang);
+    setTargetLang(newTargetLang);
     // Google Translate behavior: when swapping, the translated text becomes the new source text
     if (currentTranslated.trim()) {
       setSourceText(currentTranslated);
@@ -412,7 +419,7 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
 
       setModalTerm(selectedWord.trim());
       setModalDef(extractedDef || selectedWord.trim());
-      setModalLang(targetLang === "vi" ? sourceLang : targetLang);
+      setModalLang(targetLang === "vi" ? (detectedLangCode || sourceLang) : targetLang);
       setModalContext(selectedContext);
       setModalPhonetic(extractedPhonetic);
       setIsSaveModalOpen(true);
@@ -422,7 +429,7 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
       setToastMessage(null);
       setModalTerm(selectedWord.trim());
       setModalDef("");
-      setModalLang(targetLang === "vi" ? sourceLang : targetLang);
+      setModalLang(targetLang === "vi" ? (detectedLangCode || sourceLang) : targetLang);
       setModalContext(selectedContext);
       setModalPhonetic("");
       setIsSaveModalOpen(true);
@@ -436,7 +443,7 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
     if (targetLang === "vi") {
       setModalTerm(sourceText.trim());
       setModalDef(translated.trim());
-      setModalLang(sourceLang);
+      setModalLang(detectedLangCode || sourceLang);
     } else {
       setModalTerm(translated.trim());
       setModalDef(sourceText.trim());
@@ -448,7 +455,7 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
   };
 
   const speakSelection = () => {
-    speakText(selectedWord, getTTSLangCode(targetLang === "vi" ? sourceLang : targetLang), "selection");
+    speakText(selectedWord, getTTSLangCode(targetLang === "vi" ? (detectedLangCode || sourceLang) : targetLang), "selection");
   };
 
   return (
@@ -462,9 +469,15 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
           <div className="flex items-center px-6 py-4 border-b border-slate-100 bg-white">
             <select
               value={sourceLang}
-              onChange={(e) => setSourceLang(e.target.value)}
+              onChange={(e) => {
+                setSourceLang(e.target.value);
+                if (e.target.value !== "auto") setDetectedLangCode(null);
+              }}
               className="bg-transparent text-sm font-semibold text-slate-700 focus:outline-none cursor-pointer"
             >
+              <option value="auto">
+                ✨ Tự phát hiện ngôn ngữ {detectedLangCode ? `(${LANG_CONFIG[detectedLangCode]?.label || detectedLangCode})` : ""}
+              </option>
               {Object.entries(LANG_CONFIG).map(([code, meta]) => (
                 <option key={code} value={code}>
                   {meta.flag} {meta.label}
@@ -490,7 +503,7 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
                 </button>
               )}
               {sourceText && (
-                <button onClick={() => speakText(sourceText, getTTSLangCode(sourceLang), "source")} className="hover:text-blue-500 transition-colors p-2 rounded-lg hover:bg-blue-50" title="Đọc văn bản">
+                <button onClick={() => speakText(sourceText, getTTSLangCode(detectedLangCode || sourceLang), "source")} className="hover:text-blue-500 transition-colors p-2 rounded-lg hover:bg-blue-50" title="Đọc văn bản">
                   {speakingId === "source" ? <Loader2 size={18} className="animate-spin" /> : <Volume2 size={18} />}
                 </button>
               )}
@@ -540,6 +553,13 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
             <DomainSelector value={domain} onChange={setDomain} />
           </div>
 
+          {translationWarning && (
+            <div className="bg-blue-50 text-blue-700 px-6 py-3 text-sm border-b border-blue-100 flex items-center gap-2 animate-in slide-in-from-top-2 fade-in">
+              <Info className="text-blue-500 shrink-0" size={16} />
+              <span>{translationWarning}</span>
+            </div>
+          )}
+
           <div className="flex-1 px-6 py-5 overflow-y-auto leading-relaxed text-slate-800 text-lg selection:bg-blue-200 selection:text-blue-900">
             {translatedTokens.length === 0 && !isTranslating && !error && (
               <span className="text-slate-400 font-light italic">
@@ -550,13 +570,6 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
             {error && (
               <div className="p-4 bg-red-50 text-red-600 rounded-xl text-sm border border-red-100 mb-4">
                 {error}
-              </div>
-            )}
-
-            {translationWarning && (
-              <div className="p-4 bg-amber-50 text-amber-700 rounded-xl text-sm border border-amber-200 mb-4 flex items-start gap-2">
-                <span className="font-bold text-amber-500">⚠️ Cảnh báo:</span>
-                <span>{translationWarning}</span>
               </div>
             )}
 

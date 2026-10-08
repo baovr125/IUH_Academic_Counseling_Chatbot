@@ -70,7 +70,7 @@ async def generate_and_upload_tts(term: str, lang_code: str, card_id: str, phone
     audio_url = upload_audio_bytes(object_name, complete_audio)
     
     cache_key = hashlib.md5(f"{clean_term}_{voice}".encode('utf-8')).hexdigest()
-    set_cached_audio_url(cache_key, audio_url)
+    await asyncio.to_thread(set_cached_audio_url, cache_key, audio_url)
     
     return audio_url
 

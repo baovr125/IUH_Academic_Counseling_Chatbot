@@ -132,6 +132,15 @@ LANG_MAP = {
     "vi": "vie_Latn",
 }
 
+DOMAIN_EMOJIS = {
+    "Công nghệ Thông tin (IT)": "💻",
+    "Y khoa / Sức khỏe": "💊",
+    "Kinh tế / Tài chính": "📊",
+    "Kỹ thuật Cơ khí": "⚙️",
+    "Luật / Pháp lý": "⚖️",
+    "Marketing": "📈"
+}
+
 async def handle_flow_2_stream_translation(text: str, source_lang: str, target_lang: str, domain: str) -> AsyncGenerator[str, None]:
     clean_lower = text.strip().lower()
     words = clean_lower.split()
@@ -142,14 +151,63 @@ async def handle_flow_2_stream_translation(text: str, source_lang: str, target_l
     
     supabase = get_supabase()
     domain_dict = {}
-    if supabase:
-        try:
-            res = supabase.table("domain_dictionaries").select("word, translation").eq("domain", domain).execute()
-            if res.data:
-                for entry in res.data:
-                    domain_dict[entry["word"].lower()] = entry["translation"]
-        except Exception as e:
-            logger.error(f"Supabase query error: {e}")
+
+    was_auto_detected = False
+    if domain == "auto":
+        from app.services.domain_service import auto_detect_domain_long, get_combined_short_translation
+        
+        if source_lang != "en" or target_lang != "vi":
+            domain = ""
+        elif len(text.strip()) < 25 or keyword_count <= 3:
+            combined = await get_combined_short_translation(text)
+            if combined:
+                # Yield the combined meanings as a warning
+                yield json.dumps({'warning': combined})
+                # Then yield normal translation
+                async for chunk in yield_nllb(text, None):
+                    yield chunk
+                return
+            domain = "" 
+        else:
+            from app.services.cache_service import get_auto_resolved_domain, set_auto_resolved_domain, get_classification_hash
+            prefix_md5 = get_classification_hash(text)
+            resolved = get_auto_resolved_domain(prefix_md5, source_lang, target_lang)
+            
+            if resolved:
+                detected_domain = resolved
+            else:
+                detected_domain = await auto_detect_domain_long(text)
+                if detected_domain:
+                    set_auto_resolved_domain(prefix_md5, source_lang, target_lang, detected_domain)
+                    
+            if detected_domain:
+                was_auto_detected = True
+                domain = detected_domain
+            else:
+                domain = ""
+
+    if domain and domain != "auto":
+        from app.services.cache_service import get_redis
+        r = get_redis()
+        if r:
+            try:
+                cached_dict = await asyncio.to_thread(r.hgetall, f"domain_dict:{domain}")
+                if cached_dict:
+                    domain_dict = cached_dict
+            except Exception as e:
+                logger.error(f"Redis hgetall error: {e}")
+        
+        # Fallback to Supabase if Redis fails
+        if not domain_dict and supabase:
+            try:
+                def fetch_supabase():
+                    return supabase.table("domain_dictionaries").select("word, translation").eq("domain", domain).execute()
+                res = await asyncio.to_thread(fetch_supabase)
+                if res.data:
+                    for entry in res.data:
+                        domain_dict[entry["word"].lower()] = entry["translation"]
+            except Exception as e:
+                logger.error(f"Supabase query error: {e}")
 
     async def yield_nllb(t, warning_msg=None):
         translator, tokenizer = get_nllb_translator()
@@ -204,7 +262,7 @@ async def handle_flow_2_stream_translation(text: str, source_lang: str, target_l
             yield json.dumps({'text': domain_dict[clean_lower]})
             return
         else:
-            warning = f"Từ/cụm từ này không được tìm thấy trong từ điển chuyên ngành '{domain}'. Hệ thống sử dụng NLLB để dịch thông thường, kết quả có thể không phản ánh đầy đủ nghĩa chuyên ngành."
+            warning = "Dịch sát nghĩa (word-by-word) do không tìm thấy thuật ngữ chuyên ngành tương ứng."
             async for chunk in yield_nllb(text, warning):
                 yield chunk
             return
@@ -213,6 +271,9 @@ async def handle_flow_2_stream_translation(text: str, source_lang: str, target_l
     found_terms = find_domain_terms(text, domain_dict)
 
     if found_terms:
+        if was_auto_detected:
+            yield json.dumps({'warning': f"Đã tự động nhận diện chuyên ngành: {domain}"})
+            
         # LLM streaming (Groq/Gemini bypass)
         groq_client = get_groq_client()
         system_prompt = build_context_aware_prompt(domain, found_terms, source_lang, target_lang)
@@ -245,11 +306,11 @@ async def handle_flow_2_stream_translation(text: str, source_lang: str, target_l
             if gemini_client:
                 try:
                     full_prompt = f"{system_prompt}\n\nText:\n{text}"
-                    response_stream = gemini_client.models.generate_content_stream(
+                    response_stream = await gemini_client.aio.models.generate_content_stream(
                         model="gemini-2.5-flash",
                         contents=full_prompt
                     )
-                    for chunk in response_stream:
+                    async for chunk in response_stream:
                         if chunk.text:
                             yield json.dumps({'text': chunk.text})
                     return
@@ -270,6 +331,19 @@ async def handle_flow_2_stream_translation(text: str, source_lang: str, target_l
 async def stream_translation(text: str, source_lang: str, target_lang: str, domain: str = "") -> AsyncGenerator[str, None]:
     """Translates text using local NLLB model via CTranslate2. Falls back to Groq/Gemini."""
     
+    if source_lang == "auto":
+        from app.services.translation_service import detect_source_language
+        try:
+            detected_lang = detect_source_language(text)
+            source_lang = detected_lang
+            yield json.dumps({'resolved_source_lang': detected_lang})
+        except Exception as e:
+            detail = getattr(e, "detail", None)
+            yield json.dumps({'error': detail or "Chưa thể xác định ngôn ngữ. Hãy nhập thêm văn bản hoặc chọn ngôn ngữ nguồn thủ công."})
+            return
+    else:
+        yield json.dumps({'resolved_source_lang': source_lang})
+
     is_flow_2 = domain and domain != "Dịch thông thường (Mặc định)"
     if is_flow_2:
         async for chunk in handle_flow_2_stream_translation(text, source_lang, target_lang, domain):
@@ -353,11 +427,11 @@ async def stream_translation(text: str, source_lang: str, target_lang: str, doma
 
         try:
             full_prompt = f"{system_prompt}\n\nText:\n{text}"
-            response_stream = gemini_client.models.generate_content_stream(
+            response_stream = await gemini_client.aio.models.generate_content_stream(
                 model="gemini-2.5-flash",
                 contents=full_prompt
             )
-            for chunk in response_stream:
+            async for chunk in response_stream:
                 if chunk.text:
                     yield json.dumps({'text': chunk.text})
         except Exception as e:
