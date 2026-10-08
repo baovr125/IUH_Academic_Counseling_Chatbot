@@ -3,27 +3,31 @@ import uuid
 import json
 import time
 import asyncio
+import re
 from datetime import datetime, timezone
 from typing import Optional, AsyncGenerator
 
-from google.genai import types
+def _strip_thinking_tags(text: str) -> str:
+    """Removes <thinking>...</thinking> blocks and trailing whitespace from a completed text."""
+    return re.sub(r'<thinking>.*?</thinking>\s*', '', text, flags=re.DOTALL)
+
+from app.services.llm_providers import get_llm_provider
 
 from app.schemas.chat import ChatMessage, SendMessagePayload, ApiResult
 from app.guardrails.query_filter import (
     check_safety_and_jailbreak,
 
-    evaluate_domain_relevance,
 )
 from app.services.chat_service import (
     ensure_uuid,
     save_user_msg_to_db,
     save_assistant_msg_to_db,
     save_turn_to_db,
+    update_message_embedding_in_db,
 )
+from app.services.log_utils import log_cache_hit_to_md, write_full_rag_log_to_md
 from app.services.rag_service import (
-    get_gemini,
     build_rag_payload,
-    GEMINI_MODELS,
     check_semantic_cache,
     async_cache_writeback,
     get_query_embedding,
@@ -57,9 +61,12 @@ async def process_chat_message(
         # Generate Standalone Query first so follow-ups have full context for domain checks
         history = await asyncio.to_thread(get_session_history_from_db, session_id)
         filtered_history = [msg for msg in history if not (msg["role"] == "user" and msg["content"] == normalized_query)]
-        retrieval_query_raw = await generate_standalone_query(filtered_history, normalized_query)
+        start_rewrite = time.perf_counter()
+        retrieval_query_raw, router_model = await generate_standalone_query(filtered_history, normalized_query)
+        rewrite_latency_ms = int((time.perf_counter() - start_rewrite) * 1000)
         
         # Step 2: Extract Intent Router Flag
+        print(f"HEY! retrieval_query_raw IS: {repr(retrieval_query_raw)}", flush=True)
         if retrieval_query_raw.strip() == "<FALSE>":
             clean_id = save_user_msg_to_db(session_id, payload.content, retrieval_query_raw, user_id=current_user_id)
             save_assistant_msg_to_db(clean_id, OFF_TOPIC_MESSAGE)
@@ -67,10 +74,13 @@ async def process_chat_message(
             return ApiResult(ok=True, data={"sessionId": clean_id, "message": assistant_msg.dict()})
             
         # Extract the actual rewritten query
-        retrieval_query = retrieval_query_raw.replace("<TRUE>", "").strip()
+        retrieval_query = retrieval_query_raw.replace("<TRUE>", "").replace("</TRUE>", "").strip()
 
         # Generate the single query embedding using the rewritten context-rich query
         query_embedding = await get_query_embedding(retrieval_query)
+        
+        # --- HYBRID MEMORY: Save user embedding to DB in background ---
+        asyncio.create_task(asyncio.to_thread(update_message_embedding_in_db, user_msg_id, query_embedding))
 
         start_time = time.perf_counter()
 
@@ -80,14 +90,20 @@ async def process_chat_message(
             latency_ms = int((time.perf_counter() - start_time) * 1000)
             cached_answer = cache_hit.get("cached_answer", "")
             
+            # --- CACHE LOGGING ---
+            asyncio.create_task(log_cache_hit_to_md(clean_session_id, normalized_query, retrieval_query, cache_hit, latency_ms))
+            
             # Save the turn to DB to keep the conversation history continuous
+            # Full cached_answer goes to DB
             save_turn_to_db(
                 session_id, payload.content, cached_answer, payload.content, 
                 retrieved_chunk_ids=[], user_id=current_user_id,
                 latency_ms=latency_ms, prompt_tokens=0, completion_tokens=0
             )
 
-            assistant_msg = _build_assistant_message(cached_answer)
+            # UI gets the stripped version
+            ui_answer = _strip_thinking_tags(cached_answer)
+            assistant_msg = _build_assistant_message(ui_answer)
             return ApiResult(
                 ok=True, 
                 data={
@@ -98,49 +114,28 @@ async def process_chat_message(
             )
 
         # Step 4: RAG Retrieval and Prompt Building
-        history, retrieval_query, citations, chunk_ids, system_instruction, contents, top_doc_score, log_file_path = await build_rag_payload(session_id, normalized_query, retrieval_query, query_embedding)
+        history, retrieval_query, citations, chunk_ids, system_instruction, contents, top_doc_score, rag_data = await build_rag_payload(session_id, normalized_query, retrieval_query, query_embedding)
 
-        gemini_response = None
-        last_exception = None
-        gemini_client = get_gemini()
-
-        # Step 5: LLM Generation (Fallback across models if one fails)
-        if gemini_client:
-            for model_name in GEMINI_MODELS:
-                try:
-                    cfg_kwargs = {
-                        "system_instruction": system_instruction,
-                        "temperature": 0.2,
-                    }
-                    if "2.5" in model_name:
-                        cfg_kwargs["thinking_config"] = types.ThinkingConfig(thinking_budget=0)
-
-                    def _gen_sync(m_name=model_name, c_kwargs=cfg_kwargs):
-                        chat_history = contents[:-1] if len(contents) > 1 else []
-                        last_msg = contents[-1].parts[0].text if len(contents) > 0 else ""
-                        
-                        chat_session = gemini_client.chats.create(
-                            model=m_name,
-                            config=types.GenerateContentConfig(**c_kwargs),
-                            history=chat_history
-                        )
-                        return chat_session.send_message(last_msg)
-                        
-                    # Run the synchronous SDK call in a separate thread to avoid blocking the event loop
-                    gemini_response = await asyncio.to_thread(_gen_sync)
-                    if gemini_response and gemini_response.text:
-                        break
-                except Exception as e:
-                    logger.exception(f"Error generating content with model {model_name}: {e}")
-                    last_exception = e
-                    continue
-
-        # Extract generated text or fallback error message
-        if gemini_response and gemini_response.text:
-            generated_text = gemini_response.text
-        else:
-            err_msg = str(last_exception) if last_exception else "Gemini client không thể khởi tạo"
-            generated_text = f"⚠️ Thông báo hệ thống AI: {err_msg}"
+        provider = get_llm_provider()
+        stream_generator = provider.generate_stream(system_instruction, contents)
+        
+        prompt_tokens = 0
+        completion_tokens = 0
+        generated_text = ""
+        
+        try:
+            async for chunk_data in stream_generator:
+                if "prompt_tokens" in chunk_data:
+                    prompt_tokens = chunk_data["prompt_tokens"]
+                if "completion_tokens" in chunk_data:
+                    completion_tokens = chunk_data["completion_tokens"]
+                    
+                text = chunk_data.get("text", "")
+                if text:
+                    generated_text += text
+        except Exception as e:
+            logger.exception(f"Error collecting LLM stream: {e}")
+            generated_text = f"⚠️ Lỗi AI: {e}"
 
         latency_ms = int((time.perf_counter() - start_time) * 1000)
 
@@ -164,7 +159,7 @@ async def process_chat_message(
 
         # Trigger async cache write-back in background so the user doesn't wait for it
         if gemini_response and gemini_response.text:
-            asyncio.create_task(async_cache_writeback(normalized_query, generated_text, top_doc_score))
+            asyncio.create_task(async_cache_writeback(retrieval_query, generated_text, top_doc_score, query_embedding))
 
         return ApiResult(
             ok=True,
@@ -189,7 +184,7 @@ async def process_chat_message_stream(
     session_id = payload.sessionId or f"s_{uuid.uuid4().hex[:8]}"
     
     # Pre-save the user message since the generation is streamed and might be interrupted
-    clean_session_id = save_user_msg_to_db(session_id, payload.content, payload.content, user_id=current_user_id)
+    clean_session_id, user_msg_id = save_user_msg_to_db(session_id, payload.content, payload.content, user_id=current_user_id)
 
     accumulated_text = ""
     chunk_ids = []
@@ -211,9 +206,12 @@ async def process_chat_message_stream(
         # Generate Standalone Query first so follow-ups have full context for domain checks
         history = await asyncio.to_thread(get_session_history_from_db, session_id)
         filtered_history = [msg for msg in history if not (msg["role"] == "user" and msg["content"] == normalized_query)]
-        retrieval_query_raw = await generate_standalone_query(filtered_history, normalized_query)
+        start_rewrite = time.perf_counter()
+        retrieval_query_raw, router_model = await generate_standalone_query(filtered_history, normalized_query)
+        rewrite_latency_ms = int((time.perf_counter() - start_rewrite) * 1000)
 
         # Step 2: Extract Intent Router Flag
+        print(f"HEY! retrieval_query_raw IS: {repr(retrieval_query_raw)}", flush=True)
         if retrieval_query_raw.strip() == "<FALSE>":
             yield _build_sse_metadata(clean_session_id)
             yield _build_sse_delta(OFF_TOPIC_MESSAGE)
@@ -222,87 +220,122 @@ async def process_chat_message_stream(
             return
             
         # Extract the actual rewritten query
-        retrieval_query = retrieval_query_raw.replace("<TRUE>", "").strip()
+        retrieval_query = retrieval_query_raw.replace("<TRUE>", "").replace("</TRUE>", "").strip()
 
         # Generate the single query embedding using the rewritten context-rich query
         query_embedding = await get_query_embedding(retrieval_query)
+        
+        # --- HYBRID MEMORY: Save user embedding to DB in background ---
+        asyncio.create_task(asyncio.to_thread(update_message_embedding_in_db, user_msg_id, query_embedding))
 
+        start_time = time.perf_counter()
         # Step 3: Semantic Cache Lookup
         cache_hit = await check_semantic_cache(retrieval_query, query_embedding)
         if cache_hit:
+            latency_ms = int((time.perf_counter() - start_time) * 1000)
             cached_answer = cache_hit.get("cached_answer", "")
+            
+            # --- CACHE LOGGING ---
+            asyncio.create_task(log_cache_hit_to_md(clean_session_id, normalized_query, retrieval_query, cache_hit, latency_ms))
+            
             # Yield metadata with cacheStatus as HIT
             yield _build_sse_metadata(clean_session_id, cache_status="HIT")
-            yield _build_sse_delta(cached_answer)
+            
+            # UI gets the stripped version
+            ui_answer = _strip_thinking_tags(cached_answer)
+            yield _build_sse_delta(ui_answer)
+            
+            # Accumulated text keeps the full answer so it gets saved to DB properly
             accumulated_text = cached_answer
             yield _build_sse_done()
             return
 
         # Step 4: RAG Retrieval and Prompt Building
-        history, retrieval_query, citations, chunk_ids, system_instruction, contents, top_doc_score, log_file_path = await build_rag_payload(clean_session_id, normalized_query, retrieval_query, query_embedding)
+        history, retrieval_query, citations, chunk_ids, system_instruction, contents, top_doc_score, rag_data = await build_rag_payload(clean_session_id, normalized_query, retrieval_query, query_embedding)
 
         # Immediately send citations (metadata) to the client
         citations_data = [c.dict() for c in citations]
         yield _build_sse_metadata(clean_session_id, citations_data)
 
-        stream_iter = None
-        first_chunk = None
-        last_err = None
-        gemini_client = get_gemini()
-
-        # Step 5: LLM Streaming (Fallback across models)
-        if gemini_client:
-            for model_name in GEMINI_MODELS:
-                try:
-                    cfg_kwargs = {
-                        "system_instruction": system_instruction,
-                        "temperature": 0.2,
-                    }
-                    def _start_stream_with_first_chunk(m_name=model_name, c_kwargs=cfg_kwargs):
-                        chat_history = contents[:-1] if len(contents) > 1 else []
-                        last_msg = contents[-1].parts[0].text if len(contents) > 0 else ""
+        provider = get_llm_provider()
+        stream_generator = provider.generate_stream(system_instruction, contents)
+        
+        start_llm = time.perf_counter()
+        prompt_tokens = 0
+        completion_tokens = 0
+        llm_latency_ms = 0
+        
+        in_thinking = False
+        strip_next_whitespace = False
+        buffer = ""
+        
+        async for chunk_data in stream_generator:
+            if "prompt_tokens" in chunk_data:
+                prompt_tokens = chunk_data["prompt_tokens"]
+            if "completion_tokens" in chunk_data:
+                completion_tokens = chunk_data["completion_tokens"]
+                
+            text = chunk_data.get("text", "")
+            if text:
+                accumulated_text += text
+                buffer += text
+                
+                while buffer:
+                    if strip_next_whitespace:
+                        buffer = buffer.lstrip()
+                        if not buffer:
+                            break
+                        strip_next_whitespace = False
                         
-                        chat_session = gemini_client.chats.create(
-                            model=m_name,
-                            config=types.GenerateContentConfig(**c_kwargs),
-                            history=chat_history
-                        )
-                        st = chat_session.send_message_stream(last_msg)
-                        
-                        # Grab the very first chunk to verify the stream didn't error out immediately
-                        it = iter(st)
-                        fc = next(it, None)
-                        return it, fc
+                    if not in_thinking:
+                        start_idx = buffer.find("<thinking>")
+                        if start_idx != -1:
+                            if start_idx > 0:
+                                yield _build_sse_delta(buffer[:start_idx])
+                            in_thinking = True
+                            buffer = buffer[start_idx + len("<thinking>"):]
+                        else:
+                            partial_match = False
+                            for i in range(len("<thinking>") - 1, 0, -1):
+                                if len(buffer) >= i:
+                                    suffix = buffer[-i:]
+                                    if "<thinking>".startswith(suffix):
+                                        if len(buffer) > i:
+                                            yield _build_sse_delta(buffer[:-i])
+                                            buffer = suffix
+                                        partial_match = True
+                                        break
+                            
+                            if not partial_match:
+                                yield _build_sse_delta(buffer)
+                                buffer = ""
+                            else:
+                                break
+                    else:
+                        end_idx = buffer.find("</thinking>")
+                        if end_idx != -1:
+                            in_thinking = False
+                            buffer = buffer[end_idx + len("</thinking>"):]
+                            strip_next_whitespace = True
+                        else:
+                            partial_match = False
+                            for i in range(len("</thinking>") - 1, 0, -1):
+                                if len(buffer) >= i:
+                                    suffix = buffer[-i:]
+                                    if "</thinking>".startswith(suffix):
+                                        buffer = suffix
+                                        partial_match = True
+                                        break
+                            
+                            if not partial_match:
+                                buffer = ""
+                            else:
+                                break
+                                
+        if buffer and not in_thinking:
+            yield _build_sse_delta(buffer)
 
-                    # Run in background thread to avoid blocking loop during network initialization
-                    stream_iter, first_chunk = await asyncio.to_thread(_start_stream_with_first_chunk)
-                    break
-                except Exception as e:
-                    logger.warning(f"Error streaming content with model {model_name}: {e}")
-                    last_err = e
-                    continue
-
-        if stream_iter:
-            # Yield the first chunk we retrieved earlier
-            if first_chunk and first_chunk.text:
-                accumulated_text += first_chunk.text
-                yield _build_sse_delta(first_chunk.text)
-
-            # Continue yielding the rest of the stream
-            while True:
-                chunk = await asyncio.to_thread(lambda: next(stream_iter, None))
-                if chunk is None:
-                    break
-                if chunk.text:
-                    accumulated_text += chunk.text
-                    yield _build_sse_delta(chunk.text)
-        else:
-            # Fallback error message if all models failed
-            err_str = str(last_err) if last_err else "Gemini client chưa khởi tạo"
-            fallback_txt = f"⚠️ Lỗi AI: {err_str}"
-            accumulated_text = fallback_txt
-            yield _build_sse_delta(fallback_txt)
-
+        llm_latency_ms = int((time.perf_counter() - start_llm) * 1000)
         yield _build_sse_done()
 
     except Exception as e:
@@ -317,17 +350,30 @@ async def process_chat_message_stream(
             )
             
             try:
-                if 'log_file_path' in locals() and log_file_path:
-                    with open(log_file_path, "a", encoding="utf-8") as lf:
-                        lf.write("## AI Answer & Thinking Stage\n\n")
-                        lf.write(accumulated_text + "\n\n")
-                        lf.write("---\n")
+                if 'rag_data' in locals() and rag_data:
+                    _rlat = rag_data.get('retrieval_latency_ms', 0)
+                    _rl = rewrite_latency_ms if 'rewrite_latency_ms' in locals() else 0
+                    _ll = llm_latency_ms if 'llm_latency_ms' in locals() else 0
+                    _pt = prompt_tokens if 'prompt_tokens' in locals() else 0
+                    _ct = completion_tokens if 'completion_tokens' in locals() else 0
+                    
+                    _rm = router_model if 'router_model' in locals() else "Unknown"
+                    _lm = provider.last_used_model if 'provider' in locals() else "Unknown"
+                    
+                    asyncio.create_task(write_full_rag_log_to_md(
+                        clean_session_id, normalized_query, retrieval_query, rag_data['chunks'], rag_data['past_memories'],
+                        _rlat, _rl, _ll, _pt, _ct, accumulated_text, _rm, _lm
+                    ))
             except Exception as _e:
-                logger.error(f"Failed to append to markdown log: {_e}")
+                logger.error(f"Failed to write full markdown log: {_e}")
             
             # Trigger async cache write-back in background
             if not accumulated_text.startswith("⚠️"):
-                asyncio.create_task(async_cache_writeback(normalized_query, accumulated_text, top_doc_score))
+                _rq = retrieval_query if 'retrieval_query' in locals() else ""
+                _tds = top_doc_score if 'top_doc_score' in locals() else 0.0
+                _qe = query_embedding if 'query_embedding' in locals() else None
+                if _rq and _qe:
+                    asyncio.create_task(async_cache_writeback(_rq, accumulated_text, _tds, _qe))
 
 # --- Helper Methods ---
 

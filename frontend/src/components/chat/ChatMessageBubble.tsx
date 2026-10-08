@@ -63,19 +63,27 @@ export function ChatMessageBubble({
   const followUpRegex = /<query>(.*?)<\/query>/gs;
   const followUps: string[] = [];
   let match;
-  while ((match = followUpRegex.exec(message.content)) !== null) {
+  
+  // Extract queries ONLY from the final part of the message (after the thought block)
+  // This prevents capturing suggested queries that the model drafted inside <think>
+  const contentAfterThought = message.content.replace(/<think>[\s\S]*?<\/think>\n*/gi, '');
+  while ((match = followUpRegex.exec(contentAfterThought)) !== null) {
     if (match[1].trim()) {
       followUps.push(match[1].trim());
     }
   }
 
-  const cleanContent = message.content
-    .replace(/<thinking>[\s\S]*?<\/thinking>\n*/g, '') // Strip out completed Chain-of-Thought thinking tags
-    .replace(/<thinking>[\s\S]*$/, '') // Strip out incomplete thinking tags while streaming
-    .replace(/<suggested_queries>[\s\S]*?<\/suggested_queries>\n*/g, '') // Strip out entire suggested queries block
-    .replace(/<suggested_queries>[\s\S]*$/, '') // Strip out incomplete suggested queries block while streaming
-    .replace(/\n*\*?Nguồn:\*?[\s\S]*$/, '') // Strip out Nguồn: block if AI hallucinates it
-    .replace(/\n*\*?Tham khảo:\*?[\s\S]*$/, '') // Strip out Tham khảo: block
+  // Hide the thought block from the final UI, but if it's currently streaming the thought,
+  // show a "Thinking..." indicator
+  const isThinking = /<think>(?![\s\S]*<\/think>)/i.test(message.content);
+  
+  let cleanContent = message.content
+    .replace(/<think>[\s\S]*?<\/think>\n*/gi, '') // Strip out completed Chain-of-Thought thinking tags
+    .replace(/<think>[\s\S]*$/i, isThinking ? '_Đang suy nghĩ..._' : '') // Show indicator while streaming
+    .replace(/<suggested_queries>[\s\S]*?<\/suggested_queries>\n*/gi, '') // Strip out entire suggested queries block
+    .replace(/<suggested_queries>[\s\S]*$/i, '') // Strip out incomplete suggested queries block while streaming
+    .replace(/\n*\*?Nguồn:\*?[\s\S]*$/i, '') // Strip out Nguồn: block if AI hallucinates it
+    .replace(/\n*\*?Tham khảo:\*?[\s\S]*$/i, '') // Strip out Tham khảo: block
     .trim();
 
   const uniqueCitations = (message.citations || []).reduce((acc, current) => {

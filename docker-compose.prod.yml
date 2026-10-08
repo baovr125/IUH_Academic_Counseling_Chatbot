@@ -1,0 +1,185 @@
+services:
+  kong-gateway:
+    image: kong:latest
+    container_name: iuh_kong_gateway_prod
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /usr/local/kong/declarative/kong.yml
+      KONG_PROXY_LISTEN: 0.0.0.0:8000, 0.0.0.0:8443 ssl
+    ports:
+      - "8000:8000"   # Backend API Gateway
+      - "8443:8443"
+    volumes:
+      - ./gateway/kong.yml:/usr/local/kong/declarative/kong.yml
+    depends_on:
+      - auth-service
+      - academic-chatbot-service
+      - realtime-translation-service
+      - doc-translation-service
+      - flashcard-service
+    restart: unless-stopped
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: iuh_rabbitmq_prod
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: iuh_admin
+      RABBITMQ_DEFAULT_PASS: iuh_prod_password_2026
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: iuh_redis_prod
+    command: redis-server --maxmemory 1gb --maxmemory-policy allkeys-lru
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+  minio:
+    image: minio/minio:latest
+    container_name: iuh_minio_prod
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: "iuh_prod_admin"
+      MINIO_ROOT_PASSWORD: "iuh_prod_password_2026"
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data_prod:/data
+    restart: unless-stopped
+
+  vllm-server:
+    image: vllm/vllm-openai:latest
+    container_name: iuh_vllm_prod
+    command: --model QuantTrio/Qwen3.6-35B-A3B-AWQ --quantization awq --gpu-memory-utilization 0.80 --max-model-len 8192
+    ports:
+      - "8080:8000" # Internal vLLM on 8080 host port
+    volumes:
+      - hf_cache_prod:/root/.cache/huggingface
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    restart: unless-stopped
+    shm_size: '8gb'
+
+  auth-service:
+    image: auth-service:latest
+    build:
+      context: ./services/auth_service
+    container_name: iuh_auth_service_prod
+    env_file:
+      - .env.prod
+    restart: unless-stopped
+
+  academic-chatbot-service:
+    image: academic-chatbot-service:latest
+    build:
+      context: ./services/academic_chatbot_service
+    container_name: iuh_academic_chatbot_service_prod
+    env_file:
+      - .env.prod
+    depends_on:
+      - redis
+      - vllm-server
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    volumes:
+      - ./logs/academic_chatbot:/app/logs/academic_chatbot
+      - ./hf_models:/app/hf_models
+      - ./data/ingestion:/app/app/data_ingestion/data
+    restart: unless-stopped
+
+  realtime-translation-service:
+    image: realtime-translation-service:latest
+    build:
+      context: ./services/realtime_translation_service
+    container_name: iuh_realtime_translation_service_prod
+    env_file:
+      - .env.prod
+    depends_on:
+      - redis
+      - minio
+      - rabbitmq
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    restart: unless-stopped
+
+  doc-translation-service:
+    image: doc-translation-service:latest
+    build:
+      context: ./services/doc_translation_service
+    container_name: iuh_doc_translation_service_prod
+    env_file:
+      - .env.prod
+    depends_on:
+      - rabbitmq
+      - redis
+      - minio
+    restart: unless-stopped
+
+  doc-translation-worker:
+    image: doc-translation-worker:latest
+    build:
+      context: ./services/doc_translation_service
+    container_name: iuh_doc_translation_worker_prod
+    command: celery -A app.celery_app worker --loglevel=info --concurrency=4
+    env_file:
+      - .env.prod
+    depends_on:
+      - rabbitmq
+      - redis
+      - minio
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    restart: unless-stopped
+
+  flashcard-service:
+    image: flashcard-service:latest
+    build:
+      context: ./services/flashcard_service
+    container_name: iuh_flashcard_service_prod
+    env_file:
+      - .env.prod
+    depends_on:
+      - rabbitmq
+    restart: unless-stopped
+
+  frontend:
+    image: frontend:latest
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL}
+    container_name: iuh_frontend_prod
+    ports:
+      - "80:80"
+    depends_on:
+      - kong-gateway
+    restart: unless-stopped
+
+volumes:
+  minio_data_prod:
+  hf_cache_prod:
