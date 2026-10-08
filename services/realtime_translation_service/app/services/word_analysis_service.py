@@ -1,8 +1,6 @@
 import os
 import spacy
 import nltk
-from pywsd.lesk import simple_lesk
-from nltk.corpus import wordnet as wn
 from app.utils.logger import logger
 import asyncio
 from typing import Optional, List, Dict, Any
@@ -14,14 +12,6 @@ def preload_nlp_models():
     """
     logger.info("Preloading NLP models for Word Analysis...")
     try:
-        # Download NLTK resources
-        nltk.download('wordnet', quiet=True)
-        nltk.download('punkt', quiet=True)
-        nltk.download('punkt_tab', quiet=True)
-        nltk.download('averaged_perceptron_tagger', quiet=True)
-        nltk.download('averaged_perceptron_tagger_eng', quiet=True)
-        nltk.download('omw-1.4', quiet=True)
-        
         # Load spaCy model
         try:
             spacy.load("en_core_web_sm")
@@ -44,23 +34,23 @@ from app.services.llm_service import get_nllb_translator, LANG_MAP
 
 def get_wordnet_pos(treebank_tag):
     if treebank_tag.startswith('J'):
-        return wn.ADJ
+        return 'a'
     elif treebank_tag.startswith('V'):
-        return wn.VERB
+        return 'v'
     elif treebank_tag.startswith('N'):
-        return wn.NOUN
+        return 'n'
     elif treebank_tag.startswith('R'):
-        return wn.ADV
+        return 'r'
     else:
         return None
 
 def spacy_to_wordnet_pos(spacy_pos):
     mapping = {
-        'ADJ': wn.ADJ,
-        'VERB': wn.VERB,
-        'NOUN': wn.NOUN,
-        'ADV': wn.ADV,
-        'PROPN': wn.NOUN
+        'ADJ': 'a',
+        'VERB': 'v',
+        'NOUN': 'n',
+        'ADV': 'r',
+        'PROPN': 'n'
     }
     return mapping.get(spacy_pos, None)
 
@@ -72,7 +62,7 @@ async def process_word_analysis(request: WordAnalysisRequest) -> WordAnalysisRes
     
     # 1. Cache Check
     cache_key = f"wa_{request.target_lang}_{hashlib.md5(context.encode('utf-8')).hexdigest()}_{hashlib.md5(word.encode('utf-8')).hexdigest()}"
-    cached_data = get_cached_translation(cache_key)
+    cached_data = await asyncio.to_thread(get_cached_translation, cache_key)
     if cached_data:
         # We need to return WordAnalysisResponse. If cache stores JSON string, we should deserialize. 
         # For simplicity, if get_cached_translation returns string (from Redis), we can parse it.
@@ -120,16 +110,26 @@ async def process_word_analysis(request: WordAnalysisRequest) -> WordAnalysisRes
     
     # 3. Word Sense Disambiguation using Lesk
     contextual_synset = None
-    if wn_pos:
-        try:
-            contextual_synset = simple_lesk(context, lemma, pos=wn_pos)
-        except Exception as e:
-            logger.warning(f"Lesk algorithm failed: {e}")
-            
-    # If Lesk fails or no wn_pos, just get the most common synset
-    all_synsets = wn.synsets(lemma, pos=wn_pos) if wn_pos else wn.synsets(lemma)
-    if not contextual_synset and all_synsets:
-        contextual_synset = all_synsets[0]
+    try:
+        from pywsd.lesk import simple_lesk
+        from nltk.corpus import wordnet as wn
+        nltk_available = True
+    except (LookupError, ImportError) as e:
+        logger.warning(f"NLTK data is missing, PyWSD failed to import: {e}")
+        nltk_available = False
+        
+    all_synsets = []
+    if nltk_available:
+        if wn_pos:
+            try:
+                contextual_synset = simple_lesk(context, lemma, pos=wn_pos)
+            except Exception as e:
+                logger.warning(f"Lesk algorithm failed: {e}")
+                
+        # If Lesk fails or no wn_pos, just get the most common synset
+        all_synsets = wn.synsets(lemma, pos=wn_pos) if wn_pos else wn.synsets(lemma)
+        if not contextual_synset and all_synsets:
+            contextual_synset = all_synsets[0]
         
     if not all_synsets:
         # No WordNet definitions found
@@ -152,8 +152,8 @@ async def process_word_analysis(request: WordAnalysisRequest) -> WordAnalysisRes
         texts_to_translate.extend(contextual_ex)
         
     for syn in all_synsets:
-        if syn != contextual_synset:
-            d, ex = extract_synset_info(syn)
+        d, ex = extract_synset_info(syn)
+        if not contextual_synset or d != contextual_def:
             other_synsets_info.append({"syn": syn, "def": d, "ex": ex})
             texts_to_translate.append(d)
             texts_to_translate.extend(ex)
@@ -194,7 +194,7 @@ async def process_word_analysis(request: WordAnalysisRequest) -> WordAnalysisRes
             idx += 1
             
         contextual_meaning = MeaningDef(
-            pos=contextual_synset.pos(),
+            pos=contextual_synset.pos() if callable(getattr(contextual_synset, 'pos', None)) else getattr(contextual_synset, 'pos', 'unknown'),
             english_definition=contextual_def,
             target_language_meaning=t_def,
             examples=contextual_ex,
@@ -211,7 +211,7 @@ async def process_word_analysis(request: WordAnalysisRequest) -> WordAnalysisRes
             idx += 1
             
         other_meanings.append(MeaningDef(
-            pos=info["syn"].pos(),
+            pos=info["syn"].pos() if callable(getattr(info["syn"], 'pos', None)) else getattr(info["syn"], 'pos', 'unknown'),
             english_definition=info["def"],
             target_language_meaning=t_def,
             examples=info["ex"],
@@ -231,7 +231,7 @@ async def process_word_analysis(request: WordAnalysisRequest) -> WordAnalysisRes
     
     # Save to Cache
     import json
-    set_cached_translation(cache_key, response.model_dump_json())
+    await asyncio.to_thread(set_cached_translation, cache_key, response.model_dump_json())
     
     return response
 
@@ -264,5 +264,5 @@ async def _fallback_analysis(request: WordAnalysisRequest, start_time: float, ca
     )
     
     import json
-    set_cached_translation(cache_key, res.model_dump_json())
+    await asyncio.to_thread(set_cached_translation, cache_key, res.model_dump_json())
     return res

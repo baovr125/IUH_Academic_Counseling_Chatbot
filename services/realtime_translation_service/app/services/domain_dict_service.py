@@ -45,6 +45,9 @@ def sync_dictionary_to_redis():
             if word_map:
                 pipeline.hset(redis_key, mapping=word_map)
         
+        # Clear the global short dictionary cache used by domain_service
+        pipeline.delete("all_domain_dictionaries")
+        
         pipeline.execute()
         logger.info(f"Successfully synced {len(entries)} domain dictionary entries to Redis.")
 

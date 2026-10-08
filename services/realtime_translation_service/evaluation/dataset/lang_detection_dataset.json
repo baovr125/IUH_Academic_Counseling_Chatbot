@@ -1,0 +1,162 @@
+[
+  {
+    "id": "en_long_01",
+    "text": "Machine learning algorithms can identify patterns in large datasets.",
+    "expected_lang": "en",
+    "category": "long_text",
+    "difficulty": "easy",
+    "notes": "Clear English, technical domain"
+  },
+  {
+    "id": "en_long_02",
+    "text": "The Industrial University of Ho Chi Minh City is a large university in Vietnam.",
+    "expected_lang": "en",
+    "category": "long_text",
+    "difficulty": "easy",
+    "notes": "Clear English"
+  },
+  {
+    "id": "en_short_01",
+    "text": "I am here",
+    "expected_lang": "en",
+    "category": "short_text",
+    "difficulty": "medium",
+    "notes": "Short English"
+  },
+  {
+    "id": "en_word_01",
+    "text": "Hello",
+    "expected_lang": "en",
+    "category": "single_word",
+    "difficulty": "hard",
+    "notes": "Single word English"
+  },
+  {
+    "id": "vi_long_01",
+    "text": "Trí tuệ nhân tạo đang thay đổi ngành giáo dục một cách nhanh chóng.",
+    "expected_lang": "vi",
+    "category": "long_text",
+    "difficulty": "easy",
+    "notes": "Clear Vietnamese"
+  },
+  {
+    "id": "vi_long_02",
+    "text": "Sinh viên phải hoàn thành tất cả môn học tiên quyết trước khi đăng ký khóa luận tốt nghiệp.",
+    "expected_lang": "vi",
+    "category": "long_text",
+    "difficulty": "easy",
+    "notes": "Clear Vietnamese, academic domain"
+  },
+  {
+    "id": "vi_short_01",
+    "text": "Xin chào bạn",
+    "expected_lang": "vi",
+    "category": "short_text",
+    "difficulty": "medium",
+    "notes": "Short Vietnamese"
+  },
+  {
+    "id": "de_long_01",
+    "text": "Maschinelles Lernen verändert den Bildungssektor grundlegend und bietet neue Möglichkeiten.",
+    "expected_lang": "de",
+    "category": "long_text",
+    "difficulty": "easy",
+    "notes": "Clear German"
+  },
+  {
+    "id": "de_short_01",
+    "text": "Ich bin da",
+    "expected_lang": "de",
+    "category": "short_text",
+    "difficulty": "hard",
+    "notes": "Short German, triggers uncertainty"
+  },
+  {
+    "id": "fr_long_01",
+    "text": "L'intelligence artificielle transforme rapidement le secteur de l'éducation.",
+    "expected_lang": "fr",
+    "category": "long_text",
+    "difficulty": "easy",
+    "notes": "Clear French"
+  },
+  {
+    "id": "fr_short_01",
+    "text": "Je suis ici",
+    "expected_lang": "fr",
+    "category": "short_text",
+    "difficulty": "hard",
+    "notes": "Short French, triggers uncertainty"
+  },
+  {
+    "id": "es_long_01",
+    "text": "La inteligencia artificial está cambiando rápidamente el sector de la educación.",
+    "expected_lang": "es",
+    "category": "long_text",
+    "difficulty": "easy",
+    "notes": "Clear Spanish"
+  },
+  {
+    "id": "es_short_01",
+    "text": "Yo estoy aquí",
+    "expected_lang": "es",
+    "category": "short_text",
+    "difficulty": "hard",
+    "notes": "Short Spanish, triggers uncertainty"
+  },
+  {
+    "id": "zh_long_01",
+    "text": "人工智能正在迅速改变教育领域，并提供新的可能性。",
+    "expected_lang": "zh",
+    "category": "long_text",
+    "difficulty": "easy",
+    "notes": "Clear Chinese"
+  },
+  {
+    "id": "ja_long_01",
+    "text": "人工知能は教育分野を急速に変革し、新たな可能性を提供しています。",
+    "expected_lang": "ja",
+    "category": "long_text",
+    "difficulty": "easy",
+    "notes": "Clear Japanese"
+  },
+  {
+    "id": "ko_long_01",
+    "text": "인공 지능은 교육 분야를 빠르게 변화시키고 새로운 가능성을 제공하고 있습니다.",
+    "expected_lang": "ko",
+    "category": "long_text",
+    "difficulty": "easy",
+    "notes": "Clear Korean"
+  },
+  {
+    "id": "ru_long_01",
+    "text": "Искусственный интеллект быстро меняет сферу образования и открывает новые возможности.",
+    "expected_lang": "ru",
+    "category": "long_text",
+    "difficulty": "easy",
+    "notes": "Clear Russian"
+  },
+  {
+    "id": "th_long_01",
+    "text": "ปัญญาประดิษฐ์กำลังเปลี่ยนแปลงภาคการศึกษาอย่างรวดเร็วและเสนอความเป็นไปได้ใหม่ๆ",
+    "expected_lang": "th",
+    "category": "long_text",
+    "difficulty": "easy",
+    "notes": "Clear Thai"
+  },
+  {
+    "id": "ambiguous_01",
+    "text": "okay",
+    "expected_lang": "en",
+    "category": "ambiguous",
+    "difficulty": "hard",
+    "notes": "Can be any language"
+  },
+  {
+    "id": "ambiguous_02",
+    "text": "pizza",
+    "expected_lang": "en",
+    "category": "ambiguous",
+    "difficulty": "hard",
+    "notes": "Can be any language"
+  }
+]

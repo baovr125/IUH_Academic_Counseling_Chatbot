@@ -58,7 +58,8 @@ export async function streamTranslation(
   onError: (error: string) => void,
   onWarning: (warning: string) => void,
   onComplete: () => void,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  onDetectedLanguage?: (lang: string) => void
 ): Promise<void> {
   if (!req.sourceText.trim()) {
     onError("Vui lòng nhập văn bản cần dịch.");
@@ -112,6 +113,9 @@ export async function streamTranslation(
               const data = JSON.parse(dataStr);
               if (data.warning) {
                 onWarning(data.warning);
+              }
+              if (data.detected_source_lang && onDetectedLanguage) {
+                onDetectedLanguage(data.detected_source_lang);
               }
               if (data.text) {
                 onChunk(data.text);
