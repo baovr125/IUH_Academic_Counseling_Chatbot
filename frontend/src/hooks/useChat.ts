@@ -171,7 +171,7 @@ export function useChat(): UseChatReturn {
   }, [abortController]);
 
   const sendMessage = useCallback(
-    async (content: string) => {
+    async (content: string, bypassCache: boolean = false) => {
       if (!content.trim() || isSending) return;
       setError(null);
 
@@ -229,9 +229,10 @@ export function useChat(): UseChatReturn {
         {
           sessionId: currentSessionId,
           content,
+          bypassCache,
         },
         {
-          onMetadata: async ({ sessionId, citations }) => {
+          onMetadata: async ({ sessionId, citations, cacheStatus }) => {
             if (sessionId) {
               setActiveSessionId(sessionId);
               localStorage.setItem("activeChatSessionId", sessionId);
@@ -248,7 +249,7 @@ export function useChat(): UseChatReturn {
             setMessages((prev) =>
               prev.map((m) =>
                 m.id === pendingAssistantMessage.id
-                  ? { ...m, citations }
+                  ? { ...m, citations, cacheStatus }
                   : m
               )
             );

@@ -20,6 +20,7 @@ class ChatMessage(BaseModel):
 class SendMessagePayload(BaseModel):
     sessionId: Optional[str] = None
     content: str = Field(..., min_length=1, max_length=2000)
+    bypassCache: Optional[bool] = False
 
     @field_validator('content')
     @classmethod

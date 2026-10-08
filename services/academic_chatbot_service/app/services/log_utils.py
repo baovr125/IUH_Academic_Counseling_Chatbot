@@ -76,7 +76,7 @@ def _write_log(session_id: str, query: str, chunks: list, past_memories: list = 
 async def log_retrieved_chunks_to_md(session_id: str, query: str, chunks: list, past_memories: list = None, retrieval_latency_ms: int = None) -> str:
     return await asyncio.to_thread(_write_log, session_id, query, chunks, past_memories, retrieval_latency_ms)
 
-def _write_cache_hit_log(session_id: str, original_query: str, rewritten_query: str, cache_hit_data: dict, latency_ms: int) -> str:
+def _write_cache_hit_log(session_id: str, original_query: str, rewritten_query: str, cache_hit_data: dict, latency_ms: int, router_model: str = "Unknown") -> str:
     now = datetime.now()
     date_str = now.strftime("%Y-%m-%d")
     time_str = now.strftime("%H%M%S")
@@ -98,6 +98,7 @@ def _write_cache_hit_log(session_id: str, original_query: str, rewritten_query: 
             f.write(f"**Cache Status:** HIT\n")
             f.write(f"**Cache Source:** {cache_hit_data.get('source', 'Unknown')}\n")
             f.write(f"**Similarity:** {cache_hit_data.get('similarity', 1.0):.4f}\n")
+            f.write(f"**Rewriter Model:** {router_model}\n")
             estimated_tokens = (len(rewritten_query) + len(cache_hit_data.get('cached_answer', ''))) // 4
             f.write(f"**Retrieval Latency:** {latency_ms} ms\n")
             f.write(f"**Tokens Saved:** ~{estimated_tokens} tokens\n\n")
@@ -109,8 +110,8 @@ def _write_cache_hit_log(session_id: str, original_query: str, rewritten_query: 
         print(f"Error writing cache hit log: {e}")
         return ""
 
-async def log_cache_hit_to_md(session_id: str, original_query: str, rewritten_query: str, cache_hit_data: dict, latency_ms: int) -> str:
-    return await asyncio.to_thread(_write_cache_hit_log, session_id, original_query, rewritten_query, cache_hit_data, latency_ms)
+async def log_cache_hit_to_md(session_id: str, original_query: str, rewritten_query: str, cache_hit_data: dict, latency_ms: int, router_model: str = "Unknown") -> str:
+    return await asyncio.to_thread(_write_cache_hit_log, session_id, original_query, rewritten_query, cache_hit_data, latency_ms, router_model)
 
 def _write_full_log(session_id: str, original_query: str, rewritten_query: str, chunks: list, past_memories: list, retrieval_latency_ms: int, rewrite_latency_ms: int, llm_latency_ms: int, prompt_tokens: int, completion_tokens: int, ai_answer: str, router_model: str = "Unknown", llm_model: str = "Unknown") -> str:
     now = datetime.now()

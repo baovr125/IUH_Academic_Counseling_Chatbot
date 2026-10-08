@@ -87,12 +87,17 @@ async def get_session_messages(
                     chunk_map[c["id"]] = c
 
         import uuid
+        import re
         messages = []
         for m in msg_list:
+            # Strip <thinking> tags from historical messages so UI doesn't see them
+            raw_content = m["content"]
+            display_content = re.sub(r'<thinking>.*?</thinking>\s*', '', raw_content, flags=re.DOTALL) if m["role"] != "user" else raw_content
+            
             msg_dict = {
                 "id": f"m_{m['id']}",
                 "role": m["role"],
-                "content": m["content"],
+                "content": display_content,
                 "createdAt": m.get("created_at", datetime.now(timezone.utc).isoformat()),
                 "status": "complete"
             }

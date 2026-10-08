@@ -49,6 +49,14 @@ def wrap_context_sandbox(chunks: list) -> str:
     formatted_parts = []
     for idx, c in enumerate(chunks, 1):
         content = c.get("content", "").strip()
-        formatted_parts.append(f'<source id="{idx}">\n{content}\n</source>')
+        metadata = c.get("metadata", {}) or {}
+        
+        # Trích xuất các metadata hữu ích cho CF-RAG
+        title = metadata.get("title", "")
+        upload_time = metadata.get("created_at") or metadata.get("upload_time", "Không rõ")
+        
+        meta_str = f"Nguồn: {title}\nNgày cập nhật lên CSDL: {upload_time}\n" if title else f"Ngày cập nhật lên CSDL: {upload_time}\n"
+        
+        formatted_parts.append(f'<source id="{idx}">\n{meta_str}{content}\n</source>')
     body = "\n\n".join(formatted_parts)
     return f"<retrieved_context>\n{body}\n</retrieved_context>"
