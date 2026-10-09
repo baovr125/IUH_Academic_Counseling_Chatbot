@@ -19,8 +19,8 @@ services:
       - auth-service
       - academic-chatbot-service
       - realtime-translation-service
-      - doc-translation-service
-      - flashcard-service
+#      - doc-translation-service
+#      - flashcard-service
     deploy:
       resources:
         limits:
@@ -55,7 +55,7 @@ services:
           memory: 128M
 
   minio:
-    image: elestio/minio:latest
+    image: pgsty/minio:latest
     container_name: iuh_minio
     ports:
       - "9000:9000"
@@ -138,64 +138,68 @@ services:
               count: 1
               capabilities: [gpu]
 
-  doc-translation-service:
-    image: doc-translation-service:latest
-    build:
-      context: ./services/doc_translation_service
-    container_name: iuh_doc_translation_service
-    ports:
-      - "8004:8004"
-    env_file:
-      - .env
-    depends_on:
-      - rabbitmq
-      - redis
-      - minio
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 384M
+#  doc-translation-service:
+#    image: doc-translation-service:latest
+#    build:
+#      context: ./services/doc_translation_service
+#    container_name: iuh_doc_translation_service
+#    ports:
+#      - "8004:8004"
+#    env_file:
+#      - .env
+#    depends_on:
+#      - rabbitmq
+#      - redis
+#      - minio
+#    deploy:
+#      resources:
+#        limits:
+#          cpus: '0.5'
+#          memory: 384M
+#    volumes:
+#      - ./data/babeldoc_cache:/root/.cache/babeldoc
 
-  doc-translation-worker:
-    image: doc-translation-worker:latest
-    build:
-      context: ./services/doc_translation_service
-    container_name: iuh_doc_translation_worker
-    command: celery -A app.celery_app worker --loglevel=info --concurrency=4
-    env_file:
-      - .env
-    depends_on:
-      - rabbitmq
-      - redis
-      - minio
-    deploy:
-      resources:
-        limits:
-          cpus: '4.0'
-          memory: 3.5G
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
+#  doc-translation-worker:
+#    image: doc-translation-worker:latest
+#    build:
+#      context: ./services/doc_translation_service
+#    container_name: iuh_doc_translation_worker
+#    command: celery -A app.celery_app worker --loglevel=info --concurrency=4
+#    env_file:
+#      - .env
+#    depends_on:
+#      - rabbitmq
+#      - redis
+#      - minio
+#    deploy:
+#      resources:
+#        limits:
+#          cpus: '4.0'
+#          memory: 3.5G
+#        reservations:
+#          devices:
+#            - driver: nvidia
+#              count: 1
+#              capabilities: [gpu]
+#    volumes:
+#      - ./data/babeldoc_cache:/root/.cache/babeldoc
 
-  flashcard-service:
-    image: flashcard-service:latest
-    build:
-      context: ./services/flashcard_service
-    container_name: iuh_flashcard_service
-    ports:
-      - "8005:8005"
-    env_file:
-      - .env
-    depends_on:
-      - rabbitmq
-    deploy:
-      resources:
-        limits:
-          cpus: '0.4'
-          memory: 256M
+#  flashcard-service:
+#    image: flashcard-service:latest
+#    build:
+#      context: ./services/flashcard_service
+#    container_name: iuh_flashcard_service
+#    ports:
+#      - "8005:8005"
+#    env_file:
+#      - .env
+#    depends_on:
+#      - rabbitmq
+#    deploy:
+#      resources:
+#        limits:
+#          cpus: '0.4'
+#          memory: 256M
 
   frontend:
     image: frontend:latest

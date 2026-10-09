@@ -20,7 +20,8 @@ services_dir = os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(os.p
 if services_dir not in sys.path:
     sys.path.insert(0, services_dir)
 
-redis_client = redis.Redis.from_url(REDIS_URL, decode_responses=True)
+redis_pool = redis.ConnectionPool.from_url(REDIS_URL, decode_responses=True, max_connections=50)
+redis_client = redis.Redis(connection_pool=redis_pool)
 
 def update_job_status(
     doc_id: str,
@@ -108,12 +109,17 @@ def process_document_translation_job_sync(
                 prog = 50
                 msg = "Đang dịch PDF với DocLayout-YOLO..."
                 
+            import app.services.ollama_translator as ot
+            current_model = model_used
+            if getattr(ot, 'FALLBACK_USED_IN_CURRENT_JOB', False):
+                current_model = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile (Groq)")
+                
             update_job_status(
                 doc_id, 
                 "processing", 
                 prog, 
                 msg, 
-                model_used=model_used,
+                model_used=current_model,
                 glossary=glossary_items
             )
 
@@ -161,6 +167,17 @@ def process_document_translation_job_sync(
         # 3. Dịch thuật bằng PDFMathTranslate pipeline
         update_job_status(doc_id, "processing", 50, "Bắt đầu dịch trực tiếp trên PDF (giữ nguyên định dạng)...")
         
+        glossary_dict = {}
+        if isinstance(glossary_items, list):
+            for item in glossary_items:
+                if isinstance(item, dict):
+                    if "term" in item and "translation" in item:
+                        glossary_dict[item["term"]] = item["translation"]
+                    elif "source" in item and "target" in item:
+                        glossary_dict[item["source"]] = item["target"]
+        elif isinstance(glossary_items, dict):
+            glossary_dict = glossary_items
+            
         out_dir = tempfile.gettempdir()
         result_files = translate(
             files=[local_input_file],
@@ -171,6 +188,7 @@ def process_document_translation_job_sync(
             thread=4,
             callback=status_cb,
             model=ModelInstance.value,
+            glossary=glossary_dict,
         )
         
         # translate trả về danh sách các tuple: (mono_pdf_path, dual_pdf_path)
@@ -192,17 +210,26 @@ def process_document_translation_job_sync(
         # Chuẩn hóa đường dẫn ảnh trong Markdown sang API endpoint phục vụ trực tuyến (bỏ qua vì không còn markdown gốc)
         client_markdown_text = "Tính năng xem Markdown bị vô hiệu hóa vì hệ thống đã chuyển sang chế độ Layout Analysis (Pixel-perfect)."
 
+        # Xác định model thực sự được dùng cuối cùng
+        import app.services.ollama_translator as ot
+        final_model_used = model_used
+        if getattr(ot, 'FALLBACK_USED_IN_CURRENT_JOB', False):
+            final_model_used = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile (Groq)")
+            # reset cho job sau
+            if hasattr(ot, 'reset_fallback_flag'):
+                ot.reset_fallback_flag()
+
         # 3. Hoàn tất toàn bộ 100%
         update_job_status(
             doc_id, "completed", 100,
-            f"Đã hoàn thành dịch thuật thành công bằng {model_used}!",
+            f"Đã hoàn thành dịch thuật thành công bằng {final_model_used}!",
             pages_processed=total_pages,
             total_pages=total_pages,
             translated_file_url=translated_file_url,
             translated_text=client_markdown_text,
             summary_json={},
             glossary=glossary_items,
-            model_used=model_used
+            model_used=final_model_used
         )
         logger.info(f"✅ [Job Completed] doc_id={doc_id}, extracted {len(glossary_items)} glossary items.")
 

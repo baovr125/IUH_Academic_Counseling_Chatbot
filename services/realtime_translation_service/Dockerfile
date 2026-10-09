@@ -10,6 +10,9 @@ ENV CUDA_MODULE_LOADING="LAZY"
 COPY requirements.txt .
 RUN pip install --no-cache-dir --default-timeout=1000 --retries 10 -r requirements.txt
 
+# Download SpaCy and NLTK models for Word Analysis
+RUN pip install --no-cache-dir https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1.tar.gz
+
 COPY . .
 
 # Download the NLLB model during image build and clean HuggingFace cache

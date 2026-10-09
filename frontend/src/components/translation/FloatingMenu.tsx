@@ -13,6 +13,7 @@ export interface FloatingMenuProps {
 export const FloatingMenu: React.FC<FloatingMenuProps> = ({ x, y, onSave, onSpeak, onClose, isSaving }) => {
   return (
     <div 
+      id="word-analysis-floating-menu"
       className="absolute z-50 flex items-center bg-gray-900 rounded-lg shadow-2xl animate-fade-in-up"
       style={{ left: `${x}px`, top: `${y}px`, transform: "translate(-50%, -100%)", marginTop: "-10px" }}
     >

@@ -28,7 +28,8 @@ export async function translateText(req: TranslateRequest): Promise<ApiResult<Tr
       body: JSON.stringify({
         text: req.sourceText,
         source_lang: req.sourceLang || "en",
-        target_lang: req.targetLang || "vi"
+        target_lang: req.targetLang || "vi",
+        domain: req.domain || ""
       }),
     });
 
@@ -39,7 +40,7 @@ export async function translateText(req: TranslateRequest): Promise<ApiResult<Tr
           ok: true,
           data: {
             translatedText: data.data.translated_text,
-            detectedSourceLang: req.sourceLang
+            detectedSourceLang: data.data.resolved_source_lang || req.sourceLang
           }
         };
       }
@@ -56,8 +57,10 @@ export async function streamTranslation(
   req: TranslateRequest,
   onChunk: (text: string) => void,
   onError: (error: string) => void,
+  onWarning: (warning: string) => void,
   onComplete: () => void,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  onDetectedLanguage?: (lang: string) => void
 ): Promise<void> {
   if (!req.sourceText.trim()) {
     onError("Vui lòng nhập văn bản cần dịch.");
@@ -90,26 +93,38 @@ export async function streamTranslation(
 
     const reader = res.body.getReader();
     const decoder = new TextDecoder();
+    let buffer = "";
 
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
 
-      const chunk = decoder.decode(value, { stream: true });
-      const lines = chunk.split('\n');
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      
+      // Keep the last incomplete line in the buffer
+      buffer = lines.pop() || "";
+      
       for (const line of lines) {
-        if (line.startsWith('data: ')) {
-          const dataStr = line.replace('data: ', '').trim();
+        const trimmedLine = line.trim();
+        if (trimmedLine.startsWith('data: ')) {
+          const dataStr = trimmedLine.replace('data: ', '').trim();
           if (dataStr) {
             try {
               const data = JSON.parse(dataStr);
+              if (data.warning) {
+                onWarning(data.warning);
+              }
+              if (data.resolved_source_lang && onDetectedLanguage) {
+                onDetectedLanguage(data.resolved_source_lang);
+              }
               if (data.text) {
                 onChunk(data.text);
               } else if (data.error) {
                 onError(data.error);
               }
             } catch (err) {
-              console.error("Failed to parse SSE data:", err);
+              console.error("Failed to parse SSE data:", err, dataStr);
             }
           }
         }
@@ -184,4 +199,38 @@ export async function deleteTranslationHistoryItem(id: string): Promise<ApiResul
 export async function clearTranslationHistory(): Promise<ApiResult<null>> {
   historyStore = [];
   return { ok: true, data: null };
+}
+
+export async function analyzeWord(
+  request: {
+    text: string;
+    selected_text: string;
+    source_lang: string;
+    target_lang: string;
+  },
+  signal?: AbortSignal
+): Promise<ApiResult<any>> {
+  try {
+    const token = getToken();
+    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+
+    const res = await fetch(getApiUrl("/api/v1/translate/analyze_word"), {
+      method: "POST",
+      headers,
+      body: JSON.stringify(request),
+      signal,
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      return { ok: true, data: data.data };
+    }
+    return { ok: false, error: { message: "Failed to analyze word" } };
+  } catch (error: any) {
+    if (error?.name === "AbortError") {
+      throw error; // Let the hook handle it
+    }
+    return { ok: false, error: { message: "Network error" } };
+  }
 }

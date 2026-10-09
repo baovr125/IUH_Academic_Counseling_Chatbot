@@ -163,8 +163,9 @@ class PDFPageInterpreterEx(PDFPageInterpreter):
     # 重载返回调用参数（SCN）
     def do_SCN(self) -> None:
         """Set color for stroking operations."""
-        if self.scs:
-            n = self.scs.ncomponents
+        scs = getattr(self, "scs", getattr(self.graphicstate, "scs", None))
+        if scs:
+            n = scs.ncomponents
         else:
             if settings.STRICT:
                 raise PDFInterpreterError("No colorspace specified!")
@@ -175,8 +176,9 @@ class PDFPageInterpreterEx(PDFPageInterpreter):
 
     def do_scn(self) -> None:
         """Set color for nonstroking operations"""
-        if self.ncs:
-            n = self.ncs.ncomponents
+        ncs = getattr(self, "ncs", getattr(self.graphicstate, "ncs", None))
+        if ncs:
+            n = ncs.ncomponents
         else:
             if settings.STRICT:
                 raise PDFInterpreterError("No colorspace specified!")
@@ -224,8 +226,12 @@ class PDFPageInterpreterEx(PDFPageInterpreter):
                 [xobj],
                 ctm=ctm,
             )
-            self.ncs = getattr(interpreter, 'ncs', None)
-            self.scs = getattr(interpreter, 'scs', None)
+            self.ncs = getattr(interpreter, 'ncs', getattr(interpreter.graphicstate, 'ncs', None))
+            self.scs = getattr(interpreter, 'scs', getattr(interpreter.graphicstate, 'scs', None))
+            if hasattr(self.graphicstate, 'ncs'):
+                self.graphicstate.ncs = self.ncs
+            if hasattr(self.graphicstate, 'scs'):
+                self.graphicstate.scs = self.scs
             try:  # 有的时候 form 字体加不上这里会烂掉
                 self.device.fontid = interpreter.fontid
                 self.device.fontmap = interpreter.fontmap

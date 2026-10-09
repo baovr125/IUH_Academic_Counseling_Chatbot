@@ -2,9 +2,11 @@ import React, { useState, useEffect, useRef } from "react";
 import { streamTranslation, extractFlashcard } from "../../services/translationService";
 import { FloatingMenu } from "./FloatingMenu";
 import { DomainSelector } from "./DomainSelector";
-import { BookmarkPlus, ArrowRightLeft, Volume2, X, Loader2, Copy, Check } from "lucide-react";
+import { BookmarkPlus, ArrowRightLeft, Volume2, X, Loader2, Copy, Check, Info } from "lucide-react";
 import { LANG_CONFIG } from "../../services/deckStorage";
 import { SaveFlashcardModal } from "./SaveFlashcardModal";
+import { useWordAnalysis } from "../../hooks/useWordAnalysis";
+import { WordAnalysisPopup } from "./WordAnalysisPopup";
 
 export interface TranslationBoxProps {
   sourceLang: string;
@@ -32,6 +34,8 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
   const [domain, setDomain] = useState("");
   const [isTranslating, setIsTranslating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [translationWarning, setTranslationWarning] = useState<string | null>(null);
+  const [detectedLangCode, setDetectedLangCode] = useState<string | null>(null);
 
   // Array of parsed tokens/words for the UI
   const [translatedTokens, setTranslatedTokens] = useState<string[]>([]);
@@ -74,10 +78,12 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
       setToastMessage("Không thể sao chép văn bản.");
     });
   };
-
   const containerRef = useRef<HTMLDivElement>(null);
+  const sourceTextareaRef = useRef<HTMLTextAreaElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioCache = useRef<Map<string, string>>(new Map());
+  
+  const wordAnalysis = useWordAnalysis();
 
   // Debounce ref to handle real-time streaming
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -226,8 +232,10 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
 
     setIsTranslating(true);
     setError(null);
+    setTranslationWarning(null);
     setTranslatedTokens([]);
     setMenuPosition(null);
+    setDetectedLangCode(null);
 
     let currentBuffer = "";
 
@@ -246,10 +254,16 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
         setIsTranslating(false);
         setError(err || "Đã xảy ra lỗi trong quá trình dịch thuật.");
       },
+      (warn: string) => {
+        setTranslationWarning(warn);
+      },
       () => {
         setIsTranslating(false);
       },
-      newAbortController.signal
+      newAbortController.signal,
+      (lang: string) => {
+        setDetectedLangCode(lang);
+      }
     );
   };
 
@@ -266,6 +280,7 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
         abortControllerRef.current.abort();
         abortControllerRef.current = null;
       }
+      setDetectedLangCode(null);
       setTranslatedTokens([]);
       setIsTranslating(false);
     }
@@ -291,7 +306,7 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
             prefetchAudio(translated.trim(), getTTSLangCode(targetLang));
           }
           if (hasValidSource) {
-            prefetchAudio(sourceText.trim(), getTTSLangCode(sourceLang));
+            prefetchAudio(sourceText.trim(), getTTSLangCode(detectedLangCode || sourceLang));
           }
         }, 900); // 900ms (0.9s) debounce for TTS
       }
@@ -306,46 +321,85 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
 
   const handleSwap = () => {
     const currentTranslated = translatedTokens.join("");
+    const newTargetLang = sourceLang === "auto" ? (detectedLangCode || "en") : sourceLang;
     setSourceLang(targetLang);
-    setTargetLang(sourceLang);
+    setTargetLang(newTargetLang);
     // Google Translate behavior: when swapping, the translated text becomes the new source text
     if (currentTranslated.trim()) {
       setSourceText(currentTranslated);
     }
   };
 
-  const handleSelection = () => {
+  const handleSelection = (e?: React.MouseEvent) => {
     const selection = window.getSelection();
-    if (!selection || selection.isCollapsed || !containerRef.current) {
-      if (!isSavingFlashcard) setMenuPosition(null);
-      return;
+    
+    // Check if selection is in textarea
+    let text = "";
+    let context = "";
+    let posX = 0;
+    let posY = 0;
+    let isSource = false;
+
+    if (sourceTextareaRef.current && document.activeElement === sourceTextareaRef.current) {
+      const start = sourceTextareaRef.current.selectionStart;
+      const end = sourceTextareaRef.current.selectionEnd;
+      text = sourceText.substring(start, end).trim();
+      if (text) {
+        // Get context from sourceText
+        const sentenceRegex = new RegExp(`[^.?!]*(?<=[.?\\s!])${text.replace(/[.*+?^$\\{}()[\]\\]/g, '\\$&')}(?=[\\s.?!])[^.?!]*[.?!]?`, 'i');
+        const match = sourceText.match(sentenceRegex);
+        context = match ? match[0].trim() : sourceText.slice(0, 150);
+        
+        // Use mouse position if available, otherwise center of textarea
+        if (e) {
+          posX = e.clientX;
+          posY = e.clientY + window.scrollY;
+        } else {
+          const rect = sourceTextareaRef.current.getBoundingClientRect();
+          posX = rect.left + rect.width / 2;
+          posY = rect.top + rect.height / 2 + window.scrollY;
+        }
+        isSource = true;
+      }
+    } else if (selection && !selection.isCollapsed && containerRef.current && containerRef.current.contains(selection.anchorNode)) {
+      text = selection.toString().trim();
+      if (text) {
+        const range = selection.getRangeAt(0);
+        const rect = range.getBoundingClientRect();
+        
+        const allText = translatedTokens.join("");
+        const sentenceRegex = new RegExp(`[^.?!]*(?<=[.?\\s!])${text.replace(/[.*+?^$\\{}()[\]\\]/g, '\\$&')}(?=[\\s.?!])[^.?!]*[.?!]?`, 'i');
+        const match = allText.match(sentenceRegex);
+        context = match ? match[0].trim() : allText.slice(0, 150);
+        
+        posX = rect.left + rect.width / 2;
+        posY = rect.top + window.scrollY;
+      }
     }
 
-    // Ensure selection is inside our container
-    if (!containerRef.current.contains(selection.anchorNode)) {
+    if (!text) {
+      if (!isSavingFlashcard) {
+        setMenuPosition(null);
+        wordAnalysis.reset();
+      }
       return;
     }
-
-    const text = selection.toString().trim();
-    if (!text) return;
-
-    // Get position for the floating menu
-    const range = selection.getRangeAt(0);
-    const rect = range.getBoundingClientRect();
-
-    // Get full sentence context (rough approximation)
-    const allText = translatedTokens.join("");
-    // Find the sentence containing the text
-    const sentenceRegex = new RegExp(`[^.?!]*(?<=[.?\\s!])${text.replace(/[.*+?^$\\{}()[\]\\]/g, '\\$&')}(?=[\\s.?!])[^.?!]*[.?!]?`, 'i');
-    const match = allText.match(sentenceRegex);
-    const context = match ? match[0].trim() : allText.slice(0, 150);
 
     setSelectedWord(text);
     setSelectedContext(context);
-    setMenuPosition({
-      x: rect.left + rect.width / 2,
-      y: rect.top + window.scrollY
-    });
+    setMenuPosition({ x: posX, y: posY });
+    
+    // Trigger Word Analysis if Source is English
+    if (sourceLang === "en") {
+      wordAnalysis.analyze(
+        context, 
+        text, 
+        "en", 
+        targetLang
+      );
+    } else {
+      wordAnalysis.reset();
+    }
   };
 
   const saveFlashcard = async () => {
@@ -365,7 +419,7 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
 
       setModalTerm(selectedWord.trim());
       setModalDef(extractedDef || selectedWord.trim());
-      setModalLang(targetLang === "vi" ? sourceLang : targetLang);
+      setModalLang(targetLang === "vi" ? (detectedLangCode || sourceLang) : targetLang);
       setModalContext(selectedContext);
       setModalPhonetic(extractedPhonetic);
       setIsSaveModalOpen(true);
@@ -375,7 +429,7 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
       setToastMessage(null);
       setModalTerm(selectedWord.trim());
       setModalDef("");
-      setModalLang(targetLang === "vi" ? sourceLang : targetLang);
+      setModalLang(targetLang === "vi" ? (detectedLangCode || sourceLang) : targetLang);
       setModalContext(selectedContext);
       setModalPhonetic("");
       setIsSaveModalOpen(true);
@@ -389,7 +443,7 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
     if (targetLang === "vi") {
       setModalTerm(sourceText.trim());
       setModalDef(translated.trim());
-      setModalLang(sourceLang);
+      setModalLang(detectedLangCode || sourceLang);
     } else {
       setModalTerm(translated.trim());
       setModalDef(sourceText.trim());
@@ -401,8 +455,7 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
   };
 
   const speakSelection = () => {
-    speakText(selectedWord, getTTSLangCode(targetLang === "vi" ? sourceLang : targetLang), "selection");
-    setMenuPosition(null);
+    speakText(selectedWord, getTTSLangCode(targetLang === "vi" ? (detectedLangCode || sourceLang) : targetLang), "selection");
   };
 
   return (
@@ -416,9 +469,15 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
           <div className="flex items-center px-6 py-4 border-b border-slate-100 bg-white">
             <select
               value={sourceLang}
-              onChange={(e) => setSourceLang(e.target.value)}
+              onChange={(e) => {
+                setSourceLang(e.target.value);
+                if (e.target.value !== "auto") setDetectedLangCode(null);
+              }}
               className="bg-transparent text-sm font-semibold text-slate-700 focus:outline-none cursor-pointer"
             >
+              <option value="auto">
+                ✨ Tự phát hiện ngôn ngữ {detectedLangCode ? `(${LANG_CONFIG[detectedLangCode]?.label || detectedLangCode})` : ""}
+              </option>
               {Object.entries(LANG_CONFIG).map(([code, meta]) => (
                 <option key={code} value={code}>
                   {meta.flag} {meta.label}
@@ -428,10 +487,13 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
           </div>
 
           <textarea
+            ref={sourceTextareaRef}
             className="flex-1 w-full px-6 py-5 bg-transparent resize-none outline-none text-slate-800 text-lg leading-relaxed placeholder:text-slate-400"
             placeholder="Nhập văn bản cần dịch tại đây..."
             value={sourceText}
             onChange={(e) => setSourceText(e.target.value.slice(0, 3000))}
+            onMouseUp={handleSelection}
+            onKeyUp={() => handleSelection()}
           />
           <div className="px-6 py-3 flex items-center justify-between text-xs font-medium text-slate-400 bg-white">
             <div className="flex items-center gap-1">
@@ -441,7 +503,7 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
                 </button>
               )}
               {sourceText && (
-                <button onClick={() => speakText(sourceText, getTTSLangCode(sourceLang), "source")} className="hover:text-blue-500 transition-colors p-2 rounded-lg hover:bg-blue-50" title="Đọc văn bản">
+                <button onClick={() => speakText(sourceText, getTTSLangCode(detectedLangCode || sourceLang), "source")} className="hover:text-blue-500 transition-colors p-2 rounded-lg hover:bg-blue-50" title="Đọc văn bản">
                   {speakingId === "source" ? <Loader2 size={18} className="animate-spin" /> : <Volume2 size={18} />}
                 </button>
               )}
@@ -491,6 +553,13 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
             <DomainSelector value={domain} onChange={setDomain} />
           </div>
 
+          {translationWarning && (
+            <div className="bg-blue-50 text-blue-700 px-6 py-3 text-sm border-b border-blue-100 flex items-center gap-2 animate-in slide-in-from-top-2 fade-in">
+              <Info className="text-blue-500 shrink-0" size={16} />
+              <span>{translationWarning}</span>
+            </div>
+          )}
+
           <div className="flex-1 px-6 py-5 overflow-y-auto leading-relaxed text-slate-800 text-lg selection:bg-blue-200 selection:text-blue-900">
             {translatedTokens.length === 0 && !isTranslating && !error && (
               <span className="text-slate-400 font-light italic">
@@ -499,7 +568,7 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
             )}
 
             {error && (
-              <div className="p-4 bg-red-50 text-red-600 rounded-xl text-sm border border-red-100">
+              <div className="p-4 bg-red-50 text-red-600 rounded-xl text-sm border border-red-100 mb-4">
                 {error}
               </div>
             )}
@@ -549,8 +618,27 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
           y={menuPosition.y}
           onSave={saveFlashcard}
           onSpeak={speakSelection}
-          onClose={() => setMenuPosition(null)}
+          onClose={() => {
+            setMenuPosition(null);
+            wordAnalysis.reset();
+          }}
           isSaving={isSavingFlashcard}
+        />
+      )}
+      
+      {/* Word Analysis Popup */}
+      {(wordAnalysis.isLoading || wordAnalysis.data || wordAnalysis.error) && sourceLang === "en" && menuPosition && (
+        <WordAnalysisPopup
+          position={{ x: menuPosition.x, y: menuPosition.y + 50 }} // slightly below floating menu
+          isLoading={wordAnalysis.isLoading}
+          data={wordAnalysis.data}
+          error={wordAnalysis.error}
+          onClose={() => wordAnalysis.reset()}
+          onRetry={() => {
+            if (selectedWord && selectedContext) {
+              wordAnalysis.analyze(selectedContext, selectedWord, "en", targetLang);
+            }
+          }}
         />
       )}
 

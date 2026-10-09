@@ -24,6 +24,7 @@ export default function DictionaryAdmin() {
     setLoading(true);
     try {
       const res = await fetch(`http://localhost:8003/api/v1/admin/dictionary`, {
+        headers: { "Authorization": `Bearer ${authService.getToken()}` }
       });
       if (res.ok) {
         const data = await res.json();
@@ -50,7 +51,8 @@ export default function DictionaryAdmin() {
       const res = await fetch(`http://localhost:8003/api/v1/admin/dictionary`, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${authService.getToken()}`
         },
         body: JSON.stringify({ 
           domain, 
@@ -89,6 +91,7 @@ export default function DictionaryAdmin() {
     try {
       const res = await fetch(`http://localhost:8003/api/v1/admin/dictionary/${id}`, {
         method: "DELETE",
+        headers: { "Authorization": `Bearer ${authService.getToken()}` }
       });
       if (res.ok) fetchDictionary();
       else alert("Lỗi khi xóa từ!");
@@ -109,6 +112,7 @@ export default function DictionaryAdmin() {
     try {
       const res = await fetch(`http://localhost:8003/api/v1/admin/dictionary/import`, {
         method: "POST",
+        headers: { "Authorization": `Bearer ${authService.getToken()}` },
         body: formData
       });
       const data = await res.json();
@@ -147,7 +151,10 @@ export default function DictionaryAdmin() {
     try {
       const res = await fetch(`http://localhost:8003/api/v1/admin/dictionary/bulk-delete`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${authService.getToken()}`
+        },
         body: JSON.stringify({ ids: selectedIds })
       });
       if (res.ok) {
@@ -182,7 +189,10 @@ export default function DictionaryAdmin() {
     try {
       const res = await fetch(`http://localhost:8003/api/v1/admin/dictionary/${id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${authService.getToken()}`
+        },
         body: JSON.stringify(editForm)
       });
       if (res.ok) {

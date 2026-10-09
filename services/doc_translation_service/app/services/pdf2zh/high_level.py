@@ -69,6 +69,8 @@ def check_files(files: List[str]) -> List[str]:
     return missing_files
 
 
+from pdf2zh.table_processor import TableProcessor
+
 def translate_patch(
     inf: BinaryIO,
     pages: Optional[list[int]] = None,
@@ -76,6 +78,7 @@ def translate_patch(
     vchar: str = "",
     thread: int = 0,
     doc_zh: Document = None,
+    doc_en: Document = None,
     lang_in: str = "",
     lang_out: str = "",
     service: str = "",
@@ -88,6 +91,7 @@ def translate_patch(
     prompt: Template = None,
     ignore_cache: bool = False,
     ocr_pages: Optional[set[int]] = None,
+    glossary: dict = None,
     **kwarg: Any,
 ) -> None:
     rsrcmgr = PDFResourceManager()
@@ -106,6 +110,7 @@ def translate_patch(
         envs,
         prompt,
         ignore_cache,
+        glossary=glossary,
     )
 
     assert device is not None
@@ -118,6 +123,10 @@ def translate_patch(
 
     parser = PDFParser(inf)
     doc = PDFDocument(parser)
+    
+    # Initialize TableProcessor
+    table_processor = TableProcessor(doc_en, doc_zh, device.translator)
+    
     with tqdm.tqdm(total=total_pages) as progress:
         for pageno, page in enumerate(PDFPage.create_pages(doc)):
             if cancellation_event and cancellation_event.is_set():
@@ -148,7 +157,7 @@ def translate_patch(
             # kdtree 是不可能 kdtree 的，不如直接渲染成图片，用空间换时间
             box = np.ones((pix.height, pix.width))
             h, w = box.shape
-            vcls = ["abandon", "figure", "isolate_formula", "formula_caption"] #"table",
+            vcls = ["abandon", "figure", "isolate_formula", "formula_caption", "table"]
             for i, d in enumerate(page_layout.boxes):
                 if page_layout.names[int(d.cls)] not in vcls:
                     x0, y0, x1, y1 = d.xyxy.squeeze()
@@ -176,6 +185,12 @@ def translate_patch(
             doc_zh.update_stream(page.page_xref, b"")
             doc_zh[page.pageno].set_contents(page.page_xref)
             interpreter.process_page(page)
+            # Extract, Translate and Mask tables
+            table_processor.extract_and_translate_tables(page.pageno)
+            table_processor.mask_original_tables(page.pageno)
+
+    # Append all translated tables at the end
+    table_processor.append_appendix()
 
     device.close()
     return obj_patch

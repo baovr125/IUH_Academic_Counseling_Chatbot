@@ -45,7 +45,7 @@ export const DomainSelector: React.FC<DomainSelectorProps> = ({ value, onChange 
         onClick={() => setIsOpen(true)}
       >
         <span className="text-sm font-medium text-gray-700 truncate">
-          {value || "Chọn lĩnh vực dịch thuật..."}
+          {value === "auto" ? "✨ Tự động nhận diện" : (value || "Chọn lĩnh vực dịch thuật...")}
         </span>
         <ChevronDown size={16} className={`text-gray-400 transition-transform ${isOpen ? "rotate-180" : ""}`} />
       </div>
@@ -74,6 +74,17 @@ export const DomainSelector: React.FC<DomainSelectorProps> = ({ value, onChange 
             >
               <span>Dịch thông thường (Mặc định)</span>
               {!value && <Check size={14} />}
+            </div>
+
+            <div 
+              className={`px-3 py-2 text-sm rounded-md cursor-pointer flex items-center justify-between ${value === "auto" ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-700 hover:bg-gray-50"}`}
+              onClick={() => {
+                onChange("auto");
+                setIsOpen(false);
+              }}
+            >
+              <span>✨ Tự động nhận diện</span>
+              {value === "auto" && <Check size={14} />}
             </div>
 
             {filteredDomains.map(domain => (
