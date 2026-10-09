@@ -8,8 +8,8 @@ from unittest.mock import patch, MagicMock
 @pytest.fixture(autouse=True)
 def mock_fasttext():
     with patch("app.services.fasttext_detector.fasttext_detect") as mock_ft:
-        # Giả lập fasttext luôn trả về (None, 0.0) để test luồng Lingua (fallback)
-        mock_ft.return_value = (None, 0.0)
+        # Giả lập fasttext luôn trả về (None, 0.0, 0.0) để test luồng Lingua (fallback)
+        mock_ft.return_value = (None, 0.0, 0.0)
         yield mock_ft
 
 # Nhóm 1: Happy path
@@ -92,6 +92,6 @@ def test_low_confidence_rejects():
 def test_fasttext_fast_path():
     with patch("app.services.fasttext_detector.fasttext_detect") as mock_ft:
         # Giả lập fasttext trả về high confidence
-        mock_ft.return_value = ("fr", 0.95)
+        mock_ft.return_value = ("fr", 0.98, 0.80)
         # Sẽ không cần qua Lingua
         assert detect_source_language("bonjour") == "fr"

@@ -45,6 +45,8 @@ def set_cached_translation(key: str, value: str, warning: str = None, ttl: int =
             r.setex(f"trans:{key}", ttl, value)
             if warning:
                 r.setex(f"trans_warn:{key}", ttl, warning)
+            else:
+                r.delete(f"trans_warn:{key}")
         except Exception as e:
             logger.warning(f"Redis set error: {e}")
 
@@ -70,8 +72,16 @@ def increment_global_dict_version() -> int:
 def get_classification_hash(text: str) -> str:
     """Tạo hash toàn văn bản để tránh trùng cache cho các văn bản dài có cùng 60 ký tự đầu."""
     import hashlib
-    clean = text.strip().lower()
+    clean = text.strip()
     return hashlib.md5(clean.encode('utf-8')).hexdigest()
+
+def get_translation_text_hash(text: str) -> str:
+    """Hash normalized translation input without collapsing meaningful letter case."""
+    import hashlib
+    import unicodedata
+
+    normalized = unicodedata.normalize("NFC", text).strip()
+    return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
 
 def get_auto_resolved_domain(text_md5: str, source_lang: str, target_lang: str) -> Optional[str]:
     r = get_redis()

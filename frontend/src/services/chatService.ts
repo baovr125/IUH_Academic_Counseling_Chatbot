@@ -191,7 +191,7 @@ export async function sendMessage(
 }
 
 export interface StreamCallbacks {
-  onMetadata?: (data: { sessionId: string; citations: any[] }) => void;
+  onMetadata?: (data: { sessionId: string; citations: any[]; cacheStatus?: "HIT" | "MISS" | "UNKNOWN" }) => void;
   onDelta?: (text: string) => void;
   onDone?: () => void;
   onError?: (error: string) => void;
@@ -238,6 +238,7 @@ export async function sendMessageStream(
               callbacks.onMetadata?.({
                 sessionId: data.sessionId,
                 citations: data.citations || [],
+                cacheStatus: data.cacheStatus,
               });
             } else if (data.type === "delta" && data.text) {
               callbacks.onDelta?.(data.text);

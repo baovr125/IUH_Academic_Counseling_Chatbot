@@ -1,4 +1,6 @@
 import json
+import os
+import math
 from typing import Optional, List
 from app.utils.logger import logger
 from app.services.supabase_client import get_supabase
@@ -74,29 +76,55 @@ async def auto_detect_domain_long(text: str) -> str:
     if not groq_client:
         return ""
 
+    try:
+        minimum_confidence = min(1.0, max(0.0, float(os.getenv("AUTO_DOMAIN_MIN_CONFIDENCE", "0.75"))))
+    except (TypeError, ValueError):
+        minimum_confidence = 0.75
+
     system_prompt = (
-        f"Phân loại đoạn văn được cung cấp thuộc lĩnh vực nào trong các lĩnh vực sau: {valid_domains}. "
-        "Hãy trả về MỘT chuỗi JSON hợp lệ duy nhất có cấu trúc: {\"domain\": \"Tên lĩnh vực\"}. "
-        "Nếu không thuộc lĩnh vực nào hoặc không chắc chắn, hãy trả về {\"domain\": \"unknown\"}."
+        f"Phân loại đoạn văn vào tối đa một lĩnh vực trong danh sách: {valid_domains}. "
+        "Chỉ chọn lĩnh vực nếu nội dung có bằng chứng rõ ràng; nếu ngắn, mơ hồ, ngoài danh sách "
+        "hoặc có nhiều lĩnh vực ngang nhau, hãy chọn unknown. Trả về đúng một JSON object với "
+        "domain là tên lĩnh vực chính xác trong danh sách hoặc unknown, và confidence là số từ 0 đến 1. "
+        "Confidence biểu thị mức chắc chắn của lựa chọn; unknown phải có confidence thấp."
     )
 
     try:
-        res = await groq_client.chat.completions.create(
-            model="llama-3.1-8b-instant",
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": f"Đoạn văn:\n{text}"}
-            ],
-            response_format={"type": "json_object"},
-            temperature=0.0
+        res = await asyncio.wait_for(
+            groq_client.chat.completions.create(
+                model="llama-3.1-8b-instant",
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": f"Đoạn văn:\n{text}"}
+                ],
+                response_format={"type": "json_object"},
+                temperature=0.0
+            ),
+            timeout=max(0.1, float(os.getenv("DOMAIN_CLASSIFIER_TIMEOUT_SECONDS", "20"))),
         )
         content = res.choices[0].message.content.strip()
         parsed = json.loads(content)
         detected = parsed.get("domain", "")
+        confidence = parsed.get("confidence")
+        if isinstance(confidence, bool) or not isinstance(confidence, (int, float)):
+            return ""
+        confidence = float(confidence)
+        if not math.isfinite(confidence) or not 0.0 <= confidence <= 1.0:
+            return ""
+        if confidence < minimum_confidence or str(detected).strip().casefold() == "unknown":
+            logger.info(
+                "Auto-domain abstained",
+                extra={"confidence": confidence, "threshold": minimum_confidence},
+            )
+            return ""
         
         # Exact match (case-insensitive) validation
         for d in valid_domains:
             if d.lower() == detected.lower():
+                logger.info(
+                    "Auto-domain selected",
+                    extra={"domain": d, "confidence": confidence, "threshold": minimum_confidence},
+                )
                 return d
                 
     except Exception as e:

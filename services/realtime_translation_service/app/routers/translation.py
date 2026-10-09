@@ -157,7 +157,7 @@ async def translate_endpoint(payload: TranslateRequest, user_id: str = Depends(g
 
 @router.post("/stream")
 async def stream_translate_endpoint(payload: StreamTranslateRequest, user_id: str = Depends(get_current_user_id)):
-    print(f'DEBUG: stream_translate_endpoint CALLED with domain={payload.domain} text={payload.text}', flush=True)
+    logger.info(f"Stream translate requested: length={len(payload.text)} domain={payload.domain}")
     return EventSourceResponse(
         stream_translation(
             text=payload.text,

@@ -152,22 +152,23 @@ async def handle_flow_2_stream_translation(text: str, source_lang: str, target_l
     supabase = get_supabase()
     domain_dict = {}
 
-    was_auto_detected = False
     if domain == "auto":
         from app.services.domain_service import auto_detect_domain_long, get_combined_short_translation
         
         if source_lang != "en" or target_lang != "vi":
             domain = ""
+            yield json.dumps({'warning': "Auto-domain chỉ hỗ trợ Anh-Việt. Chuyển sang dịch thông thường."})
         elif len(text.strip()) < 25 or keyword_count <= 3:
             combined = await get_combined_short_translation(text)
             if combined:
                 # Yield the combined meanings as a warning
-                yield json.dumps({'warning': combined})
+                yield json.dumps({'warning': "Tra cứu đa nghĩa (Multi-domain lookup) do văn bản ngắn:\n\n" + combined})
                 # Then yield normal translation
                 async for chunk in yield_nllb(text, None):
                     yield chunk
                 return
-            domain = "" 
+            domain = ""
+            yield json.dumps({'warning': "Không tìm thấy từ vựng chuyên ngành. Chuyển sang dịch thông thường."})
         else:
             from app.services.cache_service import get_auto_resolved_domain, set_auto_resolved_domain, get_classification_hash
             prefix_md5 = get_classification_hash(text)
@@ -181,10 +182,16 @@ async def handle_flow_2_stream_translation(text: str, source_lang: str, target_l
                     set_auto_resolved_domain(prefix_md5, source_lang, target_lang, detected_domain)
                     
             if detected_domain:
-                was_auto_detected = True
                 domain = detected_domain
+                yield json.dumps({'warning': f"Đã áp dụng tự động nhận diện: Chuyên ngành {detected_domain.upper()}"})
             else:
                 domain = ""
+                yield json.dumps({'warning': "Không thể nhận diện chuyên ngành rõ ràng. Chuyển sang dịch thông thường."})
+                
+    if not domain:
+        async for chunk in yield_nllb(text, None):
+            yield chunk
+        return
 
     if domain and domain != "auto":
         from app.services.cache_service import get_redis
@@ -271,9 +278,6 @@ async def handle_flow_2_stream_translation(text: str, source_lang: str, target_l
     found_terms = find_domain_terms(text, domain_dict)
 
     if found_terms:
-        if was_auto_detected:
-            yield json.dumps({'warning': f"Đã tự động nhận diện chuyên ngành: {domain}"})
-            
         # LLM streaming (Groq/Gemini bypass)
         groq_client = get_groq_client()
         system_prompt = build_context_aware_prompt(domain, found_terms, source_lang, target_lang)

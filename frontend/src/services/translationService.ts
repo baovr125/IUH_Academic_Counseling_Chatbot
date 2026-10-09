@@ -28,7 +28,8 @@ export async function translateText(req: TranslateRequest): Promise<ApiResult<Tr
       body: JSON.stringify({
         text: req.sourceText,
         source_lang: req.sourceLang || "en",
-        target_lang: req.targetLang || "vi"
+        target_lang: req.targetLang || "vi",
+        domain: req.domain || ""
       }),
     });
 
@@ -39,7 +40,7 @@ export async function translateText(req: TranslateRequest): Promise<ApiResult<Tr
           ok: true,
           data: {
             translatedText: data.data.translated_text,
-            detectedSourceLang: req.sourceLang
+            detectedSourceLang: data.data.resolved_source_lang || req.sourceLang
           }
         };
       }
@@ -114,8 +115,8 @@ export async function streamTranslation(
               if (data.warning) {
                 onWarning(data.warning);
               }
-              if (data.detected_source_lang && onDetectedLanguage) {
-                onDetectedLanguage(data.detected_source_lang);
+              if (data.resolved_source_lang && onDetectedLanguage) {
+                onDetectedLanguage(data.resolved_source_lang);
               }
               if (data.text) {
                 onChunk(data.text);

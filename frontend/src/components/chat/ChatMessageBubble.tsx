@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Bot, ThumbsUp, ThumbsDown, MessageSquare, Copy, Check } from "lucide-react";
+import { Bot, RefreshCw, ThumbsUp, ThumbsDown, MessageSquare, Copy, Check } from "lucide-react";
 import type { ChatMessage } from "../../types";
 import { CitationBadge } from "./CitationBadge";
 import { FormattedMarkdown } from "./FormattedMarkdown";
@@ -22,11 +22,13 @@ function TypingIndicator() {
 export function ChatMessageBubble({ 
   message,
   isLatest = false,
-  onSendMessage
+  onSendMessage,
+  previousUserMessage
 }: { 
   message: ChatMessage;
   isLatest?: boolean;
-  onSendMessage?: (msg: string) => void;
+  onSendMessage?: (msg: string, bypassCache?: boolean) => void;
+  previousUserMessage?: ChatMessage;
 }) {
   const isUser = message.role === "user";
   const [feedback, setFeedback] = useState<'like' | 'dislike' | null>(null);
@@ -193,6 +195,16 @@ export function ChatMessageBubble({
                   >
                     <MessageSquare size={14} />
                   </button>
+                  {message.cacheStatus === "HIT" && previousUserMessage && onSendMessage && (
+                    <button
+                      onClick={() => onSendMessage(previousUserMessage.content, true)}
+                      className="flex items-center gap-1 p-1.5 rounded-md transition-colors text-amber-600 hover:bg-amber-100 ml-auto text-xs font-medium"
+                      title="Bỏ qua cache và tạo lại câu trả lời mới"
+                    >
+                      <RefreshCw size={12} />
+                      Tạo lại
+                    </button>
+                  )}
                 </div>
                 {showComment && (
                   <div className="flex items-center gap-2 mt-1">

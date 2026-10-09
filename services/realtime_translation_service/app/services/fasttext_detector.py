@@ -3,7 +3,7 @@ import fasttext
 from functools import lru_cache
 from app.utils.logger import logger
 
-MODEL_DIR = os.path.join(os.path.dirname(__file__), "../../../models")
+MODEL_DIR = os.path.join(os.path.dirname(__file__), "../../models")
 if not os.path.exists(MODEL_DIR):
     os.makedirs(MODEL_DIR)
 

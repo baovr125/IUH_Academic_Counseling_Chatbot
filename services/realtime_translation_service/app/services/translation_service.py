@@ -4,12 +4,16 @@ import asyncio
 import re
 from typing import Tuple, Optional
 from fastapi import HTTPException
-from app.services.cache_service import get_cached_translation, set_cached_translation, get_domain_version
+from app.services.cache_service import (
+    get_cached_translation,
+    get_translation_text_hash,
+    set_cached_translation,
+    get_domain_version,
+)
 from app.services.llm_service import get_nllb_translator, LANG_MAP, get_gemini_client
 from app.services.supabase_client import get_supabase
 from app.utils.logger import logger
 from app.utils.text_normalizer import find_domain_terms, build_context_aware_prompt
-import hashlib
 from functools import lru_cache
 from lingua import Language, LanguageDetectorBuilder
 
@@ -43,6 +47,27 @@ SPANISH_MARKERS = {
     "son", "pero", "como", "para", "por", "también", "más",
     "una", "este", "esta", "ese", "puede", "tiene", "hacer",
 }
+
+
+def _translation_cache_key(
+    source_lang: str,
+    target_lang: str,
+    domain: str,
+    domain_version: int,
+    text_hash: str,
+    *,
+    auto_selected: bool = False,
+) -> str:
+    """Version translation entries and keep auto/manual metadata isolated."""
+    origin = "auto" if auto_selected else "direct"
+    return f"translation_v2_{source_lang}_{target_lang}_{domain}_{origin}_v{domain_version}_{text_hash}"
+
+
+def _gemini_timeout_seconds() -> float:
+    try:
+        return max(0.1, float(os.getenv("GEMINI_REQUEST_TIMEOUT_SECONDS", "20")))
+    except (TypeError, ValueError):
+        return 20.0
 
 
 @lru_cache(maxsize=1)
@@ -175,7 +200,12 @@ async def handle_flow_2_domain_translation(text: str, source_lang: str, target_l
     # Auto Domain Logic
     if domain == "auto":
         from app.services.domain_service import auto_detect_domain_long, get_combined_short_translation
-        from app.services.cache_service import set_auto_resolved_domain, get_domain_version, get_classification_hash
+        from app.services.cache_service import (
+            set_auto_resolved_domain,
+            get_domain_version,
+            get_classification_hash,
+            get_translation_text_hash,
+        )
         
         prefix_md5 = get_classification_hash(text)
         
@@ -187,17 +217,19 @@ async def handle_flow_2_domain_translation(text: str, source_lang: str, target_l
             # Short text scanning
             combined = await get_combined_short_translation(text)
             if combined:
+                combined_warning = "Tra cứu đa nghĩa (Multi-domain lookup) do văn bản ngắn:\n\n" + combined
                 # We do NOT return the combined string as translation to preserve TTS and Flashcard logic.
                 # Instead, fallback to NLLB and attach the combined string as warning metadata.
                 try:
                     translated = await run_nllb_only(text, source_lang, target_lang)
                     # Cache key hasn't changed since it's still 'auto', but it's safe for exact word
-                    await asyncio.to_thread(set_cached_translation, cache_key, translated, combined)
-                    return translated, False, round((time.perf_counter() - start_time) * 1000, 2), combined
+                    await asyncio.to_thread(set_cached_translation, cache_key, translated, combined_warning)
+                    return translated, False, round((time.perf_counter() - start_time) * 1000, 2), combined_warning
                 except Exception as e:
                     logger.error(f"NLLB fallback failed for short auto domain: {e}")
                     raise HTTPException(status_code=500, detail="Translation error.")
             domain = "" # No dict entries found across any domain
+            warning = "Không tìm thấy từ vựng phù hợp để tra cứu đa miền. Chuyển sang dịch thông thường."
         else:
             # Long text zero-shot classification
             detected_domain = await auto_detect_domain_long(text)
@@ -209,10 +241,22 @@ async def handle_flow_2_domain_translation(text: str, source_lang: str, target_l
                 
                 # Fix Cache Bug: Update cache_key for the DETECTED domain
                 domain_ver = await asyncio.to_thread(get_domain_version, domain)
-                cache_key = f"{source_lang}_{target_lang}_{domain}_v{domain_ver}_{text_md5}"
+                text_hash = get_translation_text_hash(text)
+                cache_key = _translation_cache_key(
+                    source_lang, target_lang, domain, domain_ver, text_hash, auto_selected=True
+                )
             else:
                 domain = ""
                 warning = "Không thể xác định chuyên ngành, hoặc chuyên ngành không được hỗ trợ. Chuyển sang dịch thông thường."
+
+    if not domain:
+        try:
+            translated = await run_nllb_only(text, source_lang, target_lang)
+            await asyncio.to_thread(set_cached_translation, cache_key, translated, warning)
+            return translated, False, round((time.perf_counter() - start_time) * 1000, 2), warning
+        except Exception as e:
+            logger.error(f"NLLB failed for empty domain fallback: {e}")
+            raise HTTPException(status_code=500, detail="Dịch vụ dịch thuật tạm thời gián đoạn. Không thể dịch.")
 
     # Fetch dictionary directly from Supabase for the resolved domain
     supabase = get_supabase()
@@ -254,12 +298,15 @@ async def handle_flow_2_domain_translation(text: str, source_lang: str, target_l
         # Terminology Found -> Groq/Gemini bypass
         client = get_gemini_client()
         if client:
-            prompt = build_context_aware_prompt(domain, found_terms, source_lang, target_lang, text)
+            prompt = build_context_aware_prompt(domain, found_terms, source_lang, target_lang)
             prompt += f"\n\nText:\n{text}"
             try:
-                res = client.models.generate_content(
-                    model="gemini-2.5-flash",
-                    contents=prompt
+                res = await asyncio.wait_for(
+                    client.aio.models.generate_content(
+                        model="gemini-2.5-flash",
+                        contents=prompt,
+                    ),
+                    timeout=_gemini_timeout_seconds(),
                 )
                 if res and res.text:
                     translated = res.text.strip()
@@ -272,7 +319,7 @@ async def handle_flow_2_domain_translation(text: str, source_lang: str, target_l
         try:
             translated = await run_nllb_only(text, source_lang, target_lang)
             warning = f"Hệ thống không thể dịch bằng AI model chuyên ngành. Đã sử dụng NLLB, kết quả có thể không phản ánh đầy đủ nghĩa chuyên ngành."
-            set_cached_translation(cache_key, translated)
+            await asyncio.to_thread(set_cached_translation, cache_key, translated, warning)
             return translated, False, round((time.perf_counter() - start_time) * 1000, 2), warning
         except Exception as e:
             logger.error(f"NLLB fallback failed: {e}")
@@ -296,7 +343,8 @@ async def translate_text(text: str, source_lang: str = "en", target_lang: str = 
         detected_lang = detect_source_language(text)
         source_lang = detected_lang
         
-    text_md5 = hashlib.md5(text.strip().lower().encode('utf-8')).hexdigest()
+    requested_auto_domain = domain == "auto"
+    text_hash = get_translation_text_hash(text)
     
     if domain == "auto":
         from app.services.cache_service import get_auto_resolved_domain, get_classification_hash
@@ -307,7 +355,10 @@ async def translate_text(text: str, source_lang: str = "en", target_lang: str = 
             
     # Generate versioned cache key
     domain_ver = await asyncio.to_thread(get_domain_version, domain)
-    cache_key = f"{source_lang}_{target_lang}_{domain}_v{domain_ver}_{text_md5}"
+    cache_key = _translation_cache_key(
+        source_lang, target_lang, domain, domain_ver, text_hash,
+        auto_selected=requested_auto_domain,
+    )
     
     cached = await asyncio.to_thread(get_cached_translation, cache_key)
     if cached:
@@ -356,7 +407,7 @@ async def translate_text(text: str, source_lang: str = "en", target_lang: str = 
                 
             final_translated = html_translator.reconstruct_html(html_with_placeholders, translated_texts)
             
-            set_cached_translation(cache_key, final_translated)
+            await asyncio.to_thread(set_cached_translation, cache_key, final_translated)
             latency = (time.perf_counter() - start_time) * 1000
             return final_translated, False, round(latency, 2), None, detected_lang
         except Exception as e:
@@ -381,7 +432,7 @@ async def translate_text(text: str, source_lang: str = "en", target_lang: str = 
             )
             if res.choices and res.choices[0].message.content:
                 translated = res.choices[0].message.content.strip()
-                set_cached_translation(cache_key, translated)
+                await asyncio.to_thread(set_cached_translation, cache_key, translated)
                 latency = (time.perf_counter() - start_time) * 1000
                 return translated, False, round(latency, 2), None, detected_lang
         except Exception as e:
@@ -394,13 +445,16 @@ async def translate_text(text: str, source_lang: str = "en", target_lang: str = 
         client = get_gemini_client()
         if client:
             try:
-                res = client.models.generate_content(
-                    model="gemini-2.5-flash",
-                    contents=prompt
+                res = await asyncio.wait_for(
+                    client.aio.models.generate_content(
+                        model="gemini-2.5-flash",
+                        contents=prompt,
+                    ),
+                    timeout=_gemini_timeout_seconds(),
                 )
                 if res and res.text:
                     translated = res.text.strip()
-                    set_cached_translation(cache_key, translated)
+                    await asyncio.to_thread(set_cached_translation, cache_key, translated)
                     latency = (time.perf_counter() - start_time) * 1000
                     return translated, False, round(latency, 2), None, detected_lang
             except Exception as e:

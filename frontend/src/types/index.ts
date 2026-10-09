@@ -171,9 +171,11 @@ export interface ChatMessage {
   /** Raw answer text returned by the RAG pipeline before citation formatting */
   original_answer?: string;
   content: string;
+  bypassCache?: boolean;
   citations?: Citation[];
   createdAt: string;
   status?: "pending" | "streaming" | "complete" | "error";
+  cacheStatus?: "HIT" | "MISS" | "UNKNOWN";
 }
 
 export interface ChatSession {
@@ -186,6 +188,7 @@ export interface ChatSession {
 export interface SendMessagePayload {
   sessionId: string | null;
   content: string;
+  bypassCache?: boolean;
 }
 
 export interface SendMessageResponse {

@@ -136,7 +136,8 @@ async def readiness_check(response: Response):
     # Determine overall status
     if (status["dependencies"]["nllb_model"] != "loaded" or 
         status["dependencies"]["fasttext_model"] != "loaded" or
-        status["dependencies"]["redis"] != "connected"):
+        status["dependencies"]["redis"] != "connected" or
+        status["dependencies"]["supabase"] != "connected"):
         status["status"] = "degraded"
         response.status_code = 503
         

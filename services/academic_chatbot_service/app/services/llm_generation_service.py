@@ -85,13 +85,15 @@ async def process_chat_message(
         start_time = time.perf_counter()
 
         # Step 3: Semantic Cache Lookup (using the context-rich query)
-        cache_hit = await check_semantic_cache(retrieval_query, query_embedding)
+        cache_hit = None
+        if not payload.bypassCache:
+            cache_hit = await check_semantic_cache(retrieval_query, query_embedding)
         if cache_hit:
             latency_ms = int((time.perf_counter() - start_time) * 1000)
             cached_answer = cache_hit.get("cached_answer", "")
             
             # --- CACHE LOGGING ---
-            asyncio.create_task(log_cache_hit_to_md(clean_session_id, normalized_query, retrieval_query, cache_hit, latency_ms))
+            asyncio.create_task(log_cache_hit_to_md(clean_session_id, normalized_query, retrieval_query, cache_hit, latency_ms, router_model))
             
             # Save the turn to DB to keep the conversation history continuous
             # Full cached_answer goes to DB
@@ -230,13 +232,15 @@ async def process_chat_message_stream(
 
         start_time = time.perf_counter()
         # Step 3: Semantic Cache Lookup
-        cache_hit = await check_semantic_cache(retrieval_query, query_embedding)
+        cache_hit = None
+        if not payload.bypassCache:
+            cache_hit = await check_semantic_cache(retrieval_query, query_embedding)
         if cache_hit:
             latency_ms = int((time.perf_counter() - start_time) * 1000)
             cached_answer = cache_hit.get("cached_answer", "")
             
             # --- CACHE LOGGING ---
-            asyncio.create_task(log_cache_hit_to_md(clean_session_id, normalized_query, retrieval_query, cache_hit, latency_ms))
+            asyncio.create_task(log_cache_hit_to_md(clean_session_id, normalized_query, retrieval_query, cache_hit, latency_ms, router_model))
             
             # Yield metadata with cacheStatus as HIT
             yield _build_sse_metadata(clean_session_id, cache_status="HIT")
