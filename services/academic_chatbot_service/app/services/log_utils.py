@@ -76,7 +76,7 @@ def _write_log(session_id: str, query: str, chunks: list, past_memories: list = 
 async def log_retrieved_chunks_to_md(session_id: str, query: str, chunks: list, past_memories: list = None, retrieval_latency_ms: int = None) -> str:
     return await asyncio.to_thread(_write_log, session_id, query, chunks, past_memories, retrieval_latency_ms)
 
-def _write_cache_hit_log(session_id: str, original_query: str, rewritten_query: str, cache_hit_data: dict, latency_ms: int, router_model: str = "Unknown") -> str:
+def _write_cache_hit_log(session_id: str, original_query: str, rewritten_query: str, cache_hit_data: dict, latency_ms: int, router_model: str = "Unknown", intent: str = "Unknown") -> str:
     now = datetime.now()
     date_str = now.strftime("%Y-%m-%d")
     time_str = now.strftime("%H%M%S")
@@ -94,6 +94,7 @@ def _write_cache_hit_log(session_id: str, original_query: str, rewritten_query: 
             f.write(f"# Query: {original_query}\n\n")
             f.write(f"**Rewrited Query:** {rewritten_query}\n\n")
             f.write(f"**Session ID:** {session_id}\n\n")
+            f.write(f"**Detected Intent:** {intent}\n\n")
             f.write(f"**Timestamp:** {now.isoformat()}\n")
             f.write(f"**Cache Status:** HIT\n")
             f.write(f"**Cache Source:** {cache_hit_data.get('source', 'Unknown')}\n")
@@ -110,10 +111,10 @@ def _write_cache_hit_log(session_id: str, original_query: str, rewritten_query: 
         print(f"Error writing cache hit log: {e}")
         return ""
 
-async def log_cache_hit_to_md(session_id: str, original_query: str, rewritten_query: str, cache_hit_data: dict, latency_ms: int, router_model: str = "Unknown") -> str:
-    return await asyncio.to_thread(_write_cache_hit_log, session_id, original_query, rewritten_query, cache_hit_data, latency_ms, router_model)
+async def log_cache_hit_to_md(session_id: str, original_query: str, rewritten_query: str, cache_hit_data: dict, latency_ms: int, router_model: str = "Unknown", intent: str = "Unknown") -> str:
+    return await asyncio.to_thread(_write_cache_hit_log, session_id, original_query, rewritten_query, cache_hit_data, latency_ms, router_model, intent)
 
-def _write_full_log(session_id: str, original_query: str, rewritten_query: str, chunks: list, past_memories: list, retrieval_latency_ms: int, rewrite_latency_ms: int, llm_latency_ms: int, prompt_tokens: int, completion_tokens: int, ai_answer: str, router_model: str = "Unknown", llm_model: str = "Unknown") -> str:
+def _write_full_log(session_id: str, original_query: str, rewritten_query: str, chunks: list, past_memories: list, retrieval_latency_ms: int, rewrite_latency_ms: int, llm_latency_ms: int, prompt_tokens: int, completion_tokens: int, ai_answer: str, router_model: str = "Unknown", llm_model: str = "Unknown", intent: str = "Unknown") -> str:
     now = datetime.now()
     date_str = now.strftime("%Y-%m-%d")
     time_str = now.strftime("%H%M%S")
@@ -131,6 +132,7 @@ def _write_full_log(session_id: str, original_query: str, rewritten_query: str, 
             f.write(f"# Query: {original_query}\n\n")
             f.write(f"**Rewrited Query:** {rewritten_query}\n\n")
             f.write(f"**Session ID:** {session_id}\n\n")
+            f.write(f"**Detected Intent:** {intent}\n\n")
             f.write(f"**Timestamp:** {now.isoformat()}\n\n")
             
             f.write("## AI Performance Metrics\n\n")
@@ -183,5 +185,36 @@ def _write_full_log(session_id: str, original_query: str, rewritten_query: str, 
         print(f"Error writing full log: {e}")
         return ""
 
-async def write_full_rag_log_to_md(session_id: str, original_query: str, rewritten_query: str, chunks: list, past_memories: list, retrieval_latency_ms: int, rewrite_latency_ms: int, llm_latency_ms: int, prompt_tokens: int, completion_tokens: int, ai_answer: str, router_model: str = "Unknown", llm_model: str = "Unknown") -> str:
-    return await asyncio.to_thread(_write_full_log, session_id, original_query, rewritten_query, chunks, past_memories, retrieval_latency_ms, rewrite_latency_ms, llm_latency_ms, prompt_tokens, completion_tokens, ai_answer, router_model, llm_model)
+async def write_full_rag_log_to_md(session_id: str, original_query: str, rewritten_query: str, chunks: list, past_memories: list, retrieval_latency_ms: int, rewrite_latency_ms: int, llm_latency_ms: int, prompt_tokens: int, completion_tokens: int, ai_answer: str, router_model: str = "Unknown", llm_model: str = "Unknown", intent: str = "Unknown") -> str:
+    return await asyncio.to_thread(_write_full_log, session_id, original_query, rewritten_query, chunks, past_memories, retrieval_latency_ms, rewrite_latency_ms, llm_latency_ms, prompt_tokens, completion_tokens, ai_answer, router_model, llm_model, intent)
+
+def _write_blocked_log(session_id: str, original_query: str, block_reason: str, block_source: str, ai_answer: str) -> str:
+    now = datetime.now()
+    date_str = now.strftime("%Y-%m-%d")
+    time_str = now.strftime("%H%M%S")
+    
+    base_log = os.getenv("LOG_DIR", "./logs/academic_chatbot")
+    log_dir = os.path.join(base_log, date_str)
+    os.makedirs(log_dir, exist_ok=True)
+    
+    slug = slugify(original_query, max_words=5)
+    file_name = f"{time_str}-BLOCKED-{slug}.md" if slug else f"{time_str}-BLOCKED.md"
+    file_path = os.path.join(log_dir, file_name)
+    
+    try:
+        with open(file_path, "w", encoding="utf-8") as f:
+            f.write(f"# Blocked Query: {original_query}\n\n")
+            f.write(f"**Session ID:** {session_id}\n\n")
+            f.write(f"**Block Source:** {block_source}\n\n")
+            f.write(f"**Block Reason:** {block_reason}\n\n")
+            f.write(f"**Timestamp:** {now.isoformat()}\n\n")
+            f.write("---\n\n")
+            f.write("## AI Answer\n\n")
+            f.write(ai_answer + "\n\n")
+        return file_path
+    except Exception as e:
+        print(f"Error writing blocked log: {e}")
+        return ""
+
+async def log_blocked_query_to_md(session_id: str, original_query: str, block_reason: str, block_source: str, ai_answer: str) -> str:
+    return await asyncio.to_thread(_write_blocked_log, session_id, original_query, block_reason, block_source, ai_answer)
