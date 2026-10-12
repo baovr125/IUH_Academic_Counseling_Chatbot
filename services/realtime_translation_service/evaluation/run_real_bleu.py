@@ -5,11 +5,10 @@ import requests
 import sacrebleu
 
 # Configuration
-API_URL = "http://localhost:8003/api/v1/translate/text"
-HEADERS = {
-    "X-User-ID": "admin-evaluation",
-    "Content-Type": "application/json"
-}
+from eval_auth import GATEWAY_URL, eval_headers
+
+API_URL = f"{GATEWAY_URL}/api/v1/translate/text"
+HEADERS = eval_headers()
 DATASET_PATH = "dataset/ground_truth_dataset.json"
 
 RAW_RESULTS_DIR = "raw_results"

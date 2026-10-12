@@ -8,6 +8,8 @@ from slowapi.errors import RateLimitExceeded
 from app.routers import chat, admin_ingest, sessions
 from app.utils.limiter import limiter
 from app.utils.logger import logger, request_id_var
+from app.utils.security import validate_security_config
+from app.utils.cors import CORS_ALLOW_ORIGINS
 from app.services.rag_service import preload_models
 
 app = FastAPI(
@@ -22,8 +24,8 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=CORS_ALLOW_ORIGINS,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -38,6 +40,7 @@ async def request_id_middleware(request: Request, call_next):
 
 @app.on_event("startup")
 async def startup_event():
+    validate_security_config()
     asyncio.create_task(asyncio.to_thread(preload_models))
 
 # Include chat messages endpoints

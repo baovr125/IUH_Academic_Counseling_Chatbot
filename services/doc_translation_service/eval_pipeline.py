@@ -48,7 +48,7 @@ from jose import jwt
 # ═══════════════════════════════════════════════════════════════════════════════
 GATEWAY_URL          = "http://localhost:8000"
 DIRECT_URL           = "http://localhost:8004"
-JWT_SECRET           = "super-secret-key-iuh-chatbot-2026"
+JWT_SECRET           = os.environ.get("JWT_SECRET_KEY", "")  # đặt cùng giá trị với .env trước khi chạy
 JWT_ALGORITHM        = "HS256"
 JWT_ISSUER           = "iuh-auth-service"
 TEST_USER_ID         = "eval_test_user_001"

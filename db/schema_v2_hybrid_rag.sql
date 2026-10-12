@@ -19,6 +19,8 @@ DROP TABLE IF EXISTS conversations CASCADE;
 DROP TABLE IF EXISTS document_chunks CASCADE;
 DROP TABLE IF EXISTS documents CASCADE;
 DROP TABLE IF EXISTS password_resets CASCADE;
+-- CẢNH BÁO: script này XÓA toàn bộ dữ liệu hiện có (DROP ... CASCADE). Chỉ chạy trên DB mới/để dựng lại từ đầu.
+-- Với DB đang chạy hãy dùng db/migrations/*.sql.
 DROP TABLE IF EXISTS users CASCADE;
 
 DROP FUNCTION IF EXISTS match_semantic_cache CASCADE;
@@ -68,6 +70,7 @@ CREATE TABLE users (
     avatar_url TEXT,                                -- URL ảnh đại diện
     role VARCHAR(50) DEFAULT 'student',             -- 'student' | 'public' | 'admin'
     settings JSONB DEFAULT '{"theme": "light", "language": "vi"}'::jsonb,
+    token_version INTEGER NOT NULL DEFAULT 0,       -- tăng lên để thu hồi mọi token đã cấp (đăng xuất / đổi mật khẩu)
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -427,19 +430,20 @@ $$;
 -- 5. CẤP QUYỀN TRUY CẬP VÀ CẤU HÌNH BẢO MẬT (GRANTS & RLS CONFIG)
 -- ====================================================================================
 
--- Cập nhật: Tắt RLS để Microservices truy cập liền mạch qua Direct REST/PostgREST API
-ALTER TABLE users DISABLE ROW LEVEL SECURITY;
-ALTER TABLE password_resets DISABLE ROW LEVEL SECURITY;
-ALTER TABLE documents DISABLE ROW LEVEL SECURITY;
-ALTER TABLE document_chunks DISABLE ROW LEVEL SECURITY;
-ALTER TABLE semantic_cache DISABLE ROW LEVEL SECURITY;
-ALTER TABLE conversations DISABLE ROW LEVEL SECURITY;
-ALTER TABLE messages DISABLE ROW LEVEL SECURITY;
-ALTER TABLE document_translations DISABLE ROW LEVEL SECURITY;
-ALTER TABLE doc_vectors DISABLE ROW LEVEL SECURITY;
-ALTER TABLE flashcard_decks DISABLE ROW LEVEL SECURITY;
-ALTER TABLE flashcards DISABLE ROW LEVEL SECURITY;
-ALTER TABLE review_logs DISABLE ROW LEVEL SECURITY;
+-- BẬT RLS cho mọi bảng và KHÔNG tạo policy: chỉ khóa service-role (bypass RLS) của các microservice truy cập được.
+-- Khóa publishable/anon không đọc hay ghi được gì. (Trước đây RLS bị tắt và cấp ALL cho anon => lộ bảng users.)
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE password_resets ENABLE ROW LEVEL SECURITY;
+ALTER TABLE documents ENABLE ROW LEVEL SECURITY;
+ALTER TABLE document_chunks ENABLE ROW LEVEL SECURITY;
+ALTER TABLE semantic_cache ENABLE ROW LEVEL SECURITY;
+ALTER TABLE conversations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE document_translations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE doc_vectors ENABLE ROW LEVEL SECURITY;
+ALTER TABLE flashcard_decks ENABLE ROW LEVEL SECURITY;
+ALTER TABLE flashcards ENABLE ROW LEVEL SECURITY;
+ALTER TABLE review_logs ENABLE ROW LEVEL SECURITY;
 
 -- ====================================================================================
 -- 6. TỪ ĐIỂN CHUYÊN NGÀNH
@@ -455,10 +459,13 @@ CREATE TABLE domain_dictionaries (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(domain, word)
 );
-ALTER TABLE domain_dictionaries DISABLE ROW LEVEL SECURITY;
+ALTER TABLE domain_dictionaries ENABLE ROW LEVEL SECURITY;
 
--- Cấp toàn quyền thao tác cho các vai trò Supabase
-GRANT ALL ON ALL TABLES IN SCHEMA public TO postgres, anon, authenticated, service_role;
-GRANT ALL ON ALL FUNCTIONS IN SCHEMA public TO postgres, anon, authenticated, service_role;
-GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO postgres, anon, authenticated, service_role;
+-- Chỉ postgres và service_role được quyền; anon/authenticated bị thu hồi hoàn toàn.
+GRANT ALL ON ALL TABLES IN SCHEMA public TO postgres, service_role;
+GRANT ALL ON ALL FUNCTIONS IN SCHEMA public TO postgres, service_role;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO postgres, service_role;
+REVOKE ALL ON ALL TABLES IN SCHEMA public FROM anon, authenticated;
+REVOKE ALL ON ALL FUNCTIONS IN SCHEMA public FROM anon, authenticated;
+REVOKE ALL ON ALL SEQUENCES IN SCHEMA public FROM anon, authenticated;
 

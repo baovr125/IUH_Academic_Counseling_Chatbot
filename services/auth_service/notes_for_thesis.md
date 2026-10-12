@@ -1,95 +1,99 @@
 # Ghi Chú Kỹ Thuật Khóa Luận: Authentication & User Service (`auth_service`)
 
-Tài liệu này ghi chép lại toàn bộ bài toán kỹ thuật, giải pháp kiến trúc, mô hình dữ liệu và các quyết định thiết kế của **Auth Service** để phục vụ viết báo cáo Khóa luận tốt nghiệp và trả lời phản biện trước Hội đồng.
+> Tài liệu này mô tả **đúng với mã hiện tại** (cập nhật sau đợt rà soát bảo mật tháng 10/2026; xem `word/Report/auth_service/AUTH_EVALUATION.md` và `AUTH_REMEDIATION.md`). Những gì chưa làm được ghi rõ ở mục 7.
 
 ---
 
-## 1. Bài toán và Mục tiêu thiết kế
-Trong hệ thống Microservices phục vụ hàng nghìn sinh viên trường Đại học Công nghiệp TP.HCM (IUH), dịch vụ Quản lý Định danh & Xác thực (`auth_service`) phải giải quyết các thách thức:
-1. **Xác thực phi tập trung (Stateless Authentication)**: Cho phép API Gateway (Kong) và các microservice khác xác thực người dùng mà không cần gọi ngược lại Database của `auth_service` ở mỗi request.
-2. **Quản lý Hồ sơ Sinh viên IUH**: Lưu trữ thông tin cá nhân hóa (Mã số sinh viên `student_code`, Khoa `department`, Ngành học `major`, Email sinh viên).
-3. **Bảo mật Tài khoản & Khôi phục Mật khẩu**: Quản lý quy trình Reset Password bằng mã OTP 6 chữ số có thời hạn (TTL) và mã hóa một chiều bảo mật cao.
-4. **Phòng chống Lỗ hổng Truy cập Trái phép (IDOR - Insecure Direct Object Reference)**: Đảm bảo người dùng chỉ có thể thao tác trên dữ liệu thuộc quyền sở hữu của chính họ.
+## 1. Bài toán và mục tiêu thiết kế
+Hệ thống microservice phục vụ sinh viên IUH và người dùng công cộng cần một dịch vụ định danh:
+1. **Xác thực không trạng thái ở các service nghiệp vụ**: Kong và các service kiểm token bằng chữ ký, không gọi ngược auth-service ở mỗi yêu cầu.
+2. **Hai nhóm người dùng**: Sinh viên/GV IUH (có MSSV, Khoa, Ngành, email `@student.iuh.edu.vn` hoặc `@iuh.edu.vn`) và người dùng công cộng; thêm vai trò `admin` do quản trị gán thủ công.
+3. **Bảo vệ tài khoản**: băm mật khẩu bcrypt, chống dò mật khẩu, không lộ tài khoản tồn tại, không tin dữ liệu do client tự khai báo.
+4. **Fail-closed**: cấu hình bảo mật thiếu/yếu thì dịch vụ không khởi động; DB không xác nhận được người dùng thì từ chối.
 
----
+## 2. Kiến trúc & công nghệ
 
-## 2. Kiến trúc & Công nghệ Sử dụng
-
-| Thành phần | Công nghệ / Thư viện | Vai trò |
+| Thành phần | Công nghệ | Ghi chú |
 | :--- | :--- | :--- |
-| **Framework** | FastAPI (Python 3.11+) | Xây dựng RESTful API bất đồng bộ hiệu năng cao |
-| **Xác thực Token** | `PyJWT` (JSON Web Token - HS256) | Cấp phát Access Token chứa `user_id`, `email`, `role`, `exp` |
-| **Mã hóa Mật khẩu** | `passlib[bcrypt]` / `bcrypt` | Hash mật khẩu với Salt ngẫu nhiên, chống tấn công Rainbow Table |
-| **Cơ sở dữ liệu** | PostgreSQL (Supabase) | Lưu trữ bảng `users`, `password_resets` |
-| **API Gateway Integration** | Kong API Gateway JWT Plugin | Kong kiểm tra tính hợp lệ của chữ ký JWT ngay tại Gateway |
+| Framework | FastAPI, Pydantic v2 | handler là hàm đồng bộ (`def`) để chạy trong threadpool, bcrypt không chặn event loop |
+| Token | `python-jose`, JWT **HS256** | thuật toán cố định (không cấu hình được), bắt buộc `exp`, `iss`, `sub` |
+| Mật khẩu | `bcrypt` (cost 12) | gọi trực tiếp, không dùng passlib |
+| CSDL | PostgreSQL (Supabase) qua PostgREST | khóa **service-role**, RLS bật và không có policy cho `anon` |
+| Gateway | Kong 3.9 (DB-less) | plugin `jwt` kiểm chữ ký + `exp` + `iss`; rate-limit riêng cho đăng nhập/đăng ký |
+| Container | `python:3.11-slim`, user không root, `HEALTHCHECK`, phụ thuộc khóa ở `requirements.lock` | |
 
----
+Cấu trúc mã: `app/config.py` (cấu hình, fail-fast) → `app/routers/auth.py` (HTTP, dependency `get_current_user`) → `app/services/auth_service.py` (nghiệp vụ) → Supabase. `app/schemas/auth.py` chứa validate; `app/utils/throttle.py` chống dò mật khẩu; `app/main.py` gom xử lý lỗi theo một định dạng `{ok:false, error:{message, field?, details?}}`.
 
-## 3. Các Luồng Nghiệp vụ Cốt lõi (Core Workflows)
+## 3. Các endpoint (qua Kong: `/api/auth/*` hoặc `/api/v1/auth/*`)
 
-### 3.1. Luồng Đăng nhập & Cấp phát JWT Token
+| Endpoint | Xác thực | Mô tả |
+| :--- | :--- | :--- |
+| `POST /register` | không | đăng ký `student`/`public`; vai trò khác luôn bị ép về `student`; **MSSV không do client gửi** mà được suy ra từ email `<8 chữ số>@student.iuh.edu.vn` (email GV `@iuh.edu.vn` hoặc local-part không phải 8 số → không có MSSV); Khoa/Ngành là chuỗi 2–150 ký tự (giao diện chọn từ danh mục IUH hoặc nhập tay qua mục "Khác…") |
+| `POST /login` | không | `identifier` là email hoặc MSSV 8 số; giới hạn 10 lần/phút/IP tại Kong và khóa tạm trong service |
+| `GET /me` | Bearer | thông tin người dùng đọc lại từ DB mỗi lần |
+| `POST /refresh` | Bearer (còn hạn) | cấp access token mới; `role` đọc lại từ DB; tối đa 7 ngày kể từ lần đăng nhập bằng mật khẩu |
+| `POST /logout` | Bearer | tăng `token_version` để thu hồi token (cần migration 002; nếu chưa có cột thì chỉ đăng xuất phía client) |
+| `PUT /profile` | Bearer | chỉ `fullName`, `phoneNumber`, `department`, `major`, `avatarUrl`; **không** sửa được email/MSSV/role |
+| `POST /change-password` | Bearer | bắt buộc mật khẩu hiện tại; thu hồi token cũ; trả token mới |
+| `GET/PUT /settings` | Bearer | `theme`, `language`, `soundEnabled`, `academicAlerts` (enum/boolean được validate) |
+| `GET /health` | không | trạng thái tiến trình |
+
+Không có: quên/đặt lại mật khẩu, liên kết Google, `/verify-student` (endpoint giả đã được gỡ).
+
+## 4. Luồng đăng nhập và duy trì phiên
 ```mermaid
 sequenceDiagram
     autonumber
-    actor User as Sinh viên (Client)
-    participant Kong as Kong API Gateway (:8000)
-    participant Auth as Auth Service (:8001)
-    participant DB as PostgreSQL (Supabase)
+    actor U as Trình duyệt
+    participant K as Kong (:8000)
+    participant A as auth-service
+    participant D as Supabase (service-role)
+    participant S as Service nghiệp vụ
 
-    User->>Kong: POST /api/v1/auth/login (email, password)
-    Kong->>Auth: Forward request tới auth-service
-    Auth->>DB: Query user theo email
-    DB-->>Auth: Trả về record user (kèm password_hash)
-    Auth->>Auth: Verify password (bcrypt.checkpw)
-    alt Mật khẩu đúng
-        Auth->>Auth: Sinh JWT Token (payload: sub=user_id, email, exp=7 days)
-        Auth-->>Kong: 200 OK (access_token, user_info)
-        Kong-->>User: 200 OK (access_token, user_info)
-    else Mật khẩu sai
-        Auth-->>Kong: 401 Unauthorized ("Email hoặc mật khẩu không chính xác")
-        Kong-->>User: 401 Unauthorized
-    end
+    U->>K: POST /api/auth/login (identifier, password)
+    K->>K: rate-limit 10/phút/IP
+    K->>A: chuyển tiếp (X-Real-IP, X-Request-ID)
+    A->>A: throttle theo (IP, tài khoản)
+    A->>D: SELECT user theo email hoặc MSSV (so khớp chính xác)
+    A->>A: bcrypt.checkpw (hash giả nếu không có user)
+    A-->>U: 200 {token(60 phút), user} hoặc 401/429
+    U->>K: GET /api/v1/chat/... (Bearer)
+    K->>K: kiểm chữ ký + iss + exp (bắt buộc)
+    K->>S: chuyển tiếp
+    S->>S: giải mã lại JWT; admin => claim role = "admin"
+    Note over U,A: Trước khi hết hạn ~5 phút, client gọi POST /refresh.<br/>Token nhận 401 ở bất kỳ API nào => client tự đăng xuất.
 ```
 
-### 3.2. Luồng Khôi phục Mật khẩu qua OTP
-1. **Gửi yêu cầu OTP**: Client gửi `POST /api/v1/auth/forgot-password` với `email`.
-2. **Sinh mã OTP**: Hệ thống sinh ngẫu nhiên mã số 6 chữ số (`random.randint(100000, 999999)`), lưu vào bảng `password_resets` với thời hạn hết hạn 15 phút (`expires_at = now() + 15 mins`).
-3. **Xác nhận OTP & Đổi mật khẩu**: Client gửi `POST /api/v1/auth/reset-password` (kèm `email`, `otp_code`, `new_password`). Service kiểm tra hợp lệ, hash mật khẩu mới và vô hiệu hóa mã OTP.
+**Claims** của access token: `sub`, `role`, `tv` (token_version), `oiat` (thời điểm đăng nhập gốc), `iat`, `exp`, `iss=iuh-auth-service`. Không chứa email/họ tên/MSSV vì token có thể xuất hiện trong URL (SSE).
 
----
-
-## 4. Mô hình Dữ liệu (Database Schema)
-
+## 5. Mô hình dữ liệu (bảng `users`, rút gọn)
 ```sql
--- Bảng Người dùng (Đã tích hợp Profile Sinh viên IUH)
-CREATE TABLE users (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    full_name VARCHAR(255),
-    email VARCHAR(255) UNIQUE NOT NULL,
-    student_code VARCHAR(50) UNIQUE DEFAULT NULL,   -- MSSV IUH
-    department VARCHAR(150) DEFAULT NULL,           -- Khoa / Viện
-    major VARCHAR(150) DEFAULT NULL,                -- Ngành học
-    phone_number VARCHAR(20) DEFAULT NULL,
-    password_hash VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-
--- Bảng Quản lý OTP Đặt lại Mật khẩu
-CREATE TABLE password_resets (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    email VARCHAR(255) NOT NULL,
-    otp_code VARCHAR(10) NOT NULL,
-    expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
-    is_used BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-CREATE INDEX idx_password_resets_email_otp ON password_resets(email, otp_code);
+users(id uuid PK, email unique not null, student_code unique, full_name, department, major,
+      phone_number, password_hash, google_id unique, avatar_url, role default 'student',
+      settings jsonb, token_version int not null default 0, created_at, updated_at)
 ```
+`password_resets` vẫn nằm trong schema nhưng **chưa được mã sử dụng** (dành cho tính năng quên mật khẩu về sau). Script đầy đủ: `db/schema_v2_hybrid_rag.sql`; nâng cấp DB đang chạy: `db/migrations/002_auth_hardening.sql`.
 
----
+## 6. Mô hình mối đe dọa và biện pháp (đối chiếu OWASP)
 
-## 5. Điểm sáng Kỹ thuật để Báo cáo Khóa luận
-1. **Kong API Gateway Offloading**: Thay vì để mỗi microservice tự parse và verify token gây trùng lặp code, Kong Gateway xác thực JWT tại tầng ngoài cùng, gán header `X-Consumer-Custom-ID: user_id` và forward vào trong.
-2. **Bảo mật Phòng thủ theo chiều sâu (Defense-in-depth)**: Dù Kong đã verify ở Gateway, các service nội bộ vẫn dùng helper `get_current_user` để giải mã token kiểm tra tính nhất quán và ngăn ngừa bypass.
-3. **Phân tách trách nhiệm hoàn toàn (Single Responsibility)**: Service chỉ quản lý Identity & User Metadata, không chứa logic nghiệp vụ của Chatbot, Flashcard hay Translation.
+| Mối đe dọa | Biện pháp trong mã | Kiểm chứng tự động |
+| :--- | :--- | :--- |
+| Giả mạo token (API2) | secret ≥ 32 ký tự bắt buộc, từ chối giá trị mẫu; ép HS256; bắt buộc `exp`/`iss`/`sub` | `tests/unit/test_jwt.py`, `scripts/security_smoke_test.py` |
+| Mạo danh qua header danh tính (API1/API5) | các service bỏ `X-User-ID`/`X-User-Role`; Kong xóa header này | `tests/unit/test_security.py` (4 service), smoke test |
+| Leo quyền khi đăng ký (API5) | `role` bị ép về `student`/`public` ở 2 lớp (schema + service) | `test_cannot_register_as_admin` |
+| Dò mật khẩu (API2, A07) | 10 lần/phút/IP tại Kong; khóa tạm theo (IP, tài khoản) và theo tài khoản; chính sách mật khẩu | `test_throttle.py`, `test_locks_out_after_repeated_failures...` |
+| Lộ tồn tại tài khoản (A07) | thông điệp chung; bcrypt chạy cả khi không có user | `test_bcrypt_runs_even_for_unknown_account` |
+| Token của user đã xóa/đổi quyền (API2) | không fail-open; `role` đọc lại từ DB khi làm mới; token_version | `test_token_of_deleted_user...`, `test_role_comes_from_database...` |
+| Injection vào bộ lọc PostgREST (A03) | tra cứu bằng `eq` trên cột xác định, không ghép chuỗi `or=` | `test_injection_style_account_never_reaches_the_database` |
+| Lộ chi tiết nội bộ (A05) | lỗi DB → 503 thông điệp chung; chi tiết chỉ ở log kèm `request_id` | `test_db_error_on_insert_is_generic_503`, `test_rls_error_is_generic...` |
+| Đọc/ghi trực tiếp bảng `users` bằng khóa công khai (API3) | khóa service-role + RLS bật + thu quyền `anon` (migration 002) | câu SQL kiểm tra trong migration |
+| Mass assignment (API3) | schema tách riêng, `extra=ignore`, chỉ các cột cho phép được UPDATE | `test_cannot_change_email_role_mssv_or_hash_through_profile` |
+
+## 7. Hạn chế đã biết (nêu trong phần "hướng phát triển")
+1. **Chưa xác minh email/MSSV**: ai cũng có thể đăng ký bằng một email `@student.iuh.edu.vn` và MSSV tùy ý (và có thể chiếm MSSV của người khác). Hướng xử lý: gửi OTP/liên kết xác thực tới email trường hoặc đối chiếu cổng thông tin IUH.
+2. **Chưa có quên/đặt lại mật khẩu** (cần dịch vụ gửi email); giao diện chỉ hướng dẫn liên hệ quản trị viên.
+3. **Thu hồi token chỉ có hiệu lực ở auth-service** (`/me`, `/refresh`); các service khác chấp nhận token đã ký đến khi hết hạn (tối đa 60 phút). Muốn tức thời cần kiểm tra thu hồi ở Kong/trung gian hoặc dùng token ngắn hơn.
+4. **Bộ đếm chống dò mật khẩu nằm trong bộ nhớ** của một tiến trình (một replica); nhiều replica cần chuyển sang Redis.
+5. **HS256 dùng chung một bí mật** giữa Kong và các service; hướng nâng cấp: RS256/JWKS (chỉ auth-service giữ khóa riêng).
+6. `/api/v1/translate/tts` và `/audio` để mở (phục vụ thẻ `<audio>`), được bảo vệ bằng rate-limit chứ không bằng JWT.
+7. Cookie `HttpOnly` thay cho `localStorage/sessionStorage` và CSP nghiêm ngặt chưa được áp dụng.

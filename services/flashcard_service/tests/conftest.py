@@ -10,7 +10,7 @@ if str(service_root) not in sys.path:
 
 os.environ["SUPABASE_URL"] = "https://mock-supabase.test"
 os.environ["SUPABASE_KEY"] = "mock-key-test"
-os.environ["JWT_SECRET_KEY"] = "super-secret-key-iuh-chatbot-2026"
+os.environ["JWT_SECRET_KEY"] = "test-only-secret-key-do-not-use-in-production-0123456789"
 
 from app.main import app
 

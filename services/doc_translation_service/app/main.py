@@ -3,6 +3,8 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import documents
 from app.utils.logger import logger, request_id_var
+from app.utils.security import validate_security_config
+from app.utils.cors import CORS_ALLOW_ORIGINS
 
 app = FastAPI(
     title="IUH Document Translation Service",
@@ -13,11 +15,16 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=CORS_ALLOW_ORIGINS,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.on_event("startup")
+async def startup_event():
+    validate_security_config()
+
 
 @app.middleware("http")
 async def request_id_middleware(request: Request, call_next):

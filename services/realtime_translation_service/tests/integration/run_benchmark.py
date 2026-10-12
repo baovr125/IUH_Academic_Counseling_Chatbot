@@ -2,6 +2,7 @@ import httpx
 import json
 import time
 import os
+import sys
 import asyncio
 from datetime import datetime
 import re
@@ -10,7 +11,15 @@ from dotenv import load_dotenv
 # Load environment variables (4 levels up from tests/integration/run_benchmark.py)
 load_dotenv(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../.env")))
 
-API_URL = "http://localhost:8003/api/v1/translate/text"
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../evaluation")))
+from eval_auth import GATEWAY_URL, eval_headers  # noqa: E402
+
+
+def _headers():
+    return eval_headers()
+
+
+API_URL = f"{GATEWAY_URL}/api/v1/translate/text"
 TEST_DATA_PATH = os.path.join(os.path.dirname(__file__), "test_data.json")
 REPORT_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../realtime_qa_report.md"))
 
@@ -36,7 +45,7 @@ async def test_text_endpoint(client, test_case):
     }
     start = time.perf_counter()
     try:
-        response = await client.post(API_URL, json=payload, headers={"X-User-ID": "test-user-123"}, timeout=30.0)
+        response = await client.post(API_URL, json=payload, headers=_headers(), timeout=30.0)
         response.raise_for_status()
         data = response.json()
         latency = (time.perf_counter() - start) * 1000

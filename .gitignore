@@ -41,6 +41,8 @@ Thumbs.db.agent/
 
 # log and data
 data/
+# Ngoại lệ: dữ liệu tĩnh của frontend là mã nguồn (được import khi build), không phải dữ liệu chạy.
+!frontend/src/data/
 logs/
 hf_models/
 

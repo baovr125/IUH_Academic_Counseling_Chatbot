@@ -4,11 +4,9 @@ class TranslationUser(HttpUser):
     wait_time = between(1, 3) # Chờ 1-3 giây giữa các request
     
     def on_start(self):
-        # Thiết lập header bypass JWT Auth
-        self.client.headers = {
-            "Content-Type": "application/json",
-            "X-User-ID": "admin-evaluation"
-        }
+        # JWT thật (xem eval_auth.py); header X-User-ID không còn được chấp nhận.
+        from eval_auth import eval_headers
+        self.client.headers = eval_headers()
 
     @staticmethod
     def _validate_translation_response(response):

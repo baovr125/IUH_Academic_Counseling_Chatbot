@@ -8,6 +8,7 @@ from fastapi.responses import JSONResponse
 from app.services.language_detection import LanguageResolutionError
 from app.routers import translation
 from app.utils.logger import logger, request_id_var
+from app.utils.security import validate_security_config
 from app.rabbitmq_consumer import start_rabbitmq_tts_consumer
 from app.services.llm_service import preload_models
 from app.services.domain_dict_service import sync_dictionary_to_redis
@@ -15,6 +16,7 @@ from app.services.minio_client import init_minio
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    validate_security_config()
     if os.getenv("TESTING") == "1":
         yield
         return
@@ -63,7 +65,7 @@ _cors_origins = [
 app.add_middleware(
     CORSMiddleware,
     allow_origins=_cors_origins,
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )

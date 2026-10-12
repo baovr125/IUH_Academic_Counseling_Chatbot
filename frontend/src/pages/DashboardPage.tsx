@@ -18,7 +18,8 @@ export default function DashboardPage() {
   const { stats, isLoading, error } = useDashboard();
 
   // Role detection: verified student vs public / academic guest
-  const isStudent = (user?.role === "student" && Boolean(user?.studentCode)) || (!user && true);
+  // Sinh viên được nhận biết bằng vai trò; MSSV chỉ là thông tin phụ (có thể trống nếu email không có 8 chữ số).
+  const isStudent = user?.role === "student" || !user;
 
   if (isLoading || !stats) {
     return (

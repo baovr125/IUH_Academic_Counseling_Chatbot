@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from app.utils.security import get_current_user_id
+from app.utils.security import get_current_admin_user
 from app.services.supabase_client import get_supabase_client
 from app.schemas.chat import ApiResult
 from app.utils.logger import logger
@@ -7,9 +7,9 @@ from app.utils.logger import logger
 router = APIRouter(prefix="/api/cache", tags=["cache"])
 
 @router.delete("/clear")
-async def clear_semantic_cache(current_user_id: str = Depends(get_current_user_id)):
+async def clear_semantic_cache(admin_id: str = Depends(get_current_admin_user)):
     """Admin endpoint to manually purge the semantic cache."""
-    # Note: In a real production scenario, you might want to verify if current_user_id has an 'admin' role.
+    # Chỉ admin mới được gọi (get_current_admin_user kiểm tra role trong JWT).
     supabase = get_supabase_client()
     if not supabase:
         return ApiResult(ok=False, error={"message": "Lỗi kết nối CSDL."})

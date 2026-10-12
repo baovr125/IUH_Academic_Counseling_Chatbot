@@ -27,7 +27,7 @@ def to_valid_uuid(val: Optional[str]) -> Optional[str]:
 
 def get_supabase() -> Optional[Client]:
     url = os.getenv("SUPABASE_URL")
-    key = os.getenv("SUPABASE_KEY") or os.getenv("SUPABASE_SERVICE_ROLE_KEY")
+    key = os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_KEY")  # ưu tiên khóa service-role (RLS bật, anon bị thu quyền)
     if not url or not key:
         return None
     return create_client(url, key)

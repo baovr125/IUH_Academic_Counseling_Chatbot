@@ -1,3 +1,4 @@
+import { getToken } from "./apiClient";
 import type { Flashcard } from "../types";
 
 export interface FlashcardDeck {
@@ -31,7 +32,7 @@ function getStorageKey(userId?: string): string {
   }
   // Try extracting from sessionStorage token
   try {
-    const token = sessionStorage.getItem("iuh_portal_ai_token");
+    const token = getToken();
     if (token) {
       const parts = token.split(".");
       if (parts.length === 3) {

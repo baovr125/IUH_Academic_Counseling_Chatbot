@@ -7,22 +7,21 @@
 
 // ---- Auth ------------------------------------------------------------------
 
-export type UserRole = "student" | "public" | "parent" | "highschool" | "guest" | string;
+export type UserRole = "student" | "public" | "admin";
 
 export interface User {
   id: string;
   fullName: string;
   email: string;
-  studentCode?: string;
-  department?: string;
-  major?: string;
-  phoneNumber?: string;
+  studentCode?: string | null;
+  department?: string | null;
+  major?: string | null;
+  phoneNumber?: string | null;
   role: UserRole;
-  avatarUrl?: string;
-  google_id?: string | null;
+  avatarUrl?: string | null;
+  /** Tài khoản đã có mật khẩu đăng nhập trực tiếp (server không bao giờ gửi hash). */
+  hasPassword?: boolean;
   googleId?: string | null;
-  password_hash?: string | null;
-  passwordHash?: string | null;
 }
 
 export interface LoginPayload {
@@ -36,8 +35,7 @@ export interface RegisterPayload {
   identifier: string;
   password: string;
   confirmPassword: string;
-  userType?: "student" | "public" | string;
-  studentCode?: string;
+  userType?: "student" | "public";
   department?: string;
   major?: string;
 }
@@ -45,6 +43,21 @@ export interface RegisterPayload {
 export interface AuthResponse {
   user: User;
   token: string;
+}
+
+export interface ChangePasswordPayload {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+
+/** Các trường hồ sơ được phép sửa (email, MSSV và vai trò chỉ đọc). */
+export interface UpdateProfilePayload {
+  fullName?: string;
+  phoneNumber?: string;
+  department?: string;
+  major?: string;
+  avatarUrl?: string;
 }
 
 // ---- User Settings ---------------------------------------------------------

@@ -72,7 +72,7 @@ IUH_Academic_Counseling_Chatbot/
 ├── pytest.ini / .pre-commit-config.yaml # Cấu hình kiểm thử chuẩn & Quality Gates
 │
 ├── gateway/                             # CẤU HÌNH KONG API GATEWAY
-│   └── kong.yml                         # Declarative Config: JWT, CORS, Rate Limiting & Routing (Port 8000)
+│   └── kong.template.yml                         # Template cấu hình Kong (không chứa bí mật) | kong-entrypoint.sh sinh cấu hình thật khi khởi động
 │
 ├── frontend/                            # GIAO DIỆN WEB CLIENT (React 18 + TS + Vite + TailwindCSS)
 │   ├── src/
@@ -237,21 +237,26 @@ flowchart TD
 ## 4. 🔬 Chi Tiết Kỹ Thuật 5 Standalone Microservices
 
 ### 🚪 4.0. Kong API Gateway (Port 8000)
-- **Cấu hình Declarative**: Hoạt động không cần CSDL (`KONG_DATABASE: "off"`), nạp cấu hình từ [gateway/kong.yml](file:///g:/Khoa_Luan/IUH_Academic_Counseling_Chatbot/gateway/kong.yml).
+- **Cấu hình Declarative**: `KONG_DATABASE: "off"`; nạp từ [gateway/kong.template.yml](gateway/kong.template.yml). Template **không chứa bí mật**: khi khởi động, [gateway/kong-entrypoint.sh](gateway/kong-entrypoint.sh) thay `__JWT_SECRET_KEY__` / `__PUBLIC_ORIGIN__` bằng biến môi trường rồi sinh `/tmp/kong.yml`. Kong từ chối khởi động nếu `JWT_SECRET_KEY` thiếu, ngắn hơn 32 ký tự hoặc là giá trị mẫu cũ.
 - **Phân luồng & Bảo mật**:
-  - **CORS Global**: Xử lý preflight tự động, hỗ trợ đầy đủ headers `Authorization`, `Content-Type`.
-  - **JWT Authentication Plugin**: Xác thực token tại tầng Gateway cho các phân hệ `/chat`, `/documents`, `/flashcards`, hỗ trợ trích xuất token từ Authorization Header hoặc Query Parameter (`?token=...`) phục vụ SSE.
-  - **Rate Limiting**: Giới hạn $1000\text{ req/min}$ cho toàn hệ thống và $100\text{ req/min}$ cho endpoint TTS.
-  - **Healthchecks & Upstream**: Tự động cân bằng tải và giám sát trạng thái `academic-chatbot-service`.
+  - **JWT Authentication Plugin** (kiểm chữ ký, `iss`, **bắt buộc `exp`** và tuổi tối đa 24h) cho `/chat`, `/documents`, `/flashcards`, `/translate` (trừ `/translate/tts`, `/translate/audio` vì phát bằng thẻ `<audio>`), `/admin` và `/api/v1/admin/dictionary`. Token qua `?token=` chỉ phục vụ EventSource (SSE).
+  - **Phân quyền**: Kong chỉ xác thực; quyền `admin` được **từng service kiểm tra từ claim `role` đã ký** (`get_current_admin_user`). Các header `X-User-ID`/`X-User-Role` do client gửi bị Kong xóa và các service cũng không còn tin chúng.
+  - **Rate Limiting**: 1000 req/phút/IP toàn hệ thống, **10 req/phút/IP (100/giờ) cho `/auth/login` và `/auth/register`**, 100 req/phút cho TTS. auth-service còn khóa tạm theo (IP, tài khoản) sau 5 lần sai và theo tài khoản sau 30 lần sai.
+  - **CORS**: whitelist origin (localhost + `PUBLIC_ORIGIN`), không dùng `*`.
+  - **Truy vết**: plugin `correlation-id` gắn `X-Request-ID`; auth-service ghi `request_id` này vào log.
+  - **Mạng**: chỉ Kong (8000) và frontend (5173) được publish ra host; các service nội bộ không còn mở cổng. RabbitMQ/Redis/MinIO chỉ bind `127.0.0.1`.
 
 ---
 
-### 🔑 4.1. Authentication Service (`services/auth_service` - Port 8001)
-- **Chức năng**: Đăng ký, đăng nhập tài khoản sinh viên/giảng viên IUH, kiểm tra mã số sinh viên (MSSV) hợp lệ và cấp phát mã truy cập JWT.
+### 🔑 4.1. Authentication Service (`services/auth_service` - Port 8001, chỉ truy cập qua Kong)
+- **Chức năng**: đăng ký (sinh viên/GV IUH hoặc người dùng công cộng), đăng nhập bằng email hoặc MSSV, `/me`, `/refresh`, `/logout`, cập nhật hồ sơ (`PUT /profile`), đổi mật khẩu (`POST /change-password`, bắt buộc mật khẩu cũ), cài đặt người dùng (`/settings`).
+- **Chưa có** (hướng phát triển): quên/đặt lại mật khẩu qua email, đăng nhập Google, xác minh email/MSSV với cổng thông tin IUH.
 - **Điểm nổi bật**:
-  - **Bcrypt Hashing**: Mã hóa mật khẩu bảo mật chuẩn công nghiệp.
-  - **Pydantic v2 Interoperability**: Hỗ trợ tự động chuyển đổi qua lại giữa `camelCase` (Frontend) và `snake_case` (Database).
-  - **Supabase Integration**: Quản lý hồ sơ người dùng, phân quyền Role-based Access Control (`student`, `admin`).
+  - **Bcrypt** (cost 12) + chính sách mật khẩu (8–72 byte, chữ + số, loại mật khẩu phổ biến); luôn chạy bcrypt kể cả khi tài khoản không tồn tại để không lộ tồn tại qua thời gian phản hồi.
+  - **JWT HS256** tối thiểu (`sub`, `role`, `tv`, `iat`, `exp`, `iss`), hết hạn 60 phút, làm mới bằng `/refresh` trong tối đa 7 ngày; `role` luôn lấy lại từ DB khi làm mới. Thu hồi token (đăng xuất, đổi mật khẩu) cần cột `users.token_version` (xem `db/migrations/002_auth_hardening.sql`).
+  - **Không fail-open**: DB không xác nhận được user thì từ chối (401/503), không tin claim của token.
+  - **Không tự nâng quyền**: vai trò `admin` không thể tạo qua API; chỉ gán thủ công trong DB.
+  - **Supabase** dùng khóa **service-role** (RLS bật, anon bị thu quyền); `/docs` mặc định tắt (`ENABLE_API_DOCS=true` để bật khi phát triển); container chạy user không root, có `HEALTHCHECK`; phụ thuộc được khóa trong `requirements.lock`.
 
 ---
 
@@ -380,16 +385,16 @@ Frontend được xây dựng bằng **React 18 + TypeScript + Vite + Tailwind C
 
 Hệ thống được định tuyến tập trung qua **Kong API Gateway (Cổng 8000)**. Các lập trình viên có thể truy cập trực tiếp Swagger UI của từng dịch vụ bên dưới để thử nghiệm API:
 
-| Dịch Vụ (Microservice) | Cổng Container | Đường Dẫn Qua Gateway | Swagger UI API Docs |
+| Dịch Vụ (Microservice) | Cổng Container (nội bộ) | Đường Dẫn Qua Gateway | Swagger UI API Docs |
 | :--- | :---: | :--- | :--- |
 | **Kong API Gateway** | `8000` | `http://localhost:8000` | *Gateway Router* |
 | **Frontend Web App** | `80` (Docker) / `5173` | `http://localhost:5173` | *Web Application* |
-| **Auth Service** | `8001` | `http://localhost:8000/api/v1/auth` | [http://localhost:8001/docs](http://localhost:8001/docs) |
+| **Auth Service** | `8001` | `http://localhost:8000/api/v1/auth` | *tắt mặc định (bật `ENABLE_API_DOCS=true` + `docker compose exec`)* |
 | **Academic Chatbot Service** | `8002` | `http://localhost:8000/api/v1/chat` | [http://localhost:8002/docs](http://localhost:8002/docs) |
 | **Realtime Translation Service** | `8003` | `http://localhost:8000/api/v1/translate` | [http://localhost:8003/docs](http://localhost:8003/docs) |
 | **Doc Translation Service** | `8004` | `http://localhost:8000/api/v1/documents` | [http://localhost:8004/docs](http://localhost:8004/docs) |
 | **Flashcard Service** | `8005` | `http://localhost:8000/api/v1/flashcards` | [http://localhost:8005/docs](http://localhost:8005/docs) |
-| **RabbitMQ Management Dashboard** | `15672` | `http://localhost:15672` *(guest/guest)* | *Message Queue UI* |
+| **RabbitMQ Management Dashboard** | `15672` | `http://localhost:15672` *(chỉ localhost; guest/guest cho dev)* | *Message Queue UI* |
 | **MinIO S3 Console Dashboard** | `9001` | `http://localhost:9001` *(minioadmin/minioadmin)* | *Object Storage UI* |
 
 ---
@@ -433,8 +438,8 @@ SUPABASE_KEY=your-supabase-anon-or-service-key
 GEMINI_API_KEY=your-google-gemini-api-key
 
 # --- JWT Secrets ---
-JWT_SECRET=super-secret-key-iuh-chatbot-2026
-JWT_ALGORITHM=HS256
+JWT_SECRET_KEY=<chuỗi ngẫu nhiên >= 32 ký tự, sinh bằng: python -c "import secrets; print(secrets.token_urlsafe(48))">
+ALGORITHM=HS256
 
 # --- Infrastructure Hosts (Khi chạy Docker Compose) ---
 REDIS_HOST=redis
