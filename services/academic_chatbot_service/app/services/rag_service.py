@@ -6,7 +6,7 @@ logger = logging.getLogger(__name__)
 import re
 import math
 import threading
-from typing import List, Optional
+from typing import List, Optional, Tuple, Union, Dict, Any
 import json
 import httpx
 import redis.asyncio as redis
@@ -349,72 +349,171 @@ async def invalidate_semantic_cache():
         logger.exception(f"Lỗi khi xóa Semantic Cache: {e}")
 
 
-# --- 2. Hybrid Retrieval & Reranking ---
-async def retrieve_relevant_chunks(query_text: str, query_embedding: list = None, top_k: int = 5, candidate_count: int = 30):
+# --- 2. Hybrid Retrieval & Multi-Query Reranking ---
+RERANKER_THRESHOLD: float = 0.10
+GOOD_SCORE_THRESHOLD: float = 0.65
+
+async def retrieve_relevant_chunks_multi(
+    queries: List[str], 
+    top_k: int = 8, 
+    candidate_count: int = 20
+) -> Tuple[List[dict], float]:
     """
-    Stage 1: Retrieve candidate_count (30) chunks via Supabase Hybrid RRF RPC.
-    Stage 2: Cross-Encoder Reranking using BAAI/bge-reranker-v2-m3 -> Top k (5).
-    Offloads CPU-bound ML inference to background thread pool.
+    Multi-Query Hybrid Retrieval & Query-Specific Cross-Encoder Reranking:
+    1. Runs parallel Supabase Hybrid RRF RPC for each subquery via asyncio.gather.
+    2. Reranks candidate chunks with their specific matching subquery using bge-reranker-v2-m3.
+    3. Enforces dynamic quota per subquery (floor 2 per query, ceiling max 6 or 10, threshold >= 0.65).
+    4. De-duplicates and expands neighbor window context.
+    Returns: (expanded_chunks, top_doc_score)
     """
-    query_vector = query_embedding if query_embedding else await get_query_embedding(query_text)
+    if not queries:
+        return [], 0.0
+
+    # Clean and limit max 4 sub-queries
+    valid_queries = [q.strip() for q in queries if q and q.strip()][:4]
+    if not valid_queries:
+        return [], 0.0
 
     supabase = get_supabase_client()
     if not supabase:
-        return []
+        return [], 0.0
 
-    try:
-        def _call_rpc():
-            return supabase.rpc(
-                "match_chunks_hybrid_rrf",
-                {
-                    "query_text": query_text,
-                    "query_embedding": query_vector,
-                    "match_count": candidate_count
-                }
-            ).execute()
+    num_q = len(valid_queries)
+    # Dynamic Quota Allocation based on agreed rules:
+    # 1 query: default 3, max 6
+    # 2 queries: default 4 (2/query), max 6 (3/query)
+    # 3 queries: default 6 (2/query), max 10
+    # 4 queries: default 8 (2/query), max 10
+    floor_per_query = 2 if num_q > 1 else 3
+    if num_q == 1:
+        max_ceiling = 6
+        max_per_query = 6
+    elif num_q == 2:
+        max_ceiling = 6
+        max_per_query = 3
+    elif num_q == 3:
+        max_ceiling = 10
+        max_per_query = 4
+    else:  # num_q == 4
+        max_ceiling = 10
+        max_per_query = 3
 
-        response = await asyncio.to_thread(_call_rpc)
-        chunks = response.data or []
-    except Exception as e:
-        logger.exception(f"Hybrid RRF retrieval failed: {e}")
-        chunks = []
+    # Step 1: Concurrently generate query embeddings for all subqueries
+    query_embeddings = await asyncio.gather(*(get_query_embedding(q) for q in valid_queries))
 
-    if not chunks:
-        return []
+    # Step 2: Retrieve candidate chunks concurrently for each query
+    async def _fetch_candidates(q_text: str, q_vec: list):
+        try:
+            def _call_rpc():
+                return supabase.rpc(
+                    "match_chunks_hybrid_rrf",
+                    {
+                        "query_text": q_text,
+                        "query_embedding": q_vec,
+                        "match_count": candidate_count
+                    }
+                ).execute()
+            response = await asyncio.to_thread(_call_rpc)
+            return response.data or []
+        except Exception as e:
+            logger.exception(f"Hybrid RRF retrieval failed for subquery '{q_text[:30]}...': {e}")
+            return []
 
-    pairs = []
-    for c in chunks:
-        meta = c.get("metadata", {}) or {}
-        title = meta.get("title") or meta.get("sourceTitle", "")
-        text = f"{title}\n{c.get('content', '')}".strip()
-        pairs.append((query_text, text))
+    candidates_per_query = await asyncio.gather(
+        *(_fetch_candidates(q, vec) for q, vec in zip(valid_queries, query_embeddings))
+    )
 
     reranker = get_reranker()
     batch_size = 4 if get_device() == "cuda" else 4
-    scores = await asyncio.to_thread(lambda: reranker.predict(pairs, batch_size=batch_size))
-    for idx, chunk in enumerate(chunks):
-        score = float(scores[idx])
-        chunk["rerank_score"] = 1 / (1 + math.exp(-score))  # Apply Sigmoid
-
-    chunks = sorted(chunks, key=lambda x: x["rerank_score"], reverse=True)
-    
-    # User Request: Display chunks with score > 0.75. If less than 3 chunks meet this, fallback to top 3 chunks.
-    filtered_chunks = [c for c in chunks if c["rerank_score"] > 0.75]
-    if len(filtered_chunks) < 3:
-        filtered_chunks = chunks[:3]
-        
-    top_chunks = filtered_chunks[:top_k]
-
-    if top_chunks:
-        logger.info(f"Top Rerank Score for query '{query_text[:30]}...': {top_chunks[0]['rerank_score']:.4f}")
-
     RERANKER_THRESHOLD = 0.10
-    if not top_chunks or top_chunks[0]["rerank_score"] < RERANKER_THRESHOLD:
-        logger.warning(f"All chunks rejected. Top score {top_chunks[0]['rerank_score']:.4f} is below threshold {RERANKER_THRESHOLD}.")
-        return []
+    GOOD_SCORE_THRESHOLD = 0.65
 
-    expanded_chunks = await expand_neighbors(top_chunks, window=1, supabase=supabase)
-    return expanded_chunks
+    # Step 3: Query-specific Reranking for each subquery
+    selected_chunks_by_query = []
+    all_top_scores = []
+
+    for q_idx, (q_text, chunks) in enumerate(zip(valid_queries, candidates_per_query)):
+        if not chunks:
+            continue
+
+        pairs = []
+        for c in chunks:
+            meta = c.get("metadata", {}) or {}
+            title = meta.get("title") or meta.get("sourceTitle", "")
+            text = f"{title}\n{c.get('content', '')}".strip()
+            pairs.append((q_text, text))
+
+        try:
+            scores = await asyncio.to_thread(lambda: reranker.predict(pairs, batch_size=batch_size))
+            scored_chunks = []
+            for idx, chunk in enumerate(chunks):
+                c_copy = dict(chunk)
+                score = float(scores[idx])
+                c_copy["rerank_score"] = 1 / (1 + math.exp(-score))  # Apply Sigmoid
+                c_copy["matched_subquery"] = q_text
+                scored_chunks.append(c_copy)
+
+            # Sort descending by rerank_score
+            scored_chunks = sorted(scored_chunks, key=lambda x: x["rerank_score"], reverse=True)
+            
+            # Filter valid chunks above safe threshold (0.10)
+            valid_chunks = [c for c in scored_chunks if c["rerank_score"] >= RERANKER_THRESHOLD]
+            if not valid_chunks:
+                continue
+
+            all_top_scores.append(valid_chunks[0]["rerank_score"])
+
+            # Filter good score chunks (>= 0.65)
+            good_chunks = [c for c in valid_chunks if c["rerank_score"] >= GOOD_SCORE_THRESHOLD]
+            
+            # Quota selection:
+            # If good chunks >= floor_per_query, take up to max_per_query.
+            # Otherwise, fallback to take at least floor_per_query.
+            if len(good_chunks) >= floor_per_query:
+                picked = good_chunks[:max_per_query]
+            else:
+                picked = valid_chunks[:floor_per_query]
+
+            selected_chunks_by_query.append(picked)
+        except Exception as e:
+            logger.exception(f"Reranking failed for subquery '{q_text}': {e}")
+            continue
+
+    # Step 4: Merge & Deduplicate across subqueries in round-robin fashion
+    merged_map = {}
+    max_group_len = max((len(group) for group in selected_chunks_by_query), default=0)
+    for i in range(max_group_len):
+        for group in selected_chunks_by_query:
+            if i < len(group):
+                chunk = group[i]
+                c_id = chunk.get("id")
+                if c_id not in merged_map:
+                    merged_map[c_id] = chunk
+                else:
+                    # Keep higher rerank_score if duplicate
+                    if chunk["rerank_score"] > merged_map[c_id]["rerank_score"]:
+                        merged_map[c_id] = chunk
+
+    final_chunks = list(merged_map.values())
+    final_chunks = sorted(final_chunks, key=lambda x: x["rerank_score"], reverse=True)[:max_ceiling]
+
+    top_doc_score = max(all_top_scores) if all_top_scores else 0.0
+
+    if final_chunks:
+        logger.info(f"Multi-Query ({num_q} queries): Selected {len(final_chunks)} chunks, Top Score: {top_doc_score:.4f}")
+
+    if not final_chunks or top_doc_score < RERANKER_THRESHOLD:
+        logger.warning(f"All chunks rejected. Top score {top_doc_score:.4f} is below threshold {RERANKER_THRESHOLD}.")
+        return [], 0.0
+
+    # Step 5: Expand neighbor chunks for the final selected set
+    expanded_chunks = await expand_neighbors(final_chunks, window=1, supabase=supabase)
+    return expanded_chunks, top_doc_score
+
+async def retrieve_relevant_chunks(query_text: str, query_embedding: list = None, top_k: int = 5, candidate_count: int = 30):
+    """Backward-compatible wrapper for single query retrieval."""
+    chunks, _ = await retrieve_relevant_chunks_multi([query_text], top_k=top_k, candidate_count=candidate_count)
+    return chunks
 
 async def expand_neighbors(top_chunks: List[dict], window: int = 1, supabase=None) -> List[dict]:
     if not top_chunks or not supabase:
@@ -468,8 +567,17 @@ async def expand_neighbors(top_chunks: List[dict], window: int = 1, supabase=Non
         logger.exception(f"Failed to expand neighbor chunks: {e}")
         return top_chunks
 
-from typing import Tuple
-async def generate_standalone_query(history: list, current_query: str) -> Tuple[str, str, str]:
+from typing import Tuple, List, Union
+
+async def generate_standalone_query(history: list, current_query: str) -> Tuple[bool, List[str], str, str, str]:
+    """
+    Module Adaptive Query Rewriter & Router:
+    1. Bóc tách và chuẩn hóa tiếng lóng học vụ IUH sang thuật ngữ quy chế chính thức (Hướng D).
+    2. Đánh giá nhu cầu truy xuất CSDL (need_retrieval: true/false) (Hướng B).
+    3. Phân rã câu hỏi kép thành 1 đến tối đa 4 sub-queries độc lập (Hướng A).
+    4. Phân loại ý định vào 1 trong 7 intents.
+    Returns: (need_retrieval: bool, queries: List[str], router_model: str, intent: str, reason: str)
+    """
     last_user_msg = None
     if history:
         for msg in reversed(history):
@@ -477,21 +585,83 @@ async def generate_standalone_query(history: list, current_query: str) -> Tuple[
                 last_user_msg = msg['content']
                 break
 
-    context_str = f"Lịch sử chat:\n- Sinh viên: {last_user_msg}\n" if last_user_msg and last_user_msg != current_query else ""
+    context_str = f"Lịch sử chat gần nhất:\n- Sinh viên: {last_user_msg}\n" if last_user_msg and last_user_msg != current_query else ""
 
     rewrite_prompt = (
-        "Nhiệm vụ 1: Phân loại ý định (intent) của sinh viên vào 1 trong 7 nhóm: PROCEDURE, REGULATION, CRISIS, GENERAL, ADVISING, COMPLAINT, TECH_SUPPORT.\n"
-        "Nhiệm vụ 2: Viết lại câu hỏi để tối ưu hóa cho công cụ tìm kiếm (Search Engine).\n\n"
-        "Quy tắc quan trọng:\n"
-        "- Lĩnh vực: PROCEDURE (Hướng dẫn thủ tục), REGULATION (Tra cứu quy chế/điểm), CRISIS (Lo sợ/Trễ hạn), GENERAL (Thông tin chung), ADVISING (Xin lời khuyên/Định hướng), COMPLAINT (Phàn nàn/Góp ý), TECH_SUPPORT (Lỗi website/App/IT).\n"
-        "- Trả về kết quả ĐÚNG CHUẨN JSON như sau: {\"result\": \"câu đã viết lại hoặc REJECTED_QUERY\", \"intent\": \"CATEGORY\"}\n"
-        "- Nếu là câu hỏi CHÀO HỎI hoặc NGOÀI LỀ, result phải là \"REJECTED_QUERY\", intent là \"GENERAL\".\n"
-        "- TRƯỜNG `result` PHẢI LÀ CÂU TRUY VẤN THUẦN TÚY TỐI ƯU CHO TÌM KIẾM, KHÔNG CHỨA TỪ KHÓA CẢM XÚC HAY NHÃN INTENT (ví dụ: không được ghi 'lo lắng', 'sợ hãi' vào result).\n\n"
-        "VÍ DỤ:\n"
-        "Câu gốc: Dạ em trễ hạn học phí rồi làm sao đây ạ lo quá\n"
-        "JSON: {\"result\": \"cách xử lý khi trễ hạn nộp học phí\", \"intent\": \"CRISIS\"}\n\n"
-        "Câu gốc: Thủ tục xin cấp lại thẻ sinh viên\n"
-        "JSON: {\"result\": \"thủ tục xin cấp lại thẻ sinh viên\", \"intent\": \"PROCEDURE\"}\n\n"
+        "Bạn là AI Router & Query Rewriter cho Chatbot Tư vấn Học vụ Trường Đại học Công nghiệp TP.HCM (IUH).\n"
+        "Nhiệm vụ của bạn là phân tích câu hỏi của sinh viên (kèm lịch sử chat gần nhất nếu có) và trả về một chuỗi JSON chuẩn xác.\n\n"
+        "CÁC QUY TẮC BẮT BUỘC:\n"
+        "1. XÁC ĐỊNH LÝ DO (field 'reason'):\n"
+        "   - Giải thích ngắn gọn (1 câu) tại sao cần/không cần tra cứu CSDL hoặc tại sao cần phân rã ý.\n"
+        "2. ĐÁNH GIÁ NHU CẦU TRUY XUẤT CSDL (field 'need_retrieval'):\n"
+        "   - Đặt là false khi: Sinh viên chỉ chào hỏi xã giao, cảm ơn, khen ngợi, tán gẫu, hoặc câu hỏi suy luận tiếp nối đã có câu trả lời đầy đủ ngay trong lịch sử chat mà không cần tra cứu mới.\n"
+        "   - Đặt là true khi: Sinh viên hỏi về quy chế, thủ tục, điểm số, học phí, lịch học, phòng ban, điều kiện học vụ, v.v.\n"
+        "   - NGUYÊN TẮC AN TOÀN: Nếu có bất kỳ sự mơ hồ nào hoặc câu hỏi chứa nội dung học vụ, BẮT BUỘC đặt need_retrieval là true.\n"
+        "3. PHÂN RÃ VÀ VIẾT LẠI TRUY VẤN (field 'queries'):\n"
+        "   - Nếu need_retrieval là false: queries là mảng rỗng [].\n"
+        "   - Nếu là câu hỏi vi phạm tiêu chuẩn an toàn, quấy phá, hoặc hoàn toàn ngoài lề không liên quan trường học: queries là [\"REJECTED_QUERY\"], intent là \"GENERAL\".\n"
+        "   - Nếu need_retrieval là true:\n"
+        "     + Nếu câu hỏi chỉ có 1 ý: queries là mảng chứa đúng 1 câu tìm kiếm độc lập.\n"
+        "     + Nếu câu hỏi chứa nhiều khía cạnh/nghiệp vụ khác nhau (ví dụ: vừa hỏi bảo lưu vừa hỏi học phí): BẮT BUỘC phân rã thành các truy vấn con riêng biệt (từ 2 đến tối đa 4 truy vấn), mỗi truy vấn giải quyết trọn vẹn 1 ý.\n"
+        "     + CHUẨN HÓA THỰC THỂ & TỪ LÓNG (Domain Entity Mapping): Chuyển đổi ngôn ngữ thông tục của sinh viên sang thuật ngữ pháp quy/quy chế IUH để công cụ tìm kiếm khớp trúng văn bản:\n"
+        "       * 'out trường, đuổi học, xóa tên' -> 'buộc thôi học, cảnh báo học vụ'\n"
+        "       * 'học vè, học trả nợ, học lại' -> 'đăng ký học lại học phần'\n"
+        "       * 'học cải thiện' -> 'đăng ký học cải thiện điểm'\n"
+        "       * 'rớt môn, trượt môn, thiếu môn' -> 'không đạt học phần, nợ học phần tín chỉ'\n"
+        "       * 'xin nghỉ 1 kì, bảo lưu' -> 'tạm dừng tiến độ học tập, bảo lưu kết quả'\n"
+        "       * 'đk hp, dkhp, chọn môn' -> 'đăng ký học phần'\n"
+        "       * 'môn tiên quyết, môn trước' -> 'học phần tiên quyết, học phần học trước'\n"
+        "       * 'pdt, phòng đào tạo' -> 'Phòng Quản lý Đào tạo', 'phòng ctsv' -> 'Phòng Công tác Sinh viên'\n"
+        "     + KHÔNG đưa các từ ngữ cảm xúc, lo lắng, hoặc nhãn intent vào chuỗi query.\n"
+        "4. PHÂN LOẠI Ý ĐỊNH (field 'intent'):\n"
+        "   - Chọn 1 trong 7 nhóm: PROCEDURE (Hướng dẫn thủ tục), REGULATION (Tra cứu quy chế/điểm), CRISIS (Lo sợ/Trễ hạn), GENERAL (Thông tin chung/Xã giao), ADVISING (Xin lời khuyên/Định hướng), COMPLAINT (Phàn nàn/Góp ý), TECH_SUPPORT (Lỗi website/App/IT).\n\n"
+        "VÍ DỤ MẪU:\n"
+        "Ví dụ 1 (Câu hỏi kép đa ý):\n"
+        "Câu gốc: Em muốn xin bảo lưu kỳ này thì cần điều kiện gì và học phí đã đóng có được hoàn lại không ad?\n"
+        "JSON:\n"
+        "{\n"
+        "  \"reason\": \"Câu hỏi kép về thủ tục bảo lưu và chính sách hoàn trả học phí\",\n"
+        "  \"need_retrieval\": true,\n"
+        "  \"queries\": [\n"
+        "    \"điều kiện và hồ sơ xin tạm dừng tiến độ học tập bảo lưu kết quả IUH\",\n"
+        "    \"quy định rút và hoàn trả học phí khi tạm dừng học tập bảo lưu IUH\"\n"
+        "  ],\n"
+        "  \"intent\": \"PROCEDURE\"\n"
+        "}\n\n"
+        "Ví dụ 2 (Xã giao, cảm ơn):\n"
+        "Câu gốc: Dạ em hiểu rõ rồi, em cảm ơn bot nhiều nhé!\n"
+        "JSON:\n"
+        "{\n"
+        "  \"reason\": \"Lời cảm ơn xã giao từ sinh viên, không yêu cầu tra cứu tri thức CSDL\",\n"
+        "  \"need_retrieval\": false,\n"
+        "  \"queries\": [],\n"
+        "  \"intent\": \"GENERAL\"\n"
+        "}\n\n"
+        "Ví dụ 3 (Tiếng lóng, câu hỏi đơn):\n"
+        "Câu gốc: Em bị rớt môn GDTC 2 lần có bị out trường không cô?\n"
+        "JSON:\n"
+        "{\n"
+        "  \"reason\": \"Tra cứu điều kiện cảnh báo học vụ và buộc thôi học do không đạt học phần\",\n"
+        "  \"need_retrieval\": true,\n"
+        "  \"queries\": [\n"
+        "    \"quy định cảnh báo học vụ và điều kiện buộc thôi học do không đạt học phần giáo dục thể chất tín chỉ IUH\"\n"
+        "  ],\n"
+        "  \"intent\": \"REGULATION\"\n"
+        "}\n\n"
+        "Ví dụ 4 (Câu hỏi 4 ý dài):\n"
+        "Câu gốc: Em muốn bảo lưu thì cần điều kiện gì, nộp hồ sơ ở đâu, có được rút học phí không và khi quay lại học thì thủ tục ra sao?\n"
+        "JSON:\n"
+        "{\n"
+        "  \"reason\": \"Câu hỏi phức hợp 4 khía cạnh: điều kiện, nơi nộp, học phí và tái nhập học\",\n"
+        "  \"need_retrieval\": true,\n"
+        "  \"queries\": [\n"
+        "    \"điều kiện xin tạm dừng tiến độ học tập bảo lưu kết quả IUH\",\n"
+        "    \"địa điểm phòng ban tiếp nhận hồ sơ tạm dừng học tập bảo lưu IUH\",\n"
+        "    \"quy định rút học phí hoàn trả học phí khi tạm dừng học tập IUH\",\n"
+        "    \"thủ tục tiếp nhận học lại tái nhập học sau thời gian bảo lưu IUH\"\n"
+        "  ],\n"
+        "  \"intent\": \"PROCEDURE\"\n"
+        "}\n\n"
         "THỰC HÀNH:\n"
         f"{context_str}"
         f"Câu gốc: {current_query}\n"
@@ -501,29 +671,43 @@ async def generate_standalone_query(history: list, current_query: str) -> Tuple[
     from app.services.llm_providers import get_rewriter_provider
     provider = get_rewriter_provider()
     
-    system_inst = "Chỉ trả về chuỗi JSON chứa field 'result' và 'intent', KHÔNG kèm theo bất kỳ giải thích nào."
+    system_inst = "Chỉ trả về chuỗi JSON hợp lệ chứa các trường 'reason', 'need_retrieval', 'queries', 'intent', KHÔNG kèm theo bất kỳ văn bản giải thích nào khác."
     res = await provider.generate_text(prompt=rewrite_prompt, system_instruction=system_inst, temperature=0.0)
 
     if res:
         import json
-        
-        start_idx = res.rfind("{")
+        start_idx = res.find("{")
         end_idx = res.rfind("}")
         
         if start_idx != -1 and end_idx != -1 and start_idx < end_idx:
             json_str = res[start_idx:end_idx+1]
             try:
                 data = json.loads(json_str)
-                res_val = data.get("result", "")
-                intent_val = data.get("intent", "GENERAL").upper()
-                if "REJECTED_QUERY" in res_val.upper():
-                    return "<FALSE>", provider.last_used_model, intent_val
-                return f"<TRUE> {res_val}", provider.last_used_model, intent_val
+                reason = data.get("reason", "")
+                need_retrieval = bool(data.get("need_retrieval", True))
+                raw_queries = data.get("queries", [])
+                if isinstance(raw_queries, str):
+                    raw_queries = [raw_queries]
+                intent = data.get("intent", "GENERAL").upper()
+
+                # Handle Rejected / Off-topic
+                if any("REJECTED_QUERY" in str(q).upper() for q in raw_queries):
+                    return False, ["REJECTED_QUERY"], provider.last_used_model, intent, reason
+
+                if not need_retrieval:
+                    return False, [], provider.last_used_model, intent, reason
+
+                clean_queries = [str(q).strip() for q in raw_queries if str(q).strip()]
+                if not clean_queries:
+                    clean_queries = [current_query]
+
+                return True, clean_queries[:4], provider.last_used_model, intent, reason
             except Exception as e:
                 import logging
                 logging.getLogger(__name__).warning(f"Failed to parse extracted JSON: {e}. String: {json_str}")
 
-    return f"<TRUE> {current_query}", provider.last_used_model, "GENERAL"
+    # Fallback in case of parsing or generation failure
+    return True, [current_query], provider.last_used_model, "GENERAL", "Fallback parsing error"
 
 
 
@@ -572,20 +756,29 @@ async def retrieve_past_memory(session_id: str, query_embedding: list, current_q
         logger.warning(f"Failed to retrieve past memory: {e}")
         return []
 
-async def build_rag_payload(session_id: str, content: str, retrieval_query: str, query_embedding: list = None, intent: str = "GENERAL"):
+async def build_rag_payload(session_id: str, content: str, retrieval_queries: Union[List[str], str], query_embedding: list = None, intent: str = "GENERAL"):
     history = await asyncio.to_thread(get_session_history_from_db, session_id)
     filtered_history = [
         msg for msg in history
         if not (msg["role"] == "user" and msg["content"] == content)
     ]
 
+    queries_list = [retrieval_queries] if isinstance(retrieval_queries, str) else retrieval_queries
+    queries_list = [q.strip() for q in queries_list if q and q.strip()]
+    if not queries_list:
+        queries_list = [content]
+
     import time
     t0 = time.perf_counter()
-    chunks = await retrieve_relevant_chunks(retrieval_query, query_embedding=query_embedding, top_k=5, candidate_count=30)
-    
-    # --- HYBRID MEMORY: Fetch semantic past messages ---
-    past_memories = await retrieve_past_memory(session_id, query_embedding, content)
+    chunks, top_doc_score = await retrieve_relevant_chunks_multi(queries_list)
     retrieval_latency_ms = int((time.perf_counter() - t0) * 1000)
+
+    # --- HYBRID MEMORY: Fetch semantic past messages using primary query embedding ---
+    primary_emb = query_embedding
+    if not primary_emb:
+        primary_emb = await get_query_embedding(queries_list[0])
+    past_memories = await retrieve_past_memory(session_id, primary_emb, content)
+
     memory_str = ""
     if past_memories:
         memory_str = "\n\n[KÝ ỨC DÀI HẠN TỪ LỊCH SỬ CHAT TRƯỚC ĐÂY KHỚP VỚI NGỮ CẢNH]\n"
@@ -594,11 +787,11 @@ async def build_rag_payload(session_id: str, content: str, retrieval_query: str,
             memory_str += f"- {role_vi} từng nói: {m['content']}\n"
         memory_str += "Hãy dùng thông tin này nếu nó giúp giải quyết câu hỏi hiện tại của sinh viên.\n"
 
-
     rag_data = {
         'chunks': chunks,
         'past_memories': past_memories,
-        'retrieval_latency_ms': retrieval_latency_ms
+        'retrieval_latency_ms': retrieval_latency_ms,
+        'queries': queries_list
     }
 
     citations = []
@@ -650,5 +843,5 @@ async def build_rag_payload(session_id: str, content: str, retrieval_query: str,
         contents.append({"role": role, "content": turn["content"]})
     contents.append({"role": "user", "content": content})
 
-    top_doc_score = chunks[0].get("rerank_score", 0.0) if chunks else 0.0
-    return history, retrieval_query, citations, chunk_ids, system_instruction, contents, top_doc_score, rag_data
+    primary_query_str = queries_list[0] if queries_list else content
+    return history, primary_query_str, citations, chunk_ids, system_instruction, contents, top_doc_score, rag_data

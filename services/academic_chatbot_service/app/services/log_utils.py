@@ -114,7 +114,7 @@ def _write_cache_hit_log(session_id: str, original_query: str, rewritten_query: 
 async def log_cache_hit_to_md(session_id: str, original_query: str, rewritten_query: str, cache_hit_data: dict, latency_ms: int, router_model: str = "Unknown", intent: str = "Unknown") -> str:
     return await asyncio.to_thread(_write_cache_hit_log, session_id, original_query, rewritten_query, cache_hit_data, latency_ms, router_model, intent)
 
-def _write_full_log(session_id: str, original_query: str, rewritten_query: str, chunks: list, past_memories: list, retrieval_latency_ms: int, rewrite_latency_ms: int, llm_latency_ms: int, prompt_tokens: int, completion_tokens: int, ai_answer: str, router_model: str = "Unknown", llm_model: str = "Unknown", intent: str = "Unknown") -> str:
+def _write_full_log(session_id: str, original_query: str, rewritten_query: str, chunks: list, past_memories: list, retrieval_latency_ms: int, rewrite_latency_ms: int, llm_latency_ms: int, prompt_tokens: int, completion_tokens: int, ai_answer: str, router_model: str = "Unknown", llm_model: str = "Unknown", intent: str = "Unknown", need_retrieval: bool = True, router_reason: str = "", sub_queries: list = None) -> str:
     now = datetime.now()
     date_str = now.strftime("%Y-%m-%d")
     time_str = now.strftime("%H%M%S")
@@ -131,8 +131,16 @@ def _write_full_log(session_id: str, original_query: str, rewritten_query: str, 
         with open(file_path, "w", encoding="utf-8") as f:
             f.write(f"# Query: {original_query}\n\n")
             f.write(f"**Rewrited Query:** {rewritten_query}\n\n")
+            if sub_queries and len(sub_queries) > 1:
+                f.write(f"**Sub-Queries ({len(sub_queries)} queries):**\n")
+                for sq_idx, sq in enumerate(sub_queries, 1):
+                    f.write(f"- Query {sq_idx}: {sq}\n")
+                f.write("\n")
             f.write(f"**Session ID:** {session_id}\n\n")
             f.write(f"**Detected Intent:** {intent}\n\n")
+            f.write(f"**Need Retrieval:** {need_retrieval}\n\n")
+            if router_reason:
+                f.write(f"**Router Reason:** {router_reason}\n\n")
             f.write(f"**Timestamp:** {now.isoformat()}\n\n")
             
             f.write("## AI Performance Metrics\n\n")
@@ -161,32 +169,40 @@ def _write_full_log(session_id: str, original_query: str, rewritten_query: str, 
                     f.write(f"**Similarity:** {m['similarity']:.4f}\n\n")
                 f.write("---\n\n")
                 
-            f.write(f"## Retrieved Context Chunks ({len(chunks)} chunks)\n\n")
-            for idx, chunk in enumerate(chunks, 1):
-                score = chunk.get("rerank_score", chunk.get("similarity", "N/A"))
-                if isinstance(score, float):
-                    f.write(f"### Chunk {idx} (Score: {score:.4f})\n")
+            if not chunks:
+                if not need_retrieval:
+                    f.write("*Bypass Retrieval (No retrieval required for this turn).*\n")
                 else:
-                    f.write(f"### Chunk {idx} (Score: {score})\n")
-                
-                meta = chunk.get("metadata", {})
-                if meta:
-                    f.write("### Metadata:\n```json\n")
-                    import json
-                    f.write(json.dumps(meta, indent=2, ensure_ascii=False) + "\n```\n")
+                    f.write("*No chunks retrieved.*\n")
+            else:
+                f.write(f"## Retrieved Context Chunks ({len(chunks)} chunks)\n\n")
+                for idx, chunk in enumerate(chunks, 1):
+                    score = chunk.get("rerank_score", chunk.get("similarity", "N/A"))
+                    matched_q = chunk.get("matched_subquery", "")
+                    matched_q_str = f" | Subquery: `{matched_q}`" if matched_q else ""
+                    if isinstance(score, float):
+                        f.write(f"### Chunk {idx} (Score: {score:.4f}{matched_q_str})\n")
+                    else:
+                        f.write(f"### Chunk {idx} (Score: {score}{matched_q_str})\n")
                     
-                f.write("### Content:\n")
-                chunk_content = chunk.get("content", "").strip()
-                f.write(f"> {chunk_content.replace(chr(10), chr(10) + '> ')}\n\n")
-                f.write("---\n\n")
+                    meta = chunk.get("metadata", {})
+                    if meta:
+                        f.write("### Metadata:\n```json\n")
+                        import json
+                        f.write(json.dumps(meta, indent=2, ensure_ascii=False) + "\n```\n")
+                        
+                    f.write("### Content:\n")
+                    chunk_content = chunk.get("content", "").strip()
+                    f.write(f"> {chunk_content.replace(chr(10), chr(10) + '> ')}\n\n")
+                    f.write("---\n\n")
                 
         return file_path
     except Exception as e:
         print(f"Error writing full log: {e}")
         return ""
 
-async def write_full_rag_log_to_md(session_id: str, original_query: str, rewritten_query: str, chunks: list, past_memories: list, retrieval_latency_ms: int, rewrite_latency_ms: int, llm_latency_ms: int, prompt_tokens: int, completion_tokens: int, ai_answer: str, router_model: str = "Unknown", llm_model: str = "Unknown", intent: str = "Unknown") -> str:
-    return await asyncio.to_thread(_write_full_log, session_id, original_query, rewritten_query, chunks, past_memories, retrieval_latency_ms, rewrite_latency_ms, llm_latency_ms, prompt_tokens, completion_tokens, ai_answer, router_model, llm_model, intent)
+async def write_full_rag_log_to_md(session_id: str, original_query: str, rewritten_query: str, chunks: list, past_memories: list, retrieval_latency_ms: int, rewrite_latency_ms: int, llm_latency_ms: int, prompt_tokens: int, completion_tokens: int, ai_answer: str, router_model: str = "Unknown", llm_model: str = "Unknown", intent: str = "Unknown", need_retrieval: bool = True, router_reason: str = "", sub_queries: list = None) -> str:
+    return await asyncio.to_thread(_write_full_log, session_id, original_query, rewritten_query, chunks, past_memories, retrieval_latency_ms, rewrite_latency_ms, llm_latency_ms, prompt_tokens, completion_tokens, ai_answer, router_model, llm_model, intent, need_retrieval, router_reason, sub_queries)
 
 def _write_blocked_log(session_id: str, original_query: str, block_reason: str, block_source: str, ai_answer: str) -> str:
     now = datetime.now()
