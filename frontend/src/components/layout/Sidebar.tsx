@@ -2,6 +2,7 @@ import { GraduationCap, LayoutDashboard, MessageSquare, Languages, Settings, Hel
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useSettings } from "../../context/SettingsContext";
 import { useAuth } from "../../hooks/useAuth";
+import logoMark from "../../assets/brand/iuh-mark-256.png";
 
 interface NavItem {
   to: string;
@@ -36,9 +37,10 @@ export function Sidebar() {
         <NavLink
           to="/chat"
           title="IUH Portal AI - Trợ lý Sinh viên"
-          className="mb-4 flex h-9 w-9 items-center justify-center rounded-lg bg-white/10 font-bold text-white hover:bg-white/20 transition-all hover:scale-105 cursor-pointer shadow-sm"
+          className="mb-4 flex h-9 w-9 items-center justify-center rounded-lg bg-white p-1 hover:bg-white/90 transition-all hover:scale-105 cursor-pointer shadow-sm"
         >
-          E
+          {/* Nền trắng để logo xanh đậm không chìm vào nền thanh bên. */}
+          <img src={logoMark} alt="IUH" className="h-full w-full object-contain" />
         </NavLink>
         <nav className="flex flex-col gap-1.5">
           {NAV_ITEMS.filter(item => item.to !== "/admin" || user?.role === "admin").map(({ to, icon: Icon, key, label }) => {
