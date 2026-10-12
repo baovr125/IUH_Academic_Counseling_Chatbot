@@ -205,11 +205,83 @@ export interface TranslateRequest {
   targetLang: LanguageCode;
   sourceText: string;
   domain?: string;
+  /** Ngôn ngữ đã nhận diện ở lần trước; chỉ gửi khi sourceLang = "auto" để nhãn ổn định khi đang gõ. */
+  sourceLangHint?: LanguageCode;
+}
+
+export interface DetectionCandidate {
+  language: string;
+  confidence: number;
+}
+
+export type DetectionStatus = "detected" | "uncertain" | "unknown" | "unsupported" | "invalid_input" | "system_error";
+
+export type DetectionReason =
+  | "short_input"
+  | "low_confidence"
+  | "engines_disagree"
+  | "out_of_scope"
+  | "script_mismatch"
+  | "mixed_language";
+
+/** Mã lỗi backend trả về khi KHÔNG dịch vì ngôn ngữ nguồn chưa xác định được. */
+export const LANGUAGE_STOP_CODES = ["LANG_UNCERTAIN", "LANG_UNSUPPORTED", "LANG_UNKNOWN", "INVALID_INPUT"] as const;
+
+export interface LanguageDetectionDetails {
+  /** Chỉ có giá trị khi status = "detected" (hoặc ngôn ngữ do người dùng chọn thủ công). */
+  resolved_source_lang?: LanguageCode | null;
+  status: DetectionStatus;
+  confidence: number;
+  margin: number;
+  engine: "fusion" | "fasttext" | "lingua" | "script" | "hint" | "manual" | "none" | string;
+  /** Tối đa 3 ngôn ngữ được hỗ trợ có khả năng cao nhất (dùng cho UI chọn ngôn ngữ). */
+  candidates?: DetectionCandidate[];
+  is_multilingual?: boolean;
+  message?: string | null;
+  reason?: DetectionReason | null;
+  /** Với status = "unsupported": ngôn ngữ thực tế được nhận ra (vd "it", "ar"). */
+  detected_language?: string | null;
+}
+
+export type WarningSeverity = "info" | "warning" | "error";
+
+export interface DomainCandidate {
+  domain: string;
+  term?: string | null;
+  translation?: string | null;
+}
+
+/** Kết quả chọn/nhận diện chuyên ngành (chế độ dịch bằng LLM). */
+export interface DomainDetails {
+  /** selected: người dùng chọn thủ công | detected | ambiguous | unknown | error | skipped */
+  status: "selected" | "detected" | "ambiguous" | "unknown" | "error" | "skipped" | string;
+  domain?: string | null;
+  confidence: number;
+  method: "manual" | "exact" | "llm" | "lexical_llm" | "none" | string;
+  matched_terms?: string[];
+  applied_terms?: string[];
+  /** Với status = "ambiguous": các domain cùng chứa thuật ngữ (UI cho người dùng chọn). */
+  candidates?: DomainCandidate[];
+  reason?: string | null;
+  /** Nguồn bản dịch: "dictionary" | "nllb" | "llm:<provider>:<model>". */
+  translator?: string | null;
+}
+
+/** Cảnh báo có cấu trúc từ backend; UI gộp theo `code`. */
+export interface TranslationWarning {
+  code: string;
+  severity: WarningSeverity;
+  message: string;
+  domain?: string | null;
+  candidates?: DomainCandidate[];
 }
 
 export interface TranslateResponse {
   translatedText: string;
   detectedSourceLang?: LanguageCode;
+  detection?: LanguageDetectionDetails;
+  domainDetails?: DomainDetails;
+  warnings?: TranslationWarning[];
 }
 
 export interface TranslationHistoryItem {
@@ -273,6 +345,8 @@ export interface ApiError {
   code?: string;
   field?: string;
   details?: ApiErrorDetail[];
+  /** Có khi lỗi đến từ bước nhận diện ngôn ngữ nguồn (LANG_* / INVALID_INPUT). */
+  detection?: LanguageDetectionDetails;
 }
 
 /** Every mock/real service call resolves to this envelope. */

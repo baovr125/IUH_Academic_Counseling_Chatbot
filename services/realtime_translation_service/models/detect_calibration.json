@@ -1,0 +1,38 @@
+{
+  "version": "20261010T043300Z-dev327",
+  "features": [
+    "p1",
+    "margin",
+    "agree",
+    "short",
+    "purity",
+    "length",
+    "support"
+  ],
+  "bias": 2.0997111841825724,
+  "coef": {
+    "p1": 0.5400648350282957,
+    "margin": 1.1011034000335085,
+    "agree": 0.5861948106657224,
+    "short": -1.6365931892234697,
+    "purity": -0.0010287795564442146,
+    "length": 0.6330412429199166,
+    "support": 0.7645023557817848
+  },
+  "thresholds": {
+    "short": 0.8,
+    "medium": 0.88,
+    "long": 0.85
+  },
+  "unsupported_thresholds": {
+    "short": 0.9323,
+    "medium": 0.88,
+    "long": 0.85
+  },
+  "fit": {
+    "samples": 327,
+    "C": 0.5,
+    "oof_ece": 0.02460175626589564,
+    "rule": "threshold = worst out-of-fold wrong meta in group + 0.01, floor per bucket"
+  }
+}

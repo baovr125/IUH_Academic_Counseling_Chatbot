@@ -117,7 +117,8 @@ async def process_flashcard_created_event(message: aio_pika.IncomingMessage):
 async def start_rabbitmq_tts_consumer():
     global _channel, _exchange
     try:
-        connection = await aio_pika.connect_robust(RABBITMQ_URL)
+        timeout = float(os.getenv("RABBITMQ_CONNECT_TIMEOUT", "1.5"))
+        connection = await asyncio.wait_for(aio_pika.connect_robust(RABBITMQ_URL), timeout=timeout)
         _channel = await connection.channel()
         await _channel.set_qos(prefetch_count=1)
         

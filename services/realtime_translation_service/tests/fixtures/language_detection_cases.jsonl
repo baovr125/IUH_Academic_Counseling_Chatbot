@@ -1,0 +1,10 @@
+{"id":"fix_001","text":"Trí tuệ nhân tạo đang thay đổi giáo dục","expected_primary_language":"vi","expected_status":"detected","category":"standard_natural_language","is_valid_detection_target":true}
+{"id":"fix_002","text":"Machine learning transforms healthcare","expected_primary_language":"en","expected_status":"detected","category":"standard_natural_language","is_valid_detection_target":true}
+{"id":"fix_003","text":"toi dang hoc lap trinh","expected_primary_language":"vi","expected_status":"detected","category":"vietnamese_no_diacritic","is_valid_detection_target":true}
+{"id":"fix_004","text":"gonna finish this homework asap","expected_primary_language":"en","expected_status":"detected","category":"slang_abbreviation","is_valid_detection_target":true}
+{"id":"fix_005","text":"   ","expected_primary_language":null,"expected_status":"invalid_input","category":"status_normalization","is_valid_detection_target":false}
+{"id":"fix_006","text":"😊👍🎉","expected_primary_language":null,"expected_status":"unknown","category":"status_normalization","is_valid_detection_target":false}
+{"id":"fix_007","text":"Hôm nay tôi có meeting với team","expected_primary_language":"vi","expected_status":"detected","category":"code_switching","is_valid_detection_target":true}
+{"id":"fix_008","text":"I thnk this machin learing is intersting","expected_primary_language":"en","expected_status":"detected","category":"typo","is_valid_detection_target":true}
+{"id":"fix_009","text":"<b>Sinh viên cần đăng ký trước</b>","expected_primary_language":"vi","expected_status":"detected","category":"url_html_code","is_valid_detection_target":true}
+{"id":"fix_010","text":"ok","expected_primary_language":"en","expected_status":"uncertain","category":"status_normalization","is_valid_detection_target":true}

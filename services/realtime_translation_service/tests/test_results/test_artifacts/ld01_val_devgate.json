@@ -1,0 +1,105 @@
+{
+  "metrics": {
+    "samples": 144,
+    "accuracy_clear_strict": 1.0,
+    "accuracy_all_strict": 0.8709677419354839,
+    "accuracy_all_or_abstain": 1.0,
+    "vietnamese_strict": 1.0,
+    "vietnamese_or_abstain": 1.0,
+    "short_or_abstain": 1.0,
+    "wrong_confident_rate": 0.0,
+    "wrong_confident_among_detected": 0.0,
+    "oos_false_accept": 0.0,
+    "oos_recall": 1.0,
+    "latency_p50_ms": 0.14009999904374126,
+    "latency_p95_ms": 0.4650000009860378,
+    "latency_p99_ms": 4.636400000890717,
+    "per_category": {
+      "code_switching": {
+        "correct": 4
+      },
+      "extreme": {
+        "correct": 1
+      },
+      "html": {
+        "correct": 4
+      },
+      "invalid_or_non_language": {
+        "correct": 1
+      },
+      "marker_trap": {
+        "correct": 1
+      },
+      "out_of_scope": {
+        "correct": 19
+      },
+      "short": {
+        "abstain_ok": 4,
+        "correct": 7
+      },
+      "slang_abbreviation": {
+        "correct": 1
+      },
+      "standard_long": {
+        "correct": 30
+      },
+      "standard_medium": {
+        "correct": 17
+      },
+      "typing_prefix": {
+        "abstain_ok": 12,
+        "correct": 28
+      },
+      "url_email": {
+        "correct": 3
+      },
+      "vietnamese_no_diacritic": {
+        "correct": 7
+      },
+      "vietnamese_teencode": {
+        "correct": 4
+      },
+      "vietnamese_wrong_diacritic": {
+        "correct": 1
+      }
+    }
+  },
+  "gates": {
+    "accuracy_clear_strict": {
+      "value": 1.0,
+      "target": ">= 0.96",
+      "pass": true,
+      "applicable": true
+    },
+    "vietnamese_or_abstain": {
+      "value": 1.0,
+      "target": ">= 0.98",
+      "pass": true,
+      "applicable": true
+    },
+    "short_or_abstain": {
+      "value": 1.0,
+      "target": ">= 0.92",
+      "pass": true,
+      "applicable": true
+    },
+    "wrong_confident_rate": {
+      "value": 0.0,
+      "target": "<= 0.01",
+      "pass": true,
+      "applicable": true
+    },
+    "oos_false_accept": {
+      "value": 0.0,
+      "target": "<= 0.07",
+      "pass": true,
+      "applicable": true
+    },
+    "latency_p95_ms": {
+      "value": 0.4650000009860378,
+      "target": "<= 30.0",
+      "pass": true,
+      "applicable": true
+    }
+  }
+}

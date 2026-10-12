@@ -1,0 +1,85 @@
+{
+ "dictionary_rows": 246,
+ "domains": [
+  "Công nghệ Thông tin (IT)",
+  "Kinh tế / Tài chính",
+  "Kỹ thuật Cơ khí",
+  "Luật / Pháp lý",
+  "Marketing",
+  "Y khoa / Sức khỏe"
+ ],
+ "max_words": 4,
+ "exact": {
+  "original": {
+   "hit": 246,
+   "total": 246
+  },
+  "upper": {
+   "hit": 246,
+   "total": 246
+  },
+  "article_the": {
+   "hit": 246,
+   "total": 246
+  },
+  "plural": {
+   "hit": 245,
+   "total": 246
+  }
+ },
+ "exact_misses": [
+  {
+   "form": "plural",
+   "word": "negligence per se",
+   "query": "negligence per ses",
+   "got": []
+  }
+ ],
+ "non_terms": 50,
+ "non_term_false_hits": [],
+ "text_chars": 888,
+ "scan_scale": {
+  "246": {
+   "entries": 246,
+   "build_ms": 2.121200002875412,
+   "first_scan_ms": 294.7734000008495,
+   "warm_scan": {
+    "p50_ms": 2.3634999997739214,
+    "max_ms": 3.635499997471925,
+    "mean_ms": 2.429403999740316,
+    "n": 100
+   },
+   "python_mem_kib": 302.8818359375,
+   "python_peak_kib": 440.0234375,
+   "matches": 24
+  },
+  "1000": {
+   "entries": 1000,
+   "build_ms": 11.352999998052837,
+   "first_scan_ms": 755.9914999983448,
+   "warm_scan": {
+    "p50_ms": 9.414149999429355,
+    "max_ms": 11.034200000722194,
+    "mean_ms": 9.46648399989499,
+    "n": 100
+   },
+   "python_mem_kib": 1295.296875,
+   "python_peak_kib": 1429.5625,
+   "matches": 24
+  },
+  "10000": {
+   "entries": 10000,
+   "build_ms": 118.62090000067838,
+   "first_scan_ms": 6383.082700001978,
+   "warm_scan": {
+    "p50_ms": 1785.1592999995773,
+    "max_ms": 2054.6897999993234,
+    "mean_ms": 1740.315069999997,
+    "n": 20
+   },
+   "python_mem_kib": 6563.7587890625,
+   "python_peak_kib": 7040.45703125,
+   "matches": 24
+  }
+ }
+}

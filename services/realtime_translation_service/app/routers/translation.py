@@ -1,21 +1,23 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException, Depends
 from fastapi.responses import StreamingResponse, Response
 from sse_starlette.sse import EventSourceResponse
 import edge_tts
 import hashlib
+import asyncio
 from typing import Optional
 from app.schemas.translation import (
     TranslateRequest, LookupRequest, TranslateResponse, ApiResult,
     StreamTranslateRequest, FlashcardExtractRequest,
-    WordAnalysisRequest, WordAnalysisResponse
+    WordAnalysisRequest, WordAnalysisResponse,
+    LanguageDetectRequest, LanguageDetectionDetails
 )
 from app.services.translation_service import translate_text
+from app.services.language_detection import adetect_language_detailed
 from app.services.llm_service import stream_translation, extract_flashcard
 from app.services.dictionary_service import get_word_audio
 from app.services.cache_service import get_cached_audio_url, set_cached_audio_url
 from app.utils.minio_client import upload_audio_bytes, get_audio_bytes, audio_exists
 from app.utils.logger import logger
-from fastapi import Depends
 from app.utils.security import get_current_user_id
 
 router = APIRouter(tags=["Real-time Translation Service"])
@@ -135,12 +137,22 @@ async def get_audio_endpoint(object_name: str):
 
 @router.post("/text")
 async def translate_endpoint(payload: TranslateRequest, user_id: str = Depends(get_current_user_id)):
-    translated_text, cached, latency_ms, warning, detected_source_lang = await translate_text(
+    res = await translate_text(
         text=payload.text,
         source_lang=payload.source_lang,
         target_lang=payload.target_lang,
-        domain=payload.domain
+        domain=payload.domain,
+        source_lang_hint=payload.source_lang_hint,
     )
+    translated_text = res[0]
+    cached = res[1]
+    latency_ms = res[2]
+    warning = res[3]
+    detected_source_lang = res[4] if len(res) > 4 else None
+    detection_details = res[5] if len(res) > 5 else None
+    domain_details = res[6] if len(res) > 6 else None
+    domain_warnings = res[7] if len(res) > 7 else []
+
     resolved_lang = detected_source_lang if payload.source_lang == "auto" else payload.source_lang
     return ApiResult(
         ok=True,
@@ -151,8 +163,24 @@ async def translate_endpoint(payload: TranslateRequest, user_id: str = Depends(g
             cached=cached,
             latency_ms=latency_ms,
             warning=warning,
-            resolved_source_lang=resolved_lang
+            resolved_source_lang=resolved_lang,
+            detection=detection_details,
+            domain=domain_details,
+            warnings=domain_warnings,
         )
+    )
+
+@router.post("/detect")
+async def detect_endpoint(payload: LanguageDetectRequest, user_id: str = Depends(get_current_user_id)):
+    """Endpoint nhận diện ngôn ngữ độc lập: luôn trả chi tiết chuẩn hóa (kể cả uncertain/unsupported)."""
+    details = await adetect_language_detailed(payload.text, payload.source_lang_hint)
+    if details.status == "invalid_input":
+        raise HTTPException(status_code=400, detail=details.message or "Vui lòng nhập văn bản.")
+    elif details.status == "system_error":
+        raise HTTPException(status_code=503, detail=details.message or "Lỗi hệ thống khi nhận diện ngôn ngữ.")
+    return ApiResult(
+        ok=True,
+        data=details
     )
 
 @router.post("/stream")
@@ -163,7 +191,8 @@ async def stream_translate_endpoint(payload: StreamTranslateRequest, user_id: st
             text=payload.text,
             source_lang=payload.source_lang,
             target_lang=payload.target_lang,
-            domain=payload.domain
+            domain=payload.domain,
+            source_lang_hint=payload.source_lang_hint,
         )
     )
 
@@ -191,11 +220,14 @@ async def flashcard_endpoint(payload: FlashcardExtractRequest, user_id: str = De
 
 @router.post("/lookup")
 async def lookup_endpoint(payload: LookupRequest, user_id: str = Depends(get_current_user_id)):
-    translated_text, cached, latency_ms, _, _ = await translate_text(
+    res = await translate_text(
         text=payload.word,
         source_lang="en",
         target_lang="vi"
     )
+    translated_text = res[0]
+    cached = res[1]
+    latency_ms = res[2]
     phonetic = "/.../"
     try:
         dict_info = await get_word_audio(payload.word, lang="en")

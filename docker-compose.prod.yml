@@ -107,6 +107,11 @@ services:
     build:
       context: ./services/realtime_translation_service
     container_name: iuh_realtime_translation_service_prod
+    gpus: all
+    environment:
+      NLLB_DEVICE: cuda
+      NVIDIA_VISIBLE_DEVICES: all
+      NVIDIA_DRIVER_CAPABILITIES: compute,utility
     env_file:
       - .env.prod
     depends_on:

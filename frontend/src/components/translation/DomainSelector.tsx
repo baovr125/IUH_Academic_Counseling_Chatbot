@@ -4,6 +4,8 @@ import { Search, ChevronDown, Check } from "lucide-react";
 export interface DomainSelectorProps {
   value: string;
   onChange: (domain: string) => void;
+  /** Lĩnh vực đã tự nhận diện (chỉ dùng khi value = "auto"), hiển thị như nhãn ngôn ngữ đã nhận diện. */
+  detectedDomain?: string | null;
 }
 
 const PREDEFINED_DOMAINS = [
@@ -15,7 +17,7 @@ const PREDEFINED_DOMAINS = [
   "Marketing",
 ];
 
-export const DomainSelector: React.FC<DomainSelectorProps> = ({ value, onChange }) => {
+export const DomainSelector: React.FC<DomainSelectorProps> = ({ value, onChange, detectedDomain }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -45,7 +47,9 @@ export const DomainSelector: React.FC<DomainSelectorProps> = ({ value, onChange 
         onClick={() => setIsOpen(true)}
       >
         <span className="text-sm font-medium text-gray-700 truncate">
-          {value === "auto" ? "✨ Tự động nhận diện" : (value || "Chọn lĩnh vực dịch thuật...")}
+          {value === "auto"
+            ? `✨ Tự động nhận diện${detectedDomain ? ` (${detectedDomain})` : ""}`
+            : (value || "Chọn lĩnh vực dịch thuật...")}
         </span>
         <ChevronDown size={16} className={`text-gray-400 transition-transform ${isOpen ? "rotate-180" : ""}`} />
       </div>

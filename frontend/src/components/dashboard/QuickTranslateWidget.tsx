@@ -36,6 +36,7 @@ export const QuickTranslateWidget: React.FC = () => {
   const [isTranslating, setIsTranslating] = useState(false);
   const [isSavedFlashcard, setIsSavedFlashcard] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [translateError, setTranslateError] = useState<string | null>(null);
 
   const handleSwap = () => {
     const tempLang = sourceLang;
@@ -52,6 +53,7 @@ export const QuickTranslateWidget: React.FC = () => {
 
     setIsTranslating(true);
     setIsSavedFlashcard(false);
+    setTranslateError(null);
     try {
       const res = await translateText({
         sourceText: inputText.trim(),
@@ -61,9 +63,15 @@ export const QuickTranslateWidget: React.FC = () => {
 
       if (res.ok && res.data) {
         setTranslatedResult(res.data.translatedText);
+      } else if (!res.ok) {
+        // Hiển thị lỗi thật của dịch vụ thay vì một bản dịch giả.
+        setTranslatedResult("");
+        setTranslateError(res.error.message);
       }
     } catch (err) {
       console.error("Translation error in widget:", err);
+      setTranslatedResult("");
+      setTranslateError("Không thể kết nối đến dịch vụ dịch thuật.");
     } finally {
       setIsTranslating(false);
     }
@@ -215,6 +223,8 @@ export const QuickTranslateWidget: React.FC = () => {
               <p className="text-xs font-medium text-slate-800 dark:text-slate-100 leading-relaxed select-text">
                 {translatedResult}
               </p>
+            ) : translateError ? (
+              <p role="alert" className="text-xs font-medium text-red-600 dark:text-red-400">{translateError}</p>
             ) : (
               <p className="text-xs italic text-slate-400">Kết quả dịch thuật AI sẽ hiển thị tại đây...</p>
             )}

@@ -1,0 +1,86 @@
+{"id": "dev-001", "text": "After the release, we noticed a memory leak in the worker process, so we profiled the heap and fixed the unclosed connections.", "domain": "Công nghệ Thông tin (IT)", "kind": "in_domain"}
+{"id": "dev-002", "text": "Using a circuit breaker and rate limiting in front of the payment API prevented the cascading failure during the outage.", "domain": "Công nghệ Thông tin (IT)", "kind": "in_domain"}
+{"id": "dev-003", "text": "The team decided to pay down technical debt before adding new features to the legacy code.", "domain": "Công nghệ Thông tin (IT)", "kind": "in_domain"}
+{"id": "dev-004", "text": "Transfer learning lets us start from a pretrained embedding model and fine-tuning it on a small labelled dataset.", "domain": "Công nghệ Thông tin (IT)", "kind": "in_domain"}
+{"id": "dev-005", "text": "Two threads updated the counter at the same time, producing a race condition that only appeared under heavy load.", "domain": "Công nghệ Thông tin (IT)", "kind": "in_domain"}
+{"id": "dev-006", "text": "The pull request adds a new REST endpoint and updates the unit tests for the authentication middleware.", "domain": "Công nghệ Thông tin (IT)", "kind": "in_domain"}
+{"id": "dev-007", "text": "We migrated the monolith to Kubernetes and configured autoscaling for the stateless services.", "domain": "Công nghệ Thông tin (IT)", "kind": "in_domain"}
+{"id": "dev-008", "text": "SQL injection remains a common vulnerability when user input is concatenated into database queries.", "domain": "Công nghệ Thông tin (IT)", "kind": "in_domain"}
+{"id": "dev-009", "text": "The compiler reports a type mismatch because the function returns a string instead of an integer.", "domain": "Công nghệ Thông tin (IT)", "kind": "in_domain"}
+{"id": "dev-010", "text": "The clinical trial reported a mild side effect in twelve percent of patients, and no adverse drug reaction required hospitalisation.", "domain": "Y khoa / Sức khỏe", "kind": "in_domain"}
+{"id": "dev-011", "text": "Patients with a history of myocardial infarction and heart failure are at a higher risk factor for readmission.", "domain": "Y khoa / Sức khỏe", "kind": "in_domain"}
+{"id": "dev-012", "text": "Before the study began, every participant gave informed consent and was randomised in a double-blind study.", "domain": "Y khoa / Sức khỏe", "kind": "in_domain"}
+{"id": "dev-013", "text": "The team compared a cohort study with a case-control study to account for a confounding factor.", "domain": "Y khoa / Sức khỏe", "kind": "in_domain"}
+{"id": "dev-014", "text": "Triage nurses assess vital signs first so that patients in respiratory distress are treated immediately.", "domain": "Y khoa / Sức khỏe", "kind": "in_domain"}
+{"id": "dev-015", "text": "The surgeon removed the inflamed appendix laparoscopically and the patient was discharged the next day.", "domain": "Y khoa / Sức khỏe", "kind": "in_domain"}
+{"id": "dev-016", "text": "Metformin is commonly prescribed to lower blood glucose in people with type 2 diabetes.", "domain": "Y khoa / Sức khỏe", "kind": "in_domain"}
+{"id": "dev-017", "text": "A chest X-ray showed pneumonia in the lower lobe of the right lung, so antibiotics were started.", "domain": "Y khoa / Sức khỏe", "kind": "in_domain"}
+{"id": "dev-018", "text": "The vaccine stimulates antibody production and reduces the severity of influenza in older adults.", "domain": "Y khoa / Sức khỏe", "kind": "in_domain"}
+{"id": "dev-019", "text": "Investors worried about an inverted yield curve as the central bank continued quantitative tightening.", "domain": "Kinh tế / Tài chính", "kind": "in_domain"}
+{"id": "dev-020", "text": "A hedge fund and a mutual fund may hold the same stock but differ greatly in fees and strategy.", "domain": "Kinh tế / Tài chính", "kind": "in_domain"}
+{"id": "dev-021", "text": "The sunk cost fallacy makes managers continue a failing project because of the opportunity cost they ignore.", "domain": "Kinh tế / Tài chính", "kind": "in_domain"}
+{"id": "dev-022", "text": "Free cash flow improved while accounts receivable and working capital stayed under control.", "domain": "Kinh tế / Tài chính", "kind": "in_domain"}
+{"id": "dev-023", "text": "The bank's net interest margin narrowed as the credit spread on corporate loans tightened.", "domain": "Kinh tế / Tài chính", "kind": "in_domain"}
+{"id": "dev-024", "text": "Rising unemployment and weaker consumer spending pushed the government to cut taxes and raise subsidies.", "domain": "Kinh tế / Tài chính", "kind": "in_domain"}
+{"id": "dev-025", "text": "The company reported higher quarterly profit and announced a dividend of fifty cents per share.", "domain": "Kinh tế / Tài chính", "kind": "in_domain"}
+{"id": "dev-026", "text": "Exchange rate volatility has made imports more expensive and widened the trade deficit.", "domain": "Kinh tế / Tài chính", "kind": "in_domain"}
+{"id": "dev-027", "text": "The portfolio manager rebalanced the assets toward government bonds to reduce risk.", "domain": "Kinh tế / Tài chính", "kind": "in_domain"}
+{"id": "dev-028", "text": "Because of stress concentration at the fillet, the shaft showed fatigue failure well below its yield strength.", "domain": "Kỹ thuật Cơ khí", "kind": "in_domain"}
+{"id": "dev-029", "text": "We increased the cutting speed and feed rate, but tool wear and built-up edge reduced the surface roughness quality.", "domain": "Kỹ thuật Cơ khí", "kind": "in_domain"}
+{"id": "dev-030", "text": "An interference fit or a press fit is used when the hub must not slip on the shaft.", "domain": "Kỹ thuật Cơ khí", "kind": "in_domain"}
+{"id": "dev-031", "text": "Heat treatment such as quench hardening improves hardness but may leave residual stress in the heat-affected zone near the weld.", "domain": "Kỹ thuật Cơ khí", "kind": "in_domain"}
+{"id": "dev-032", "text": "The designer applied a factor of safety of two and checked dimensional tolerance with a coordinate measuring machine.", "domain": "Kỹ thuật Cơ khí", "kind": "in_domain"}
+{"id": "dev-033", "text": "The hydraulic cylinder extends when pressurised oil enters the cap end of the piston.", "domain": "Kỹ thuật Cơ khí", "kind": "in_domain"}
+{"id": "dev-034", "text": "A helical gear runs more quietly than a spur gear because the teeth engage gradually.", "domain": "Kỹ thuật Cơ khí", "kind": "in_domain"}
+{"id": "dev-035", "text": "The lathe spindle was aligned and the chuck was tightened before turning the workpiece to the required diameter.", "domain": "Kỹ thuật Cơ khí", "kind": "in_domain"}
+{"id": "dev-036", "text": "A centrifugal pump converts rotational energy from the impeller into kinetic energy of the fluid.", "domain": "Kỹ thuật Cơ khí", "kind": "in_domain"}
+{"id": "dev-037", "text": "The plaintiff failed to meet the burden of proof, so the court applied the presumption of innocence and dismissed the claim.", "domain": "Luật / Pháp lý", "kind": "in_domain"}
+{"id": "dev-038", "text": "Under the contract, force majeure excuses delay, but a material breach allows the other party to terminate.", "domain": "Luật / Pháp lý", "kind": "in_domain"}
+{"id": "dev-039", "text": "The statute of limitations had expired before the class action was filed.", "domain": "Luật / Pháp lý", "kind": "in_domain"}
+{"id": "dev-040", "text": "The court issued a restraining order and later granted an injunction against further trademark infringement.", "domain": "Luật / Pháp lý", "kind": "in_domain"}
+{"id": "dev-041", "text": "Both parties signed a non-disclosure agreement and a settlement agreement to avoid litigation.", "domain": "Luật / Pháp lý", "kind": "in_domain"}
+{"id": "dev-042", "text": "The tenant must give written notice to the landlord before terminating the lease agreement.", "domain": "Luật / Pháp lý", "kind": "in_domain"}
+{"id": "dev-043", "text": "The defendant was convicted of fraud and sentenced to three years in prison.", "domain": "Luật / Pháp lý", "kind": "in_domain"}
+{"id": "dev-044", "text": "The appeal court overturned the verdict because the judge had admitted unreliable evidence.", "domain": "Luật / Pháp lý", "kind": "in_domain"}
+{"id": "dev-045", "text": "The company's board adopted a compliance policy to meet new data protection regulations.", "domain": "Luật / Pháp lý", "kind": "in_domain"}
+{"id": "dev-046", "text": "To improve the customer journey, we mapped every customer touchpoint and tracked the bounce rate on landing pages.", "domain": "Marketing", "kind": "in_domain"}
+{"id": "dev-047", "text": "The campaign increased brand awareness, but customer acquisition cost rose as the click-through rate fell.", "domain": "Marketing", "kind": "in_domain"}
+{"id": "dev-048", "text": "Retargeting and lookalike audience ads improved return on ad spend at the bottom of the funnel.", "domain": "Marketing", "kind": "in_domain"}
+{"id": "dev-049", "text": "A strong call to action and social proof raised the conversion rate on the product page.", "domain": "Marketing", "kind": "in_domain"}
+{"id": "dev-050", "text": "Product-market fit comes first; only then should a go-to-market strategy and brand positioning be scaled.", "domain": "Marketing", "kind": "in_domain"}
+{"id": "dev-051", "text": "The agency designed a new logo and tagline to refresh the company's image among young consumers.", "domain": "Marketing", "kind": "in_domain"}
+{"id": "dev-052", "text": "We segmented the newsletter list by age and sent personalised offers to loyal shoppers.", "domain": "Marketing", "kind": "in_domain"}
+{"id": "dev-053", "text": "The influencer posted a short video review that drove thousands of visits to the online store.", "domain": "Marketing", "kind": "in_domain"}
+{"id": "dev-054", "text": "Market research showed that customers prefer eco-friendly packaging and clear pricing.", "domain": "Marketing", "kind": "in_domain"}
+{"id": "dev-055", "text": "We booked a small hotel near the old town and spent the weekend walking along the river.", "domain": "unknown", "kind": "ood"}
+{"id": "dev-056", "text": "Mix the flour, two eggs and a pinch of salt, then let the dough rest for thirty minutes.", "domain": "unknown", "kind": "ood"}
+{"id": "dev-057", "text": "The goalkeeper saved a penalty in the last minute and the crowd erupted.", "domain": "unknown", "kind": "ood"}
+{"id": "dev-058", "text": "The protagonist of the novel struggles with loneliness after moving to a new city.", "domain": "unknown", "kind": "ood"}
+{"id": "dev-059", "text": "It rained all morning, but the sun came out in the afternoon and we went for a walk.", "domain": "unknown", "kind": "ood"}
+{"id": "dev-060", "text": "The emperor ordered a great wall to be built along the northern border.", "domain": "unknown", "kind": "ood"}
+{"id": "dev-061", "text": "Wild horses galloped across the valley while eagles circled above the cliffs.", "domain": "unknown", "kind": "ood"}
+{"id": "dev-062", "text": "The band played an old song and everybody in the café started singing along.", "domain": "unknown", "kind": "ood"}
+{"id": "dev-063", "text": "Could you please send me the photos from the birthday party?", "domain": "unknown", "kind": "ood"}
+{"id": "dev-064", "text": "Our teacher asked us to draw a picture of our favourite animal.", "domain": "unknown", "kind": "ood"}
+{"id": "dev-065", "text": "She forgot her umbrella on the bus and had to run home in the rain.", "domain": "unknown", "kind": "ood"}
+{"id": "dev-066", "text": "The children built a sandcastle and decorated it with shells.", "domain": "unknown", "kind": "ood"}
+{"id": "dev-067", "text": "Last summer we visited my cousins in the countryside and helped them harvest rice.", "domain": "unknown", "kind": "ood"}
+{"id": "dev-068", "text": "He felt nervous before the interview, but the manager was friendly and relaxed.", "domain": "unknown", "kind": "ood"}
+{"id": "dev-069", "text": "The film begins in a quiet village and ends with a dramatic storm at sea.", "domain": "unknown", "kind": "ood"}
+{"id": "dev-070", "text": "I usually drink green tea in the morning and read the newspaper on the balcony.", "domain": "unknown", "kind": "ood"}
+{"id": "dev-071", "text": "Adding too much salt had an unexpected side effect on the sauce, and everyone left the table early.", "domain": "unknown", "kind": "stray"}
+{"id": "dev-072", "text": "The bear market stall at the village fair sold honey, bread and wool socks.", "domain": "unknown", "kind": "stray"}
+{"id": "dev-073", "text": "Please press fit the cork into the bottle and shake it before serving.", "domain": "unknown", "kind": "stray"}
+{"id": "dev-074", "text": "My favourite part of the play was the call to action at the end, when the audience stood up.", "domain": "unknown", "kind": "stray"}
+{"id": "dev-075", "text": "memory leak", "domain": "Công nghệ Thông tin (IT)", "kind": "short"}
+{"id": "dev-076", "text": "Side effects", "domain": "Y khoa / Sức khỏe", "kind": "short"}
+{"id": "dev-077", "text": "yield curve", "domain": "Kinh tế / Tài chính", "kind": "short"}
+{"id": "dev-078", "text": "Heat treatments", "domain": "Kỹ thuật Cơ khí", "kind": "short"}
+{"id": "dev-079", "text": "burden of proof", "domain": "Luật / Pháp lý", "kind": "short"}
+{"id": "dev-080", "text": "the bounce rate", "domain": "Marketing", "kind": "short"}
+{"id": "dev-081", "text": "geometric dimensioning and tolerancing", "domain": "Kỹ thuật Cơ khí", "kind": "short"}
+{"id": "dev-082", "text": "technical debts", "domain": "Công nghệ Thông tin (IT)", "kind": "short"}
+{"id": "dev-083", "text": "Intensive care unit", "domain": "Y khoa / Sức khỏe", "kind": "short"}
+{"id": "dev-084", "text": "retargeting", "domain": "Marketing", "kind": "short"}
+{"id": "dev-085", "text": "apple pie", "domain": "unknown", "kind": "short"}
+{"id": "dev-086", "text": "good morning", "domain": "unknown", "kind": "short"}

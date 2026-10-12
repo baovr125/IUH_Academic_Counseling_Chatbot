@@ -1,0 +1,70 @@
+{
+ "summary": {
+  "scenario": "no_provider",
+  "samples": 5,
+  "with_translation": 5,
+  "translator_nllb": 5,
+  "warnings_exactly_fallback": 5,
+  "errors": 0,
+  "first_ms": 7602.488299999095,
+  "rest_ms_max": 242.44130000079167,
+  "rest_ms_mean": 188.82114999996702
+ },
+ "items": [
+  {
+   "id": "val-001",
+   "ms": 7602.488299999095,
+   "text": "Dịch vụ của chúng tôi sử dụng tiêm phụ thuộc và vòng lặp sự kiện để xử lý hàng ngàn kết nối đồng thời.",
+   "warnings": [
+    "FALLBACK_NLLB"
+   ],
+   "translator": "nllb",
+   "error": null,
+   "groq_cooling": false
+  },
+  {
+   "id": "val-002",
+   "ms": 242.44130000079167,
+   "text": "Cơ chế chú ý giúp mô hình tập trung vào các token liên quan, nhưng một cửa sổ ngữ cảnh dài làm tăng chi phí bộ nhớ.",
+   "warnings": [
+    "FALLBACK_NLLB"
+   ],
+   "translator": "nllb",
+   "error": null,
+   "groq_cooling": false
+  },
+  {
+   "id": "val-003",
+   "ms": 113.2551999980933,
+   "text": "<p>Sự ảo giác là một nguy cơ lớn trong<b>thế hệ tăng cường thu hồi</b>khi cơ sở dữ liệu vector trả về các đoạn không liên quan.</p>",
+   "warnings": [
+    "FALLBACK_NLLB"
+   ],
+   "translator": "nllb",
+   "error": null,
+   "groq_cooling": false
+  },
+  {
+   "id": "val-004",
+   "ms": 185.24339999930817,
+   "text": "Hướng dẫn vô hiệu hóa cache chỉ xuất hiện sau khi công việc cron ban đêm khởi động lại container.",
+   "warnings": [
+    "FALLBACK_NLLB"
+   ],
+   "translator": "nllb",
+   "error": null,
+   "groq_cooling": false
+  },
+  {
+   "id": "val-005",
+   "ms": 214.34470000167494,
+   "text": "Các nhà phát triển nên xác nhận từng bộ truy vấn API và mật khẩu hash trước khi lưu trữ chúng trong cơ sở dữ liệu.",
+   "warnings": [
+    "FALLBACK_NLLB"
+   ],
+   "translator": "nllb",
+   "error": null,
+   "groq_cooling": false
+  }
+ ]
+}

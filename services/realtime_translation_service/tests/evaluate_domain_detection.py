@@ -5,7 +5,7 @@ import sys
 # Đảm bảo đường dẫn module được nhận dạng
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from app.services.domain_service import auto_detect_domain_long
+from app.services.domain_translation import collect_domain_translation
 from colorama import init, Fore, Style
 
 init(autoreset=True)
@@ -39,7 +39,7 @@ VALIDATION_DATA = [
 ]
 
 async def evaluate():
-    print(f"{Fore.CYAN}Bắt đầu đánh giá độ tin cậy LLM Zero-shot Classification...{Style.RESET_ALL}\n")
+    print(f"{Fore.CYAN}Bắt đầu đánh giá nhận diện chuyên ngành (một lời gọi LLM nhận diện + dịch)...{Style.RESET_ALL}\n")
     
     correct = 0
     total = len(VALIDATION_DATA)
@@ -49,7 +49,10 @@ async def evaluate():
         expected = item["expected"]
         
         print(f"Test {idx+1}: {text[:60]}...")
-        detected = await auto_detect_domain_long(text)
+        # Chạy đúng đường production: một lời gọi LLM nhận diện + dịch (cần GROQ_API_KEY/GEMINI_API_KEY và Supabase).
+        result = await collect_domain_translation(text, "en", "vi", "auto")
+        details = result["domain"] or {}
+        detected = details.get("domain") or ""
         
         if detected == expected:
             print(f"  {Fore.GREEN}[PASS]{Style.RESET_ALL} LLM đoán: '{detected}' | Mong đợi: '{expected}'")

@@ -50,6 +50,31 @@ def set_cached_translation(key: str, value: str, warning: str = None, ttl: int =
         except Exception as e:
             logger.warning(f"Redis set error: {e}")
 
+def get_cached_domain_result(key: str) -> Optional[dict]:
+    """Kết quả dịch theo chuyên ngành (bản dịch + domain + cảnh báo) dạng JSON."""
+    import json
+
+    r = get_redis()
+    if r:
+        try:
+            raw = r.get(f"domtrans:{key}")
+            return json.loads(raw) if raw else None
+        except Exception as e:
+            logger.warning(f"Redis get domain result error: {e}")
+    return None
+
+
+def set_cached_domain_result(key: str, value: dict, ttl: int = 86400):
+    import json
+
+    r = get_redis()
+    if r:
+        try:
+            r.setex(f"domtrans:{key}", ttl, json.dumps(value, ensure_ascii=False))
+        except Exception as e:
+            logger.warning(f"Redis set domain result error: {e}")
+
+
 def get_global_dict_version() -> int:
     r = get_redis()
     if r:

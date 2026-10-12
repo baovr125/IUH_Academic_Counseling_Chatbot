@@ -1,0 +1,349 @@
+{
+ "summary": {
+  "model": "qwen/qwen3.8-27b",
+  "items": 24,
+  "repeats": 5,
+  "per_call_agreement_with_majority": 1.0,
+  "items_unanimous": 1.0,
+  "items_identical_translation": 0.3333333333333333,
+  "majority_correct": 1.0
+ },
+ "items": [
+  {
+   "id": "dev-001",
+   "label": "Công nghệ Thông tin (IT)",
+   "decisions": [
+    "Công nghệ Thông tin (IT)",
+    "Công nghệ Thông tin (IT)",
+    "Công nghệ Thông tin (IT)",
+    "Công nghệ Thông tin (IT)",
+    "Công nghệ Thông tin (IT)"
+   ],
+   "majority": "Công nghệ Thông tin (IT)",
+   "agree": 1.0,
+   "identical_translation": false
+  },
+  {
+   "id": "dev-002",
+   "label": "Công nghệ Thông tin (IT)",
+   "decisions": [
+    "Công nghệ Thông tin (IT)",
+    "Công nghệ Thông tin (IT)",
+    "Công nghệ Thông tin (IT)",
+    "Công nghệ Thông tin (IT)",
+    "Công nghệ Thông tin (IT)"
+   ],
+   "majority": "Công nghệ Thông tin (IT)",
+   "agree": 1.0,
+   "identical_translation": false
+  },
+  {
+   "id": "dev-003",
+   "label": "Công nghệ Thông tin (IT)",
+   "decisions": [
+    "Công nghệ Thông tin (IT)",
+    "Công nghệ Thông tin (IT)",
+    "Công nghệ Thông tin (IT)",
+    "Công nghệ Thông tin (IT)",
+    "Công nghệ Thông tin (IT)"
+   ],
+   "majority": "Công nghệ Thông tin (IT)",
+   "agree": 1.0,
+   "identical_translation": false
+  },
+  {
+   "id": "dev-010",
+   "label": "Y khoa / Sức khỏe",
+   "decisions": [
+    "Y khoa / Sức khỏe",
+    "Y khoa / Sức khỏe",
+    "Y khoa / Sức khỏe",
+    "Y khoa / Sức khỏe",
+    "Y khoa / Sức khỏe"
+   ],
+   "majority": "Y khoa / Sức khỏe",
+   "agree": 1.0,
+   "identical_translation": false
+  },
+  {
+   "id": "dev-011",
+   "label": "Y khoa / Sức khỏe",
+   "decisions": [
+    "Y khoa / Sức khỏe",
+    "Y khoa / Sức khỏe",
+    "Y khoa / Sức khỏe",
+    "Y khoa / Sức khỏe",
+    "Y khoa / Sức khỏe"
+   ],
+   "majority": "Y khoa / Sức khỏe",
+   "agree": 1.0,
+   "identical_translation": true
+  },
+  {
+   "id": "dev-012",
+   "label": "Y khoa / Sức khỏe",
+   "decisions": [
+    "Y khoa / Sức khỏe",
+    "Y khoa / Sức khỏe",
+    "Y khoa / Sức khỏe",
+    "Y khoa / Sức khỏe",
+    "Y khoa / Sức khỏe"
+   ],
+   "majority": "Y khoa / Sức khỏe",
+   "agree": 1.0,
+   "identical_translation": false
+  },
+  {
+   "id": "dev-019",
+   "label": "Kinh tế / Tài chính",
+   "decisions": [
+    "Kinh tế / Tài chính",
+    "Kinh tế / Tài chính",
+    "Kinh tế / Tài chính",
+    "Kinh tế / Tài chính",
+    "Kinh tế / Tài chính"
+   ],
+   "majority": "Kinh tế / Tài chính",
+   "agree": 1.0,
+   "identical_translation": false
+  },
+  {
+   "id": "dev-020",
+   "label": "Kinh tế / Tài chính",
+   "decisions": [
+    "Kinh tế / Tài chính",
+    "Kinh tế / Tài chính",
+    "Kinh tế / Tài chính",
+    "Kinh tế / Tài chính",
+    "Kinh tế / Tài chính"
+   ],
+   "majority": "Kinh tế / Tài chính",
+   "agree": 1.0,
+   "identical_translation": false
+  },
+  {
+   "id": "dev-021",
+   "label": "Kinh tế / Tài chính",
+   "decisions": [
+    "Kinh tế / Tài chính",
+    "Kinh tế / Tài chính",
+    "Kinh tế / Tài chính",
+    "Kinh tế / Tài chính",
+    "Kinh tế / Tài chính"
+   ],
+   "majority": "Kinh tế / Tài chính",
+   "agree": 1.0,
+   "identical_translation": true
+  },
+  {
+   "id": "dev-028",
+   "label": "Kỹ thuật Cơ khí",
+   "decisions": [
+    "Kỹ thuật Cơ khí",
+    "Kỹ thuật Cơ khí",
+    "Kỹ thuật Cơ khí",
+    "Kỹ thuật Cơ khí",
+    "Kỹ thuật Cơ khí"
+   ],
+   "majority": "Kỹ thuật Cơ khí",
+   "agree": 1.0,
+   "identical_translation": true
+  },
+  {
+   "id": "dev-029",
+   "label": "Kỹ thuật Cơ khí",
+   "decisions": [
+    "Kỹ thuật Cơ khí",
+    "Kỹ thuật Cơ khí",
+    "Kỹ thuật Cơ khí",
+    "Kỹ thuật Cơ khí",
+    "Kỹ thuật Cơ khí"
+   ],
+   "majority": "Kỹ thuật Cơ khí",
+   "agree": 1.0,
+   "identical_translation": true
+  },
+  {
+   "id": "dev-030",
+   "label": "Kỹ thuật Cơ khí",
+   "decisions": [
+    "Kỹ thuật Cơ khí",
+    "Kỹ thuật Cơ khí",
+    "Kỹ thuật Cơ khí",
+    "Kỹ thuật Cơ khí",
+    "Kỹ thuật Cơ khí"
+   ],
+   "majority": "Kỹ thuật Cơ khí",
+   "agree": 1.0,
+   "identical_translation": false
+  },
+  {
+   "id": "dev-037",
+   "label": "Luật / Pháp lý",
+   "decisions": [
+    "Luật / Pháp lý",
+    "Luật / Pháp lý",
+    "Luật / Pháp lý",
+    "Luật / Pháp lý",
+    "Luật / Pháp lý"
+   ],
+   "majority": "Luật / Pháp lý",
+   "agree": 1.0,
+   "identical_translation": false
+  },
+  {
+   "id": "dev-038",
+   "label": "Luật / Pháp lý",
+   "decisions": [
+    "Luật / Pháp lý",
+    "Luật / Pháp lý",
+    "Luật / Pháp lý",
+    "Luật / Pháp lý",
+    "Luật / Pháp lý"
+   ],
+   "majority": "Luật / Pháp lý",
+   "agree": 1.0,
+   "identical_translation": false
+  },
+  {
+   "id": "dev-039",
+   "label": "Luật / Pháp lý",
+   "decisions": [
+    "Luật / Pháp lý",
+    "Luật / Pháp lý",
+    "Luật / Pháp lý",
+    "Luật / Pháp lý",
+    "Luật / Pháp lý"
+   ],
+   "majority": "Luật / Pháp lý",
+   "agree": 1.0,
+   "identical_translation": true
+  },
+  {
+   "id": "dev-046",
+   "label": "Marketing",
+   "decisions": [
+    "Marketing",
+    "Marketing",
+    "Marketing",
+    "Marketing",
+    "Marketing"
+   ],
+   "majority": "Marketing",
+   "agree": 1.0,
+   "identical_translation": true
+  },
+  {
+   "id": "dev-047",
+   "label": "Marketing",
+   "decisions": [
+    "Marketing",
+    "Marketing",
+    "Marketing",
+    "Marketing",
+    "Marketing"
+   ],
+   "majority": "Marketing",
+   "agree": 1.0,
+   "identical_translation": true
+  },
+  {
+   "id": "dev-048",
+   "label": "Marketing",
+   "decisions": [
+    "Marketing",
+    "Marketing",
+    "Marketing",
+    "Marketing",
+    "Marketing"
+   ],
+   "majority": "Marketing",
+   "agree": 1.0,
+   "identical_translation": false
+  },
+  {
+   "id": "dev-055",
+   "label": "unknown",
+   "decisions": [
+    "unknown",
+    "unknown",
+    "unknown",
+    "unknown",
+    "unknown"
+   ],
+   "majority": "unknown",
+   "agree": 1.0,
+   "identical_translation": true
+  },
+  {
+   "id": "dev-056",
+   "label": "unknown",
+   "decisions": [
+    "unknown",
+    "unknown",
+    "unknown",
+    "unknown",
+    "unknown"
+   ],
+   "majority": "unknown",
+   "agree": 1.0,
+   "identical_translation": false
+  },
+  {
+   "id": "dev-057",
+   "label": "unknown",
+   "decisions": [
+    "unknown",
+    "unknown",
+    "unknown",
+    "unknown",
+    "unknown"
+   ],
+   "majority": "unknown",
+   "agree": 1.0,
+   "identical_translation": false
+  },
+  {
+   "id": "dev-058",
+   "label": "unknown",
+   "decisions": [
+    "unknown",
+    "unknown",
+    "unknown",
+    "unknown",
+    "unknown"
+   ],
+   "majority": "unknown",
+   "agree": 1.0,
+   "identical_translation": false
+  },
+  {
+   "id": "dev-059",
+   "label": "unknown",
+   "decisions": [
+    "unknown",
+    "unknown",
+    "unknown",
+    "unknown",
+    "unknown"
+   ],
+   "majority": "unknown",
+   "agree": 1.0,
+   "identical_translation": false
+  },
+  {
+   "id": "dev-060",
+   "label": "unknown",
+   "decisions": [
+    "unknown",
+    "unknown",
+    "unknown",
+    "unknown",
+    "unknown"
+   ],
+   "majority": "unknown",
+   "agree": 1.0,
+   "identical_translation": false
+  }
+ ]
+}

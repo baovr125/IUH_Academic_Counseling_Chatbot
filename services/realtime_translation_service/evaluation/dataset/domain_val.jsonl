@@ -1,0 +1,57 @@
+{"id": "val-001", "text": "Our service uses dependency injection and an event loop to handle thousands of concurrent connections.", "domain": "Công nghệ Thông tin (IT)", "kind": "in_domain"}
+{"id": "val-002", "text": "The attention mechanism helps the model focus on relevant tokens, but a long context window increases the memory cost.", "domain": "Công nghệ Thông tin (IT)", "kind": "in_domain"}
+{"id": "val-003", "text": "<p>Hallucination is a major risk in <b>retrieval-augmented generation</b> when the vector database returns irrelevant passages.</p>", "domain": "Công nghệ Thông tin (IT)", "kind": "in_domain"}
+{"id": "val-004", "text": "The cache invalidation bug only appears after the nightly cron job restarts the container.", "domain": "Công nghệ Thông tin (IT)", "kind": "in_domain"}
+{"id": "val-005", "text": "Developers should validate every API request body and hash passwords before storing them in the database.", "domain": "Công nghệ Thông tin (IT)", "kind": "in_domain"}
+{"id": "val-006", "text": "The new release switches the build pipeline from Jenkins to GitHub Actions and caches the node modules.", "domain": "Công nghệ Thông tin (IT)", "kind": "in_domain"}
+{"id": "val-007", "text": "Palliative care focuses on comfort rather than cure for patients with advanced disease.", "domain": "Y khoa / Sức khỏe", "kind": "in_domain"}
+{"id": "val-008", "text": "Septic shock and multi-organ failure remain the leading causes of death in the intensive care unit.", "domain": "Y khoa / Sức khỏe", "kind": "in_domain"}
+{"id": "val-009", "text": "The drug interaction between warfarin and the antibiotic increased the bleeding risk, a known adverse event.", "domain": "Y khoa / Sức khỏe", "kind": "in_domain"}
+{"id": "val-010", "text": "She was diagnosed with iron deficiency anaemia and advised to eat more leafy vegetables and take supplements.", "domain": "Y khoa / Sức khỏe", "kind": "in_domain"}
+{"id": "val-011", "text": "An electrocardiogram can detect abnormal heart rhythms such as atrial fibrillation.", "domain": "Y khoa / Sức khỏe", "kind": "in_domain"}
+{"id": "val-012", "text": "Regular exercise lowers blood pressure and reduces the likelihood of developing chronic illness.", "domain": "Y khoa / Sức khỏe", "kind": "in_domain"}
+{"id": "val-013", "text": "The central bank's inflation targeting framework failed to prevent stagflation after the oil shock.", "domain": "Kinh tế / Tài chính", "kind": "in_domain"}
+{"id": "val-014", "text": "Venture capital and private equity firms differ in the stage of companies they finance.", "domain": "Kinh tế / Tài chính", "kind": "in_domain"}
+{"id": "val-015", "text": "<div>Auditors questioned <i>revenue recognition</i> and deferred revenue after the company's initial public offering.</div>", "domain": "Kinh tế / Tài chính", "kind": "in_domain"}
+{"id": "val-016", "text": "A higher interest rate usually reduces borrowing, slows investment and strengthens the currency.", "domain": "Kinh tế / Tài chính", "kind": "in_domain"}
+{"id": "val-017", "text": "The country's gross domestic product grew by two percent while consumer prices remained stable.", "domain": "Kinh tế / Tài chính", "kind": "in_domain"}
+{"id": "val-018", "text": "Many retail investors diversify by buying exchange-traded funds that track a broad stock index.", "domain": "Kinh tế / Tài chính", "kind": "in_domain"}
+{"id": "val-019", "text": "Ultimate tensile strength and fatigue life were measured, and the creep deformation at high temperature was recorded.", "domain": "Kỹ thuật Cơ khí", "kind": "in_domain"}
+{"id": "val-020", "text": "Excessive backlash and runout in the gear train caused vibration, so the bearing clearance was reduced.", "domain": "Kỹ thuật Cơ khí", "kind": "in_domain"}
+{"id": "val-021", "text": "Surface finish depends on the depth of cut, tool wear and the chip breaker geometry.", "domain": "Kỹ thuật Cơ khí", "kind": "in_domain"}
+{"id": "val-022", "text": "The welded bracket was ground smooth and painted to protect it from corrosion.", "domain": "Kỹ thuật Cơ khí", "kind": "in_domain"}
+{"id": "val-023", "text": "A diesel engine compresses air to a higher ratio than a petrol engine before fuel injection.", "domain": "Kỹ thuật Cơ khí", "kind": "in_domain"}
+{"id": "val-024", "text": "Torque from the motor is transmitted to the wheels through the gearbox and the differential.", "domain": "Kỹ thuật Cơ khí", "kind": "in_domain"}
+{"id": "val-025", "text": "The company argued that the contract was frustrated by force majeure and that liquidated damages did not apply.", "domain": "Luật / Pháp lý", "kind": "in_domain"}
+{"id": "val-026", "text": "Under due process, the accused has the right to a fair hearing and the presumption of innocence.", "domain": "Luật / Pháp lý", "kind": "in_domain"}
+{"id": "val-027", "text": "The beneficial owner of the shares was concealed through shell companies, which raised issues in legal due diligence.", "domain": "Luật / Pháp lý", "kind": "in_domain"}
+{"id": "val-028", "text": "The legislature passed a bill that amends the employment code to extend parental leave.", "domain": "Luật / Pháp lý", "kind": "in_domain"}
+{"id": "val-029", "text": "The witness testified that she saw the defendant leaving the building shortly before the fire.", "domain": "Luật / Pháp lý", "kind": "in_domain"}
+{"id": "val-030", "text": "The lawyer advised her client to sign the lease only after the landlord corrected the clauses on deposits.", "domain": "Luật / Pháp lý", "kind": "in_domain"}
+{"id": "val-031", "text": "Content pillars and lead nurturing helped move a marketing qualified lead into a sales qualified lead.", "domain": "Marketing", "kind": "in_domain"}
+{"id": "val-032", "text": "Brand equity grows when share of voice and brand recall rise together.", "domain": "Marketing", "kind": "in_domain"}
+{"id": "val-033", "text": "Customer lifetime value should be compared with cost per acquisition before scaling paid media.", "domain": "Marketing", "kind": "in_domain"}
+{"id": "val-034", "text": "The launch event combined a livestream, a discount code and a hashtag challenge to attract new followers.", "domain": "Marketing", "kind": "in_domain"}
+{"id": "val-035", "text": "She redesigned the packaging to appeal to health-conscious customers and displayed it near the checkout.", "domain": "Marketing", "kind": "in_domain"}
+{"id": "val-036", "text": "A/B testing different headlines showed that shorter subject lines made more recipients open the email.", "domain": "Marketing", "kind": "in_domain"}
+{"id": "val-037", "text": "The train to the coast leaves at eight, so we should pack our bags tonight.", "domain": "unknown", "kind": "ood"}
+{"id": "val-038", "text": "Heat the oil, add the garlic and onions, and stir until they turn golden brown.", "domain": "unknown", "kind": "ood"}
+{"id": "val-039", "text": "The team scored twice in the second half and won the championship for the first time.", "domain": "unknown", "kind": "ood"}
+{"id": "val-040", "text": "In the final chapter, the narrator returns to the village where he was born.", "domain": "unknown", "kind": "ood"}
+{"id": "val-041", "text": "My grandmother told us stories about the war while we watched the rain.", "domain": "unknown", "kind": "ood"}
+{"id": "val-042", "text": "The museum's new exhibition shows paintings from the nineteenth century.", "domain": "unknown", "kind": "ood"}
+{"id": "val-043", "text": "Thank you for your help yesterday; I really appreciate it.", "domain": "unknown", "kind": "ood"}
+{"id": "val-044", "text": "A group of dolphins followed our boat for almost an hour.", "domain": "unknown", "kind": "ood"}
+{"id": "val-045", "text": "The festival begins with a parade and ends with fireworks over the river.", "domain": "unknown", "kind": "ood"}
+{"id": "val-046", "text": "Please remember to water the plants and lock the door before you leave.", "domain": "unknown", "kind": "ood"}
+{"id": "val-047", "text": "The professor asked the students to read two chapters and write a short summary.", "domain": "unknown", "kind": "ood"}
+{"id": "val-048", "text": "He plays the guitar every evening and dreams of recording an album.", "domain": "unknown", "kind": "ood"}
+{"id": "val-049", "text": "The snowman's melting was a side effect of the warm afternoon, and the kids were disappointed.", "domain": "unknown", "kind": "stray"}
+{"id": "val-050", "text": "The bull market near the harbour sells fresh fish and vegetables every morning.", "domain": "unknown", "kind": "stray"}
+{"id": "val-051", "text": "He used a mallet to press fit the wooden pegs into the toy box.", "domain": "unknown", "kind": "stray"}
+{"id": "val-052", "text": "deadlock", "domain": "Công nghệ Thông tin (IT)", "kind": "short"}
+{"id": "val-053", "text": "Cohort studies", "domain": "Y khoa / Sức khỏe", "kind": "short"}
+{"id": "val-054", "text": "net interest margin", "domain": "Kinh tế / Tài chính", "kind": "short"}
+{"id": "val-055", "text": "Interference fits", "domain": "Kỹ thuật Cơ khí", "kind": "short"}
+{"id": "val-056", "text": "the statute of limitations", "domain": "Luật / Pháp lý", "kind": "short"}
+{"id": "val-057", "text": "good evening", "domain": "unknown", "kind": "short"}

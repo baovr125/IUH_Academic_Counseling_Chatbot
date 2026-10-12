@@ -1,0 +1,1232 @@
+[
+{
+"domain": "Công nghệ Thông tin (IT)",
+"word": "race condition",
+"translation": "điều kiện tranh chấp"
+},
+{
+"domain": "Công nghệ Thông tin (IT)",
+"word": "deadlock",
+"translation": "bế tắc luồng"
+},
+{
+"domain": "Công nghệ Thông tin (IT)",
+"word": "technical debt",
+"translation": "nợ kỹ thuật"
+},
+{
+"domain": "Công nghệ Thông tin (IT)",
+"word": "legacy code",
+"translation": "mã nguồn cũ"
+},
+{
+"domain": "Công nghệ Thông tin (IT)",
+"word": "callback hell",
+"translation": "callback lồng nhau khó kiểm soát"
+},
+{
+"domain": "Công nghệ Thông tin (IT)",
+"word": "event loop",
+"translation": "vòng lặp sự kiện"
+},
+{
+"domain": "Công nghệ Thông tin (IT)",
+"word": "buffer overflow",
+"translation": "tràn bộ đệm"
+},
+{
+"domain": "Công nghệ Thông tin (IT)",
+"word": "integer overflow",
+"translation": "tràn số nguyên"
+},
+{
+"domain": "Công nghệ Thông tin (IT)",
+"word": "context window",
+"translation": "cửa sổ ngữ cảnh"
+},
+{
+"domain": "Công nghệ Thông tin (IT)",
+"word": "attention mechanism",
+"translation": "cơ chế attention"
+},
+{
+"domain": "Công nghệ Thông tin (IT)",
+"word": "vanishing gradient",
+"translation": "tiêu biến gradient"
+},
+{
+"domain": "Công nghệ Thông tin (IT)",
+"word": "exploding gradient",
+"translation": "bùng nổ gradient"
+},
+{
+"domain": "Công nghệ Thông tin (IT)",
+"word": "transfer learning",
+"translation": "học chuyển giao"
+},
+{
+"domain": "Công nghệ Thông tin (IT)",
+"word": "retrieval-augmented generation",
+"translation": "sinh tăng cường truy hồi"
+},
+{
+"domain": "Công nghệ Thông tin (IT)",
+"word": "semantic search",
+"translation": "tìm kiếm ngữ nghĩa"
+},
+{
+"domain": "Công nghệ Thông tin (IT)",
+"word": "embedding model",
+"translation": "mô hình embedding"
+},
+{
+"domain": "Công nghệ Thông tin (IT)",
+"word": "prompt injection",
+"translation": "tấn công chèn prompt"
+},
+{
+"domain": "Công nghệ Thông tin (IT)",
+"word": "tokenization",
+"translation": "token hóa"
+},
+{
+"domain": "Công nghệ Thông tin (IT)",
+"word": "dependency injection",
+"translation": "tiêm phụ thuộc"
+},
+{
+"domain": "Công nghệ Thông tin (IT)",
+"word": "single point of failure",
+"translation": "điểm lỗi đơn"
+},
+{
+"domain": "Công nghệ Thông tin (IT)",
+"word": "load balancing",
+"translation": "cân bằng tải"
+},
+{
+"domain": "Công nghệ Thông tin (IT)",
+"word": "circuit breaker",
+"translation": "cơ chế ngắt mạch"
+},
+{
+"domain": "Công nghệ Thông tin (IT)",
+"word": "strong consistency",
+"translation": "nhất quán mạnh"
+},
+{
+"domain": "Công nghệ Thông tin (IT)",
+"word": "rate limiting",
+"translation": "giới hạn tốc độ truy cập"
+},
+{
+"domain": "Công nghệ Thông tin (IT)",
+"word": "event-driven architecture",
+"translation": "kiến trúc hướng sự kiện"
+},
+{
+"domain": "Công nghệ Thông tin (IT)",
+"word": "service discovery",
+"translation": "cơ chế khám phá dịch vụ"
+},
+{
+"domain": "Công nghệ Thông tin (IT)",
+"word": "canary release",
+"translation": "phát hành canary"
+},
+{
+"domain": "Công nghệ Thông tin (IT)",
+"word": "observability",
+"translation": "khả năng quan sát hệ thống"
+},
+{
+"domain": "Y khoa / Sức khỏe",
+"word": "clinical trial",
+"translation": "thử nghiệm lâm sàng"
+},
+{
+"domain": "Y khoa / Sức khỏe",
+"word": "informed consent",
+"translation": "đồng thuận có hiểu biết"
+},
+{
+"domain": "Y khoa / Sức khỏe",
+"word": "adverse drug reaction",
+"translation": "phản ứng có hại của thuốc"
+},
+{
+"domain": "Y khoa / Sức khỏe",
+"word": "side effect",
+"translation": "tác dụng phụ"
+},
+{
+"domain": "Y khoa / Sức khỏe",
+"word": "dose-limiting toxicity",
+"translation": "độc tính giới hạn liều"
+},
+{
+"domain": "Y khoa / Sức khỏe",
+"word": "placebo effect",
+"translation": "hiệu ứng giả dược"
+},
+{
+"domain": "Y khoa / Sức khỏe",
+"word": "cohort study",
+"translation": "nghiên cứu đoàn hệ"
+},
+{
+"domain": "Y khoa / Sức khỏe",
+"word": "confounding factor",
+"translation": "yếu tố gây nhiễu"
+},
+{
+"domain": "Y khoa / Sức khỏe",
+"word": "risk factor",
+"translation": "yếu tố nguy cơ"
+},
+{
+"domain": "Y khoa / Sức khỏe",
+"word": "protective factor",
+"translation": "yếu tố bảo vệ"
+},
+{
+"domain": "Y khoa / Sức khỏe",
+"word": "renal failure",
+"translation": "suy thận"
+},
+{
+"domain": "Y khoa / Sức khỏe",
+"word": "acute coronary syndrome",
+"translation": "hội chứng vành cấp"
+},
+{
+"domain": "Y khoa / Sức khỏe",
+"word": "myocardial infarction",
+"translation": "nhồi máu cơ tim"
+},
+{
+"domain": "Y khoa / Sức khỏe",
+"word": "ischemic stroke",
+"translation": "đột quỵ thiếu máu não"
+},
+{
+"domain": "Y khoa / Sức khỏe",
+"word": "hemorrhagic stroke",
+"translation": "đột quỵ xuất huyết"
+},
+{
+"domain": "Y khoa / Sức khỏe",
+"word": "multi-organ failure",
+"translation": "suy đa tạng"
+},
+{
+"domain": "Y khoa / Sức khỏe",
+"word": "bone marrow",
+"translation": "tủy xương"
+},
+{
+"domain": "Y khoa / Sức khỏe",
+"word": "immune checkpoint",
+"translation": "điểm kiểm soát miễn dịch"
+},
+{
+"domain": "Y khoa / Sức khỏe",
+"word": "comorbidity",
+"translation": "bệnh đồng mắc"
+},
+{
+"domain": "Y khoa / Sức khỏe",
+"word": "palliative care",
+"translation": "chăm sóc giảm nhẹ"
+},
+{
+"domain": "Y khoa / Sức khỏe",
+"word": "triage",
+"translation": "phân loại cấp cứu"
+},
+{
+"domain": "Y khoa / Sức khỏe",
+"word": "sentinel event",
+"translation": "sự cố y khoa nghiêm trọng"
+},
+{
+"domain": "Y khoa / Sức khỏe",
+"word": "antimicrobial resistance",
+"translation": "kháng kháng sinh/kháng thuốc kháng vi sinh vật"
+},
+{
+"domain": "Y khoa / Sức khỏe",
+"word": "breakthrough infection",
+"translation": "nhiễm đột phá"
+},
+{
+"domain": "Y khoa / Sức khỏe",
+"word": "disease progression",
+"translation": "tiến triển bệnh"
+},
+{
+"domain": "Kinh tế / Tài chính",
+"word": "bear market",
+"translation": "thị trường giá xuống"
+},
+{
+"domain": "Kinh tế / Tài chính",
+"word": "dead cat bounce",
+"translation": "nhịp hồi kỹ thuật sau đà giảm mạnh"
+},
+{
+"domain": "Kinh tế / Tài chính",
+"word": "inverted yield curve",
+"translation": "đường cong lợi suất đảo ngược"
+},
+{
+"domain": "Kinh tế / Tài chính",
+"word": "hedge fund",
+"translation": "quỹ phòng hộ"
+},
+{
+"domain": "Kinh tế / Tài chính",
+"word": "mutual fund",
+"translation": "quỹ tương hỗ"
+},
+{
+"domain": "Kinh tế / Tài chính",
+"word": "venture capital",
+"translation": "vốn đầu tư mạo hiểm"
+},
+{
+"domain": "Kinh tế / Tài chính",
+"word": "liquidity trap",
+"translation": "bẫy thanh khoản"
+},
+{
+"domain": "Kinh tế / Tài chính",
+"word": "adverse selection",
+"translation": "lựa chọn đối nghịch"
+},
+{
+"domain": "Kinh tế / Tài chính",
+"word": "opportunity cost",
+"translation": "chi phí cơ hội"
+},
+{
+"domain": "Kinh tế / Tài chính",
+"word": "sunk cost",
+"translation": "chi phí chìm"
+},
+{
+"domain": "Kinh tế / Tài chính",
+"word": "economies of scale",
+"translation": "lợi thế kinh tế theo quy mô"
+},
+{
+"domain": "Kinh tế / Tài chính",
+"word": "quantitative easing",
+"translation": "nới lỏng định lượng"
+},
+{
+"domain": "Kinh tế / Tài chính",
+"word": "stagflation",
+"translation": "đình lạm"
+},
+{
+"domain": "Kinh tế / Tài chính",
+"word": "hyperinflation",
+"translation": "siêu lạm phát"
+},
+{
+"domain": "Kinh tế / Tài chính",
+"word": "carry trade",
+"translation": "giao dịch chênh lệch lãi suất"
+},
+{
+"domain": "Kinh tế / Tài chính",
+"word": "fair value",
+"translation": "giá trị hợp lý"
+},
+{
+"domain": "Kinh tế / Tài chính",
+"word": "value at risk",
+"translation": "giá trị chịu rủi ro"
+},
+{
+"domain": "Kinh tế / Tài chính",
+"word": "working capital",
+"translation": "vốn lưu động"
+},
+{
+"domain": "Kinh tế / Tài chính",
+"word": "accounts payable",
+"translation": "các khoản phải trả"
+},
+{
+"domain": "Kinh tế / Tài chính",
+"word": "deferred revenue",
+"translation": "doanh thu chưa thực hiện"
+},
+{
+"domain": "Kinh tế / Tài chính",
+"word": "goodwill impairment",
+"translation": "suy giảm giá trị lợi thế thương mại"
+},
+{
+"domain": "Kinh tế / Tài chính",
+"word": "earnings call",
+"translation": "cuộc gọi công bố kết quả kinh doanh"
+},
+{
+"domain": "Kinh tế / Tài chính",
+"word": "share buyback",
+"translation": "mua lại cổ phiếu"
+},
+{
+"domain": "Kinh tế / Tài chính",
+"word": "credit spread",
+"translation": "chênh lệch tín dụng"
+},
+{
+"domain": "Kinh tế / Tài chính",
+"word": "net interest margin",
+"translation": "biên lãi ròng"
+},
+{
+"domain": "Kinh tế / Tài chính",
+"word": "loan-to-value ratio",
+"translation": "tỷ lệ khoản vay trên giá trị tài sản"
+},
+{
+"domain": "Kỹ thuật Cơ khí",
+"word": "dead center",
+"translation": "điểm chết"
+},
+{
+"domain": "Kỹ thuật Cơ khí",
+"word": "bottom dead center",
+"translation": "điểm chết dưới"
+},
+{
+"domain": "Kỹ thuật Cơ khí",
+"word": "stress intensity factor",
+"translation": "hệ số cường độ ứng suất"
+},
+{
+"domain": "Kỹ thuật Cơ khí",
+"word": "factor of safety",
+"translation": "hệ số an toàn"
+},
+{
+"domain": "Kỹ thuật Cơ khí",
+"word": "ultimate tensile strength",
+"translation": "độ bền kéo đứt"
+},
+{
+"domain": "Kỹ thuật Cơ khí",
+"word": "fatigue life",
+"translation": "tuổi thọ mỏi"
+},
+{
+"domain": "Kỹ thuật Cơ khí",
+"word": "creep deformation",
+"translation": "biến dạng từ biến"
+},
+{
+"domain": "Kỹ thuật Cơ khí",
+"word": "heat-affected zone",
+"translation": "vùng ảnh hưởng nhiệt"
+},
+{
+"domain": "Kỹ thuật Cơ khí",
+"word": "heat treatment",
+"translation": "xử lý nhiệt"
+},
+{
+"domain": "Kỹ thuật Cơ khí",
+"word": "work hardening",
+"translation": "hóa bền biến dạng"
+},
+{
+"domain": "Kỹ thuật Cơ khí",
+"word": "quench hardening",
+"translation": "tôi cứng"
+},
+{
+"domain": "Kỹ thuật Cơ khí",
+"word": "surface finish",
+"translation": "độ hoàn thiện bề mặt"
+},
+{
+"domain": "Kỹ thuật Cơ khí",
+"word": "tolerance stack-up",
+"translation": "chuỗi dung sai tích lũy"
+},
+{
+"domain": "Kỹ thuật Cơ khí",
+"word": "runout",
+"translation": "độ đảo"
+},
+{
+"domain": "Kỹ thuật Cơ khí",
+"word": "backlash",
+"translation": "độ rơ"
+},
+{
+"domain": "Kỹ thuật Cơ khí",
+"word": "bearing preload",
+"translation": "độ tiền tải ổ lăn"
+},
+{
+"domain": "Kỹ thuật Cơ khí",
+"word": "bearing clearance",
+"translation": "khe hở ổ lăn"
+},
+{
+"domain": "Kỹ thuật Cơ khí",
+"word": "interference fit",
+"translation": "lắp dôi"
+},
+{
+"domain": "Kỹ thuật Cơ khí",
+"word": "line boring",
+"translation": "doa đồng tâm"
+},
+{
+"domain": "Kỹ thuật Cơ khí",
+"word": "tool wear",
+"translation": "mòn dụng cụ cắt"
+},
+{
+"domain": "Kỹ thuật Cơ khí",
+"word": "chip breaker",
+"translation": "rãnh thoát phoi"
+},
+{
+"domain": "Kỹ thuật Cơ khí",
+"word": "cutting speed",
+"translation": "tốc độ cắt"
+},
+{
+"domain": "Kỹ thuật Cơ khí",
+"word": "depth of cut",
+"translation": "chiều sâu cắt"
+},
+{
+"domain": "Kỹ thuật Cơ khí",
+"word": "weld penetration",
+"translation": "độ ngấu mối hàn"
+},
+{
+"domain": "Luật / Pháp lý",
+"word": "burden of proof",
+"translation": "gánh nặng chứng minh"
+},
+{
+"domain": "Luật / Pháp lý",
+"word": "beyond a reasonable doubt",
+"translation": "vượt qua sự nghi ngờ hợp lý"
+},
+{
+"domain": "Luật / Pháp lý",
+"word": "class action",
+"translation": "khởi kiện tập thể"
+},
+{
+"domain": "Luật / Pháp lý",
+"word": "force majeure",
+"translation": "sự kiện bất khả kháng"
+},
+{
+"domain": "Luật / Pháp lý",
+"word": "injunction",
+"translation": "lệnh cấm hoặc lệnh buộc thực hiện"
+},
+{
+"domain": "Luật / Pháp lý",
+"word": "judicial review",
+"translation": "tư pháp xét duyệt"
+},
+{
+"domain": "Luật / Pháp lý",
+"word": "conflict of interest",
+"translation": "xung đột lợi ích"
+},
+{
+"domain": "Luật / Pháp lý",
+"word": "cease and desist",
+"translation": "chấm dứt và không tái diễn hành vi"
+},
+{
+"domain": "Luật / Pháp lý",
+"word": "liquidated damages",
+"translation": "khoản bồi thường thiệt hại ấn định trước"
+},
+{
+"domain": "Luật / Pháp lý",
+"word": "specific performance",
+"translation": "buộc thực hiện đúng nghĩa vụ"
+},
+{
+"domain": "Luật / Pháp lý",
+"word": "tort",
+"translation": "hành vi xâm phạm ngoài hợp đồng"
+},
+{
+"domain": "Luật / Pháp lý",
+"word": "strict liability",
+"translation": "trách nhiệm pháp lý nghiêm ngặt"
+},
+{
+"domain": "Luật / Pháp lý",
+"word": "vicarious liability",
+"translation": "trách nhiệm pháp lý thay thế"
+},
+{
+"domain": "Luật / Pháp lý",
+"word": "legal standing",
+"translation": "tư cách khởi kiện"
+},
+{
+"domain": "Luật / Pháp lý",
+"word": "amicus curiae",
+"translation": "bên hỗ trợ tòa với tư cách bạn của tòa"
+},
+{
+"domain": "Luật / Pháp lý",
+"word": "legal due diligence",
+"translation": "thẩm định pháp lý"
+},
+{
+"domain": "Luật / Pháp lý",
+"word": "beneficial owner",
+"translation": "chủ sở hữu hưởng lợi"
+},
+{
+"domain": "Luật / Pháp lý",
+"word": "material breach",
+"translation": "vi phạm nghiêm trọng"
+},
+{
+"domain": "Luật / Pháp lý",
+"word": "non-disclosure agreement",
+"translation": "thỏa thuận không tiết lộ"
+},
+{
+"domain": "Luật / Pháp lý",
+"word": "intellectual property",
+"translation": "sở hữu trí tuệ"
+},
+{
+"domain": "Luật / Pháp lý",
+"word": "copyright infringement",
+"translation": "xâm phạm bản quyền"
+},
+{
+"domain": "Luật / Pháp lý",
+"word": "injurious falsehood",
+"translation": "thông tin sai gây thiệt hại"
+},
+{
+"domain": "Luật / Pháp lý",
+"word": "search and seizure",
+"translation": "khám xét và thu giữ"
+},
+{
+"domain": "Luật / Pháp lý",
+"word": "probable cause",
+"translation": "căn cứ hợp lý"
+},
+{
+"domain": "Luật / Pháp lý",
+"word": "settlement agreement",
+"translation": "thỏa thuận dàn xếp"
+},
+{
+"domain": "Luật / Pháp lý",
+"word": "alternative dispute resolution",
+"translation": "giải quyết tranh chấp thay thế"
+},
+{
+"domain": "Marketing",
+"word": "customer journey",
+"translation": "hành trình khách hàng"
+},
+{
+"domain": "Marketing",
+"word": "customer touchpoint",
+"translation": "điểm chạm khách hàng"
+},
+{
+"domain": "Công nghệ Thông tin (IT)",
+"word": "garbage collection",
+"translation": "cơ chế thu gom rác"
+},
+{
+"domain": "Công nghệ Thông tin (IT)",
+"word": "memory leak",
+"translation": "rò rỉ bộ nhớ"
+},
+{
+"domain": "Công nghệ Thông tin (IT)",
+"word": "cold start problem",
+"translation": "bài toán khởi đầu lạnh"
+},
+{
+"domain": "Công nghệ Thông tin (IT)",
+"word": "code smell",
+"translation": "dấu hiệu thiết kế mã có vấn đề"
+},
+{
+"domain": "Công nghệ Thông tin (IT)",
+"word": "garbage collector",
+"translation": "bộ thu gom rác"
+},
+{
+"domain": "Công nghệ Thông tin (IT)",
+"word": "heap overflow",
+"translation": "tràn vùng heap"
+},
+{
+"domain": "Công nghệ Thông tin (IT)",
+"word": "memory fragmentation",
+"translation": "phân mảnh bộ nhớ"
+},
+{
+"domain": "Công nghệ Thông tin (IT)",
+"word": "gradient descent",
+"translation": "phương pháp hạ gradient"
+},
+{
+"domain": "Công nghệ Thông tin (IT)",
+"word": "fine-tuning",
+"translation": "tinh chỉnh mô hình"
+},
+{
+"domain": "Marketing",
+"word": "buyer persona",
+"translation": "chân dung khách hàng mục tiêu"
+},
+{
+"domain": "Marketing",
+"word": "brand recall",
+"translation": "khả năng nhớ thương hiệu"
+},
+{
+"domain": "Marketing",
+"word": "top of the funnel",
+"translation": "đầu phễu marketing"
+},
+{
+"domain": "Marketing",
+"word": "middle of the funnel",
+"translation": "giữa phễu marketing"
+},
+{
+"domain": "Marketing",
+"word": "conversion rate optimization",
+"translation": "tối ưu tỷ lệ chuyển đổi"
+},
+{
+"domain": "Marketing",
+"word": "cost per acquisition",
+"translation": "chi phí cho mỗi lượt thu hút khách hàng"
+},
+{
+"domain": "Marketing",
+"word": "customer acquisition cost",
+"translation": "chi phí thu hút khách hàng"
+},
+{
+"domain": "Marketing",
+"word": "return on ad spend",
+"translation": "tỷ suất lợi nhuận trên chi tiêu quảng cáo"
+},
+{
+"domain": "Marketing",
+"word": "sales qualified lead",
+"translation": "khách hàng tiềm năng đủ điều kiện bán hàng"
+},
+{
+"domain": "Marketing",
+"word": "lead nurturing",
+"translation": "nuôi dưỡng khách hàng tiềm năng"
+},
+{
+"domain": "Marketing",
+"word": "earned media",
+"translation": "truyền thông lan truyền tự nhiên"
+},
+{
+"domain": "Marketing",
+"word": "paid media",
+"translation": "truyền thông trả phí"
+},
+{
+"domain": "Marketing",
+"word": "go-to-market strategy",
+"translation": "chiến lược đưa sản phẩm ra thị trường"
+},
+{
+"domain": "Marketing",
+"word": "market positioning",
+"translation": "định vị trên thị trường"
+},
+{
+"domain": "Marketing",
+"word": "brand positioning",
+"translation": "định vị thương hiệu"
+},
+{
+"domain": "Marketing",
+"word": "social proof",
+"translation": "bằng chứng xã hội"
+},
+{
+"domain": "Marketing",
+"word": "north-star metric",
+"translation": "chỉ số sao Bắc Cực"
+},
+{
+"domain": "Marketing",
+"word": "engagement rate",
+"translation": "tỷ lệ tương tác"
+},
+{
+"domain": "Marketing",
+"word": "bounce rate",
+"translation": "tỷ lệ thoát"
+},
+{
+"domain": "Marketing",
+"word": "content pillar",
+"translation": "trụ cột nội dung"
+},
+{
+"domain": "Marketing",
+"word": "content gap",
+"translation": "khoảng trống nội dung"
+},
+{
+"domain": "Marketing",
+"word": "keyword cannibalization",
+"translation": "ăn thịt từ khóa"
+},
+{
+"domain": "Marketing",
+"word": "remarketing",
+"translation": "tiếp thị lại"
+},
+{
+"domain": "Marketing",
+"word": "lookalike audience",
+"translation": "tệp đối tượng tương tự"
+},
+{
+"domain": "Công nghệ Thông tin (IT)",
+"word": "feature engineering",
+"translation": "kỹ nghệ đặc trưng"
+},
+{
+"domain": "Công nghệ Thông tin (IT)",
+"word": "vector database",
+"translation": "cơ sở dữ liệu vector"
+},
+{
+"domain": "Công nghệ Thông tin (IT)",
+"word": "hallucination",
+"translation": "hiện tượng mô hình bịa thông tin"
+},
+{
+"domain": "Công nghệ Thông tin (IT)",
+"word": "inversion of control",
+"translation": "đảo ngược quyền điều khiển"
+},
+{
+"domain": "Công nghệ Thông tin (IT)",
+"word": "eventual consistency",
+"translation": "nhất quán cuối cùng"
+},
+{
+"domain": "Công nghệ Thông tin (IT)",
+"word": "idempotent operation",
+"translation": "phép toán lũy đẳng"
+},
+{
+"domain": "Công nghệ Thông tin (IT)",
+"word": "blue-green deployment",
+"translation": "triển khai blue-green"
+},
+{
+"domain": "Y khoa / Sức khỏe",
+"word": "differential diagnosis",
+"translation": "chẩn đoán phân biệt"
+},
+{
+"domain": "Y khoa / Sức khỏe",
+"word": "adverse event",
+"translation": "biến cố bất lợi"
+},
+{
+"domain": "Y khoa / Sức khỏe",
+"word": "off-label use",
+"translation": "sử dụng thuốc ngoài chỉ định"
+},
+{
+"domain": "Y khoa / Sức khỏe",
+"word": "drug interaction",
+"translation": "tương tác thuốc"
+},
+{
+"domain": "Y khoa / Sức khỏe",
+"word": "double-blind study",
+"translation": "nghiên cứu mù đôi"
+},
+{
+"domain": "Y khoa / Sức khỏe",
+"word": "case-control study",
+"translation": "nghiên cứu bệnh-chứng"
+},
+{
+"domain": "Y khoa / Sức khỏe",
+"word": "heart failure",
+"translation": "suy tim"
+},
+{
+"domain": "Y khoa / Sức khỏe",
+"word": "respiratory distress",
+"translation": "suy hô hấp"
+},
+{
+"domain": "Y khoa / Sức khỏe",
+"word": "cerebrovascular accident",
+"translation": "tai biến mạch máu não"
+},
+{
+"domain": "Y khoa / Sức khỏe",
+"word": "septic shock",
+"translation": "sốc nhiễm khuẩn"
+},
+{
+"domain": "Y khoa / Sức khỏe",
+"word": "blood-brain barrier",
+"translation": "hàng rào máu-não"
+},
+{
+"domain": "Y khoa / Sức khỏe",
+"word": "herd immunity",
+"translation": "miễn dịch cộng đồng"
+},
+{
+"domain": "Y khoa / Sức khỏe",
+"word": "intensive care unit",
+"translation": "khoa hồi sức tích cực"
+},
+{
+"domain": "Y khoa / Sức khỏe",
+"word": "iatrogenic injury",
+"translation": "tổn thương do can thiệp y tế"
+},
+{
+"domain": "Y khoa / Sức khỏe",
+"word": "vital signs",
+"translation": "dấu hiệu sinh tồn"
+},
+{
+"domain": "Kinh tế / Tài chính",
+"word": "bull market",
+"translation": "thị trường giá lên"
+},
+{
+"domain": "Kinh tế / Tài chính",
+"word": "yield curve",
+"translation": "đường cong lợi suất"
+},
+{
+"domain": "Kinh tế / Tài chính",
+"word": "junk bond",
+"translation": "trái phiếu lợi suất cao rủi ro cao"
+},
+{
+"domain": "Kinh tế / Tài chính",
+"word": "private equity",
+"translation": "đầu tư vốn cổ phần tư nhân"
+},
+{
+"domain": "Kinh tế / Tài chính",
+"word": "moral hazard",
+"translation": "rủi ro đạo đức"
+},
+{
+"domain": "Kinh tế / Tài chính",
+"word": "principal-agent problem",
+"translation": "vấn đề người ủy quyền-người đại diện"
+},
+{
+"domain": "Kinh tế / Tài chính",
+"word": "economies of scope",
+"translation": "lợi thế kinh tế theo phạm vi"
+},
+{
+"domain": "Kinh tế / Tài chính",
+"word": "quantitative tightening",
+"translation": "thắt chặt định lượng"
+},
+{
+"domain": "Kinh tế / Tài chính",
+"word": "inflation targeting",
+"translation": "điều hành theo mục tiêu lạm phát"
+},
+{
+"domain": "Kinh tế / Tài chính",
+"word": "mark-to-market",
+"translation": "định giá theo giá thị trường"
+},
+{
+"domain": "Kinh tế / Tài chính",
+"word": "free cash flow",
+"translation": "dòng tiền tự do"
+},
+{
+"domain": "Kinh tế / Tài chính",
+"word": "accounts receivable",
+"translation": "các khoản phải thu"
+},
+{
+"domain": "Kinh tế / Tài chính",
+"word": "revenue recognition",
+"translation": "ghi nhận doanh thu"
+},
+{
+"domain": "Kinh tế / Tài chính",
+"word": "initial public offering",
+"translation": "phát hành cổ phiếu lần đầu ra công chúng"
+},
+{
+"domain": "Kinh tế / Tài chính",
+"word": "debt-to-equity ratio",
+"translation": "hệ số nợ trên vốn chủ sở hữu"
+},
+{
+"domain": "Kỹ thuật Cơ khí",
+"word": "top dead center",
+"translation": "điểm chết trên"
+},
+{
+"domain": "Kỹ thuật Cơ khí",
+"word": "stress concentration",
+"translation": "tập trung ứng suất"
+},
+{
+"domain": "Kỹ thuật Cơ khí",
+"word": "yield strength",
+"translation": "giới hạn chảy"
+},
+{
+"domain": "Kỹ thuật Cơ khí",
+"word": "fatigue failure",
+"translation": "phá hủy do mỏi"
+},
+{
+"domain": "Kỹ thuật Cơ khí",
+"word": "thermal expansion",
+"translation": "giãn nở nhiệt"
+},
+{
+"domain": "Kỹ thuật Cơ khí",
+"word": "case hardening",
+"translation": "tôi cứng bề mặt"
+},
+{
+"domain": "Kỹ thuật Cơ khí",
+"word": "surface roughness",
+"translation": "độ nhám bề mặt"
+},
+{
+"domain": "Kỹ thuật Cơ khí",
+"word": "dimensional tolerance",
+"translation": "dung sai kích thước"
+},
+{
+"domain": "Kỹ thuật Cơ khí",
+"word": "geometric dimensioning and tolerancing",
+"translation": "ghi kích thước và dung sai hình học"
+},
+{
+"domain": "Kỹ thuật Cơ khí",
+"word": "press fit",
+"translation": "lắp ép"
+},
+{
+"domain": "Kỹ thuật Cơ khí",
+"word": "clearance fit",
+"translation": "lắp lỏng"
+},
+{
+"domain": "Kỹ thuật Cơ khí",
+"word": "coordinate measuring machine",
+"translation": "máy đo tọa độ"
+},
+{
+"domain": "Kỹ thuật Cơ khí",
+"word": "computer numerical control",
+"translation": "điều khiển số bằng máy tính"
+},
+{
+"domain": "Kỹ thuật Cơ khí",
+"word": "built-up edge",
+"translation": "lẹo dao"
+},
+{
+"domain": "Kỹ thuật Cơ khí",
+"word": "feed rate",
+"translation": "lượng chạy dao"
+},
+{
+"domain": "Kỹ thuật Cơ khí",
+"word": "metal fatigue",
+"translation": "mỏi kim loại"
+},
+{
+"domain": "Luật / Pháp lý",
+"word": "due process",
+"translation": "trình tự tố tụng hợp pháp"
+},
+{
+"domain": "Luật / Pháp lý",
+"word": "plea bargain",
+"translation": "thỏa thuận nhận tội"
+},
+{
+"domain": "Luật / Pháp lý",
+"word": "habeas corpus",
+"translation": "lệnh yêu cầu đưa người bị giam ra trước tòa"
+},
+{
+"domain": "Luật / Pháp lý",
+"word": "statute of limitations",
+"translation": "thời hiệu khởi kiện"
+},
+{
+"domain": "Luật / Pháp lý",
+"word": "breach of contract",
+"translation": "vi phạm hợp đồng"
+},
+{
+"domain": "Luật / Pháp lý",
+"word": "punitive damages",
+"translation": "khoản bồi thường mang tính trừng phạt"
+},
+{
+"domain": "Luật / Pháp lý",
+"word": "negligence per se",
+"translation": "sơ suất mặc nhiên theo luật"
+},
+{
+"domain": "Luật / Pháp lý",
+"word": "presumption of innocence",
+"translation": "nguyên tắc suy đoán vô tội"
+},
+{
+"domain": "Luật / Pháp lý",
+"word": "attorney-client privilege",
+"translation": "đặc quyền bảo mật giữa luật sư và khách hàng"
+},
+{
+"domain": "Luật / Pháp lý",
+"word": "ultimate beneficial owner",
+"translation": "chủ sở hữu hưởng lợi cuối cùng"
+},
+{
+"domain": "Luật / Pháp lý",
+"word": "trademark infringement",
+"translation": "xâm phạm quyền đối với nhãn hiệu"
+},
+{
+"domain": "Luật / Pháp lý",
+"word": "restraining order",
+"translation": "lệnh hạn chế"
+},
+{
+"domain": "Luật / Pháp lý",
+"word": "statutory damages",
+"translation": "bồi thường theo luật định"
+},
+{
+"domain": "Marketing",
+"word": "brand equity",
+"translation": "giá trị thương hiệu"
+},
+{
+"domain": "Marketing",
+"word": "brand awareness",
+"translation": "nhận biết thương hiệu"
+},
+{
+"domain": "Marketing",
+"word": "share of voice",
+"translation": "thị phần tiếng nói"
+},
+{
+"domain": "Marketing",
+"word": "bottom of the funnel",
+"translation": "cuối phễu marketing"
+},
+{
+"domain": "Marketing",
+"word": "call to action",
+"translation": "lời kêu gọi hành động"
+},
+{
+"domain": "Marketing",
+"word": "customer lifetime value",
+"translation": "giá trị vòng đời khách hàng"
+},
+{
+"domain": "Marketing",
+"word": "marketing qualified lead",
+"translation": "khách hàng tiềm năng đủ điều kiện marketing"
+},
+{
+"domain": "Marketing",
+"word": "owned media",
+"translation": "kênh truyền thông sở hữu"
+},
+{
+"domain": "Marketing",
+"word": "product-market fit",
+"translation": "mức độ phù hợp sản phẩm-thị trường"
+},
+{
+"domain": "Marketing",
+"word": "price anchoring",
+"translation": "định giá neo"
+},
+{
+"domain": "Marketing",
+"word": "vanity metrics",
+"translation": "chỉ số phù phiếm"
+},
+{
+"domain": "Marketing",
+"word": "click-through rate",
+"translation": "tỷ lệ nhấp"
+},
+{
+"domain": "Marketing",
+"word": "lead magnet",
+"translation": "tài nguyên thu hút khách hàng tiềm năng"
+},
+{
+"domain": "Marketing",
+"word": "search intent",
+"translation": "ý định tìm kiếm"
+},
+{
+"domain": "Marketing",
+"word": "retargeting",
+"translation": "tiếp thị nhắm mục tiêu lại"
+},
+{
+"domain": "Marketing",
+"word": "frequency capping",
+"translation": "giới hạn tần suất quảng cáo"
+}
+]
