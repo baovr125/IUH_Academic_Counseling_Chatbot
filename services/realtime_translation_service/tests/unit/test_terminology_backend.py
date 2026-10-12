@@ -50,223 +50,123 @@ def mock_dependencies():
             "gemini": mock_gemini
         }
 
-@pytest.mark.asyncio
-async def test_exact_match_under_3_words(mock_dependencies):
-    """
-    Test Case TD_01: <= 3 words, Exact match trong dictionary.
-    Kỳ vọng: Không gọi NLLB, Không gọi LLM, trả về trực tiếp dict value.
-    """
-    text = "memory leak"
-    stream = handle_flow_2_stream_translation(text, "en", "vi", "Công nghệ Thông tin (IT)")
-    
-    chunks = [json.loads(c) async for c in stream]
-    
-    assert len(chunks) == 1
-    assert chunks[0].get("text") == "rò rỉ bộ nhớ"
-    assert "warning" not in chunks[0]
-    
-    mock_dependencies["nllb"].assert_not_called()
-    mock_dependencies["groq"].assert_not_called()
+# --- Luồng chuyên ngành (Flow 2) ------------------------------------------------------------------
+# Từ giai đoạn 9, domain thủ công/auto dịch hoàn toàn bằng LLM (NLLB chỉ còn là phao cứu sinh cuối),
+# nên các test cũ mô tả hành vi "tra từ điển miss -> NLLB" được thay bằng test của hợp đồng SSE mới.
+# Logic chi tiết được test ở tests/unit/test_domain_translation.py.
 
-@pytest.mark.asyncio
-async def test_no_match_under_3_words(mock_dependencies):
-    """
-    Test Case TD_02: <= 3 words, KHÔNG có exact match trong dictionary.
-    Kỳ vọng: Gọi NLLB, trả về text và warning.
-    """
-    text = "random word" # 2 từ, không nằm trong dict
-    stream = handle_flow_2_stream_translation(text, "en", "vi", "Công nghệ Thông tin (IT)")
-    
-    chunks = [json.loads(c) async for c in stream]
-    
-    assert len(chunks) == 1
-    assert "Bản dịch NLLB" in chunks[0].get("text")
-    assert "warning" in chunks[0]
-    assert "không được tìm thấy trong từ điển chuyên ngành" in chunks[0]["warning"]
-    
-    mock_dependencies["nllb"].assert_called()
-    mock_dependencies["groq"].assert_not_called()
+IT_DOMAIN = "Công nghệ Thông tin (IT)"
 
-@pytest.mark.asyncio
-async def test_over_3_words_llm_success(mock_dependencies):
-    """
-    Test Case TD_03: > 3 words, Có chứa thuật ngữ trong câu, LLM (Groq) hoạt động bình thường.
-    Kỳ vọng: Gọi LLM streaming, không có warning.
-    """
-    text = "A memory leak causes crashes" # 5 từ
-    
-    # Mock Groq stream
-    mock_groq_client = MagicMock()
-    mock_stream = AsyncMock()
-    
+
+@pytest.fixture
+def domain_env():
+    from app.services.domain_index import DomainIndex
+
+    index = DomainIndex.build([
+        {"domain": IT_DOMAIN, "word": "memory leak", "translation": "rò rỉ bộ nhớ"},
+        {"domain": "Y khoa / Sức khỏe", "word": "drug interaction", "translation": "tương tác thuốc"},
+    ])
+    with patch("app.services.domain_translation.get_index", AsyncMock(return_value=index)),          patch("app.services.domain_translation.get_cached_domain_result", return_value=None),          patch("app.services.domain_translation.set_cached_domain_result"),          patch("app.services.domain_translation.get_domain_version", return_value=1):
+        from app.services import domain_llm
+        domain_llm.reset_cooldowns()
+        yield
+        domain_llm.reset_cooldowns()
+
+
+def _groq_stream_client(*contents):
+    client = MagicMock()
+
     class MockChunk:
         def __init__(self, content):
             self.choices = [MagicMock(delta=MagicMock(content=content))]
-            
-    async def mock_async_generator():
-        yield MockChunk("Một ")
-        yield MockChunk("rò rỉ bộ nhớ ")
-        yield MockChunk("gây ra ")
 
-    async def get_stream(*args, **kwargs):
-        return mock_async_generator()
+    async def create(*args, **kwargs):
+        async def gen():
+            for c in contents:
+                yield MockChunk(c)
+        return gen()
 
-    mock_groq_client.chat.completions.create.side_effect = get_stream
-    mock_dependencies["groq"].return_value = mock_groq_client
-    
-    stream = handle_flow_2_stream_translation(text, "en", "vi", "Công nghệ Thông tin (IT)")
-    chunks = [json.loads(c) async for c in stream]
-    
-    assert len(chunks) == 3
-    assert chunks[0]["text"] == "Một "
-    assert chunks[1]["text"] == "rò rỉ bộ nhớ "
-    assert "warning" not in chunks[0]
-    
-    mock_dependencies["groq"].assert_called()
+    client.chat.completions.create = MagicMock(side_effect=create)
+    return client
+
+
+@pytest.mark.asyncio
+async def test_exact_match_returns_dictionary_without_llm_or_nllb(mock_dependencies, domain_env):
+    """TD_01: cụm ngắn khớp từ điển -> trả bản dịch từ điển, không gọi LLM, không gọi NLLB."""
+    chunks = [json.loads(c) async for c in handle_flow_2_stream_translation("memory leak", "en", "vi", IT_DOMAIN)]
+    assert [c["text"] for c in chunks if "text" in c] == ["rò rỉ bộ nhớ"]
+    assert not any("warnings" in c for c in chunks)
     mock_dependencies["nllb"].assert_not_called()
-
-@pytest.mark.asyncio
-async def test_over_3_words_llm_failure_fallback_nllb(mock_dependencies):
-    """
-    Test Case TD_04: > 3 words, Có chứa thuật ngữ, NHƯNG LLM (Groq) và Gemini đều chết (Raise Exception).
-    Kỳ vọng: Fallback về NLLB, kèm Warning.
-    """
-    text = "A memory leak causes crashes" # 5 từ
-    
-    # Groq raise Exception
-    mock_groq_client = MagicMock()
-    mock_groq_client.chat.completions.create.side_effect = Exception("Groq API Timeout")
-    mock_dependencies["groq"].return_value = mock_groq_client
-    
-    # Gemini raise Exception
-    mock_gemini_client = MagicMock()
-    mock_gemini_client.models.generate_content_stream.side_effect = Exception("Gemini API Timeout")
-    mock_dependencies["gemini"].return_value = mock_gemini_client
-    
-    stream = handle_flow_2_stream_translation(text, "en", "vi", "Công nghệ Thông tin (IT)")
-    chunks = [json.loads(c) async for c in stream]
-    
-    # Sẽ gọi NLLB sau khi 2 LLM fail
-    assert len(chunks) == 1
-    assert "Bản dịch NLLB" in chunks[0].get("text")
-    assert "warning" in chunks[0]
-    assert "không thể dịch bằng AI model chuyên ngành" in chunks[0]["warning"]
-    
-    mock_dependencies["groq"].assert_called()
-    mock_dependencies["gemini"].assert_called()
-    mock_dependencies["nllb"].assert_called()
-
-
-@pytest.mark.asyncio
-async def test_over_3_words_no_terminology_found(mock_dependencies):
-    text = "this is just a normal sentence without terms"
-    stream = handle_flow_2_stream_translation(text, "en", "vi", "Công nghệ Thông tin (IT)")
-    chunks = [json.loads(c) async for c in stream]
-    
-    assert len(chunks) == 1
-    assert "Bản dịch NLLB" in chunks[0].get("text")
-    assert "warning" not in chunks[0]
-    mock_dependencies["nllb"].assert_called()
     mock_dependencies["groq"].assert_not_called()
 
+
 @pytest.mark.asyncio
-async def test_over_3_words_groq_fail_gemini_success(mock_dependencies):
-    text = "A memory leak causes crashes"
-    
+async def test_exact_match_is_case_insensitive(mock_dependencies, domain_env):
+    chunks = [json.loads(c) async for c in handle_flow_2_stream_translation("MEMORY LEAK", "en", "vi", IT_DOMAIN)]
+    assert [c["text"] for c in chunks if "text" in c] == ["rò rỉ bộ nhớ"]
+
+
+@pytest.mark.asyncio
+async def test_short_miss_is_translated_by_llm_not_nllb(mock_dependencies, domain_env):
+    """TD_02 (đã đổi): từ ngắn không có trong từ điển vẫn dịch bằng LLM theo ngữ cảnh chuyên ngành."""
+    mock_dependencies["groq"].return_value = _groq_stream_client("từ ", "ngẫu nhiên")
+    mock_dependencies["gemini"].return_value = None
+    chunks = [json.loads(c) async for c in handle_flow_2_stream_translation("random word", "en", "vi", IT_DOMAIN)]
+    assert "".join(c["text"] for c in chunks if "text" in c) == "từ ngẫu nhiên"
+    warnings = [w for c in chunks for w in c.get("warnings", [])]
+    assert warnings == []  # thiếu trong từ điển không còn là cảnh báo
+    mock_dependencies["nllb"].assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_llm_stream_contract_domain_event_then_text(mock_dependencies, domain_env):
+    """TD_03 (đã đổi): LLM stream; event `domain` phát trước text; glossary nằm trong system prompt."""
+    client = _groq_stream_client("Một ", "rò rỉ bộ nhớ ", "gây sập")
+    mock_dependencies["groq"].return_value = client
+    mock_dependencies["gemini"].return_value = None
+    chunks = [json.loads(c) async for c in handle_flow_2_stream_translation(
+        "Drug interactions happen during memory leaks", "en", "vi", IT_DOMAIN)]
+
+    assert chunks[0]["event"] == "domain" and chunks[0]["domain"]["status"] == "selected"
+    assert [c["text"] for c in chunks if "text" in c] == ["Một ", "rò rỉ bộ nhớ ", "gây sập"]
+    system_prompt = client.chat.completions.create.call_args.kwargs["messages"][0]["content"]
+    assert "- memory leak -> rò rỉ bộ nhớ" in system_prompt  # có xử lý số nhiều
+    assert "drug interaction" not in system_prompt  # thuật ngữ thuộc domain khác không bị tiêm
+    mock_dependencies["nllb"].assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_groq_fail_gemini_success(mock_dependencies, domain_env):
     mock_groq_client = MagicMock()
     mock_groq_client.chat.completions.create.side_effect = Exception("Groq sập")
     mock_dependencies["groq"].return_value = mock_groq_client
-    
+
+    async def gemini_stream(**kwargs):
+        async def gen():
+            yield MagicMock(text="Gemini dịch: Rò rỉ bộ nhớ")
+        return gen()
+
     mock_gemini_client = MagicMock()
-    mock_chunk = MagicMock(text="Gemini dịch: Rò rỉ bộ nhớ")
-    mock_gemini_client.models.generate_content_stream.return_value = [mock_chunk]
+    mock_gemini_client.aio.models.generate_content_stream = gemini_stream
     mock_dependencies["gemini"].return_value = mock_gemini_client
 
-    stream = handle_flow_2_stream_translation(text, "en", "vi", "Công nghệ Thông tin (IT)")
-    chunks = [json.loads(c) async for c in stream]
-    
-    assert len(chunks) == 1
-    assert chunks[0]["text"] == "Gemini dịch: Rò rỉ bộ nhớ"
-    assert "warning" not in chunks[0]
-    
-    mock_dependencies["groq"].assert_called()
-    mock_dependencies["gemini"].assert_called()
+    chunks = [json.loads(c) async for c in handle_flow_2_stream_translation("A memory leak causes crashes", "en", "vi", IT_DOMAIN)]
+    assert [c["text"] for c in chunks if "text" in c] == ["Gemini dịch: Rò rỉ bộ nhớ"]
+    assert not any(w["code"] == "FALLBACK_NLLB" for c in chunks for w in c.get("warnings", []))
     mock_dependencies["nllb"].assert_not_called()
 
+
 @pytest.mark.asyncio
-async def test_clients_not_configured(mock_dependencies):
-    text = "A memory leak causes crashes"
+async def test_all_llm_down_falls_back_to_nllb_with_structured_warning(mock_dependencies, domain_env):
+    """TD_04/TD_08 (đã đổi): LLM sập hoặc chưa cấu hình -> NLLB phao cứu sinh + cảnh báo FALLBACK_NLLB."""
     mock_dependencies["groq"].return_value = None
     mock_dependencies["gemini"].return_value = None
-    
-    stream = handle_flow_2_stream_translation(text, "en", "vi", "Công nghệ Thông tin (IT)")
-    chunks = [json.loads(c) async for c in stream]
-    
-    assert len(chunks) == 1
-    assert "Bản dịch NLLB" in chunks[0]["text"]
-    assert "warning" in chunks[0]
-    assert "Hệ thống không thể dịch bằng AI model chuyên ngành" in chunks[0]["warning"]
-    mock_dependencies["nllb"].assert_called()
-
-@pytest.mark.asyncio
-async def test_exact_match_under_3_words_case_insensitivity(mock_dependencies):
-    text = "MEMORY LEAK"
-    stream = handle_flow_2_stream_translation(text, "en", "vi", "Công nghệ Thông tin (IT)")
-    chunks = [json.loads(c) async for c in stream]
-    
-    assert len(chunks) == 1
-    assert chunks[0].get("text") == "rò rỉ bộ nhớ"
-    assert "warning" not in chunks[0]
-
-@pytest.mark.asyncio
-async def test_multi_term_match(mock_dependencies):
-    text = "Drug interaction happens during memory leak"
-    
-    mock_groq_client = MagicMock()
-    async def get_stream(*args, **kwargs):
-        class MockChunk:
-            def __init__(self, content):
-                self.choices = [MagicMock(delta=MagicMock(content=content))]
-        yield MockChunk("Mocked")
-    mock_groq_client.chat.completions.create.side_effect = get_stream
-    mock_dependencies["groq"].return_value = mock_groq_client
-    
-    stream = handle_flow_2_stream_translation(text, "en", "vi", "Công nghệ Thông tin (IT)")
-    chunks = [json.loads(c) async for c in stream]
-    
-    call_args = mock_groq_client.chat.completions.create.call_args
-    assert call_args is not None
-    
-    messages = call_args.kwargs.get("messages", [])
-    system_prompt = messages[0]["content"] if messages else ""
-    
-    assert "- memory leak -> rò rỉ bộ nhớ" in system_prompt
-    assert "- drug interaction -> tương tác thuốc" in system_prompt
-    assert "You are an expert translator" in system_prompt
-
-@pytest.mark.asyncio
-async def test_morphological_matching(mock_dependencies):
-    text = "Drug interactions happen during memory leaks"
-    
-    mock_groq_client = MagicMock()
-    async def get_stream(*args, **kwargs):
-        class MockChunk:
-            def __init__(self, content):
-                self.choices = [MagicMock(delta=MagicMock(content=content))]
-        yield MockChunk("Mocked")
-    mock_groq_client.chat.completions.create.side_effect = get_stream
-    mock_dependencies["groq"].return_value = mock_groq_client
-    
-    stream = handle_flow_2_stream_translation(text, "en", "vi", "Công nghệ Thông tin (IT)")
-    chunks = [json.loads(c) async for c in stream]
-    
-    call_args = mock_groq_client.chat.completions.create.call_args
-    messages = call_args.kwargs.get("messages", [])
-    system_prompt = messages[0]["content"] if messages else ""
-    
-    # Should find base forms despite plurals in text
-    assert "- memory leak -> rò rỉ bộ nhớ" in system_prompt
-    assert "- drug interaction -> tương tác thuốc" in system_prompt
+    with patch("app.services.domain_translation._nllb", AsyncMock(return_value="Bản dịch NLLB")) as nllb:
+        chunks = [json.loads(c) async for c in handle_flow_2_stream_translation("A memory leak causes crashes", "en", "vi", IT_DOMAIN)]
+    assert "Bản dịch NLLB" in "".join(c["text"] for c in chunks if "text" in c)
+    codes = [w["code"] for c in chunks for w in c.get("warnings", [])]
+    assert codes == ["FALLBACK_NLLB"]  # DOMAIN_SERVICE_ERROR đã hợp nhất vào FALLBACK_NLLB
+    nllb.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -275,8 +175,12 @@ async def test_flow_1_nllb_success(mock_dependencies):
     
     text = "Just a regular sentence"
     stream = stream_translation(text, "en", "vi", "Dịch thông thường (Mặc định)")
-    chunks = [json.loads(c) async for c in stream]
-    
+    all_chunks = [json.loads(c) async for c in stream]
+    # Phase 3 contract: stream luôn mở đầu bằng event detection và resolved_source_lang.
+    assert all_chunks[0]["event"] == "detection"
+    assert all_chunks[1] == {"resolved_source_lang": "en"}
+    chunks = [c for c in all_chunks if "text" in c]
+
     assert len(chunks) == 1
     assert "Bản dịch NLLB" in chunks[0]["text"]
     assert "warning" not in chunks[0]
@@ -307,8 +211,8 @@ async def test_flow_1_nllb_fail_groq_success(mock_dependencies):
     
     text = "Just a regular sentence"
     stream = stream_translation(text, "en", "vi", "Dịch thông thường (Mặc định)")
-    chunks = [json.loads(c) async for c in stream]
-    
+    chunks = [c for c in [json.loads(c) async for c in stream] if "text" in c]
+
     assert len(chunks) == 2
     assert chunks[0]["text"] == "Groq "
     assert chunks[1]["text"] == "dịch"

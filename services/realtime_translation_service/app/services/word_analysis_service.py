@@ -25,6 +25,22 @@ def preload_nlp_models():
     except Exception as e:
         logger.error(f"Failed to preload NLP models: {e}")
 
+    # WordNet is downloaded separately from the spaCy model and is lazily
+    # loaded by NLTK. Validate it during startup so the first user request
+    # does not fail with an unexpected 500 response.
+    try:
+        for resource in ("corpora/wordnet", "corpora/omw-1.4"):
+            try:
+                nltk.data.find(resource)
+            except LookupError:
+                # The downloader may keep corpora as .zip archives.
+                nltk.data.find(f"{resource}.zip")
+        from nltk.corpus import wordnet as wn
+        wn.synsets("example", pos="n")
+        logger.info("NLTK WordNet corpora are available.")
+    except LookupError as e:
+        logger.error("NLTK WordNet corpora are unavailable: %s", e)
+
 # We will implement the actual analyze_word function here later.
 import hashlib
 import time
@@ -126,8 +142,14 @@ async def process_word_analysis(request: WordAnalysisRequest) -> WordAnalysisRes
             except Exception as e:
                 logger.warning(f"Lesk algorithm failed: {e}")
                 
-        # If Lesk fails or no wn_pos, just get the most common synset
-        all_synsets = wn.synsets(lemma, pos=wn_pos) if wn_pos else wn.synsets(lemma)
+        # If Lesk fails or no wn_pos, just get the most common synset. NLTK
+        # corpora are lazy-loaded, so this call must be guarded separately
+        # from the import above.
+        try:
+            all_synsets = wn.synsets(lemma, pos=wn_pos) if wn_pos else wn.synsets(lemma)
+        except LookupError as e:
+            logger.error("NLTK WordNet lookup failed; using NLLB fallback: %s", e)
+            return await _fallback_analysis(request, start_time, cache_key, lemma=lemma, pos=pos)
         if not contextual_synset and all_synsets:
             contextual_synset = all_synsets[0]
         

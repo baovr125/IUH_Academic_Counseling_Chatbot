@@ -8,40 +8,67 @@ import httpx
 from google import genai
 from groq import Groq, AsyncGroq
 from app.utils.logger import logger
-from app.utils.text_normalizer import find_domain_terms, build_context_aware_prompt
 
 # Initialize Clients
 _translator = None
 _tokenizer = None
+_nllb_load_attempted = False
+
+NLLB_MODEL_DIR = os.getenv(
+    "NLLB_MODEL_DIR",
+    "/app/models/nllb-200-distilled-600M-ct2-int8",
+)
+NLLB_DEVICE = os.getenv("NLLB_DEVICE", "auto").lower()
+NLLB_REQUIRED_FILES = (
+    "config.json",
+    "model.bin",
+    "sentencepiece.bpe.model",
+    "shared_vocabulary.txt",
+    "tokenizer.json",
+)
+
+
+def _resolve_nllb_model_dir() -> str | None:
+    """Resolve one deterministic model path, with local-dev fallbacks."""
+    candidates = [NLLB_MODEL_DIR]
+    if NLLB_MODEL_DIR == "/app/models/nllb-200-distilled-600M-ct2-int8":
+        candidates.extend([
+            os.path.abspath(os.path.join(os.path.dirname(__file__), "../../models/nllb-200-distilled-600M-ct2-int8")),
+            os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../models/nllb-200-distilled-600M-ct2-int8")),
+        ])
+
+    for candidate in candidates:
+        if os.path.isdir(candidate):
+            missing = [
+                filename for filename in NLLB_REQUIRED_FILES
+                if not os.path.isfile(os.path.join(candidate, filename))
+            ]
+            if not missing:
+                return candidate
+            logger.error("NLLB model is incomplete at %s; missing files: %s", candidate, missing)
+
+    logger.error("NLLB model directory is unavailable. Checked: %s", candidates)
+    return None
 
 def get_nllb_translator():
-    global _translator, _tokenizer
+    global _translator, _tokenizer, _nllb_load_attempted
     if _translator is not None and _tokenizer is not None:
         return _translator, _tokenizer
+    if _nllb_load_attempted:
+        return None, None
+    _nllb_load_attempted = True
 
-    candidate_paths = [
-        "/app/models/nllb-200-distilled-600M-ct2-int8",
-        os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../models/nllb-200-distilled-600M-ct2-int8")),
-        os.path.abspath(os.path.join(os.path.dirname(__file__), "../../models/nllb-200-distilled-600M-ct2-int8")),
-        "./models/nllb-200-distilled-600M-ct2-int8"
-    ]
-    model_dir = None
-    for p in candidate_paths:
-        if os.path.exists(p):
-            model_dir = p
-            break
-
+    model_dir = _resolve_nllb_model_dir()
     if not model_dir:
-        logger.warning(f"NLLB model directory not found in candidate paths: {candidate_paths}. Cannot initialize CTranslate2.")
         return None, None
 
     try:
-        cuda_available = False
-        try:
-            if ctranslate2.get_cuda_device_count() > 0:
-                cuda_available = True
-        except Exception:
-            pass
+        cuda_available = NLLB_DEVICE == "cuda"
+        if NLLB_DEVICE == "auto":
+            try:
+                cuda_available = ctranslate2.get_cuda_device_count() > 0
+            except Exception:
+                cuda_available = False
 
         device = "cuda" if cuda_available else "cpu"
         compute_type = "float16" if device == "cuda" else "int8"
@@ -59,6 +86,8 @@ def get_nllb_translator():
         return _translator, _tokenizer
     except Exception as e:
         logger.error(f"Failed to load NLLB model on {device}: {e}. Retrying on CPU INT8 fallback...")
+        _translator = None
+        _tokenizer = None
         try:
             _translator = ctranslate2.Translator(
                 model_dir,
@@ -71,6 +100,8 @@ def get_nllb_translator():
             return _translator, _tokenizer
         except Exception as cpu_err:
             logger.error(f"Failed to load NLLB model on CPU fallback: {cpu_err}")
+            _translator = None
+            _tokenizer = None
             return None, None
 
 def preload_models():
@@ -95,9 +126,15 @@ def preload_models():
             )
             logger.info("Dummy inference completed. Model is fully warmed up.")
         except Exception as e:
-            logger.warning(f"Failed to run dummy inference: {e}")
-            
-    logger.info("Local models preloaded successfully.")
+            logger.warning(f"NLLB model loaded but warm-up inference failed: {e}")
+            _translator = None
+            _tokenizer = None
+            return False
+        logger.info("NLLB model loaded and warmed successfully.")
+        return True
+
+    logger.error("NLLB model preload failed; local translation is unavailable.")
+    return False
 
 def get_groq_client() -> Optional[AsyncGroq]:
     api_key = os.getenv("GROQ_API_KEY", "")
@@ -142,207 +179,36 @@ DOMAIN_EMOJIS = {
 }
 
 async def handle_flow_2_stream_translation(text: str, source_lang: str, target_lang: str, domain: str) -> AsyncGenerator[str, None]:
-    clean_lower = text.strip().lower()
-    words = clean_lower.split()
-    keyword_count = len(words)
-    
-    from app.services.supabase_client import get_supabase
-    import re
-    
-    supabase = get_supabase()
-    domain_dict = {}
+    """Dịch theo chuyên ngành bằng LLM (thủ công hoặc auto) và phát các sự kiện SSE dạng JSON.
 
-    was_auto_detected = False
-    if domain == "auto":
-        from app.services.domain_service import auto_detect_domain_long, get_combined_short_translation
-        
-        if source_lang != "en" or target_lang != "vi":
-            domain = ""
-        elif len(text.strip()) < 25 or keyword_count <= 3:
-            combined = await get_combined_short_translation(text)
-            if combined:
-                # Yield the combined meanings as a warning
-                yield json.dumps({'warning': combined})
-                # Then yield normal translation
-                async for chunk in yield_nllb(text, None):
-                    yield chunk
-                return
-            domain = "" 
-        else:
-            from app.services.cache_service import get_auto_resolved_domain, set_auto_resolved_domain, get_classification_hash
-            prefix_md5 = get_classification_hash(text)
-            resolved = get_auto_resolved_domain(prefix_md5, source_lang, target_lang)
-            
-            if resolved:
-                detected_domain = resolved
-            else:
-                detected_domain = await auto_detect_domain_long(text)
-                if detected_domain:
-                    set_auto_resolved_domain(prefix_md5, source_lang, target_lang, detected_domain)
-                    
-            if detected_domain:
-                was_auto_detected = True
-                domain = detected_domain
-            else:
-                domain = ""
+    Logic nằm ở `app.services.domain_translation` (dùng chung với /text).
+    """
+    from app.services.domain_translation import translate_with_domain
 
-    if domain and domain != "auto":
-        from app.services.cache_service import get_redis
-        r = get_redis()
-        if r:
-            try:
-                cached_dict = await asyncio.to_thread(r.hgetall, f"domain_dict:{domain}")
-                if cached_dict:
-                    domain_dict = cached_dict
-            except Exception as e:
-                logger.error(f"Redis hgetall error: {e}")
-        
-        # Fallback to Supabase if Redis fails
-        if not domain_dict and supabase:
-            try:
-                def fetch_supabase():
-                    return supabase.table("domain_dictionaries").select("word, translation").eq("domain", domain).execute()
-                res = await asyncio.to_thread(fetch_supabase)
-                if res.data:
-                    for entry in res.data:
-                        domain_dict[entry["word"].lower()] = entry["translation"]
-            except Exception as e:
-                logger.error(f"Supabase query error: {e}")
+    async for event in translate_with_domain(text, source_lang, target_lang, domain):
+        if "_internal" in event:
+            continue
+        yield json.dumps(event, ensure_ascii=False)
 
-    async def yield_nllb(t, warning_msg=None):
-        translator, tokenizer = get_nllb_translator()
-        if not translator or not tokenizer:
-            yield json.dumps({'error': "NLLB model is not available."})
-            return
-            
-        nllb_src = LANG_MAP.get(source_lang, "eng_Latn")
-        nllb_tgt = LANG_MAP.get(target_lang, "vie_Latn")
-        
-        try:
-            from app.utils.html_parser import HTMLTranslator
-            html_translator = HTMLTranslator()
-            html_with_placeholders, texts_to_translate = html_translator.extract_text(t)
-            
-            if not texts_to_translate:
-                if warning_msg:
-                    yield json.dumps({'text': html_with_placeholders, 'warning': warning_msg})
-                else:
-                    yield json.dumps({'text': html_with_placeholders})
-                return
-                
-            tokenizer.src_lang = nllb_src
-            source_tokens_list = [tokenizer.convert_ids_to_tokens(tokenizer.encode(tt)) for tt in texts_to_translate]
-            target_prefix = [nllb_tgt]
-
-            results = await asyncio.to_thread(
-                translator.translate_batch,
-                source_tokens_list,
-                target_prefix=[target_prefix] * len(texts_to_translate)
-            )
-            
-            translated_texts = []
-            for res in results:
-                target_tokens = res.hypotheses[0][1:] 
-                translated = tokenizer.decode(tokenizer.convert_tokens_to_ids(target_tokens))
-                translated_texts.append(translated)
-                
-            final_translated = html_translator.reconstruct_html(html_with_placeholders, translated_texts)
-            
-            if warning_msg:
-                yield json.dumps({'text': final_translated, 'warning': warning_msg})
-            else:
-                yield json.dumps({'text': final_translated})
-        except Exception as e:
-            logger.error(f"NLLB failed: {e}")
-            yield json.dumps({'error': "Dịch vụ dịch thuật tạm thời gián đoạn. Không thể dịch."})
-
-    # Case 1: < 3 keywords
-    if keyword_count <= 3:
-        if clean_lower in domain_dict:
-            yield json.dumps({'text': domain_dict[clean_lower]})
-            return
-        else:
-            warning = "Dịch sát nghĩa (word-by-word) do không tìm thấy thuật ngữ chuyên ngành tương ứng."
-            async for chunk in yield_nllb(text, warning):
-                yield chunk
-            return
-
-    # Case 2: >= 3 keywords
-    found_terms = find_domain_terms(text, domain_dict)
-
-    if found_terms:
-        if was_auto_detected:
-            yield json.dumps({'warning': f"Đã tự động nhận diện chuyên ngành: {domain}"})
-            
-        # LLM streaming (Groq/Gemini bypass)
-        groq_client = get_groq_client()
-        system_prompt = build_context_aware_prompt(domain, found_terms, source_lang, target_lang)
-        
-        use_fallback = False
-        if groq_client:
-            try:
-                stream = await groq_client.chat.completions.create(
-                    model="llama-3.1-8b-instant",
-                    messages=[
-                        {"role": "system", "content": system_prompt},
-                        {"role": "user", "content": text}
-                    ],
-                    stream=True,
-                    temperature=0.3
-                )
-                async for chunk in stream:
-                    if chunk.choices and chunk.choices[0].delta.content:
-                        content = chunk.choices[0].delta.content
-                        yield json.dumps({'text': content})
-                return
-            except Exception as e:
-                logger.warning(f"Groq API streaming failed: {e}. Falling back to Gemini.")
-                use_fallback = True
-        else:
-            use_fallback = True
-
-        if use_fallback:
-            gemini_client = get_gemini_client()
-            if gemini_client:
-                try:
-                    full_prompt = f"{system_prompt}\n\nText:\n{text}"
-                    response_stream = await gemini_client.aio.models.generate_content_stream(
-                        model="gemini-2.5-flash",
-                        contents=full_prompt
-                    )
-                    async for chunk in response_stream:
-                        if chunk.text:
-                            yield json.dumps({'text': chunk.text})
-                    return
-                except Exception as e:
-                    logger.error(f"Gemini fallback failed: {e}")
-        
-        # If both LLMs failed, fallback to NLLB with warning
-        warning = f"Hệ thống không thể dịch bằng AI model chuyên ngành. Đã sử dụng NLLB, kết quả có thể không phản ánh đầy đủ nghĩa chuyên ngành."
-        async for chunk in yield_nllb(text, warning):
-            yield chunk
-        return
-    else:
-        # Terminology not found -> NLLB
-        async for chunk in yield_nllb(text, None):
-            yield chunk
-        return
-
-async def stream_translation(text: str, source_lang: str, target_lang: str, domain: str = "") -> AsyncGenerator[str, None]:
+async def stream_translation(text: str, source_lang: str, target_lang: str, domain: str = "", source_lang_hint: Optional[str] = None) -> AsyncGenerator[str, None]:
     """Translates text using local NLLB model via CTranslate2. Falls back to Groq/Gemini."""
-    
-    if source_lang == "auto":
-        from app.services.translation_service import detect_source_language
-        try:
-            detected_lang = detect_source_language(text)
-            source_lang = detected_lang
-            yield json.dumps({'resolved_source_lang': detected_lang})
-        except Exception as e:
-            detail = getattr(e, "detail", None)
-            yield json.dumps({'error': detail or "Chưa thể xác định ngôn ngữ. Hãy nhập thêm văn bản hoặc chọn ngôn ngữ nguồn thủ công."})
-            return
-    else:
-        yield json.dumps({'resolved_source_lang': source_lang})
+
+    # Cùng một hàm resolve với /text và /detect: chỉ `detected` mới được dịch.
+    from app.services.language_detection import aresolve_source_language
+    resolution = await aresolve_source_language(text, source_lang, source_lang_hint)
+
+    # Luôn phát event 'detection' chuẩn hóa chứa toàn bộ metadata cho client
+    yield json.dumps({
+        'event': 'detection',
+        'detection': resolution.details.model_dump()
+    })
+
+    if not resolution.should_translate:
+        yield json.dumps({'error': resolution.message, 'code': resolution.error_code})
+        return
+
+    source_lang = resolution.source_lang
+    yield json.dumps({'resolved_source_lang': source_lang})
 
     is_flow_2 = domain and domain != "Dịch thông thường (Mặc định)"
     if is_flow_2:

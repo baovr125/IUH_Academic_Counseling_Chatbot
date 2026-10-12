@@ -1,0 +1,366 @@
+{
+ "system": "nllb-200-distilled-600M (ctranslate2, run_nllb_only)",
+ "samples": 50,
+ "wall_s": 14.545257599998877,
+ "chrF": 69.18051739348765,
+ "BLEU": 59.83520331378862,
+ "sacrebleu": "2.6.0",
+ "latency_ms": {
+  "p50": 66.12094999945839,
+  "p95": 248.04230000154348,
+  "max": 255.26019999961136,
+  "mean": 92.3948540003039
+ },
+ "items": [
+  {
+   "id": "gt-001",
+   "source": "Prerequisite courses must be completed.",
+   "reference": "Các môn học tiên quyết phải được hoàn thành.",
+   "hypothesis": "Các khóa học tiên quyết phải được hoàn thành.",
+   "ms": 81.40160000039032
+  },
+  {
+   "id": "gt-002",
+   "source": "Students must register for credits.",
+   "reference": "Sinh viên phải đăng ký tín chỉ.",
+   "hypothesis": "Học sinh phải đăng ký nhận tín dụng.",
+   "ms": 74.0951000007044
+  },
+  {
+   "id": "gt-003",
+   "source": "Academic transcript",
+   "reference": "Bảng điểm học tập",
+   "hypothesis": "Văn bản học thuật",
+   "ms": 39.84780000246246
+  },
+  {
+   "id": "gt-004",
+   "source": "Object-oriented programming",
+   "reference": "Lập trình hướng đối tượng",
+   "hypothesis": "Quá trình lập trình định hướng đối tượng",
+   "ms": 76.18770000044606
+  },
+  {
+   "id": "gt-005",
+   "source": "Data encapsulation hides internal states.",
+   "reference": "Tính đóng gói dữ liệu che giấu các trạng thái nội bộ.",
+   "hypothesis": "Sự đóng gói dữ liệu che giấu các trạng thái bên trong.",
+   "ms": 101.54299999703653
+  },
+  {
+   "id": "gt-006",
+   "source": "Database Management System",
+   "reference": "Hệ quản trị cơ sở dữ liệu",
+   "hypothesis": "Hệ thống quản lý cơ sở dữ liệu",
+   "ms": 73.02790000176174
+  },
+  {
+   "id": "gt-007",
+   "source": "Software Engineering",
+   "reference": "Công nghệ phần mềm",
+   "hypothesis": "Kỹ thuật phần mềm",
+   "ms": 49.44429999886779
+  },
+  {
+   "id": "gt-008",
+   "source": "Artificial Intelligence",
+   "reference": "Trí tuệ nhân tạo",
+   "hypothesis": "Trí tuệ nhân tạo",
+   "ms": 48.250100000586826
+  },
+  {
+   "id": "gt-009",
+   "source": "Machine Learning algorithms",
+   "reference": "Các thuật toán học máy",
+   "hypothesis": "Các thuật toán học máy",
+   "ms": 48.43030000120052
+  },
+  {
+   "id": "gt-010",
+   "source": "Tuition fee payment deadline",
+   "reference": "Hạn chót đóng học phí",
+   "hypothesis": "Thời hạn thanh toán học phí",
+   "ms": 61.722300000838004
+  },
+  {
+   "id": "gt-011",
+   "source": "Graduation thesis defense",
+   "reference": "Bảo vệ khóa luận tốt nghiệp",
+   "hypothesis": "Bảo vệ luận án tốt nghiệp",
+   "ms": 58.35099999967497
+  },
+  {
+   "id": "gt-012",
+   "source": "Cumulative Grade Point Average",
+   "reference": "Điểm trung bình tích lũy",
+   "hypothesis": "Tỷ lệ điểm điểm tích lũy",
+   "ms": 72.76610000189976
+  },
+  {
+   "id": "gt-013",
+   "source": "Syllabus includes course objectives.",
+   "reference": "Đề cương chi tiết bao gồm các mục tiêu môn học.",
+   "hypothesis": "Chương trình giảng dạy bao gồm các mục tiêu khóa học.",
+   "ms": 100.16710000127205
+  },
+  {
+   "id": "gt-014",
+   "source": "Midterm examination",
+   "reference": "Kỳ thi giữa kỳ",
+   "hypothesis": "Kiểm tra giữa kỳ",
+   "ms": 46.784300000581425
+  },
+  {
+   "id": "gt-015",
+   "source": "The faculty of Information Technology",
+   "reference": "Khoa Công nghệ Thông tin",
+   "hypothesis": "Khoa Công nghệ Thông tin",
+   "ms": 54.89510000188602
+  },
+  {
+   "id": "gt-016",
+   "source": "<a href=\"/home\" class=\"btn\">Home</a>",
+   "reference": "<a href=\"/home\" class=\"btn\">Trang chủ</a>",
+   "hypothesis": "<a class=\"btn\" href=\"/home\">Nhà</a>",
+   "ms": 35.09929999927408
+  },
+  {
+   "id": "gt-017",
+   "source": "<b>Warning:</b> Do not refresh.",
+   "reference": "<b>Cảnh báo:</b> Không làm mới.",
+   "hypothesis": "<b>Cảnh báo:</b>Đừng làm mới.",
+   "ms": 50.19909999828087
+  },
+  {
+   "id": "gt-018",
+   "source": "<span style=\"color:red\">Error 404</span>",
+   "reference": "<span style=\"color:red\">Lỗi 404</span>",
+   "hypothesis": "<span style=\"color:red\">lỗi 404</span>",
+   "ms": 34.02220000134548
+  },
+  {
+   "id": "gt-019",
+   "source": "Please click <button>Submit</button>",
+   "reference": "Vui lòng nhấn <button>Gửi</button>",
+   "hypothesis": "Vui lòng nhấp vào<button>Đưa ra</button>",
+   "ms": 54.703099998732796
+  },
+  {
+   "id": "gt-020",
+   "source": "<ul><li>Item 1</li><li>Item 2</li></ul>",
+   "reference": "<ul><li>Mục 1</li><li>Mục 2</li></ul>",
+   "hypothesis": "<ul><li>Khoản 1</li><li>Điểm 2</li></ul>",
+   "ms": 35.53280000051018
+  },
+  {
+   "id": "gt-021",
+   "source": "<i>Italic text</i> formatting.",
+   "reference": "Định dạng <i>chữ in nghiêng</i>.",
+   "hypothesis": "<i>Văn bản bằng chữ viết tắt</i>định dạng.",
+   "ms": 54.894500000955304
+  },
+  {
+   "id": "gt-022",
+   "source": "<div id=\"main\">Content here</div>",
+   "reference": "<div id=\"main\">Nội dung ở đây</div>",
+   "hypothesis": "<div id=\"main\">Nội dung ở đây</div>",
+   "ms": 43.98090000177035
+  },
+  {
+   "id": "gt-023",
+   "source": "Code block: <code>print(\"hello\")</code>",
+   "reference": "Khối mã: <code>print(\"hello\")</code>",
+   "hypothesis": "Khóa mã:<code>print(\"hello\")</code>",
+   "ms": 41.08070000074804
+  },
+  {
+   "id": "gt-024",
+   "source": "Navigate to <strong>Dashboard</strong>.",
+   "reference": "Điều hướng đến <strong>Bảng điều khiển</strong>.",
+   "hypothesis": "Di chuyển đến<strong>bảng điều khiển</strong>.",
+   "ms": 43.90430000057677
+  },
+  {
+   "id": "gt-025",
+   "source": "<p class=\"lead\">Intro text</p>",
+   "reference": "<p class=\"lead\">Văn bản giới thiệu</p>",
+   "hypothesis": "<p class=\"lead\">Văn bản đầu tiên</p>",
+   "ms": 43.16350000226521
+  },
+  {
+   "id": "gt-026",
+   "source": "<img src=\"logo.png\" alt=\"Logo\">",
+   "reference": "<img src=\"logo.png\" alt=\"Logo\">",
+   "hypothesis": "<img alt=\"Logo\" src=\"logo.png\"/>",
+   "ms": 0.15069999790284783
+  },
+  {
+   "id": "gt-027",
+   "source": "<form action=\"/login\">Login</form>",
+   "reference": "<form action=\"/login\">Đăng nhập</form>",
+   "hypothesis": "<form action=\"/login\">Nhập vào</form>",
+   "ms": 36.19080000135
+  },
+  {
+   "id": "gt-028",
+   "source": "Welcome to our website.",
+   "reference": "Chào mừng bạn đến với trang web của chúng tôi.",
+   "hypothesis": "Chào mừng đến với trang web của chúng tôi.",
+   "ms": 91.34320000157459
+  },
+  {
+   "id": "gt-029",
+   "source": "How can I help you today?",
+   "reference": "Hôm nay tôi có thể giúp gì cho bạn?",
+   "hypothesis": "Hôm nay tôi có thể giúp gì được?",
+   "ms": 76.57190000099945
+  },
+  {
+   "id": "gt-030",
+   "source": "Please let me know your thoughts.",
+   "reference": "Vui lòng cho tôi biết suy nghĩ của bạn.",
+   "hypothesis": "Làm ơn cho tôi biết ý nghĩ của bạn.",
+   "ms": 79.5445000003383
+  },
+  {
+   "id": "gt-031",
+   "source": "Have a great day!",
+   "reference": "Chúc một ngày tốt lành!",
+   "hypothesis": "Chúc một ngày tuyệt vời!",
+   "ms": 77.73260000249138
+  },
+  {
+   "id": "gt-032",
+   "source": "Thank you for contacting us.",
+   "reference": "Cảm ơn bạn đã liên hệ với chúng tôi.",
+   "hypothesis": "Cảm ơn vì đã liên lạc với chúng tôi.",
+   "ms": 83.98350000061328
+  },
+  {
+   "id": "gt-033",
+   "source": "We will respond as soon as possible.",
+   "reference": "Chúng tôi sẽ phản hồi sớm nhất có thể.",
+   "hypothesis": "Chúng tôi sẽ trả lời càng sớm càng tốt.",
+   "ms": 81.4364999969257
+  },
+  {
+   "id": "gt-034",
+   "source": "Can you repeat that, please?",
+   "reference": "Bạn có thể lặp lại điều đó được không?",
+   "hypothesis": "Anh có thể nhắc lại được không?",
+   "ms": 66.14780000018072
+  },
+  {
+   "id": "gt-035",
+   "source": "Where is the nearest library?",
+   "reference": "Thư viện gần nhất ở đâu?",
+   "hypothesis": "Thư viện gần nhất ở đâu?",
+   "ms": 67.04829999944195
+  },
+  {
+   "id": "gt-036",
+   "source": "I would like to order a coffee.",
+   "reference": "Tôi muốn gọi một tách cà phê.",
+   "hypothesis": "Tôi muốn gọi cà phê.",
+   "ms": 64.0953999973135
+  },
+  {
+   "id": "gt-037",
+   "source": "What time does the meeting start?",
+   "reference": "Cuộc họp bắt đầu lúc mấy giờ?",
+   "hypothesis": "Cuộc họp bắt đầu lúc nào?",
+   "ms": 65.05210000250372
+  },
+  {
+   "id": "gt-038",
+   "source": "It is raining heavily outside.",
+   "reference": "Bên ngoài trời đang mưa to.",
+   "hypothesis": "Bên ngoài trời mưa lớn.",
+   "ms": 61.327499999606516
+  },
+  {
+   "id": "gt-039",
+   "source": "She is reading a book.",
+   "reference": "Cô ấy đang đọc sách.",
+   "hypothesis": "Cô ấy đang đọc sách.",
+   "ms": 58.92709999898216
+  },
+  {
+   "id": "gt-040",
+   "source": "They went to the park yesterday.",
+   "reference": "Họ đã đi đến công viên vào hôm qua.",
+   "hypothesis": "Hôm qua họ đã đến công viên.",
+   "ms": 66.09409999873606
+  },
+  {
+   "id": "gt-041",
+   "source": "Despite the challenging weather conditions, the rescue team successfully managed to reach the stranded hikers before nightfall.",
+   "reference": "Mặc dù điều kiện thời tiết đầy thử thách, đội cứu hộ đã tiếp cận thành công những người leo núi bị mắc kẹt trước khi trời tối.",
+   "hypothesis": "Mặc dù điều kiện thời tiết khó khăn, nhóm cứu hộ đã thành công trong việc tiếp cận những người đi bộ bị mắc kẹt trước khi trời tối.",
+   "ms": 236.0657999997784
+  },
+  {
+   "id": "gt-042",
+   "source": "The implementation of the new software system will require all employees to undergo an intensive training program over the next two weeks.",
+   "reference": "Việc triển khai hệ thống phần mềm mới sẽ yêu cầu tất cả nhân viên phải trải qua một chương trình đào tạo chuyên sâu trong hai tuần tới.",
+   "hypothesis": "Việc triển khai hệ thống phần mềm mới sẽ đòi hỏi tất cả nhân viên phải trải qua một chương trình đào tạo chuyên sâu trong hai tuần tới.",
+   "ms": 213.27000000019325
+  },
+  {
+   "id": "gt-043",
+   "source": "In order to improve overall efficiency, the management has decided to restructure several key departments starting from the next fiscal year.",
+   "reference": "Nhằm cải thiện hiệu quả tổng thể, ban quản lý đã quyết định tái cấu trúc một số phòng ban then chốt bắt đầu từ năm tài chính tiếp theo.",
+   "hypothesis": "Để cải thiện hiệu quả tổng thể, quản lý đã quyết định tái cấu trúc một số bộ phận chính bắt đầu từ năm tài chính tiếp theo.",
+   "ms": 214.1288999991957
+  },
+  {
+   "id": "gt-044",
+   "source": "Students who wish to apply for the scholarship must submit their applications along with two letters of recommendation by the end of the month.",
+   "reference": "Sinh viên có nguyện vọng nộp đơn xin học bổng phải nộp hồ sơ cùng với hai thư giới thiệu trước cuối tháng.",
+   "hypothesis": "Sinh viên muốn nộp đơn xin học bổng phải nộp đơn cùng với hai lá thư khuyến nghị vào cuối tháng.",
+   "ms": 167.28400000283727
+  },
+  {
+   "id": "gt-045",
+   "source": "The quick brown fox jumps over the lazy dog while the birds sing in the trees on a sunny morning.",
+   "reference": "Con cáo nâu nhanh nhẹn nhảy qua con chó lười biếng trong khi những chú chim hót trên cây vào một buổi sáng đầy nắng.",
+   "hypothesis": "Con cáo nâu nhanh chóng nhảy qua con chó lười biếng trong khi những con chim hát trong cây vào một buổi sáng nắng.",
+   "ms": 209.7914000005403
+  },
+  {
+   "id": "gt-046",
+   "source": "According to the latest scientific research, a balanced diet combined with regular physical exercise significantly reduces the risk of chronic diseases.",
+   "reference": "Theo nghiên cứu khoa học mới nhất, một chế độ ăn uống cân bằng kết hợp với tập thể dục thường xuyên làm giảm đáng kể rủi ro mắc các bệnh mãn tính.",
+   "hypothesis": "Theo nghiên cứu khoa học mới nhất, chế độ ăn uống cân bằng kết hợp với tập thể dục thường xuyên làm giảm đáng kể nguy cơ mắc bệnh mãn tính.",
+   "ms": 232.69219999929192
+  },
+  {
+   "id": "gt-047",
+   "source": "The rapid advancement of artificial intelligence technologies has sparked a global debate regarding ethics, privacy, and the future of work.",
+   "reference": "Sự tiến bộ nhanh chóng của các công nghệ trí tuệ nhân tạo đã châm ngòi cho một cuộc tranh luận toàn cầu liên quan đến đạo đức, quyền riêng tư và tương lai của công việc.",
+   "hypothesis": "Sự tiến bộ nhanh chóng của công nghệ trí tuệ nhân tạo đã gây ra một cuộc tranh luận toàn cầu về đạo đức, quyền riêng tư và tương lai của công việc.",
+   "ms": 248.04230000154348
+  },
+  {
+   "id": "gt-048",
+   "source": "After careful consideration of all available options, the board of directors ultimately chose to expand operations into the Southeast Asian market.",
+   "reference": "Sau khi cân nhắc cẩn thận tất cả các lựa chọn khả thi, hội đồng quản trị cuối cùng đã chọn mở rộng hoạt động sang thị trường Đông Nam Á.",
+   "hypothesis": "Sau khi xem xét kỹ lưỡng tất cả các lựa chọn có sẵn, ban giám đốc cuối cùng đã quyết định mở rộng hoạt động vào thị trường Đông Nam Á.",
+   "ms": 255.26019999961136
+  },
+  {
+   "id": "gt-049",
+   "source": "Please ensure that all personal belongings are removed from the overhead compartments before disembarking from the aircraft.",
+   "reference": "Vui lòng đảm bảo rằng tất cả hành lý cá nhân được dọn sạch khỏi các ngăn chứa phía trên trước khi rời khỏi máy bay.",
+   "hypothesis": "Vui lòng đảm bảo rằng tất cả đồ đạc cá nhân được loại bỏ khỏi các khu không trước khi hạ cánh khỏi máy bay.",
+   "ms": 195.27279999965685
+  },
+  {
+   "id": "gt-050",
+   "source": "The novel explores themes of isolation and redemption through the perspective of a protagonist who struggles to adapt to modern society.",
+   "reference": "Cuốn tiểu thuyết khám phá các chủ đề về sự cô lập và cứu rỗi thông qua góc nhìn của một nhân vật chính phải vật lộn để thích nghi với xã hội hiện đại.",
+   "hypothesis": "Cuốn tiểu thuyết này khám phá các chủ đề cô lập và cứu chuộc thông qua quan điểm của một nhân vật chính đấu tranh để thích nghi với xã hội hiện đại.",
+   "ms": 248.79499999951804
+  }
+ ]
+}

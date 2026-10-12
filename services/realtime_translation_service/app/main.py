@@ -1,7 +1,11 @@
+import asyncio
+import os
 import uuid
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from app.services.language_detection import LanguageResolutionError
 from app.routers import translation
 from app.utils.logger import logger, request_id_var
 from app.rabbitmq_consumer import start_rabbitmq_tts_consumer
@@ -11,9 +15,22 @@ from app.services.minio_client import init_minio
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    if os.getenv("TESTING") == "1":
+        yield
+        return
     logger.info("Starting up Real-time Translation Service...")
     init_minio()
-    preload_models()
+    nllb_ready = preload_models()
+
+    # Nạp fastText + Lingua và chạy warm-up để request đầu tiên không phải trả giá nạp model.
+    from app.services.language_detection import warm_up as warm_up_language_detection
+    detection_ready = await asyncio.to_thread(warm_up_language_detection)
+    logger.info(
+        "Model startup status: nllb=%s fasttext=%s lingua=%s",
+        "loaded" if nllb_ready else "unavailable",
+        "loaded" if detection_ready["fasttext"] else "unavailable (Lingua fallback remains available)",
+        "loaded" if detection_ready["lingua"] else "unavailable",
+    )
     
     # Preload NLP models for Word Analysis
     from app.services.word_analysis_service import preload_nlp_models
@@ -34,13 +51,27 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+_cors_origins = [
+    origin.strip()
+    for origin in os.getenv(
+        "CORS_ALLOW_ORIGINS",
+        "http://localhost,http://127.0.0.1,http://localhost:3000,http://localhost:5173,http://127.0.0.1:5173",
+    ).split(",")
+    if origin.strip()
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=_cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.exception_handler(LanguageResolutionError)
+async def language_resolution_error_handler(request: Request, exc: LanguageResolutionError):
+    """Ngôn ngữ nguồn chưa xác định được → không dịch; trả mã lỗi có cấu trúc để UI cho người dùng chọn."""
+    return JSONResponse(status_code=exc.resolution.http_status, content=exc.to_payload())
 
 @app.middleware("http")
 async def request_id_middleware(request: Request, call_next):
@@ -80,7 +111,8 @@ async def readiness_check(response: Response):
             "redis": "unknown",
             "supabase": "unknown",
             "nllb_model": "unknown",
-            "fasttext_model": "unknown"
+            "fasttext_model": "unknown",
+            "lingua_model": "unknown"
         },
         "providers": {
             "gemini": "configured" if os.environ.get("GEMINI_API_KEY") else "missing",
@@ -121,23 +153,37 @@ async def readiness_check(response: Response):
         translator, tokenizer = get_nllb_translator()
         nllb_ok = translator is not None and tokenizer is not None
         
-        from app.services.fasttext_detector import _get_fasttext_model
-        ft_ok = _get_fasttext_model() is not None
-        return nllb_ok, ft_ok
-        
+        from app.services.language_detection import engines_ready
+        engines = engines_ready()
+        return nllb_ok, engines["fasttext"], engines["lingua"]
+
     try:
-        nllb_ok, ft_ok = await asyncio.to_thread(check_models)
+        nllb_ok, ft_ok, lingua_ok = await asyncio.to_thread(check_models)
         status["dependencies"]["nllb_model"] = "loaded" if nllb_ok else "missing"
         status["dependencies"]["fasttext_model"] = "loaded" if ft_ok else "missing"
+        status["dependencies"]["lingua_model"] = "loaded" if lingua_ok else "missing"
     except Exception:
         status["dependencies"]["nllb_model"] = "error"
         status["dependencies"]["fasttext_model"] = "error"
+        status["dependencies"]["lingua_model"] = "error"
     
-    # Determine overall status
-    if (status["dependencies"]["nllb_model"] != "loaded" or 
-        status["dependencies"]["fasttext_model"] != "loaded" or
-        status["dependencies"]["redis"] != "connected"):
-        status["status"] = "degraded"
+    provider_ready = any(
+        status["providers"][name] == "configured"
+        for name in ("gemini", "groq")
+    )
+    translation_ready = (
+        status["dependencies"]["nllb_model"] == "loaded"
+        or provider_ready
+    )
+
+    if not translation_ready:
+        status["status"] = "unavailable"
         response.status_code = 503
+    elif (
+        status["dependencies"]["nllb_model"] != "loaded"
+        or status["dependencies"]["fasttext_model"] != "loaded"
+        or status["dependencies"]["lingua_model"] != "loaded"
+    ):
+        status["status"] = "degraded"
         
     return status

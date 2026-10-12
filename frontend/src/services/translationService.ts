@@ -1,5 +1,8 @@
-import type { ApiResult, TranslateRequest, TranslateResponse, TranslationHistoryItem } from "../types";
-import { MOCK_TRANSLATION_HISTORY, mockTranslate } from "../mock/mockData";
+import type {
+  ApiResult, TranslateRequest, TranslateResponse, TranslationHistoryItem, LanguageDetectionDetails,
+  DomainDetails, TranslationWarning,
+} from "../types";
+import { MOCK_TRANSLATION_HISTORY } from "../mock/mockData";
 import { generateId } from "./utils";
 import { getToken } from "./authService";
 
@@ -28,38 +31,63 @@ export async function translateText(req: TranslateRequest): Promise<ApiResult<Tr
       body: JSON.stringify({
         text: req.sourceText,
         source_lang: req.sourceLang || "en",
-        target_lang: req.targetLang || "vi"
+        target_lang: req.targetLang || "vi",
+        domain: req.domain || "",
+        ...(req.sourceLang === "auto" && req.sourceLangHint ? { source_lang_hint: req.sourceLangHint } : {}),
       }),
     });
 
-    if (res.ok) {
-      const data = await res.json();
-      if (data.ok && data.data?.translated_text) {
-        return {
-          ok: true,
-          data: {
-            translatedText: data.data.translated_text,
-            detectedSourceLang: req.sourceLang
-          }
-        };
-      }
+    // Lỗi thật của backend (gồm các mã LANG_* khi chưa xác định được ngôn ngữ nguồn) phải hiện ra,
+    // không được thay bằng bản dịch giả.
+    let body: any = null;
+    try {
+      body = await res.json();
+    } catch {
+      body = null;
     }
-  } catch (e) {
-    // Fallback to local mock if gateway not running locally
-  }
 
-  const translatedText = mockTranslate(req.sourceText, req.targetLang);
-  return { ok: true, data: { translatedText, detectedSourceLang: req.sourceLang } };
+    if (res.ok && body?.ok && body.data?.translated_text) {
+      return {
+        ok: true,
+        data: {
+          translatedText: body.data.translated_text,
+          detectedSourceLang: body.data.resolved_source_lang || req.sourceLang,
+          detection: body.data.detection,
+          domainDetails: body.data.domain ?? undefined,
+          warnings: body.data.warnings ?? [],
+        }
+      };
+    }
+
+    const message =
+      body?.error?.message ||
+      (typeof body?.detail === "string" ? body.detail : "") ||
+      `Dịch vụ dịch thuật trả về lỗi (HTTP ${res.status}).`;
+    return {
+      ok: false,
+      error: { message, code: body?.error?.code, detection: body?.error?.detection },
+    };
+  } catch (e) {
+    return { ok: false, error: { message: "Không thể kết nối đến dịch vụ dịch thuật." } };
+  }
 }
 
 export async function streamTranslation(
   req: TranslateRequest,
   onChunk: (text: string) => void,
-  onError: (error: string) => void,
+  /** `code` có giá trị (LANG_UNCERTAIN, LANG_UNSUPPORTED, LANG_UNKNOWN, INVALID_INPUT) khi dừng vì ngôn ngữ nguồn. */
+  onError: (error: string, code?: string) => void,
   onWarning: (warning: string) => void,
   onComplete: () => void,
   signal?: AbortSignal,
-  onDetectedLanguage?: (lang: string) => void
+  onDetectedLanguage?: (lang: string, details?: LanguageDetectionDetails) => void,
+  onDetectionDetails?: (details: LanguageDetectionDetails) => void,
+  /** Kết quả chọn/nhận diện chuyên ngành; có thể được gọi 2 lần (sớm, rồi bản cuối kèm applied_terms). */
+  onDomain?: (details: DomainDetails) => void,
+  /** Cảnh báo có cấu trúc (chế độ chuyên ngành). */
+  onWarnings?: (warnings: TranslationWarning[]) => void,
+  /** Backend yêu cầu xóa phần bản dịch đã stream (bản dịch của LLM bị hỏng, sắp thay bằng bản khác). */
+  onReset?: () => void
 ): Promise<void> {
   if (!req.sourceText.trim()) {
     onError("Vui lòng nhập văn bản cần dịch.");
@@ -78,7 +106,8 @@ export async function streamTranslation(
         text: req.sourceText,
         source_lang: req.sourceLang || "en",
         target_lang: req.targetLang || "vi",
-        domain: req.domain || ""
+        domain: req.domain || "",
+        ...(req.sourceLang === "auto" && req.sourceLangHint ? { source_lang_hint: req.sourceLangHint } : {}),
       }),
       signal,
     });
@@ -111,16 +140,34 @@ export async function streamTranslation(
           if (dataStr) {
             try {
               const data = JSON.parse(dataStr);
+              if (data.event === "detection" || data.detection) {
+                const details = data.detection || data;
+                if (onDetectionDetails) {
+                  onDetectionDetails(details);
+                }
+                if (details.resolved_source_lang && onDetectedLanguage) {
+                  onDetectedLanguage(details.resolved_source_lang, details);
+                }
+              }
+              if (data.event === "reset" && onReset) {
+                onReset();
+              }
+              if (data.event === "domain" && data.domain && onDomain) {
+                onDomain(data.domain as DomainDetails);
+              }
+              if (Array.isArray(data.warnings) && data.warnings.length > 0 && onWarnings) {
+                onWarnings(data.warnings as TranslationWarning[]);
+              }
               if (data.warning) {
                 onWarning(data.warning);
               }
-              if (data.detected_source_lang && onDetectedLanguage) {
-                onDetectedLanguage(data.detected_source_lang);
+              if (data.resolved_source_lang && onDetectedLanguage) {
+                onDetectedLanguage(data.resolved_source_lang, data.detection);
               }
               if (data.text) {
                 onChunk(data.text);
               } else if (data.error) {
-                onError(data.error);
+                onError(data.error, data.code);
               }
             } catch (err) {
               console.error("Failed to parse SSE data:", err, dataStr);
@@ -225,7 +272,14 @@ export async function analyzeWord(
       const data = await res.json();
       return { ok: true, data: data.data };
     }
-    return { ok: false, error: { message: "Failed to analyze word" } };
+    let message = "Failed to analyze word";
+    try {
+      const errorData = await res.json();
+      message = errorData?.detail || errorData?.error?.message || message;
+    } catch {
+      // Keep the generic message when the backend does not return JSON.
+    }
+    return { ok: false, error: { message } };
   } catch (error: any) {
     if (error?.name === "AbortError") {
       throw error; // Let the hook handle it
@@ -233,3 +287,30 @@ export async function analyzeWord(
     return { ok: false, error: { message: "Network error" } };
   }
 }
+
+export async function detectLanguage(text: string): Promise<ApiResult<LanguageDetectionDetails>> {
+  if (!text.trim()) {
+    return { ok: false, error: { message: "Vui lòng nhập văn bản để nhận diện ngôn ngữ." } };
+  }
+  try {
+    const token = getToken();
+    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+
+    const res = await fetch(getApiUrl("/api/v1/translate/detect"), {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ text }),
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      return { ok: true, data: data.data };
+    }
+    const err = await res.json().catch(() => ({}));
+    return { ok: false, error: { message: err.detail || "Không thể nhận diện ngôn ngữ." } };
+  } catch (e: any) {
+    return { ok: false, error: { message: e?.message || "Lỗi mạng khi nhận diện ngôn ngữ." } };
+  }
+}
+

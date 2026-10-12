@@ -1,0 +1,67 @@
+{
+  "metrics": {
+    "samples": 2000,
+    "accuracy_clear_strict": 0.978,
+    "accuracy_all_strict": 0.978,
+    "accuracy_all_or_abstain": 0.978,
+    "vietnamese_strict": 0.9866666666666667,
+    "vietnamese_or_abstain": 0.9866666666666667,
+    "short_or_abstain": NaN,
+    "wrong_confident_rate": 0.0005,
+    "wrong_confident_among_detected": 0.0006811989100817438,
+    "oos_false_accept": 0.002,
+    "oos_recall": 0.944,
+    "latency_p50_ms": 0.08694999996805564,
+    "latency_p95_ms": 0.25299999833805487,
+    "latency_p99_ms": 0.3947000004700385,
+    "per_category": {
+      "out_of_scope": {
+        "correct": 472,
+        "abstain_ok": 27,
+        "wrong_confident": 1
+      },
+      "tatoeba_supported": {
+        "correct": 1467,
+        "wrong_status": 33
+      }
+    }
+  },
+  "gates": {
+    "accuracy_clear_strict": {
+      "value": 0.978,
+      "target": ">= 0.96",
+      "pass": true,
+      "applicable": true
+    },
+    "vietnamese_or_abstain": {
+      "value": 0.9866666666666667,
+      "target": ">= 0.98",
+      "pass": true,
+      "applicable": true
+    },
+    "short_or_abstain": {
+      "value": NaN,
+      "target": ">= 0.92",
+      "pass": true,
+      "applicable": false
+    },
+    "wrong_confident_rate": {
+      "value": 0.0005,
+      "target": "<= 0.01",
+      "pass": true,
+      "applicable": true
+    },
+    "oos_false_accept": {
+      "value": 0.002,
+      "target": "<= 0.07",
+      "pass": true,
+      "applicable": true
+    },
+    "latency_p95_ms": {
+      "value": 0.25299999833805487,
+      "target": "<= 30.0",
+      "pass": true,
+      "applicable": true
+    }
+  }
+}

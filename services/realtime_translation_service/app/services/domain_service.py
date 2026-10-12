@@ -50,10 +50,25 @@ async def get_all_dictionaries() -> List[dict]:
             
     def _fetch_supabase():
         supabase = get_supabase()
-        if supabase:
-            res = supabase.table("domain_dictionaries").select("domain, word, translation").execute()
-            return res.data if res.data else []
-        return []
+        if not supabase:
+            return []
+        # Supabase mặc định trả tối đa 1.000 hàng mỗi truy vấn: phân trang để không cắt cụt từ điển.
+        rows: List[dict] = []
+        page_size, offset = 1000, 0
+        while True:
+            res = (
+                supabase.table("domain_dictionaries")
+                .select("domain, word, translation")
+                .order("domain")
+                .order("word")
+                .range(offset, offset + page_size - 1)
+                .execute()
+            )
+            batch = res.data or []
+            rows.extend(batch)
+            if len(batch) < page_size:
+                return rows
+            offset += page_size
 
     try:
         all_dicts = await asyncio.to_thread(_fetch_supabase)
@@ -63,72 +78,3 @@ async def get_all_dictionaries() -> List[dict]:
     except Exception as e:
         logger.error(f"Supabase fetch all dicts error: {e}")
         return []
-
-async def auto_detect_domain_long(text: str) -> str:
-    """Sử dụng LLM Zero-shot Classification để phân loại chuyên ngành văn bản (trả về JSON)."""
-    from app.services.llm_service import get_groq_client
-    
-    valid_domains = await get_all_domains()
-    groq_client = get_groq_client()
-    
-    if not groq_client:
-        return ""
-
-    system_prompt = (
-        f"Phân loại đoạn văn được cung cấp thuộc lĩnh vực nào trong các lĩnh vực sau: {valid_domains}. "
-        "Hãy trả về MỘT chuỗi JSON hợp lệ duy nhất có cấu trúc: {\"domain\": \"Tên lĩnh vực\"}. "
-        "Nếu không thuộc lĩnh vực nào hoặc không chắc chắn, hãy trả về {\"domain\": \"unknown\"}."
-    )
-
-    try:
-        res = await groq_client.chat.completions.create(
-            model="llama-3.1-8b-instant",
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": f"Đoạn văn:\n{text}"}
-            ],
-            response_format={"type": "json_object"},
-            temperature=0.0
-        )
-        content = res.choices[0].message.content.strip()
-        parsed = json.loads(content)
-        detected = parsed.get("domain", "")
-        
-        # Exact match (case-insensitive) validation
-        for d in valid_domains:
-            if d.lower() == detected.lower():
-                return d
-                
-    except Exception as e:
-        logger.warning(f"Auto domain JSON detection failed: {e}")
-        
-    return ""
-
-async def get_combined_short_translation(text: str) -> str:
-    """Quét toàn bộ từ điển và tạo chuỗi tổng hợp nghĩa đa chuyên ngành."""
-    # Xử lý input (có thể dùng tokenizer chuẩn nếu cần, ở đây dùng lower)
-    clean_text = text.strip().lower()
-    
-    # Loại bỏ các mạo từ tiếng Anh phổ biến để tăng tỉ lệ hit
-    prefixes_to_remove = ["a ", "an ", "the ", "to "]
-    for p in prefixes_to_remove:
-        if clean_text.startswith(p):
-            clean_text = clean_text[len(p):].strip()
-            break
-            
-    all_dicts = await get_all_dictionaries()
-    
-    found_meanings = []
-    # Quét khớp (không phân biệt hoa thường)
-    for entry in all_dicts:
-        if entry.get("word", "").lower() == clean_text:
-            d = entry.get("domain", "")
-            t = entry.get("translation", "")
-            emoji = DOMAIN_EMOJIS.get(d, "🔹")
-            found_meanings.append(f"- {emoji} {d}: {t}")
-            
-    if found_meanings:
-        lines = [f"Từ '{clean_text}' có nghĩa chuyên ngành như sau:"] + found_meanings
-        return "\n".join(lines)
-    
-    return ""

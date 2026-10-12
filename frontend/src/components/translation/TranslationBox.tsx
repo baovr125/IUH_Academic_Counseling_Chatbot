@@ -2,11 +2,15 @@ import React, { useState, useEffect, useRef } from "react";
 import { streamTranslation, extractFlashcard } from "../../services/translationService";
 import { FloatingMenu } from "./FloatingMenu";
 import { DomainSelector } from "./DomainSelector";
-import { BookmarkPlus, ArrowRightLeft, Volume2, X, Loader2, Copy, Check, Info } from "lucide-react";
+import { DomainStatus } from "./DomainStatus";
+import { debounceDelayMs, isDomainMode, mergeWarnings } from "./domainMode";
+import { BookmarkPlus, ArrowRightLeft, Volume2, X, Loader2, Copy, Check } from "lucide-react";
 import { LANG_CONFIG } from "../../services/deckStorage";
 import { SaveFlashcardModal } from "./SaveFlashcardModal";
 import { useWordAnalysis } from "../../hooks/useWordAnalysis";
 import { WordAnalysisPopup } from "./WordAnalysisPopup";
+import type { DomainDetails, LanguageDetectionDetails, TranslationWarning } from "../../types";
+import { LANGUAGE_STOP_CODES } from "../../types";
 
 export interface TranslationBoxProps {
   sourceLang: string;
@@ -34,8 +38,24 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
   const [domain, setDomain] = useState("");
   const [isTranslating, setIsTranslating] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [translationWarning, setTranslationWarning] = useState<string | null>(null);
+  // Cảnh báo có cấu trúc (nhiều cảnh báo cùng lúc, gộp theo `code`) và kết quả chọn/nhận diện chuyên ngành.
+  const [warnings, setWarnings] = useState<TranslationWarning[]>([]);
+  const [domainDetails, setDomainDetails] = useState<DomainDetails | null>(null);
+  // Lĩnh vực đã tự nhận diện (chế độ auto): hiện trong ô chọn như nhãn ngôn ngữ, giữ tới khi có kết quả mới.
+  const [detectedDomain, setDetectedDomain] = useState<string | null>(null);
+  // Đang chờ người dùng ngừng gõ trước khi gửi request (chỉ ở chế độ chuyên ngành, delay dài).
+  const [waitingForDomain, setWaitingForDomain] = useState(false);
+  // Hành động chủ động (chọn lĩnh vực, Ctrl+Enter) thì dịch ngay, không chờ debounce.
+  const immediateRef = useRef(false);
+  const ambiguousCandidates = domainDetails?.status === "ambiguous" ? domainDetails.candidates ?? [] : [];
+  const ambiguousMessage =
+    warnings.find((w) => w.code === "DOMAIN_AMBIGUOUS")?.message ?? "Từ này có nghĩa ở nhiều lĩnh vực. Hãy chọn một lĩnh vực.";
   const [detectedLangCode, setDetectedLangCode] = useState<string | null>(null);
+  const [detectionDetails, setDetectionDetails] = useState<LanguageDetectionDetails | null>(null);
+  // Backend không dịch khi ngôn ngữ nguồn chưa xác định chắc chắn: UI yêu cầu người dùng chọn.
+  const [languageStop, setLanguageStop] = useState<{ code: string; message: string } | null>(null);
+  // Nhãn đã nhận diện gần nhất + văn bản lúc đó: dùng làm gợi ý để nhãn không nhấp nháy khi đang gõ.
+  const lastDetectedRef = useRef<{ lang: string; text: string } | null>(null);
 
   // Array of parsed tokens/words for the UI
   const [translatedTokens, setTranslatedTokens] = useState<string[]>([]);
@@ -232,10 +252,20 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
 
     setIsTranslating(true);
     setError(null);
-    setTranslationWarning(null);
+    setLanguageStop(null);
+    setWarnings([]);
+    setDomainDetails(null);
     setTranslatedTokens([]);
     setMenuPosition(null);
-    setDetectedLangCode(null);
+    // Không xóa detectedLangCode/detectionDetails ở đây: giữ nhãn cũ cho tới khi có kết quả mới
+    // (xóa mỗi lần dịch làm nhãn nhấp nháy khi người dùng đang gõ).
+
+    // Gợi ý ngôn ngữ chỉ có nghĩa khi người dùng đang nối dài/rút ngắn đúng văn bản đã nhận diện.
+    const last = lastDetectedRef.current;
+    const hint =
+      sourceLang === "auto" && last && (textToTranslate.startsWith(last.text) || last.text.startsWith(textToTranslate))
+        ? last.lang
+        : undefined;
 
     let currentBuffer = "";
 
@@ -244,25 +274,51 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
         sourceText: textToTranslate,
         sourceLang: sourceLang as any,
         targetLang: targetLang as any,
-        domain: domain
+        domain: domain,
+        sourceLangHint: hint,
       },
       (token: string) => {
         currentBuffer += token;
         setTranslatedTokens((prev) => [...prev, token]);
       },
-      (err: string) => {
+      (err: string, code?: string) => {
         setIsTranslating(false);
+        if (code && (LANGUAGE_STOP_CODES as readonly string[]).includes(code)) {
+          setTranslatedTokens([]);
+          setLanguageStop({ code, message: err });
+          return;
+        }
         setError(err || "Đã xảy ra lỗi trong quá trình dịch thuật.");
       },
       (warn: string) => {
-        setTranslationWarning(warn);
+        // Cảnh báo dạng chuỗi cũ (tương thích ngược): quy về cảnh báo có cấu trúc.
+        setWarnings((prev) => mergeWarnings(prev, [{ code: "LEGACY_WARNING", severity: "info", message: warn }]));
       },
       () => {
         setIsTranslating(false);
       },
       newAbortController.signal,
-      (lang: string) => {
+      (lang: string, details?: LanguageDetectionDetails) => {
         setDetectedLangCode(lang);
+        lastDetectedRef.current = { lang, text: textToTranslate };
+        if (details) setDetectionDetails(details);
+      },
+      (details: LanguageDetectionDetails) => {
+        setDetectionDetails(details);
+        if (details.status !== "detected") {
+          setDetectedLangCode(null);
+        }
+      },
+      (details: DomainDetails) => {
+        setDomainDetails(details);
+        // Không nhấp nháy: chỉ đổi nhãn khi đã có kết quả nhận diện của lượt này.
+        if (details.status === "detected" && details.domain) setDetectedDomain(details.domain);
+        else if (details.status === "unknown" || details.status === "ambiguous") setDetectedDomain(null);
+      },
+      (incoming: TranslationWarning[]) => setWarnings((prev) => mergeWarnings(prev, incoming)),
+      () => {
+        currentBuffer = "";
+        setTranslatedTokens([]);
       }
     );
   };
@@ -272,17 +328,29 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
     if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
 
     if (sourceText.trim()) {
+      // Chế độ chuyên ngành (LLM) chờ lâu hơn để giảm số request; chờ chọn ngôn ngữ cũng giãn nhịp.
+      const delay = immediateRef.current ? 0 : debounceDelayMs(domain, Boolean(languageStop));
+      immediateRef.current = false;
+      setWaitingForDomain(isDomainMode(domain) && delay > 0);
       debounceTimerRef.current = setTimeout(() => {
+        setWaitingForDomain(false);
         handleTranslate(sourceText);
-      }, 300); // 500ms smooth debounce
+      }, delay);
     } else {
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
         abortControllerRef.current = null;
       }
+      lastDetectedRef.current = null;
       setDetectedLangCode(null);
+      setDetectionDetails(null);
+      setLanguageStop(null);
       setTranslatedTokens([]);
       setIsTranslating(false);
+      setWaitingForDomain(false);
+      setWarnings([]);
+      setDomainDetails(null);
+      setDetectedDomain(null);
     }
     return () => {
       if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
@@ -466,12 +534,17 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
         {/* Source Text Area */}
         <div className="flex-1 flex flex-col border-b md:border-b-0 md:border-r border-slate-200 focus-within:bg-slate-50/50 transition-colors">
           {/* Header */}
-          <div className="flex items-center px-6 py-4 border-b border-slate-100 bg-white">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-white gap-2">
             <select
               value={sourceLang}
               onChange={(e) => {
                 setSourceLang(e.target.value);
-                if (e.target.value !== "auto") setDetectedLangCode(null);
+                setLanguageStop(null);
+                lastDetectedRef.current = null;
+                if (e.target.value !== "auto") {
+                  setDetectedLangCode(null);
+                  setDetectionDetails(null);
+                }
               }}
               className="bg-transparent text-sm font-semibold text-slate-700 focus:outline-none cursor-pointer"
             >
@@ -484,6 +557,39 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
                 </option>
               ))}
             </select>
+
+            {sourceLang === "auto" && detectionDetails && detectionDetails.engine !== "manual" && (
+              <div
+                className="flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 border border-slate-200"
+                title={`Engine: ${detectionDetails.engine} | Độ tin cậy: ${(detectionDetails.confidence * 100).toFixed(1)}% | Margin: ${(detectionDetails.margin * 100).toFixed(1)}%`}
+              >
+                <span
+                  className={`w-1.5 h-1.5 rounded-full ${
+                    detectionDetails.status === "detected"
+                      ? "bg-emerald-500 animate-pulse"
+                      : detectionDetails.status === "uncertain" || detectionDetails.status === "unsupported"
+                      ? "bg-amber-500"
+                      : "bg-slate-400"
+                  }`}
+                />
+                {detectionDetails.status === "detected" && (
+                  <>
+                    <span className="capitalize">{detectionDetails.engine}</span>
+                    <span className="text-slate-400">•</span>
+                    <span>{Math.round(detectionDetails.confidence * 100)}%</span>
+                  </>
+                )}
+                {detectionDetails.status === "uncertain" && (
+                  <span className="text-amber-600 font-semibold">Chưa chắc chắn</span>
+                )}
+                {detectionDetails.status === "unsupported" && (
+                  <span className="text-amber-600 font-semibold">
+                    Chưa hỗ trợ
+                    {detectionDetails.detected_language ? ` (${detectionDetails.detected_language})` : ""}
+                  </span>
+                )}
+              </div>
+            )}
           </div>
 
           <textarea
@@ -494,6 +600,15 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
             onChange={(e) => setSourceText(e.target.value.slice(0, 3000))}
             onMouseUp={handleSelection}
             onKeyUp={() => handleSelection()}
+            onKeyDown={(e) => {
+              // Ctrl/Cmd+Enter: dịch ngay, không chờ debounce (hữu ích khi chế độ chuyên ngành chờ lâu).
+              if ((e.ctrlKey || e.metaKey) && e.key === "Enter" && sourceText.trim()) {
+                e.preventDefault();
+                if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+                setWaitingForDomain(false);
+                handleTranslate(sourceText);
+              }
+            }}
           />
           <div className="px-6 py-3 flex items-center justify-between text-xs font-medium text-slate-400 bg-white">
             <div className="flex items-center gap-1">
@@ -550,21 +665,94 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
               ))}
             </select>
 
-            <DomainSelector value={domain} onChange={setDomain} />
+            <DomainSelector
+              value={domain}
+              detectedDomain={detectedDomain}
+              onChange={(next) => {
+                setDomainDetails(null);
+                setDetectedDomain(null);
+                setWarnings([]);
+                setDomain(next);
+              }}
+            />
           </div>
 
-          {translationWarning && (
-            <div className="bg-blue-50 text-blue-700 px-6 py-3 text-sm border-b border-blue-100 flex items-center gap-2 animate-in slide-in-from-top-2 fade-in">
-              <Info className="text-blue-500 shrink-0" size={16} />
-              <span>{translationWarning}</span>
-            </div>
-          )}
+          <DomainStatus warnings={warnings} waiting={waitingForDomain} />
 
           <div className="flex-1 px-6 py-5 overflow-y-auto leading-relaxed text-slate-800 text-lg selection:bg-blue-200 selection:text-blue-900">
-            {translatedTokens.length === 0 && !isTranslating && !error && (
+            {translatedTokens.length === 0 && !isTranslating && !error && !languageStop && !ambiguousCandidates.length && (
               <span className="text-slate-400 font-light italic">
                 Bản dịch sẽ xuất hiện tại đây...
               </span>
+            )}
+
+            {languageStop && (
+              <div
+                role="alert"
+                data-testid="language-stop"
+                className="p-4 bg-amber-50 text-amber-800 rounded-xl text-sm border border-amber-200 mb-4 space-y-3"
+              >
+                <p className="font-semibold">
+                  {languageStop.code === "LANG_UNSUPPORTED"
+                    ? "Ngôn ngữ này chưa được hỗ trợ"
+                    : languageStop.code === "LANG_UNCERTAIN"
+                    ? "Chưa xác định chắc chắn ngôn ngữ nguồn"
+                    : languageStop.code === "LANG_UNKNOWN"
+                    ? "Không có nội dung ngôn ngữ để nhận diện"
+                    : "Chưa có nội dung để dịch"}
+                </p>
+                <p>{languageStop.message}</p>
+                {languageStop.code === "LANG_UNCERTAIN" && (detectionDetails?.candidates?.length ?? 0) > 0 && (
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-xs text-amber-700">Có phải là:</span>
+                    {detectionDetails!.candidates!.slice(0, 3).map((candidate) => (
+                      <button
+                        key={candidate.language}
+                        type="button"
+                        onClick={() => {
+                          setLanguageStop(null);
+                          lastDetectedRef.current = null;
+                          setSourceLang(candidate.language);
+                        }}
+                        className="px-3 py-1 rounded-full bg-white border border-amber-300 text-amber-800 text-xs font-semibold hover:bg-amber-100 transition-colors"
+                      >
+                        {LANG_CONFIG[candidate.language]?.flag} {LANG_CONFIG[candidate.language]?.label || candidate.language}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {ambiguousCandidates.length > 0 && (
+              <div
+                role="alert"
+                data-testid="domain-candidates"
+                className="p-4 bg-amber-50 text-amber-800 rounded-xl text-sm border border-amber-200 mb-4 space-y-3"
+              >
+                <p className="font-semibold">{ambiguousMessage}</p>
+                <div className="flex flex-col gap-2">
+                  {ambiguousCandidates.map((c) => (
+                    <button
+                      key={c.domain}
+                      type="button"
+                      data-testid="domain-candidate"
+                      onClick={() => {
+                        // Chủ động chọn lĩnh vực: chuyển sang lĩnh vực đó và dịch ngay, không chờ debounce.
+                        immediateRef.current = true;
+                        setDomainDetails(null);
+                        setDetectedDomain(null);
+                        setWarnings([]);
+                        setDomain(c.domain);
+                      }}
+                      className="text-left px-3 py-2 rounded-lg bg-white border border-amber-300 hover:bg-amber-100 transition-colors"
+                    >
+                      <span className="font-semibold">{c.domain}</span>
+                      {c.translation ? <span className="text-slate-700">: {c.translation}</span> : null}
+                    </button>
+                  ))}
+                </div>
+              </div>
             )}
 
             {error && (

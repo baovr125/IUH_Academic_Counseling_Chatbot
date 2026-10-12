@@ -45,8 +45,10 @@ def sync_dictionary_to_redis():
             if word_map:
                 pipeline.hset(redis_key, mapping=word_map)
         
-        # Clear the global short dictionary cache used by domain_service
-        pipeline.delete("all_domain_dictionaries")
+        # Xóa cache từ điển toàn cục của domain_service. Key có hậu tố version (all_domain_dictionaries_v{n}),
+        # nên xóa theo mẫu; key không version cũ không còn được đọc.
+        for stale_key in redis_client.scan_iter("all_domain_dictionaries*"):
+            pipeline.delete(stale_key)
         
         pipeline.execute()
         logger.info(f"Successfully synced {len(entries)} domain dictionary entries to Redis.")
