@@ -1,7 +1,22 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import * as authService from "../services/authService";
+import { setUnauthorizedHandler } from "../services/apiClient";
 import { queryClient } from "../queryClient";
-import type { LoginPayload, RegisterPayload, User } from "../types";
+import type {
+  ApiError,
+  ChangePasswordPayload,
+  LoginPayload,
+  RegisterPayload,
+  UpdateProfilePayload,
+  User,
+} from "../types";
+
+interface ActionResult {
+  ok: boolean;
+  message?: string;
+  field?: string;
+  details?: ApiError["details"];
+}
 
 interface AuthContextValue {
   user: User | null;
@@ -9,22 +24,18 @@ interface AuthContextValue {
   isLoading: boolean;
   error: string | null;
   login: (payload: LoginPayload) => Promise<boolean>;
-  register: (payload: RegisterPayload) => Promise<{
-    ok: boolean;
-    message?: string;
-    field?: string;
-    details?: Array<{ field: string; message: string; type?: string }>;
-  }>;
+  register: (payload: RegisterPayload) => Promise<ActionResult>;
   logout: () => Promise<void>;
-  linkGoogleAccount: (idToken: string) => Promise<{ ok: boolean; message?: string; user?: User }>;
-  setAccountPassword: (newPassword: string, confirmPassword: string) => Promise<{ ok: boolean; message?: string }>;
-  updateProfile: (payload: Partial<User>) => Promise<{ ok: boolean; message?: string; user?: User }>;
-  forgotPassword: (email: string) => Promise<{ ok: boolean; message?: string; devOtp?: string }>;
-  resetPassword: (payload: { email: string; otp: string; newPassword: string; confirmPassword: string }) => Promise<{ ok: boolean; message?: string }>;
+  updateProfile: (payload: UpdateProfilePayload) => Promise<ActionResult & { user?: User }>;
+  changePassword: (payload: ChangePasswordPayload) => Promise<ActionResult>;
   updateUser: (user: User) => void;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+
+/** Làm mới token khi còn chừng này mili-giây trước lúc hết hạn. */
+const REFRESH_BEFORE_EXPIRY_MS = 5 * 60 * 1000;
+const MAX_TIMER_MS = 2 ** 31 - 1;
 
 /**
  * Provider wraps the app. It owns the only piece of auth state; every
@@ -35,26 +46,98 @@ export function useAuthState(): AuthContextValue {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(() => !!authService.getToken());
   const [error, setError] = useState<string | null>(null);
+  const hasUser = user !== null;
+  const refreshTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Khôi phục phiên làm việc từ JWT token trong sessionStorage khi khởi động
+  const clearSession = useCallback(() => {
+    authService.removeToken();
+    queryClient.clear();
+    setUser(null);
+  }, []);
+
+  // Khôi phục phiên từ token đã lưu khi khởi động.
   useEffect(() => {
-    const token = authService.getToken();
-    if (token && !user) {
-      setIsLoading(true);
-      authService
-        .fetchCurrentUser()
-        .then((result) => {
-          if (result.ok && result.data) {
-            setUser(result.data);
-          } else {
-            authService.removeToken();
-          }
-        })
-        .finally(() => {
-          setIsLoading(false);
-        });
+    if (!authService.getToken()) {
+      setIsLoading(false);
+      return;
     }
-  }, [user]);
+    let cancelled = false;
+    authService
+      .fetchCurrentUser()
+      .then((result) => {
+        if (cancelled) return;
+        if (result.ok) {
+          setUser(result.data);
+        } else if (result.error.code === "401" || result.error.code === "403") {
+          authService.removeToken(); // token hết hạn/bị thu hồi
+        }
+        // Lỗi mạng/503: giữ token để lần tải sau thử lại, nhưng chưa coi là đã đăng nhập.
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Mọi API trả 401 khi đang có token => đăng xuất đồng bộ trên toàn ứng dụng.
+  useEffect(() => {
+    setUnauthorizedHandler(clearSession);
+    return () => setUnauthorizedHandler(null);
+  }, [clearSession]);
+
+  // Đồng bộ đa tab: tab khác đăng xuất (xóa token) thì tab này cũng đăng xuất.
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === "iuh_portal_ai_token" && !authService.getToken()) {
+        queryClient.clear();
+        setUser(null);
+      }
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
+
+  // Tự làm mới access token trước khi hết hạn; thất bại vì 401 thì đăng xuất.
+  useEffect(() => {
+    if (!hasUser) return;
+
+    const refreshNow = async () => {
+      const result = await authService.refreshSession();
+      if (result.ok) {
+        setUser(result.data.user);
+      } else if (result.error.code === "401") {
+        clearSession();
+      }
+    };
+
+    const schedule = () => {
+      if (refreshTimer.current) clearTimeout(refreshTimer.current);
+      const exp = authService.getTokenExpiry();
+      if (!exp) return;
+      const delay = Math.min(Math.max(exp - Date.now() - REFRESH_BEFORE_EXPIRY_MS, 0), MAX_TIMER_MS);
+      refreshTimer.current = setTimeout(async () => {
+        await refreshNow();
+        schedule();
+      }, delay);
+    };
+    schedule();
+
+    // Máy ngủ/tab nền làm setTimeout trễ: kiểm tra lại khi người dùng quay lại tab.
+    const onVisible = () => {
+      if (document.visibilityState !== "visible") return;
+      const exp = authService.getTokenExpiry();
+      if (exp && exp - Date.now() < REFRESH_BEFORE_EXPIRY_MS) {
+        void refreshNow().then(schedule);
+      }
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      if (refreshTimer.current) clearTimeout(refreshTimer.current);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [hasUser, clearSession]);
 
   const login = useCallback(async (payload: LoginPayload) => {
     setIsLoading(true);
@@ -71,23 +154,19 @@ export function useAuthState(): AuthContextValue {
     return true;
   }, []);
 
-  const register = useCallback(async (payload: RegisterPayload) => {
+  const register = useCallback(async (payload: RegisterPayload): Promise<ActionResult> => {
     setIsLoading(true);
     setError(null);
     const result = await authService.register(payload);
     setIsLoading(false);
 
     if (!result.ok) {
-      const msg = result.error?.message || "Đăng ký không thành công.";
+      const msg = result.error.message || "Đăng ký không thành công.";
       setError(msg);
-      return {
-        ok: false,
-        message: msg,
-        field: result.error?.field,
-        details: result.error?.details,
-      };
+      return { ok: false, message: msg, field: result.error.field, details: result.error.details };
     }
-    queryClient.clear();
+    // Không tự đăng nhập: người dùng đăng nhập lại để chắc chắn đúng tài khoản vừa tạo.
+    authService.removeToken();
     return { ok: true };
   }, []);
 
@@ -97,87 +176,25 @@ export function useAuthState(): AuthContextValue {
     setUser(null);
   }, []);
 
-  const linkGoogleAccount = useCallback(async (idToken: string) => {
-    setIsLoading(true);
-    setError(null);
-    const result = await authService.linkGoogleAccount(idToken);
-    setIsLoading(false);
-
-    if (!result.ok) {
-      const msg = result.error.message;
-      setError(msg);
-      return { ok: false, message: msg };
-    }
-
-    setUser(result.data);
-    return { ok: true, user: result.data };
-  }, []);
-
-  const setAccountPassword = useCallback(async (newPassword: string, confirmPassword: string) => {
-    setIsLoading(true);
-    setError(null);
-    const result = await authService.setAccountPassword(newPassword, confirmPassword);
-    setIsLoading(false);
-
-    if (!result.ok) {
-      const msg = result.error.message;
-      setError(msg);
-      return { ok: false, message: msg };
-    }
-
-    // Cập nhật indicator cờ mật khẩu vào state người dùng
-    setUser((prev) => (prev ? { ...prev, password_hash: "hashed", passwordHash: "hashed" } : prev));
-    return { ok: true };
-  }, []);
-
-  const updateProfile = useCallback(async (payload: Partial<User>) => {
-    setIsLoading(true);
+  const updateProfile = useCallback(async (payload: UpdateProfilePayload) => {
     setError(null);
     const result = await authService.updateProfile(payload);
-    setIsLoading(false);
-
     if (!result.ok) {
-      const msg = result.error.message;
-      setError(msg);
-      return { ok: false, message: msg };
+      return { ok: false, message: result.error.message, field: result.error.field };
     }
-
     setUser(result.data);
     return { ok: true, user: result.data };
   }, []);
 
-  const forgotPassword = useCallback(async (email: string) => {
-    setIsLoading(true);
+  const changePassword = useCallback(async (payload: ChangePasswordPayload): Promise<ActionResult> => {
     setError(null);
-    const result = await authService.forgotPassword(email);
-    setIsLoading(false);
-
+    const result = await authService.changePassword(payload);
     if (!result.ok) {
-      const msg = result.error.message;
-      setError(msg);
-      return { ok: false, message: msg };
+      return { ok: false, message: result.error.message, field: result.error.field };
     }
-
-    return { ok: true, message: result.data.message, devOtp: result.data.devOtp };
+    setUser(result.data.user);
+    return { ok: true };
   }, []);
-
-  const resetPassword = useCallback(
-    async (payload: { email: string; otp: string; newPassword: string; confirmPassword: string }) => {
-      setIsLoading(true);
-      setError(null);
-      const result = await authService.resetPassword(payload);
-      setIsLoading(false);
-
-      if (!result.ok) {
-        const msg = result.error.message;
-        setError(msg);
-        return { ok: false, message: msg };
-      }
-
-      return { ok: true };
-    },
-    []
-  );
 
   const updateUser = useCallback((updated: User) => {
     setUser(updated);
@@ -192,27 +209,11 @@ export function useAuthState(): AuthContextValue {
       login,
       register,
       logout,
-      linkGoogleAccount,
-      setAccountPassword,
       updateProfile,
-      forgotPassword,
-      resetPassword,
+      changePassword,
       updateUser,
     }),
-    [
-      user,
-      isLoading,
-      error,
-      login,
-      register,
-      logout,
-      linkGoogleAccount,
-      setAccountPassword,
-      updateProfile,
-      forgotPassword,
-      resetPassword,
-      updateUser,
-    ]
+    [user, isLoading, error, login, register, logout, updateProfile, changePassword, updateUser]
   );
 }
 

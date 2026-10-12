@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Loader2, RefreshCw, Trash2, Plus, Volume2, Edit2, Save, X } from "lucide-react";
 import * as authService from "../../services/authService";
+import { getApiUrl } from "../../services/apiClient";
+
+// Từ điển admin đi qua Kong (có JWT + kiểm role admin) thay vì gọi thẳng cổng 8003 của service.
+const dictUrl = (suffix: string = ""): string => getApiUrl(`/api/v1/admin/dictionary${suffix}`);
 
 export default function DictionaryAdmin() {
   const [entries, setEntries] = useState<any[]>([]);
@@ -23,7 +27,7 @@ export default function DictionaryAdmin() {
   const fetchDictionary = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:8003/api/v1/admin/dictionary`, {
+      const res = await fetch(dictUrl(), {
         headers: { "Authorization": `Bearer ${authService.getToken()}` }
       });
       if (res.ok) {
@@ -48,7 +52,7 @@ export default function DictionaryAdmin() {
     setAdding(true);
     setErrorMsg("");
     try {
-      const res = await fetch(`http://localhost:8003/api/v1/admin/dictionary`, {
+      const res = await fetch(dictUrl(), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -89,7 +93,7 @@ export default function DictionaryAdmin() {
   const handleDelete = async (id: string) => {
     if (!window.confirm("Bạn có chắc chắn muốn xóa từ này?")) return;
     try {
-      const res = await fetch(`http://localhost:8003/api/v1/admin/dictionary/${id}`, {
+      const res = await fetch(dictUrl(`/${id}`), {
         method: "DELETE",
         headers: { "Authorization": `Bearer ${authService.getToken()}` }
       });
@@ -110,7 +114,7 @@ export default function DictionaryAdmin() {
     formData.append("file", file);
     
     try {
-      const res = await fetch(`http://localhost:8003/api/v1/admin/dictionary/import`, {
+      const res = await fetch(dictUrl(`/import`), {
         method: "POST",
         headers: { "Authorization": `Bearer ${authService.getToken()}` },
         body: formData
@@ -149,7 +153,7 @@ export default function DictionaryAdmin() {
   const handleBulkDelete = async () => {
     if (!window.confirm(`Bạn có chắc chắn muốn xóa ${selectedIds.length} từ đã chọn?`)) return;
     try {
-      const res = await fetch(`http://localhost:8003/api/v1/admin/dictionary/bulk-delete`, {
+      const res = await fetch(dictUrl(`/bulk-delete`), {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
@@ -187,7 +191,7 @@ export default function DictionaryAdmin() {
 
   const handleSaveEdit = async (id: string) => {
     try {
-      const res = await fetch(`http://localhost:8003/api/v1/admin/dictionary/${id}`, {
+      const res = await fetch(dictUrl(`/${id}`), {
         method: "PUT",
         headers: { 
           "Content-Type": "application/json",

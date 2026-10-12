@@ -1,10 +1,16 @@
 services:
   kong-gateway:
-    image: kong:latest
+    image: kong:3.9.3
     container_name: iuh_kong_gateway
+    entrypoint: ["/bin/sh", "/etc/kong-template/kong-entrypoint.sh"]
     environment:
       KONG_DATABASE: "off"
-      KONG_DECLARATIVE_CONFIG: /usr/local/kong/declarative/kong.yml
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:?Hãy đặt JWT_SECRET_KEY trong file .env (chuỗi ngẫu nhiên >= 32 ký tự)}
+      PUBLIC_ORIGIN: ${PUBLIC_ORIGIN:-http://localhost}
+      # Tin X-Forwarded-For chỉ từ dải mạng Docker (nginx của frontend) để rate-limit theo IP thật.
+      KONG_TRUSTED_IPS: 172.16.0.0/12
+      KONG_REAL_IP_HEADER: X-Forwarded-For
+      KONG_REAL_IP_RECURSIVE: "on"
       KONG_PROXY_LISTEN: 0.0.0.0:8000, 0.0.0.0:8443 ssl
       KONG_NGINX_WORKER_PROCESSES: "1"
       KONG_DNS_STALE_TTL: 0
@@ -14,7 +20,8 @@ services:
       - "8000:8000"
       - "8443:8443"
     volumes:
-      - ./gateway/kong.yml:/usr/local/kong/declarative/kong.yml
+      - ./gateway/kong.template.yml:/etc/kong-template/kong.template.yml:ro
+      - ./gateway/kong-entrypoint.sh:/etc/kong-template/kong-entrypoint.sh:ro
     depends_on:
       - auth-service
       - academic-chatbot-service
@@ -31,8 +38,8 @@ services:
     image: rabbitmq:3-management-alpine
     container_name: iuh_rabbitmq
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "127.0.0.1:5672:5672"
+      - "127.0.0.1:15672:15672"
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
@@ -47,7 +54,7 @@ services:
     container_name: iuh_redis
     command: redis-server --maxmemory 128mb --maxmemory-policy allkeys-lru
     ports:
-      - "6379:6379"
+      - "127.0.0.1:6379:6379"
     deploy:
       resources:
         limits:
@@ -58,8 +65,8 @@ services:
     image: pgsty/minio:latest
     container_name: iuh_minio
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9001:9001"
     environment:
       MINIO_ROOT_USER: "minioadmin"
       MINIO_ROOT_PASSWORD: "minioadmin"
@@ -77,8 +84,7 @@ services:
     build:
       context: ./services/auth_service
     container_name: iuh_auth_service
-    ports:
-      - "8001:8001"
+    # Không publish cổng: mọi truy cập từ ngoài phải đi qua Kong (cổng 8000).
     env_file:
       - .env
     deploy:
@@ -92,8 +98,6 @@ services:
     build:
       context: ./services/academic_chatbot_service
     container_name: iuh_academic_chatbot_service
-    ports:
-      - "8002:8002"
     env_file:
       - .env
     depends_on:
@@ -119,8 +123,6 @@ services:
     build:
       context: ./services/realtime_translation_service
     container_name: iuh_realtime_translation_service
-    ports:
-      - "8003:8003"
     gpus: all
     environment:
       NLLB_DEVICE: cuda

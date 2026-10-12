@@ -21,6 +21,13 @@ function RequireAuth({ children }: { children: React.ReactElement }) {
   return children;
 }
 
+/** Chỉ cho vai trò admin vào route con. Đây chỉ là tiện ích giao diện — quyền thật được server kiểm tra. */
+function RequireAdmin({ children }: { children: React.ReactElement }) {
+  const { user } = useAuth();
+  if (user?.role !== "admin") return <Navigate to="/dashboard" replace />;
+  return children;
+}
+
 export function AppRouter() {
   return (
     <Routes>
@@ -40,7 +47,14 @@ export function AppRouter() {
         <Route path="/flashcards" element={<FlashcardPage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/settings" element={<SettingsPage />} />
-        <Route path="/admin" element={<AdminPage />} />
+        <Route
+          path="/admin"
+          element={
+            <RequireAdmin>
+              <AdminPage />
+            </RequireAdmin>
+          }
+        />
       </Route>
 
       <Route path="*" element={<Navigate to="/dashboard" replace />} />

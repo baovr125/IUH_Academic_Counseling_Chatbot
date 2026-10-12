@@ -1,71 +1,83 @@
+import datetime
+
 import pytest
-from datetime import datetime, timedelta, timezone
-from unittest.mock import patch, MagicMock
-from jose import jwt, JWTError
-from app.services.auth_service import create_access_token, get_user_by_token, get_user_settings, update_user_settings
+from jose import jwt
+
+from app import config
+from app.services import auth_service as svc
+
+SECRET = config.get_jwt_secret()
+NOW = datetime.datetime.now(datetime.timezone.utc)
 
 
-class TestJWTTokenManagement:
-    def test_create_access_token_contains_expected_claims(self):
-        payload = {
-            "id": "550e8400-e29b-41d4-a716-446655440000",
-            "email": "20012345@student.iuh.edu.vn",
-            "role": "student",
-            "student_code": "20012345"
-        }
-        token = create_access_token(payload)
-        assert isinstance(token, str)
-        assert len(token) > 20
+def _forge(claims, secret=SECRET, algorithm="HS256"):
+    return jwt.encode(claims, secret, algorithm=algorithm)
 
-        decoded = jwt.decode(token, "super-secret-key-iuh-chatbot-2026", algorithms=["HS256"])
-        assert decoded["id"] == payload["id"]
-        assert decoded["email"] == payload["email"]
-        assert decoded["role"] == payload["role"]
-        assert decoded["student_code"] == payload["student_code"]
-        assert "exp" in decoded
 
-    def test_create_access_token_custom_expiry(self):
-        payload = {"id": "user-custom-expiry", "role": "admin"}
-        custom_expiry = timedelta(minutes=15)
-        token = create_access_token(payload, expires_delta=custom_expiry)
-        
-        decoded = jwt.decode(token, "super-secret-key-iuh-chatbot-2026", algorithms=["HS256"])
-        assert decoded["id"] == "user-custom-expiry"
-        
-        exp_timestamp = decoded["exp"]
-        now_timestamp = datetime.now(timezone.utc).timestamp()
-        diff = exp_timestamp - now_timestamp
-        assert 800 < diff < 1000
+class TestTokenIssuing:
+    def test_claims_are_minimal_and_contain_no_pii(self):
+        row = {"id": "u-1", "role": "student", "email": "a@student.iuh.edu.vn", "full_name": "A", "student_code": "20012345"}
+        claims = jwt.decode(svc.issue_token_for_user(row), SECRET, algorithms=["HS256"], issuer=config.TOKEN_ISSUER)
+        assert set(claims) == {"sub", "role", "tv", "oiat", "iat", "exp", "iss"}
+        assert claims["sub"] == "u-1" and claims["role"] == "student"
 
-    def test_decode_with_wrong_secret_raises_error(self):
-        payload = {"id": "user-tampered"}
-        token = create_access_token(payload)
+    def test_default_lifetime_is_access_token_minutes(self):
+        claims = jwt.decode(svc.create_access_token({"sub": "u"}), SECRET, algorithms=["HS256"], issuer=config.TOKEN_ISSUER)
+        assert claims["exp"] - claims["iat"] == config.ACCESS_TOKEN_EXPIRE_MINUTES * 60
 
-        with pytest.raises(JWTError):
-            jwt.decode(token, "wrong-secret-key", algorithms=["HS256"])
+    def test_custom_expiry(self):
+        claims = jwt.decode(
+            svc.create_access_token({"sub": "u"}, datetime.timedelta(minutes=15)),
+            SECRET, algorithms=["HS256"], issuer=config.TOKEN_ISSUER,
+        )
+        assert claims["exp"] - claims["iat"] == 900
 
-    def test_get_user_by_token_with_invalid_token_returns_none(self):
-        result = get_user_by_token("invalid.token.structure")
-        assert result is None
 
-    def test_get_user_by_token_fallback_when_db_unavailable(self):
-        token = create_access_token({
-            "id": "fallback-uuid",
-            "email": "fallback@iuh.edu.vn",
-            "role": "student",
-            "student_code": "19001234",
-            "full_name": "Fallback User"
-        })
-        with patch("app.services.auth_service.get_supabase") as mock_sb:
-            mock_sb.return_value = None
-            user = get_user_by_token(token)
-            assert user is not None
-            assert user["id"] == "fallback-uuid"
-            assert user["email"] == "fallback@iuh.edu.vn"
-            assert user["studentCode"] == "19001234"
+class TestTokenValidation:
+    def test_valid_token_decodes(self):
+        assert svc.decode_token(svc.create_access_token({"sub": "u"}))["sub"] == "u"
 
-    def test_get_user_settings_fallback_default(self):
-        with patch("app.services.auth_service.get_supabase") as mock_sb:
-            mock_sb.return_value = None
-            settings = get_user_settings("any-user-id")
-            assert settings == {"theme": "light", "language": "vi"}
+    def test_wrong_secret_rejected(self):
+        bad = _forge({"sub": "u", "iss": config.TOKEN_ISSUER, "exp": NOW + datetime.timedelta(minutes=5)},
+                     secret="another-secret-key-another-secret-key-0000")
+        assert svc.decode_token(bad) is None
+
+    def test_expired_token_rejected(self):
+        expired = _forge({"sub": "u", "iss": config.TOKEN_ISSUER, "exp": NOW - datetime.timedelta(minutes=1)})
+        assert svc.decode_token(expired) is None
+
+    def test_token_without_exp_rejected(self):
+        assert svc.decode_token(_forge({"sub": "u", "iss": config.TOKEN_ISSUER})) is None
+
+    def test_token_without_or_wrong_issuer_rejected(self):
+        future = NOW + datetime.timedelta(minutes=5)
+        assert svc.decode_token(_forge({"sub": "u", "exp": future})) is None
+        assert svc.decode_token(_forge({"sub": "u", "iss": "evil", "exp": future})) is None
+
+    def test_token_without_subject_rejected(self):
+        assert svc.decode_token(_forge({"iss": config.TOKEN_ISSUER, "exp": NOW + datetime.timedelta(minutes=5)})) is None
+
+    def test_alg_none_and_other_algorithms_rejected(self):
+        future = int((NOW + datetime.timedelta(minutes=5)).timestamp())
+        header = "eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0"  # {"alg":"none","typ":"JWT"}
+        import base64, json
+        payload = base64.urlsafe_b64encode(json.dumps({"sub": "u", "iss": config.TOKEN_ISSUER, "exp": future}).encode()).rstrip(b"=").decode()
+        assert svc.decode_token(f"{header}.{payload}.") is None
+        hs512 = _forge({"sub": "u", "iss": config.TOKEN_ISSUER, "exp": future}, algorithm="HS512")
+        assert svc.decode_token(hs512) is None
+
+    def test_garbage_token_rejected(self):
+        assert svc.decode_token("invalid.token.structure") is None
+
+
+class TestSecretConfiguration:
+    @pytest.mark.parametrize("value", ["", "short", "super-secret-key-iuh-chatbot-2026", "x" * 31])
+    def test_weak_or_leaked_secret_refuses_to_start(self, monkeypatch, value):
+        monkeypatch.setenv("JWT_SECRET_KEY", value)
+        with pytest.raises(RuntimeError):
+            config.validate_config()
+
+    def test_missing_secret_refuses_to_start(self, monkeypatch):
+        monkeypatch.delenv("JWT_SECRET_KEY", raising=False)
+        with pytest.raises(RuntimeError):
+            config.get_jwt_secret()

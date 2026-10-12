@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import { AuthContext } from "../hooks/useAuth";
 import { fetchUserSettings, updateUserSettings } from "../services/settingsService";
 import { getToken } from "../services/authService";
 import { translations, Language, TranslationKey } from "../translations";
@@ -56,6 +57,8 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   });
 
   const [loading, setLoading] = useState<boolean>(true);
+  // Đọc người dùng hiện tại (nếu có AuthProvider) để nạp lại cài đặt từ server mỗi khi đăng nhập.
+  const authUserId = useContext(AuthContext)?.user?.id ?? null;
 
   // Apply theme immediately on change or system preference change
   useEffect(() => {
@@ -70,11 +73,12 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   }, [theme]);
 
-  // Load initial settings from backend silently only if user is logged in
+  // Nạp cài đặt từ server khi tải trang VÀ mỗi lần đăng nhập (trước đây chỉ nạp một lần lúc tải trang,
+  // khi người dùng thường chưa đăng nhập nên cài đặt đã lưu trên server không bao giờ được áp dụng).
   useEffect(() => {
     let isMounted = true;
     async function loadBackendSettings() {
-      if (!getToken()) {
+      if (!getToken() || !authUserId) {
         if (isMounted) setLoading(false);
         return;
       }
@@ -112,7 +116,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [authUserId]);
 
   // Silent background sync with backend
   const syncToBackend = useCallback(async (updated: Partial<UserSettings>) => {

@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Database, UploadCloud, Globe, Play, X, Loader2, CheckCircle, AlertCircle, RefreshCw, Trash2, Edit2, BookOpen } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
+import { useSettings } from "../context/SettingsContext";
 
 import * as authService from "../services/authService";
 import DictionaryAdmin from "../components/admin/DictionaryAdmin";
@@ -9,6 +10,7 @@ const API_BASE_URL = (import.meta as any).env.VITE_API_BASE_URL || "";
 
 export default function AdminPage() {
   const { user } = useAuth();
+  const { t } = useSettings();
   const [activeTab, setActiveTab] = useState<"files" | "urls" | "stats" | "dict">("stats");
 
   const [documents, setDocuments] = useState<any[]>([]);
@@ -147,8 +149,8 @@ export default function AdminPage() {
       <div className="flex-1 flex items-center justify-center bg-slate-50 dark:bg-slate-900">
         <div className="text-center p-8 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-red-200">
           <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Access Denied</h2>
-          <p className="text-slate-500 mt-2">Only administrators can access this portal.</p>
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">{t("admin.denied")}</h2>
+          <p className="mt-2 text-slate-600 dark:text-slate-300">{t("admin.deniedDesc")}</p>
         </div>
       </div>
     );

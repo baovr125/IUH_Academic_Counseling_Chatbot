@@ -8,6 +8,7 @@ service_root = Path(__file__).resolve().parent.parent
 if str(service_root) not in sys.path:
     sys.path.insert(0, str(service_root))
 
+os.environ["JWT_SECRET_KEY"] = "test-only-secret-key-do-not-use-in-production-0123456789"
 os.environ["USE_TF"] = "0"
 os.environ["USE_TORCH"] = "1"
 os.environ["SUPABASE_URL"] = "https://mock-supabase.test"

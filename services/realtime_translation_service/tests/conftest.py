@@ -14,7 +14,7 @@ os.environ["MINIO_ENDPOINT"] = "localhost:9000"
 os.environ["MINIO_ACCESS_KEY"] = "minioadmin"
 os.environ["MINIO_SECRET_KEY"] = "minioadmin"
 os.environ["MINIO_SECURE"] = "false"
-os.environ["JWT_SECRET_KEY"] = "super-secret-key-iuh-chatbot-2026"
+os.environ["JWT_SECRET_KEY"] = "test-only-secret-key-do-not-use-in-production-0123456789"
 os.environ["RABBITMQ_HOST"] = "localhost"
 os.environ["TESTING"] = "1"
 
@@ -36,9 +36,9 @@ def mock_external_services():
 @pytest.fixture(scope="session")
 def client(mock_external_services):
     # Generate a valid mock JWT token
-    secret = os.environ.get("JWT_SECRET_KEY", "super-secret-key-iuh-chatbot-2026")
+    secret = os.environ["JWT_SECRET_KEY"]
     token = jwt.encode(
-        {"sub": "test_user_id", "exp": datetime.utcnow() + timedelta(hours=1)},
+        {"sub": "test_user_id", "role": "student", "iss": "iuh-auth-service", "exp": datetime.utcnow() + timedelta(hours=1)},
         secret,
         algorithm="HS256"
     )

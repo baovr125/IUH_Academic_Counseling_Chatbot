@@ -12,7 +12,10 @@ class CustomJsonFormatter(jsonlogger.JsonFormatter):
 
 logger = logging.getLogger("realtime_translation_service")
 handler = logging.StreamHandler()
-formatter = CustomJsonFormatter('%(timestamp)s %(level)s %(service)s %(request_id)s %(message)s')
+formatter = CustomJsonFormatter(
+        '%(asctime)s %(levelname)s %(service)s %(request_id)s %(message)s',
+        rename_fields={'asctime': 'timestamp', 'levelname': 'level'},  # khóa JSON: timestamp/level
+    )
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 logger.setLevel(logging.INFO)

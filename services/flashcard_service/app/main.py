@@ -5,10 +5,13 @@ from contextlib import asynccontextmanager
 from app.routers import flashcards
 from app.rabbitmq_consumer import start_rabbitmq_consumer
 from app.utils.logger import logger, request_id_var
+from app.utils.security import validate_security_config
+from app.utils.cors import CORS_ALLOW_ORIGINS
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
+    validate_security_config()
     logger.info("Flashcard Service is starting up...")
     rabbitmq_conn = await start_rabbitmq_consumer()
     yield
@@ -27,8 +30,8 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=CORS_ALLOW_ORIGINS,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )

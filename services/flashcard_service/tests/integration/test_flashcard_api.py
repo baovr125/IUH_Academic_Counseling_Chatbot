@@ -1,12 +1,14 @@
 import pytest
 from unittest.mock import patch, MagicMock, AsyncMock
+import datetime
 from jose import jwt
 
 
 def get_auth_headers(user_id="550e8400-e29b-41d4-a716-446655440000"):
     token = jwt.encode(
-        {"id": user_id, "sub": user_id, "email": "test@student.iuh.edu.vn", "role": "student"},
-        "super-secret-key-iuh-chatbot-2026",
+        {"sub": user_id, "role": "student", "iss": "iuh-auth-service",
+         "exp": datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(minutes=5)},
+        "test-only-secret-key-do-not-use-in-production-0123456789",
         algorithm="HS256"
     )
     return {"Authorization": f"Bearer {token}"}

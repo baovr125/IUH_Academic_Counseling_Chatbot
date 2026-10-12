@@ -1,11 +1,9 @@
-fastapi>=0.110.0
-uvicorn[standard]>=0.28.0
-pydantic[email]>=2.6.0
-email-validator>=2.1.0
-pydantic-settings>=2.2.0
-supabase>=2.3.0
-python-jose[cryptography]>=3.3.0
-passlib>=1.7.4
+# Direct dependencies. Exact build versions are pinned in requirements.lock.
+fastapi>=0.115
+uvicorn[standard]>=0.30
+pydantic>=2.6
+supabase>=2.3
+python-jose[cryptography]>=3.4.0  # >=3.4.0 fixes CVE-2024-33663/33664
 bcrypt==4.0.1
 python-json-logger>=2.0.7
-httpx>=0.27.0
+httpx>=0.27
