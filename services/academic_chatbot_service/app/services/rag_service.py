@@ -356,7 +356,7 @@ GOOD_SCORE_THRESHOLD: float = 0.65
 async def retrieve_relevant_chunks_multi(
     queries: List[str], 
     top_k: int = 8, 
-    candidate_count: int = 20
+    candidate_count: int = 35
 ) -> Tuple[List[dict], float]:
     """
     Multi-Query Hybrid Retrieval & Query-Specific Cross-Encoder Reranking:
@@ -506,76 +506,23 @@ async def retrieve_relevant_chunks_multi(
         logger.warning(f"All chunks rejected. Top score {top_doc_score:.4f} is below threshold {RERANKER_THRESHOLD}.")
         return [], 0.0
 
-    # Step 5: Expand neighbor chunks for the final selected set
-    expanded_chunks = await expand_neighbors(final_chunks, window=1, supabase=supabase)
-    return expanded_chunks, top_doc_score
+    # Step 5: Return clean deduplicated chunks directly (Eliminated expand_neighbors sliding window)
+    return final_chunks, top_doc_score
 
 async def retrieve_relevant_chunks(query_text: str, query_embedding: list = None, top_k: int = 5, candidate_count: int = 30):
     """Backward-compatible wrapper for single query retrieval."""
     chunks, _ = await retrieve_relevant_chunks_multi([query_text], top_k=top_k, candidate_count=candidate_count)
     return chunks
 
-async def expand_neighbors(top_chunks: List[dict], window: int = 1, supabase=None) -> List[dict]:
-    if not top_chunks or not supabase:
-        return top_chunks
-
-    needed_pairs = set()
-    for chunk in top_chunks:
-        doc_id = chunk.get("document_id")
-        idx = chunk.get("chunk_index")
-        if doc_id and idx is not None:
-            for offset in range(-window, window + 1):
-                if idx + offset >= 0:
-                    needed_pairs.add((doc_id, idx + offset))
-
-    if not needed_pairs:
-        return top_chunks
-
-    try:
-        doc_ids = list(set([p[0] for p in needed_pairs]))
-        def _fetch_docs():
-            return supabase.table("document_chunks").select("document_id, chunk_index, content").in_("document_id", doc_ids).execute()
-            
-        res = await asyncio.to_thread(_fetch_docs)
-        all_doc_chunks = res.data or []
-        
-        chunk_map = {}
-        for c in all_doc_chunks:
-            chunk_map[(c["document_id"], c["chunk_index"])] = c
-
-        merged_results = []
-        for top_c in top_chunks:
-            doc_id = top_c.get("document_id")
-            idx = top_c.get("chunk_index")
-            if not doc_id or idx is None:
-                merged_results.append(top_c)
-                continue
-                
-            context_parts = []
-            for offset in range(-window, window + 1):
-                neighbor = chunk_map.get((doc_id, idx + offset))
-                if neighbor:
-                    context_parts.append(neighbor.get("content", ""))
-                    
-            merged_content = "\n...\n".join(context_parts)
-            merged_chunk = dict(top_c)
-            merged_chunk["content"] = merged_content
-            merged_results.append(merged_chunk)
-            
-        return merged_results
-    except Exception as e:
-        logger.exception(f"Failed to expand neighbor chunks: {e}")
-        return top_chunks
-
 from typing import Tuple, List, Union
 
 async def generate_standalone_query(history: list, current_query: str) -> Tuple[bool, List[str], str, str, str]:
     """
-    Module Adaptive Query Rewriter & Router:
-    1. Bóc tách và chuẩn hóa tiếng lóng học vụ IUH sang thuật ngữ quy chế chính thức (Hướng D).
-    2. Đánh giá nhu cầu truy xuất CSDL (need_retrieval: true/false) (Hướng B).
-    3. Phân rã câu hỏi kép thành 1 đến tối đa 4 sub-queries độc lập (Hướng A).
-    4. Phân loại ý định vào 1 trong 7 intents.
+    Module Adaptive Query Rewriter & Router (Slim):
+    1. Đánh giá nhu cầu truy xuất CSDL (need_retrieval: true/false).
+    2. Phân loại ý định vào 1 trong 7 intents.
+    3. Phân rã câu hỏi kép thành 1 đến tối đa 4 sub-queries độc lập.
+    4. Kiểm soát an toàn (Guardrail / Rejected query).
     Returns: (need_retrieval: bool, queries: List[str], router_model: str, intent: str, reason: str)
     """
     last_user_msg = None
@@ -588,90 +535,37 @@ async def generate_standalone_query(history: list, current_query: str) -> Tuple[
     context_str = f"Lịch sử chat gần nhất:\n- Sinh viên: {last_user_msg}\n" if last_user_msg and last_user_msg != current_query else ""
 
     rewrite_prompt = (
-        "Bạn là AI Router & Query Rewriter cho Chatbot Tư vấn Học vụ Trường Đại học Công nghiệp TP.HCM (IUH).\n"
-        "Nhiệm vụ của bạn là phân tích câu hỏi của sinh viên (kèm lịch sử chat gần nhất nếu có) và trả về một chuỗi JSON chuẩn xác.\n\n"
-        "CÁC QUY TẮC BẮT BUỘC:\n"
-        "1. XÁC ĐỊNH LÝ DO (field 'reason'):\n"
-        "   - Giải thích ngắn gọn (1 câu) tại sao cần/không cần tra cứu CSDL hoặc tại sao cần phân rã ý.\n"
-        "2. ĐÁNH GIÁ NHU CẦU TRUY XUẤT CSDL (field 'need_retrieval'):\n"
-        "   - Đặt là false khi: Sinh viên chỉ chào hỏi xã giao, cảm ơn, khen ngợi, tán gẫu, hoặc câu hỏi suy luận tiếp nối đã có câu trả lời đầy đủ ngay trong lịch sử chat mà không cần tra cứu mới.\n"
-        "   - Đặt là true khi: Sinh viên hỏi về quy chế, thủ tục, điểm số, học phí, lịch học, phòng ban, điều kiện học vụ, v.v.\n"
-        "   - NGUYÊN TẮC AN TOÀN: Nếu có bất kỳ sự mơ hồ nào hoặc câu hỏi chứa nội dung học vụ, BẮT BUỘC đặt need_retrieval là true.\n"
-        "3. PHÂN RÃ VÀ VIẾT LẠI TRUY VẤN (field 'queries'):\n"
-        "   - Nếu need_retrieval là false: queries là mảng rỗng [].\n"
-        "   - Nếu là câu hỏi vi phạm tiêu chuẩn an toàn, quấy phá, hoặc hoàn toàn ngoài lề không liên quan trường học: queries là [\"REJECTED_QUERY\"], intent là \"GENERAL\".\n"
-        "   - Nếu need_retrieval là true:\n"
-        "     + Nếu câu hỏi chỉ có 1 ý: queries là mảng chứa đúng 1 câu tìm kiếm độc lập.\n"
-        "     + Nếu câu hỏi chứa nhiều khía cạnh/nghiệp vụ khác nhau (ví dụ: vừa hỏi bảo lưu vừa hỏi học phí): BẮT BUỘC phân rã thành các truy vấn con riêng biệt (từ 2 đến tối đa 4 truy vấn), mỗi truy vấn giải quyết trọn vẹn 1 ý.\n"
-        "     + CHUẨN HÓA THỰC THỂ & TỪ LÓNG (Domain Entity Mapping): Chuyển đổi ngôn ngữ thông tục của sinh viên sang thuật ngữ pháp quy/quy chế IUH để công cụ tìm kiếm khớp trúng văn bản:\n"
-        "       * 'out trường, đuổi học, xóa tên' -> 'buộc thôi học, cảnh báo học vụ'\n"
-        "       * 'học vè, học trả nợ, học lại' -> 'đăng ký học lại học phần'\n"
-        "       * 'học cải thiện' -> 'đăng ký học cải thiện điểm'\n"
-        "       * 'rớt môn, trượt môn, thiếu môn' -> 'không đạt học phần, nợ học phần tín chỉ'\n"
-        "       * 'xin nghỉ 1 kì, bảo lưu' -> 'tạm dừng tiến độ học tập, bảo lưu kết quả'\n"
-        "       * 'đk hp, dkhp, chọn môn' -> 'đăng ký học phần'\n"
-        "       * 'môn tiên quyết, môn trước' -> 'học phần tiên quyết, học phần học trước'\n"
-        "       * 'pdt, phòng đào tạo' -> 'Phòng Quản lý Đào tạo', 'phòng ctsv' -> 'Phòng Công tác Sinh viên'\n"
-        "     + KHÔNG đưa các từ ngữ cảm xúc, lo lắng, hoặc nhãn intent vào chuỗi query.\n"
-        "4. PHÂN LOẠI Ý ĐỊNH (field 'intent'):\n"
-        "   - Chọn 1 trong 7 nhóm: PROCEDURE (Hướng dẫn thủ tục), REGULATION (Tra cứu quy chế/điểm), CRISIS (Lo sợ/Trễ hạn), GENERAL (Thông tin chung/Xã giao), ADVISING (Xin lời khuyên/Định hướng), COMPLAINT (Phàn nàn/Góp ý), TECH_SUPPORT (Lỗi website/App/IT).\n\n"
+        "Bạn là AI Router & Query Rewriter cho Chatbot Tư vấn Học vụ Đại học IUH.\n"
+        "Phân tích câu hỏi của sinh viên và trả về chuỗi JSON gồm: 'need_retrieval', 'intent', 'queries'.\n\n"
+        "QUY TẮC:\n"
+        "1. GUARDRAIL: Nếu câu hỏi quấy phá, vi phạm an toàn, hoặc ngoài lề không liên quan trường học:\n"
+        "   -> 'need_retrieval': false, 'intent': 'GENERAL', 'queries': [\"REJECTED_QUERY\"].\n"
+        "2. ĐÁNH GIÁ NHU CẦU: 'need_retrieval': false khi chỉ chào hỏi xã giao, cảm ơn, tán gẫu; 'need_retrieval': true khi hỏi về quy chế, thủ tục, điểm, học phí, v.v.\n"
+        "3. PHÂN LOẠI INTENT: Chọn 1 trong 7 nhóm: PROCEDURE, REGULATION, CRISIS, GENERAL, ADVISING, COMPLAINT, TECH_SUPPORT.\n"
+        "4. TÌM KIẾM (queries):\n"
+        "   - Nếu need_retrieval=false: queries=[].\n"
+        "   - Nếu câu hỏi có nhiều ý riêng biệt: Tách thành 2 đến tối đa 3 câu tìm kiếm độc lập.\n"
+        "   - Nếu câu hỏi chỉ có 1 ý: Giữ nguyên từ khóa cốt lõi. TUYỆT ĐỐI KHÔNG thêm từ đồng nghĩa suy diễn (như 'tiêu chuẩn', 'hướng dẫn'), KHÔNG gắn thêm chữ 'IUH'.\n\n"
         "VÍ DỤ MẪU:\n"
-        "Ví dụ 1 (Câu hỏi kép đa ý):\n"
-        "Câu gốc: Em muốn xin bảo lưu kỳ này thì cần điều kiện gì và học phí đã đóng có được hoàn lại không ad?\n"
-        "JSON:\n"
-        "{\n"
-        "  \"reason\": \"Câu hỏi kép về thủ tục bảo lưu và chính sách hoàn trả học phí\",\n"
-        "  \"need_retrieval\": true,\n"
-        "  \"queries\": [\n"
-        "    \"điều kiện và hồ sơ xin tạm dừng tiến độ học tập bảo lưu kết quả IUH\",\n"
-        "    \"quy định rút và hoàn trả học phí khi tạm dừng học tập bảo lưu IUH\"\n"
-        "  ],\n"
-        "  \"intent\": \"PROCEDURE\"\n"
-        "}\n\n"
-        "Ví dụ 2 (Xã giao, cảm ơn):\n"
-        "Câu gốc: Dạ em hiểu rõ rồi, em cảm ơn bot nhiều nhé!\n"
-        "JSON:\n"
-        "{\n"
-        "  \"reason\": \"Lời cảm ơn xã giao từ sinh viên, không yêu cầu tra cứu tri thức CSDL\",\n"
-        "  \"need_retrieval\": false,\n"
-        "  \"queries\": [],\n"
-        "  \"intent\": \"GENERAL\"\n"
-        "}\n\n"
-        "Ví dụ 3 (Tiếng lóng, câu hỏi đơn):\n"
-        "Câu gốc: Em bị rớt môn GDTC 2 lần có bị out trường không cô?\n"
-        "JSON:\n"
-        "{\n"
-        "  \"reason\": \"Tra cứu điều kiện cảnh báo học vụ và buộc thôi học do không đạt học phần\",\n"
-        "  \"need_retrieval\": true,\n"
-        "  \"queries\": [\n"
-        "    \"quy định cảnh báo học vụ và điều kiện buộc thôi học do không đạt học phần giáo dục thể chất tín chỉ IUH\"\n"
-        "  ],\n"
-        "  \"intent\": \"REGULATION\"\n"
-        "}\n\n"
-        "Ví dụ 4 (Câu hỏi 4 ý dài):\n"
-        "Câu gốc: Em muốn bảo lưu thì cần điều kiện gì, nộp hồ sơ ở đâu, có được rút học phí không và khi quay lại học thì thủ tục ra sao?\n"
-        "JSON:\n"
-        "{\n"
-        "  \"reason\": \"Câu hỏi phức hợp 4 khía cạnh: điều kiện, nơi nộp, học phí và tái nhập học\",\n"
-        "  \"need_retrieval\": true,\n"
-        "  \"queries\": [\n"
-        "    \"điều kiện xin tạm dừng tiến độ học tập bảo lưu kết quả IUH\",\n"
-        "    \"địa điểm phòng ban tiếp nhận hồ sơ tạm dừng học tập bảo lưu IUH\",\n"
-        "    \"quy định rút học phí hoàn trả học phí khi tạm dừng học tập IUH\",\n"
-        "    \"thủ tục tiếp nhận học lại tái nhập học sau thời gian bảo lưu IUH\"\n"
-        "  ],\n"
-        "  \"intent\": \"PROCEDURE\"\n"
-        "}\n\n"
+        "1. Câu kép đa ý:\n"
+        "Sinh viên: Em muốn bảo lưu kỳ này và rút học phí thì làm thế nào?\n"
+        "JSON: {\"need_retrieval\": true, \"intent\": \"PROCEDURE\", \"queries\": [\"điều kiện hồ sơ xin tạm dừng tiến độ học tập bảo lưu kết quả\", \"quy định rút và hoàn trả học phí khi tạm dừng học tập\"]}\n\n"
+        "2. Xã giao / cảm ơn:\n"
+        "Sinh viên: Dạ em hiểu rồi, cảm ơn ad nhiều ạ!\n"
+        "JSON: {\"need_retrieval\": false, \"intent\": \"GENERAL\", \"queries\": []}\n\n"
+        "3. Câu đơn bảo toàn từ khóa gốc:\n"
+        "Sinh viên: Điều kiện xét học bổng khuyến khích học tập?\n"
+        "JSON: {\"need_retrieval\": true, \"intent\": \"REGULATION\", \"queries\": [\"điều kiện xét học bổng khuyến khích học tập\"]}\n\n"
         "THỰC HÀNH:\n"
         f"{context_str}"
-        f"Câu gốc: {current_query}\n"
+        f"Sinh viên: {current_query}\n"
         "JSON:"
     )
 
     from app.services.llm_providers import get_rewriter_provider
     provider = get_rewriter_provider()
     
-    system_inst = "Chỉ trả về chuỗi JSON hợp lệ chứa các trường 'reason', 'need_retrieval', 'queries', 'intent', KHÔNG kèm theo bất kỳ văn bản giải thích nào khác."
+    system_inst = "Chỉ trả về chuỗi JSON hợp lệ chứa các trường 'need_retrieval', 'intent', 'queries', KHÔNG kèm theo bất kỳ văn bản giải thích nào khác."
     res = await provider.generate_text(prompt=rewrite_prompt, system_instruction=system_inst, temperature=0.0)
 
     if res:

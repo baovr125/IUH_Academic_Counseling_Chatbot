@@ -37,8 +37,7 @@ class TestAdaptiveMultiQueryQuotaAndThresholds:
 
         with patch("app.services.rag_service.get_supabase_client", return_value=mock_supabase), \
              patch("app.services.rag_service.get_query_embedding", new_callable=AsyncMock) as mock_emb, \
-             patch("app.services.rag_service.get_reranker", return_value=mock_reranker), \
-             patch("app.services.rag_service.expand_neighbors", side_effect=lambda chunks, **kw: chunks):
+             patch("app.services.rag_service.get_reranker", return_value=mock_reranker):
             
             mock_emb.return_value = [0.1] * 768
             mock_rpc = MagicMock()
@@ -69,8 +68,7 @@ class TestAdaptiveMultiQueryQuotaAndThresholds:
 
         with patch("app.services.rag_service.get_supabase_client", return_value=mock_supabase), \
              patch("app.services.rag_service.get_query_embedding", new_callable=AsyncMock) as mock_emb, \
-             patch("app.services.rag_service.get_reranker", return_value=mock_reranker), \
-             patch("app.services.rag_service.expand_neighbors", side_effect=lambda chunks, **kw: chunks):
+             patch("app.services.rag_service.get_reranker", return_value=mock_reranker):
             
             mock_emb.return_value = [0.1] * 768
             mock_rpc1 = MagicMock(data=chunks_q1)
@@ -108,8 +106,7 @@ class TestAdaptiveMultiQueryQuotaAndThresholds:
 
         with patch("app.services.rag_service.get_supabase_client", return_value=mock_supabase), \
              patch("app.services.rag_service.get_query_embedding", new_callable=AsyncMock) as mock_emb, \
-             patch("app.services.rag_service.get_reranker", return_value=mock_reranker), \
-             patch("app.services.rag_service.expand_neighbors", side_effect=lambda chunks, **kw: chunks):
+             patch("app.services.rag_service.get_reranker", return_value=mock_reranker):
             
             mock_emb.return_value = [0.1] * 768
             mock_supabase.rpc.side_effect = [
@@ -145,8 +142,7 @@ class TestAdaptiveMultiQueryQuotaAndThresholds:
 
         with patch("app.services.rag_service.get_supabase_client", return_value=mock_supabase), \
              patch("app.services.rag_service.get_query_embedding", new_callable=AsyncMock) as mock_emb, \
-             patch("app.services.rag_service.get_reranker", return_value=mock_reranker), \
-             patch("app.services.rag_service.expand_neighbors", side_effect=lambda chunks, **kw: chunks):
+             patch("app.services.rag_service.get_reranker", return_value=mock_reranker):
             
             mock_emb.return_value = [0.1] * 768
             mock_supabase.rpc.side_effect = [
@@ -315,4 +311,30 @@ class TestChatPipelineAdaptiveBypass:
             assert log_kwargs["need_retrieval"] is False
             assert log_kwargs["router_reason"] == "Chào hỏi xã giao"
             assert log_kwargs["sub_queries"] == []
+
+    @pytest.mark.asyncio
+    async def test_no_sliding_window_expansion(self):
+        """Xác nhận không gọi expand_neighbors, nội dung chunk giữ nguyên sạch sẽ không bị ghép nối lặp."""
+        raw_chunks = [
+            {"id": "c1", "content": "Nội dung điều 1 sạch sẽ", "metadata": {"title": "Quy chế"}},
+            {"id": "c2", "content": "Nội dung điều 2 sạch sẽ", "metadata": {"title": "Quy chế"}}
+        ]
+        mock_supabase = MagicMock()
+        mock_reranker = MagicMock()
+        mock_reranker.predict.return_value = [1.2, 1.1]
+
+        with patch("app.services.rag_service.get_supabase_client", return_value=mock_supabase), \
+             patch("app.services.rag_service.get_query_embedding", new_callable=AsyncMock, return_value=[0.1]*768), \
+             patch("app.services.rag_service.get_reranker", return_value=mock_reranker):
+
+            mock_supabase.rpc.return_value = MagicMock(execute=MagicMock(return_value=MagicMock(data=raw_chunks)))
+
+            result, _ = await retrieve_relevant_chunks_multi(["hỏi về quy chế"])
+
+            # Chunks không bị nối bằng "\n...\n" và giữ nguyên text gốc
+            for c in result:
+                assert "\n...\n" not in c["content"]
+            assert result[0]["content"] == "Nội dung điều 1 sạch sẽ"
+            assert result[1]["content"] == "Nội dung điều 2 sạch sẽ"
+
 
