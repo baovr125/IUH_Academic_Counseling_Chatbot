@@ -25,7 +25,7 @@ from app.services.chat_service import (
     save_turn_to_db,
     update_message_embedding_in_db,
 )
-from app.services.log_utils import log_cache_hit_to_md, write_full_rag_log_to_md
+from app.services.log_utils import log_cache_hit_to_md, write_full_rag_log_to_md, log_blocked_query_to_md
 from app.services.rag_service import (
     build_rag_payload,
     check_semantic_cache,
@@ -45,15 +45,17 @@ async def process_chat_message(
     RAG retrieval, and LLM generation.
     """
     session_id = payload.sessionId or f"s_{uuid.uuid4().hex[:8]}"
+    
+    clean_session_id, user_msg_id = save_user_msg_to_db(session_id, payload.content, payload.content, user_id=current_user_id)
 
     try:
         # Step 1: Safety Check
         safety_violation = check_safety_and_jailbreak(payload.content)
         if safety_violation:
-            clean_id = save_user_msg_to_db(session_id, payload.content, payload.content, user_id=current_user_id)
-            save_assistant_msg_to_db(clean_id, safety_violation)
+            save_assistant_msg_to_db(clean_session_id, safety_violation)
             assistant_msg = _build_assistant_message(safety_violation)
-            return ApiResult(ok=True, data={"sessionId": clean_id, "message": assistant_msg.dict()})
+            asyncio.create_task(log_blocked_query_to_md(clean_session_id, payload.content, "Safety Guardrail Violation", "Guardrail", safety_violation))
+            return ApiResult(ok=True, data={"sessionId": clean_session_id, "message": assistant_msg.dict()})
 
         # Pre-process the query string
         normalized_query = payload.content
@@ -62,16 +64,16 @@ async def process_chat_message(
         history = await asyncio.to_thread(get_session_history_from_db, session_id)
         filtered_history = [msg for msg in history if not (msg["role"] == "user" and msg["content"] == normalized_query)]
         start_rewrite = time.perf_counter()
-        retrieval_query_raw, router_model = await generate_standalone_query(filtered_history, normalized_query)
+        retrieval_query_raw, router_model, intent = await generate_standalone_query(filtered_history, normalized_query)
         rewrite_latency_ms = int((time.perf_counter() - start_rewrite) * 1000)
         
         # Step 2: Extract Intent Router Flag
         print(f"HEY! retrieval_query_raw IS: {repr(retrieval_query_raw)}", flush=True)
         if retrieval_query_raw.strip() == "<FALSE>":
-            clean_id = save_user_msg_to_db(session_id, payload.content, retrieval_query_raw, user_id=current_user_id)
-            save_assistant_msg_to_db(clean_id, OFF_TOPIC_MESSAGE)
+            save_assistant_msg_to_db(clean_session_id, OFF_TOPIC_MESSAGE)
             assistant_msg = _build_assistant_message(OFF_TOPIC_MESSAGE)
-            return ApiResult(ok=True, data={"sessionId": clean_id, "message": assistant_msg.dict()})
+            asyncio.create_task(log_blocked_query_to_md(clean_session_id, payload.content, "Off-topic Query", "Rewriter/Router", OFF_TOPIC_MESSAGE))
+            return ApiResult(ok=True, data={"sessionId": clean_session_id, "message": assistant_msg.dict()})
             
         # Extract the actual rewritten query
         retrieval_query = retrieval_query_raw.replace("<TRUE>", "").replace("</TRUE>", "").strip()
@@ -93,7 +95,7 @@ async def process_chat_message(
             cached_answer = cache_hit.get("cached_answer", "")
             
             # --- CACHE LOGGING ---
-            asyncio.create_task(log_cache_hit_to_md(clean_session_id, normalized_query, retrieval_query, cache_hit, latency_ms, router_model))
+            asyncio.create_task(log_cache_hit_to_md(clean_session_id, normalized_query, retrieval_query, cache_hit, latency_ms, router_model, intent))
             
             # Save the turn to DB to keep the conversation history continuous
             # Full cached_answer goes to DB
@@ -116,7 +118,7 @@ async def process_chat_message(
             )
 
         # Step 4: RAG Retrieval and Prompt Building
-        history, retrieval_query, citations, chunk_ids, system_instruction, contents, top_doc_score, rag_data = await build_rag_payload(session_id, normalized_query, retrieval_query, query_embedding)
+        history, retrieval_query, citations, chunk_ids, system_instruction, contents, top_doc_score, rag_data = await build_rag_payload(session_id, normalized_query, retrieval_query, query_embedding, intent)
 
         provider = get_llm_provider()
         stream_generator = provider.generate_stream(system_instruction, contents)
@@ -149,18 +151,27 @@ async def process_chat_message(
         )
         
         try:
-            if 'log_file_path' in locals() and log_file_path:
-                with open(log_file_path, "a", encoding="utf-8") as lf:
-                    lf.write("## AI Answer & Thinking Stage\n\n")
-                    lf.write(generated_text + "\n\n")
-                    lf.write("---\n")
+            if 'rag_data' in locals() and rag_data:
+                _rlat = rag_data.get('retrieval_latency_ms', 0)
+                _rl = rewrite_latency_ms if 'rewrite_latency_ms' in locals() else 0
+                _ll = latency_ms if 'latency_ms' in locals() else 0
+                _pt = prompt_tokens if 'prompt_tokens' in locals() else 0
+                _ct = completion_tokens if 'completion_tokens' in locals() else 0
+                
+                _rm = router_model if 'router_model' in locals() else "Unknown"
+                _lm = provider.last_used_model if 'provider' in locals() else "Unknown"
+                
+                asyncio.create_task(write_full_rag_log_to_md(
+                    clean_session_id, normalized_query, retrieval_query, rag_data['chunks'], rag_data['past_memories'],
+                    _rlat, _rl, _ll, _pt, _ct, generated_text, _rm, _lm, intent
+                ))
         except Exception as _e:
-            logger.error(f"Failed to append to markdown log: {_e}")
+            logger.error(f"Failed to write full markdown log: {_e}")
 
         assistant_message = _build_assistant_message(generated_text, citations)
 
         # Trigger async cache write-back in background so the user doesn't wait for it
-        if gemini_response and gemini_response.text:
+        if not generated_text.startswith("⚠️"):
             asyncio.create_task(async_cache_writeback(retrieval_query, generated_text, top_doc_score, query_embedding))
 
         return ApiResult(
@@ -199,6 +210,7 @@ async def process_chat_message_stream(
             yield _build_sse_metadata(clean_session_id)
             yield _build_sse_delta(safety_violation)
             accumulated_text = safety_violation
+            asyncio.create_task(log_blocked_query_to_md(clean_session_id, payload.content, "Safety Guardrail Violation", "Guardrail", safety_violation))
             yield _build_sse_done()
             return
 
@@ -209,7 +221,7 @@ async def process_chat_message_stream(
         history = await asyncio.to_thread(get_session_history_from_db, session_id)
         filtered_history = [msg for msg in history if not (msg["role"] == "user" and msg["content"] == normalized_query)]
         start_rewrite = time.perf_counter()
-        retrieval_query_raw, router_model = await generate_standalone_query(filtered_history, normalized_query)
+        retrieval_query_raw, router_model, intent = await generate_standalone_query(filtered_history, normalized_query)
         rewrite_latency_ms = int((time.perf_counter() - start_rewrite) * 1000)
 
         # Step 2: Extract Intent Router Flag
@@ -218,6 +230,7 @@ async def process_chat_message_stream(
             yield _build_sse_metadata(clean_session_id)
             yield _build_sse_delta(OFF_TOPIC_MESSAGE)
             accumulated_text = OFF_TOPIC_MESSAGE
+            asyncio.create_task(log_blocked_query_to_md(clean_session_id, payload.content, "Off-topic Query", "Rewriter/Router", OFF_TOPIC_MESSAGE))
             yield _build_sse_done()
             return
             
@@ -240,7 +253,7 @@ async def process_chat_message_stream(
             cached_answer = cache_hit.get("cached_answer", "")
             
             # --- CACHE LOGGING ---
-            asyncio.create_task(log_cache_hit_to_md(clean_session_id, normalized_query, retrieval_query, cache_hit, latency_ms, router_model))
+            asyncio.create_task(log_cache_hit_to_md(clean_session_id, normalized_query, retrieval_query, cache_hit, latency_ms, router_model, intent))
             
             # Yield metadata with cacheStatus as HIT
             yield _build_sse_metadata(clean_session_id, cache_status="HIT")
@@ -255,7 +268,7 @@ async def process_chat_message_stream(
             return
 
         # Step 4: RAG Retrieval and Prompt Building
-        history, retrieval_query, citations, chunk_ids, system_instruction, contents, top_doc_score, rag_data = await build_rag_payload(clean_session_id, normalized_query, retrieval_query, query_embedding)
+        history, retrieval_query, citations, chunk_ids, system_instruction, contents, top_doc_score, rag_data = await build_rag_payload(clean_session_id, normalized_query, retrieval_query, query_embedding, intent)
 
         # Immediately send citations (metadata) to the client
         citations_data = [c.dict() for c in citations]
@@ -366,7 +379,7 @@ async def process_chat_message_stream(
                     
                     asyncio.create_task(write_full_rag_log_to_md(
                         clean_session_id, normalized_query, retrieval_query, rag_data['chunks'], rag_data['past_memories'],
-                        _rlat, _rl, _ll, _pt, _ct, accumulated_text, _rm, _lm
+                        _rlat, _rl, _ll, _pt, _ct, accumulated_text, _rm, _lm, intent
                     ))
             except Exception as _e:
                 logger.error(f"Failed to write full markdown log: {_e}")
