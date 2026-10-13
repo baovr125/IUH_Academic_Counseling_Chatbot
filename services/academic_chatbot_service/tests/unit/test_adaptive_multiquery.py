@@ -158,6 +158,62 @@ class TestAdaptiveMultiQueryQuotaAndThresholds:
             assert "q1_unique" in ids
             assert "q2_unique" in ids
 
+    @pytest.mark.asyncio
+    async def test_parent_document_collapse(self):
+        """Đảm bảo các child chunks cùng parent_id được collapse thành 1 parent record trọn vẹn với parent_content."""
+        parent_id_target = "parent-uuid-dieu-8"
+        parent_full_text = "##### Điều 8: Quy định về các mức học bổng (Mức A 100%, Mức B 70%, Mức C 50%)..."
+        
+        chunks = [
+            {
+                "id": "child-c1",
+                "parent_id": parent_id_target,
+                "content": "Điểm c) Mức học bổng loại C...",
+                "parent_content": parent_full_text,
+                "metadata": {"title": "Quy chế học bổng"}
+            },
+            {
+                "id": "child-c2",
+                "parent_id": parent_id_target,
+                "content": "Mức học bổng này bằng 50% học phí bình quân...",
+                "parent_content": parent_full_text,
+                "metadata": {"title": "Quy chế học bổng"}
+            },
+            {
+                "id": "child-c3",
+                "parent_id": "parent-uuid-dieu-7",
+                "content": "Điều 7: Điều kiện xét học bổng...",
+                "parent_content": "##### Điều 7: Toàn bộ điều kiện xét...",
+                "metadata": {"title": "Quy chế học bổng"}
+            }
+        ]
+
+        mock_supabase = MagicMock()
+        mock_reranker = MagicMock()
+        # Điểm: c1 được 1.2 (~0.768), c2 được 1.8 (~0.858), c3 được 0.8 (~0.690)
+        mock_reranker.predict.return_value = [1.2, 1.8, 0.8]
+
+        with patch("app.services.rag_service.get_supabase_client", return_value=mock_supabase), \
+             patch("app.services.rag_service.get_query_embedding", new_callable=AsyncMock) as mock_emb, \
+             patch("app.services.rag_service.get_reranker", return_value=mock_reranker):
+            
+            mock_emb.return_value = [0.1] * 768
+            mock_rpc = MagicMock(data=chunks)
+            mock_supabase.rpc.return_value = MagicMock(execute=MagicMock(return_value=mock_rpc))
+
+            result, top_score = await retrieve_relevant_chunks_multi(["học bổng loại C khóa 18"])
+
+            # 2 child chunks cùng parent-uuid-dieu-8 phải được gộp lại thành đúng 1 parent record
+            # Tổng kết quả chỉ còn 2 items: 1 cho dieu-8, 1 cho dieu-7
+            assert len(result) == 2
+            
+            dieu_8_item = next(c for c in result if c.get("parent_id") == parent_id_target)
+            # Nội dung đưa cho LLM phải là parent_content hoàn chỉnh
+            assert dieu_8_item["content"] == parent_full_text
+            # Điểm rerank phải là điểm cao nhất trong 2 child chunks (1.8 -> ~0.858)
+            expected_score = 1 / (1 + math.exp(-1.8))
+            assert math.isclose(dieu_8_item["rerank_score"], expected_score, rel_tol=1e-4)
+
 
 class TestAdaptiveQueryRewriterLogic:
     """Kiểm tra phản hồi của generate_standalone_query với các tình huống định tuyến."""

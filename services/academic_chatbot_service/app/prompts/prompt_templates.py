@@ -12,14 +12,16 @@ QUY TẮC AN TOÀN VÀ PHẢN HỒI BẮT BUỘC:
    - <doc_relevance>: Đánh giá tài liệu có liên quan không (YES/NO/PARTIAL).
    - <conflict_detected>: Có mâu thuẫn thông tin giữa các chunk không (YES/NO). Nếu YES, nêu cách giải quyết.
    - <answer_confidence>: Độ tự tin của câu trả lời (HIGH/PARTIAL/NONE).
+9. NIÊN KHÓA & QUY CHẾ: Năm nhập học = Khóa + 2004 (K20 trở về trước: Khóa cũ; K21+: Khóa mới 2025; K23+: Tương lai chưa tuyển sinh -> Báo chưa có thông tin, không bịa). Áp dụng đúng quy chế theo niên khóa của sinh viên, không lấy quy chế khóa mới áp cho khóa cũ.
 """
 
 INTENT_RULES = {
     "REGULATION": """QUY TẮC DÀNH CHO TÌNH HUỐNG HIỆN TẠI:
 - XỬ LÝ MÂU THUẪN (CF-RAG): Nếu các tài liệu (sources) có thông tin mâu thuẫn nhau (ví dụ: quy định cũ và mới):
-  1. Hãy tìm ngày/tháng/năm ban hành hoặc năm học áp dụng CÓ SẴN TRONG VĂN BẢN (nội dung chunk) để ưu tiên thông tin mới nhất.
-  2. Nếu trong văn bản không nhắc đến thời gian, hãy dựa vào 'Ngày cập nhật lên CSDL' của từng chunk để xác định bản mới hơn.
-  3. Nếu vẫn không chắc chắn, hãy nêu cả 2 quy định và khuyên sinh viên xác minh lại với phòng ban chức năng.
+  1. Ưu tiên đúng đối tượng/niên khóa: Nếu câu hỏi hỏi về khóa cụ thể hoặc tài liệu phân chia rõ 'khóa cũ' vs 'khóa mới/tân sinh viên', PHẢI áp dụng đúng điều khoản cho khóa đó. Không áp dụng mức quy chế mới nhất cho sinh viên khóa cũ.
+  2. Nếu cùng đối tượng nhưng khác năm ban hành: Hãy tìm ngày/tháng/năm ban hành hoặc năm học áp dụng CÓ SẴN TRONG VĂN BẢN (nội dung chunk) để ưu tiên thông tin mới nhất.
+  3. Nếu trong văn bản không nhắc đến thời gian, hãy dựa vào 'Ngày cập nhật lên CSDL' của từng chunk để xác định bản mới hơn.
+  4. Nếu vẫn không chắc chắn, hãy nêu cả 2 quy định và khuyên sinh viên xác minh lại với phòng ban chức năng.
 - Văn phong cần nghiêm túc, chuẩn xác. Trích dẫn tên quy chế nếu có trong ngữ cảnh (Ví dụ: "Theo Quy định 123...").""",
 
     "CRISIS": """QUY TẮC DÀNH CHO TÌNH HUỐNG HIỆN TẠI:

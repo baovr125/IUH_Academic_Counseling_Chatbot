@@ -356,7 +356,7 @@ GOOD_SCORE_THRESHOLD: float = 0.65
 async def retrieve_relevant_chunks_multi(
     queries: List[str], 
     top_k: int = 8, 
-    candidate_count: int = 35
+    candidate_count: int = 50
 ) -> Tuple[List[dict], float]:
     """
     Multi-Query Hybrid Retrieval & Query-Specific Cross-Encoder Reranking:
@@ -424,7 +424,7 @@ async def retrieve_relevant_chunks_multi(
     )
 
     reranker = get_reranker()
-    batch_size = 4 if get_device() == "cuda" else 4
+    batch_size = 32 if get_device() == "cuda" else 8
     RERANKER_THRESHOLD = 0.10
     GOOD_SCORE_THRESHOLD = 0.65
 
@@ -494,19 +494,35 @@ async def retrieve_relevant_chunks_multi(
                     if chunk["rerank_score"] > merged_map[c_id]["rerank_score"]:
                         merged_map[c_id] = chunk
 
-    final_chunks = list(merged_map.values())
+    # Step 5: SOTA Parent Document Retrieval (Small-to-Big Collapse)
+    # Collapse multiple child chunks from the same parent section into a single cohesive Parent record
+    parent_map = {}
+    for chunk in merged_map.values():
+        p_id = chunk.get("parent_id") or chunk.get("id")
+        if p_id not in parent_map:
+            p_item = dict(chunk)
+            if chunk.get("parent_content"):
+                p_item["child_content"] = chunk.get("content", "")
+                p_item["content"] = chunk["parent_content"]
+            parent_map[p_id] = p_item
+        else:
+            # Update with highest rerank_score and matching subquery among sibling chunks
+            if chunk.get("rerank_score", 0) > parent_map[p_id].get("rerank_score", 0):
+                parent_map[p_id]["rerank_score"] = chunk["rerank_score"]
+                parent_map[p_id]["matched_subquery"] = chunk.get("matched_subquery")
+
+    final_chunks = list(parent_map.values())
     final_chunks = sorted(final_chunks, key=lambda x: x["rerank_score"], reverse=True)[:max_ceiling]
 
     top_doc_score = max(all_top_scores) if all_top_scores else 0.0
 
     if final_chunks:
-        logger.info(f"Multi-Query ({num_q} queries): Selected {len(final_chunks)} chunks, Top Score: {top_doc_score:.4f}")
+        logger.info(f"Multi-Query ({num_q} queries): Selected {len(final_chunks)} parent sections, Top Score: {top_doc_score:.4f}")
 
     if not final_chunks or top_doc_score < RERANKER_THRESHOLD:
         logger.warning(f"All chunks rejected. Top score {top_doc_score:.4f} is below threshold {RERANKER_THRESHOLD}.")
         return [], 0.0
 
-    # Step 5: Return clean deduplicated chunks directly (Eliminated expand_neighbors sliding window)
     return final_chunks, top_doc_score
 
 async def retrieve_relevant_chunks(query_text: str, query_embedding: list = None, top_k: int = 5, candidate_count: int = 30):
