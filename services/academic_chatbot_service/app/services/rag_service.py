@@ -469,16 +469,27 @@ async def retrieve_relevant_chunks_multi(
 
             all_top_scores.append(valid_chunks[0]["rerank_score"])
 
-            # Filter good score chunks (>= 0.65)
-            good_chunks = [c for c in valid_chunks if c["rerank_score"] >= GOOD_SCORE_THRESHOLD]
-            
-            # Quota selection:
-            # If good chunks >= floor_per_query, take up to max_per_query.
-            # Otherwise, fallback to take at least floor_per_query.
-            if len(good_chunks) >= floor_per_query:
-                picked = good_chunks[:max_per_query]
+            # SOTA Parent-Aware Quota Selection:
+            # Group candidate chunks by parent section, preserving the highest-scoring child chunk
+            # for each distinct parent so that sibling child chunks do not crowd out vital sections.
+            seen_parents = set()
+            distinct_parent_chunks = []
+            for chunk in valid_chunks:
+                p_id = chunk.get("parent_id") or chunk.get("id")
+                if p_id not in seen_parents:
+                    seen_parents.add(p_id)
+                    distinct_parent_chunks.append(chunk)
+
+            # Filter distinct parent chunks with good score (>= 0.65)
+            good_parent_chunks = [c for c in distinct_parent_chunks if c["rerank_score"] >= GOOD_SCORE_THRESHOLD]
+
+            # Quota selection based on distinct parent sections:
+            # If good parent sections >= floor_per_query, take up to max_per_query distinct parents.
+            # Otherwise, fallback to take at least floor_per_query distinct parents (if available).
+            if len(good_parent_chunks) >= floor_per_query:
+                picked = good_parent_chunks[:max_per_query]
             else:
-                picked = valid_chunks[:floor_per_query]
+                picked = distinct_parent_chunks[:floor_per_query]
 
             selected_chunks_by_query.append(picked)
         except Exception as e:
@@ -516,6 +527,8 @@ async def retrieve_relevant_chunks_multi(
             if chunk.get("rerank_score", 0) > parent_map[p_id].get("rerank_score", 0):
                 parent_map[p_id]["rerank_score"] = chunk["rerank_score"]
                 parent_map[p_id]["matched_subquery"] = chunk.get("matched_subquery")
+                if chunk.get("content"):
+                    parent_map[p_id]["child_content"] = chunk.get("content", "")
 
     final_chunks = list(parent_map.values())
     final_chunks = sorted(final_chunks, key=lambda x: x["rerank_score"], reverse=True)[:max_ceiling]

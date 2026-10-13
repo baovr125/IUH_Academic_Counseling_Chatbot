@@ -17,28 +17,30 @@ RETRYABLE_EXCEPTIONS = (
     httpx.PoolTimeout,
     httpx.ConnectTimeout,
     httpx.ReadTimeout,
+    httpx.WriteTimeout,
+    httpx.TimeoutException,
 )
 
 def _is_transient_connection_error(exc: Exception) -> bool:
     if isinstance(exc, RETRYABLE_EXCEPTIONS):
         return True
     msg = str(exc).lower()
-    return any(keyword in msg for keyword in ("server disconnected", "connection reset", "remoteprotocolerror", "broken pipe"))
+    return any(keyword in msg for keyword in ("server disconnected", "connection reset", "remoteprotocolerror", "broken pipe", "timed out"))
 
 def _create_resilient_httpx_client() -> httpx.Client:
     """
-    Creates an httpx.Client configured to prevent stale connection drops:
+    Creates an httpx.Client configured to prevent stale connection drops and write timeouts:
     - http2=False: Prevents HTTP/2 stream disconnects on idle Cloudflare/Supabase proxies.
     - keepalive_expiry=25.0: Proactively expires idle connections before server timeout (~60s).
     - limits: Configured connection pooling.
-    - timeout: 30s read/write timeout, 10s connect timeout.
+    - timeout: 120s read/write timeout, 20s connect timeout.
     """
     limits = httpx.Limits(
         max_keepalive_connections=20,
         max_connections=50,
         keepalive_expiry=25.0,
     )
-    timeout = httpx.Timeout(30.0, connect=10.0)
+    timeout = httpx.Timeout(120.0, connect=20.0, read=120.0, write=120.0)
     return httpx.Client(
         http2=False,
         limits=limits,
@@ -87,12 +89,13 @@ def get_supabase_client(force_new: bool = False) -> Optional[Client]:
                 logger.exception(f"Failed to create resilient Supabase client: {e}")
         return None
 
-def execute_with_retry(operation: Callable[[Client], Any], max_retries: int = 1) -> Any:
+def execute_with_retry(operation: Callable[[Client], Any], max_retries: int = 3, backoff_base: float = 1.5) -> Any:
     """
     Executes a Supabase operation callable: operation(supabase).
-    If a transient connection drop occurs (e.g. RemoteProtocolError: Server disconnected),
-    it resets the client singleton and retries once with a fresh connection pool.
+    If a transient connection drop or write timeout occurs,
+    it resets the client singleton and retries with exponential backoff.
     """
+    import time
     for attempt in range(max_retries + 1):
         supabase = get_supabase_client()
         if not supabase:
@@ -101,11 +104,13 @@ def execute_with_retry(operation: Callable[[Client], Any], max_retries: int = 1)
             return operation(supabase)
         except Exception as e:
             if attempt < max_retries and _is_transient_connection_error(e):
+                delay = backoff_base ** (attempt + 1)
                 logger.warning(
-                    f"Supabase connection dropped ({type(e).__name__}: {e}), reconnecting and retrying... (attempt {attempt + 1}/{max_retries + 1})"
+                    f"Supabase request failed ({type(e).__name__}: {e}), reconnecting and retrying in {delay:.1f}s... (attempt {attempt + 1}/{max_retries + 1})"
                 )
+                time.sleep(delay)
                 reset_supabase_client()
             else:
                 if attempt > 0:
-                    logger.error(f"Supabase operation failed after retry: {e}")
+                    logger.error(f"Supabase operation failed after {attempt} retries: {e}")
                 raise
