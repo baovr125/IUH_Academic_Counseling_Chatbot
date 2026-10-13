@@ -6,11 +6,12 @@ from app.data_ingestion.utils.logger import setup_logger
 from app.data_ingestion.extractors.url_extractor import URLExtractor
 from app.data_ingestion.crawlers.content_crawler import ContentCrawler
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATA_DIR = os.path.join(BASE_DIR, "data")
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../.."))
+REPO_DATA_DIR = os.path.join(PROJECT_ROOT, "data", "ingestion")
+DATA_DIR = os.getenv("DATA_INGESTION_DIR", REPO_DATA_DIR if os.path.exists(REPO_DATA_DIR) else os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data"))
 URL_LIST_FILE = os.path.join(DATA_DIR, "urls.json")
 GRAPH_FILE = os.path.join(DATA_DIR, "web_structure_graph.json")
-MARKDOWN_DIR = os.path.join(DATA_DIR, "crawled_markdown")
+MARKDOWN_DIR = os.path.join(DATA_DIR, "staging_markdown")
 CHILDREN_FILE = os.path.join(DATA_DIR, "children.json")
 
 logger = setup_logger("orchestrator", "pipeline.log")
@@ -122,7 +123,7 @@ def run_embedding():
         return
         
     embedder = SupabaseEmbedder(model_name="bkai-foundation-models/vietnamese-bi-encoder")
-    embedder.run_embedding(CHILDREN_FILE)
+    embedder.run_embedding(CHILDREN_FILE, os.path.join(DATA_DIR, "parents.json"))
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="IUH Academic Counseling Data Pipeline")

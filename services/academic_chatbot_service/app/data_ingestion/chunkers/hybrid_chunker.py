@@ -45,8 +45,8 @@ class HybridChunker:
         Bước 2: Cắt text thành các Parent Chunks dựa trên Markdown Header.
         """
         parents = []
-        # Tách dựa trên header (để giữ nguyên header delimiter trong mảng kết quả)
-        sections = re.split(r'(^#{1,4}\s+.+$)', text, flags=re.MULTILINE)
+        # Tách dựa trên header (để giữ nguyên header delimiter trong mảng kết quả, hỗ trợ cấp 1 đến 6)
+        sections = re.split(r'(^#{1,6}\s+.+$)', text, flags=re.MULTILINE)
         
         current_headers = []
         
@@ -67,6 +67,11 @@ class HybridChunker:
             current_headers = [h for h in current_headers if len(re.match(r'^(#+)', h).group(1)) < header_level]
             current_headers.append(header)
             
+            # Nếu phần thân trống (chỉ là tiêu đề cụm cấp cao, ví dụ ### QUY ĐỊNH), 
+            # bỏ qua không tạo parent rỗng nhưng vẫn giữ trong current_headers
+            if not content:
+                continue
+                
             full_section = f"{header}\n{content}".strip()
             if not full_section:
                 continue

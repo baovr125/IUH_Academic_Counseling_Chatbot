@@ -18,7 +18,10 @@ from app.services.supabase_client import get_supabase_client
 
 router = APIRouter(prefix="/api/admin/ingest", tags=["Admin Ingestion"])
 
-DATA_DIR = "/app/app/data_ingestion/data"
+_docker_data_dir = "/app/app/data_ingestion/data"
+DATA_DIR = _docker_data_dir if os.path.exists(_docker_data_dir) else os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "../../../../data/ingestion")
+)
 
 STAGING_DIR = os.path.join(DATA_DIR, "staging_markdown")
 CHILDREN_FILE = os.path.join(DATA_DIR, "children.json")
@@ -75,7 +78,7 @@ def run_unified_pipeline(new_markdown_files: List[str] = None):
         # Tận dụng mô hình đã load sẵn trên RAM/VRAM của Chatbot
         embed_model = get_embedder()
         embedder = SupabaseEmbedder(embedder_instance=embed_model)
-        embedder.run_embedding(CHILDREN_FILE)
+        embedder.run_embedding(CHILDREN_FILE, parents_file)
         
 
         

@@ -113,14 +113,14 @@ class ContentCrawler:
             return (False, sub_links)
             
         new_hash = result['hash']
-        if old_hash == new_hash:
+        safe_name = re.sub(r'[^a-zA-Z0-9]', '_', url.replace('https://', '').replace('http://', ''))[:40] + "_" + hashlib.md5(url.encode('utf-8')).hexdigest()[:6]
+        md_filepath = os.path.join(self.output_dir, f"{safe_name}.md")
+
+        if old_hash == new_hash and os.path.exists(md_filepath):
             logger.info(f"[BỎ QUA]: Không thay đổi - {url}")
             return (False, sub_links)
         
-        logger.info(f"[THÊM MỚI]: {url}" if old_hash is None else f"[CẬP NHẬT]: Đã sửa đổi - {url}")
-            
-        safe_name = re.sub(r'[^a-zA-Z0-9]', '_', url.replace('https://', '').replace('http://', ''))[:40] + "_" + hashlib.md5(url.encode('utf-8')).hexdigest()[:6]
-        md_filepath = os.path.join(self.output_dir, f"{safe_name}.md")
+        logger.info(f"[THÊM MỚI]: {url}" if (old_hash is None or not os.path.exists(md_filepath)) else f"[CẬP NHẬT]: Đã sửa đổi - {url}")
         
         front_matter = (
             f"---\n"
