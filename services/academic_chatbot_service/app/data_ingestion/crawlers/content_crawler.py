@@ -61,6 +61,12 @@ class ContentCrawler:
         soup = BeautifulSoup(response.text, "html.parser")
         title = soup.title.string.strip() if soup.title and soup.title.string else "No Title"
         
+        page_title_node = soup.find('div', class_='page-title') or soup.find(['h1', 'h2'])
+        if page_title_node and page_title_node.text.strip():
+            pt_text = page_title_node.text.strip()
+            if any(g in title.lower() for g in ["phòng công tác", "cổng thông tin", "trang chủ", "no title"]):
+                title = f"Hỏi đáp CTSV: {pt_text}" if "feedback" in url else pt_text
+        
         bc_node = soup.find('ol')
         breadcrumbs = " > ".join([t.strip() for t in bc_node.stripped_strings if t.strip() not in ['>', '/', '»', '|']]) if bc_node else ""
         published_date = extract_published_date(soup)
@@ -143,17 +149,18 @@ class ContentCrawler:
                 
         return (True, sub_links)
 
-    def run_crawl(self, start_urls, recursive=True, max_pages=300):
-        logger.info(f"========== BẮT ĐẦU CRAWL TỪ {len(start_urls)} URLs (ĐỆ QUY: {recursive}) ==========")
+    def run_crawl(self, start_urls, recursive=False, max_pages=None):
+        max_pages_str = str(max_pages) if max_pages is not None else "Không giới hạn"
+        logger.info(f"========== BẮT ĐẦU CRAWL TỪ {len(start_urls)} URLs (ĐỆ QUY: {recursive}, MAX PAGES: {max_pages_str}) ==========")
         success_count = 0
         visited = set()
         queue = set(start_urls)
         
         with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
-            while queue and (not recursive or len(visited) < max_pages):
+            while queue and (not recursive or max_pages is None or len(visited) < max_pages):
                 batch = []
                 for _ in range(min(len(queue), self.max_workers * 2)):
-                    if recursive and len(visited) >= max_pages: break
+                    if recursive and max_pages is not None and len(visited) >= max_pages: break
                     url = queue.pop()
                     if url not in visited:
                         batch.append(url)

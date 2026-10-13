@@ -6,7 +6,7 @@ from tqdm.auto import tqdm
 from sentence_transformers import SentenceTransformer
 from dotenv import load_dotenv
 from app.data_ingestion.utils.logger import setup_logger
-from app.services.supabase_client import get_supabase_client
+from app.services.supabase_client import get_supabase_client, execute_with_retry
 
 logger = setup_logger("embedder", "embedder.log")
 
@@ -100,11 +100,11 @@ class SupabaseEmbedder:
                     "chunk_count": len(doc_info["chunks"])
                 }
                 
-                doc_res = self.supabase.table("documents").upsert(
-                    doc_payload, on_conflict="source_url"
-                ).execute()
+                def _upsert_doc(client):
+                    return client.table("documents").upsert(doc_payload, on_conflict="source_url").execute()
+                doc_res = execute_with_retry(_upsert_doc, max_retries=3)
                 
-                if not doc_res.data or len(doc_res.data) == 0:
+                if not doc_res or not doc_res.data or len(doc_res.data) == 0:
                     logger.error(f"Không thể upsert document cho '{source_url}'")
                     continue
                     
@@ -112,11 +112,13 @@ class SupabaseEmbedder:
                 stats["added_or_updated_docs"] += 1
                 
                 # 2. Xóa các bản ghi cũ của document_id (document_parents & document_chunks)
-                try:
-                    self.supabase.table("document_parents").delete().eq("document_id", document_id).execute()
-                except Exception:
-                    pass
-                self.supabase.table("document_chunks").delete().eq("document_id", document_id).execute()
+                def _delete_old_records(client):
+                    try:
+                        client.table("document_parents").delete().eq("document_id", document_id).execute()
+                    except Exception:
+                        pass
+                    client.table("document_chunks").delete().eq("document_id", document_id).execute()
+                execute_with_retry(_delete_old_records, max_retries=3)
                 
                 # 3. Nạp document_parents và lập bản đồ parent_id (Local MD5 -> Database UUID)
                 parent_id_map = {}
@@ -135,12 +137,16 @@ class SupabaseEmbedder:
                             "metadata": meta_cleaned
                         })
                     
-                    # Insert parents in batches of 50
-                    for pb in range(0, len(parent_records), 50):
-                        pb_records = parent_records[pb:pb+50]
-                        pb_orig = doc_parents[pb:pb+50]
-                        p_res = self.supabase.table("document_parents").insert(pb_records).execute()
-                        if p_res.data:
+                    # Insert parents in batches of 25 with automatic retry
+                    for pb in range(0, len(parent_records), 25):
+                        pb_records = parent_records[pb:pb+25]
+                        pb_orig = doc_parents[pb:pb+25]
+                        
+                        def _insert_parents(client, recs=pb_records):
+                            return client.table("document_parents").insert(recs).execute()
+                            
+                        p_res = execute_with_retry(_insert_parents, max_retries=3)
+                        if p_res and p_res.data:
                             for p_db, p_item in zip(p_res.data, pb_orig):
                                 parent_id_map[p_item.get("parent_id")] = p_db["id"]
                                 stats["parent_sections"] += 1
@@ -169,11 +175,15 @@ class SupabaseEmbedder:
                         "tokens_count": tokens_count
                     })
                     
-                # 5. Bulk Insert Chunks in batches of 100
-                batch_size = 100
+                # 5. Bulk Insert Chunks in smaller batches of 25 (tránh HTTP WriteTimeout do payload quá nặng)
+                batch_size = 25
                 for i in range(0, len(chunk_records), batch_size):
                     batch = chunk_records[i:i+batch_size]
-                    self.supabase.table("document_chunks").insert(batch).execute()
+                    
+                    def _insert_chunks(client, b=batch):
+                        return client.table("document_chunks").insert(b).execute()
+                        
+                    execute_with_retry(_insert_chunks, max_retries=3)
                     
                 stats["embedded_chunks"] += len(chunk_records)
                 

@@ -5,13 +5,20 @@ import hashlib
 from typing import List, Dict, Tuple
 
 class HybridChunker:
-    def __init__(self, max_child_size: int = 600, overlap: int = 100):
+    def __init__(
+        self,
+        max_child_size: int = 600,
+        overlap: int = 100,
+        max_parent_tokens: int = 1200
+    ):
         """
         :param max_child_size: Maximum character length of a child chunk.
         :param overlap: Character overlap between text child chunks.
+        :param max_parent_tokens: Giới hạn token tối đa cho 1 parent chunk (mặc định 1200 tokens).
         """
         self.max_child_size = max_child_size
         self.overlap = overlap
+        self.max_parent_tokens = max_parent_tokens
 
     def extract_frontmatter(self, text: str) -> Tuple[Dict, str]:
         """Extract YAML frontmatter and return (metadata, remaining_text)"""
@@ -40,48 +47,181 @@ class HybridChunker:
             
         return metadata, text
 
+    def estimate_tokens(self, text: str) -> int:
+        """Ước lượng số token của văn bản (dựa trên số từ hoặc ký tự)."""
+        if not text:
+            return 0
+        word_count = len(text.split())
+        char_count = len(text) // 4
+        return max(word_count, char_count)
+
+    def _split_by_paragraphs(self, text: str, max_tokens: int = None) -> List[str]:
+        """
+        Cơ chế Fallback Chunking cho Parent:
+        Bẻ nhỏ văn bản vượt quá max_parent_tokens theo ranh giới đoạn văn (\n\n),
+        đảm bảo không cắt cụt giữa các đoạn văn nếu kích thước còn cho phép.
+        Nếu một đoạn văn đơn lẻ vượt quá max_tokens, chia tiếp theo dòng đơn (\n).
+        """
+        if max_tokens is None:
+            max_tokens = self.max_parent_tokens
+
+        paragraphs = text.split("\n\n")
+        chunks = []
+        current = []
+
+        for p in paragraphs:
+            p_str = p.strip()
+            if not p_str:
+                continue
+
+            cand = "\n\n".join(current + [p_str])
+            # Nếu thêm đoạn này vào bị vượt quá max_tokens
+            if self.estimate_tokens(cand) > max_tokens and current:
+                chunks.append("\n\n".join(current))
+                current = []
+
+            # Nếu bản thân đoạn p_str đã vượt max_tokens (ví dụ bảng dài hoặc đoạn văn siêu dài)
+            if self.estimate_tokens(p_str) > max_tokens:
+                lines = p_str.split("\n")
+                line_chunk = []
+                for l in lines:
+                    cand_l = "\n".join(line_chunk + [l])
+                    if self.estimate_tokens(cand_l) > max_tokens and line_chunk:
+                        chunks.append("\n".join(line_chunk))
+                        line_chunk = []
+                    if self.estimate_tokens(l) > max_tokens:
+                        if line_chunk:
+                            chunks.append("\n".join(line_chunk))
+                            line_chunk = []
+                        words = l.split()
+                        for s in range(0, len(words), max_tokens):
+                            slice_str = " ".join(words[s:s+max_tokens])
+                            if slice_str:
+                                chunks.append(slice_str)
+                    else:
+                        line_chunk.append(l)
+                if line_chunk:
+                    chunks.append("\n".join(line_chunk))
+            else:
+                current.append(p_str)
+
+        if current:
+            chunks.append("\n\n".join(current))
+
+        return chunks
+
     def extract_parent_chunks(self, text: str, global_metadata: Dict) -> List[Dict]:
         """
         Bước 2: Cắt text thành các Parent Chunks dựa trên Markdown Header.
+        Nếu một section vượt quá max_parent_tokens (> 1200 tokens), chỉ khi đó
+        mới kích hoạt regex nhận diện heading bổ trợ (số La Mã / in đậm)
+        và cơ chế Fallback Chunking theo đoạn văn (\n\n).
         """
         parents = []
-        # Tách dựa trên header (để giữ nguyên header delimiter trong mảng kết quả, hỗ trợ cấp 1 đến 6)
+        # Tách dựa trên header chuẩn Markdown (# đến ######)
         sections = re.split(r'(^#{1,6}\s+.+$)', text, flags=re.MULTILINE)
-        
+
         current_headers = []
-        
+        initial_sections = []
+
         # Text trước khi có bất kỳ header nào
         if sections[0].strip():
-            parent_id = hashlib.md5((global_metadata['source_url'] + sections[0].strip()[:50]).encode('utf-8')).hexdigest()
-            parents.append({
-                "parent_id": parent_id,
-                "text": sections[0].strip(),
-                "metadata": {**global_metadata, "headers": []}
-            })
-            
+            initial_sections.append(([], sections[0].strip()))
+
         for i in range(1, len(sections), 2):
             header = sections[i].strip()
             content = sections[i+1].strip() if i+1 < len(sections) else ""
-            
+
             header_level = len(re.match(r'^(#+)', header).group(1))
             current_headers = [h for h in current_headers if len(re.match(r'^(#+)', h).group(1)) < header_level]
             current_headers.append(header)
-            
-            # Nếu phần thân trống (chỉ là tiêu đề cụm cấp cao, ví dụ ### QUY ĐỊNH), 
-            # bỏ qua không tạo parent rỗng nhưng vẫn giữ trong current_headers
+
             if not content:
                 continue
-                
+
             full_section = f"{header}\n{content}".strip()
             if not full_section:
                 continue
-                
-            parent_id = hashlib.md5((global_metadata['source_url'] + header + content[:50]).encode('utf-8')).hexdigest()
-            parents.append({
-                "parent_id": parent_id,
-                "text": full_section,
-                "metadata": {**global_metadata, "headers": list(current_headers)}
-            })
+
+            initial_sections.append((list(current_headers), full_section))
+
+        # Secondary regex cho heading bổ trợ: số La Mã và in đậm
+        # Ví dụ: **I. Nguyên tắc chung**, **1. Phương thức xét tuyển**
+        secondary_pattern = re.compile(r'(^\*\*(?:[IVXLCDMivxlcdm]+|[0-9]+)\..+\*\*)', flags=re.MULTILINE)
+
+        for headers, sec_text in initial_sections:
+            # KIỂM TRA ĐỘ DÀI: Chỉ khi vượt quá max_parent_tokens (1200 tokens) mới kích hoạt tách phụ bằng regex
+            if self.estimate_tokens(sec_text) <= self.max_parent_tokens:
+                # Dưới ngưỡng: Giữ nguyên vẹn section ban đầu
+                header_key = headers[-1] if headers else ""
+                parent_id = hashlib.md5((global_metadata['source_url'] + header_key + sec_text[:50]).encode('utf-8')).hexdigest()
+                parents.append({
+                    "parent_id": parent_id,
+                    "text": sec_text,
+                    "metadata": {**global_metadata, "headers": list(headers)}
+                })
+            else:
+                # VƯỢT QUÁ 1200 TOKENS: Sử dụng secondary regex để bóc tách heading phụ
+                sub_splits = secondary_pattern.split(sec_text)
+
+                if len(sub_splits) > 1:
+                    # Tìm thấy các heading phụ
+                    # sub_splits[0] là preamble trước heading phụ đầu tiên
+                    preamble = sub_splits[0].strip()
+                    if preamble:
+                        if self.estimate_tokens(preamble) > self.max_parent_tokens:
+                            for idx, sub_txt in enumerate(self._split_by_paragraphs(preamble)):
+                                pid = hashlib.md5((global_metadata['source_url'] + (headers[-1] if headers else "") + f"_pre_{idx}_" + sub_txt[:50]).encode('utf-8')).hexdigest()
+                                parents.append({
+                                    "parent_id": pid,
+                                    "text": sub_txt,
+                                    "metadata": {**global_metadata, "headers": list(headers)}
+                                })
+                        else:
+                            pid = hashlib.md5((global_metadata['source_url'] + (headers[-1] if headers else "") + "_pre_" + preamble[:50]).encode('utf-8')).hexdigest()
+                            parents.append({
+                                "parent_id": pid,
+                                "text": preamble,
+                                "metadata": {**global_metadata, "headers": list(headers)}
+                            })
+
+                    for j in range(1, len(sub_splits), 2):
+                        sub_header = sub_splits[j].strip()
+                        sub_content = sub_splits[j+1].strip() if j+1 < len(sub_splits) else ""
+                        sub_full = f"{sub_header}\n{sub_content}".strip()
+                        sub_headers = list(headers) + [sub_header]
+
+                        # Nếu sau khi tách theo heading phụ mà section vẫn vượt quá max_parent_tokens
+                        if self.estimate_tokens(sub_full) > self.max_parent_tokens:
+                            header_tokens = self.estimate_tokens(sub_header)
+                            content_limit = max(10, self.max_parent_tokens - header_tokens - 1)
+                            content_chunks = self._split_by_paragraphs(sub_content, max_tokens=content_limit) if sub_content else [sub_header]
+                            for idx, sub_txt in enumerate(content_chunks):
+                                sub_chunk_text = f"{sub_header}\n{sub_txt}".strip() if sub_content else sub_txt
+                                pid = hashlib.md5((global_metadata['source_url'] + sub_header + f"_{idx}_" + sub_txt[:50]).encode('utf-8')).hexdigest()
+                                parents.append({
+                                    "parent_id": pid,
+                                    "text": sub_chunk_text,
+                                    "metadata": {**global_metadata, "headers": list(sub_headers)}
+                                })
+                        else:
+                            pid = hashlib.md5((global_metadata['source_url'] + sub_header + sub_full[:50]).encode('utf-8')).hexdigest()
+                            parents.append({
+                                "parent_id": pid,
+                                "text": sub_full,
+                                "metadata": {**global_metadata, "headers": list(sub_headers)}
+                            })
+                else:
+                    # Vượt quá 1200 tokens nhưng KHÔNG tìm thấy secondary heading nào:
+                    # Kích hoạt Fallback Chunking theo đoạn văn (\n\n)
+                    for idx, sub_txt in enumerate(self._split_by_paragraphs(sec_text)):
+                        header_key = headers[-1] if headers else ""
+                        pid = hashlib.md5((global_metadata['source_url'] + header_key + f"_fb_{idx}_" + sub_txt[:50]).encode('utf-8')).hexdigest()
+                        parents.append({
+                            "parent_id": pid,
+                            "text": sub_txt,
+                            "metadata": {**global_metadata, "headers": list(headers)}
+                        })
             
         return parents
 

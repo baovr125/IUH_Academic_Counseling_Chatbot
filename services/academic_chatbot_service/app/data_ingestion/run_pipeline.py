@@ -2,11 +2,16 @@ import os
 import json
 import argparse
 from urllib.parse import urlparse
+from dotenv import load_dotenv
+
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../.."))
+load_dotenv(os.path.join(PROJECT_ROOT, ".env"))
+load_dotenv()
+
 from app.data_ingestion.utils.logger import setup_logger
 from app.data_ingestion.extractors.url_extractor import URLExtractor
 from app.data_ingestion.crawlers.content_crawler import ContentCrawler
-
-PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../.."))
+from app.services.supabase_client import get_supabase_client
 REPO_DATA_DIR = os.path.join(PROJECT_ROOT, "data", "ingestion")
 DATA_DIR = os.getenv("DATA_INGESTION_DIR", REPO_DATA_DIR if os.path.exists(REPO_DATA_DIR) else os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data"))
 URL_LIST_FILE = os.path.join(DATA_DIR, "urls.json")
@@ -27,11 +32,17 @@ def run_extraction():
     iuh_thong_bao = extractor.extract_from_category("https://iuh.edu.vn/vi/thong-bao.html", max_pages=10)
     all_urls.update(iuh_thong_bao)
     
-    iuh_static = extractor.extract_from_bfs("https://iuh.edu.vn/", max_depth=0)
+    iuh_static = extractor.extract_from_bfs("https://iuh.edu.vn/", max_depth=2)
     all_urls.update(iuh_static)
     
-    camnang_bfs = extractor.extract_from_bfs("https://camnang.iuh.edu.vn/", max_depth=10)
+    camnang_bfs = extractor.extract_from_bfs("https://camnang.iuh.edu.vn/", max_depth=5)
     all_urls.update(camnang_bfs)
+    
+    ctsv_bfs = extractor.extract_from_bfs("https://ctsv.iuh.edu.vn/", max_depth=4)
+    all_urls.update(ctsv_bfs)
+    
+    csm_bfs = extractor.extract_from_bfs("https://csm.iuh.edu.vn/", max_depth=3)
+    all_urls.update(csm_bfs)
     
     tuyensinh_urls = [
         "https://tuyensinh.iuh.edu.vn/quyChe",
@@ -71,9 +82,70 @@ def run_crawling(urls=None):
             urls = json.load(f)
             
     crawler = ContentCrawler(output_dir=MARKDOWN_DIR, max_workers=5)
-    crawler.run_crawl(urls)
+    crawler.run_crawl(urls, recursive=False, max_pages=None)
 
 from app.data_ingestion.chunkers.hybrid_chunker import HybridChunker
+
+def reset_database(clear_cache: bool = True) -> bool:
+    """Xóa sạch dữ liệu cũ trong Supabase (documents, document_parents, document_chunks, semantic_cache)"""
+    logger.info("========== ĐANG XÓA TOÀN BỘ CƠ SỞ DỮ LIỆU CŨ TRÊN SUPABASE ==========")
+    supabase = get_supabase_client()
+    if not supabase:
+        logger.error("Không thể kết nối Supabase! Vui lòng kiểm tra SUPABASE_URL và SUPABASE_KEY trong .env")
+        return False
+        
+    try:
+        logger.info("1/4. Đang xóa dữ liệu bảng document_chunks...")
+        supabase.table("document_chunks").delete().neq("id", "00000000-0000-0000-0000-000000000000").execute()
+        
+        logger.info("2/4. Đang xóa dữ liệu bảng document_parents...")
+        supabase.table("document_parents").delete().neq("id", "00000000-0000-0000-0000-000000000000").execute()
+        
+        logger.info("3/4. Đang xóa dữ liệu bảng documents...")
+        supabase.table("documents").delete().neq("id", "00000000-0000-0000-0000-000000000000").execute()
+        
+        if clear_cache:
+            try:
+                logger.info("4/4. Đang xóa dữ liệu bảng semantic_cache...")
+                supabase.table("semantic_cache").delete().neq("id", "00000000-0000-0000-0000-000000000000").execute()
+            except Exception as ce:
+                logger.warning(f"Bỏ qua xóa semantic_cache: {ce}")
+                
+        logger.info("✅ ĐÃ XÓA SẠCH DỮ LIỆU CSDL CŨ TRÊN SUPABASE THÀNH CÔNG!")
+        return True
+    except Exception as e:
+        logger.exception(f"Lỗi khi xóa dữ liệu trên Supabase: {e}")
+        return False
+
+def clean_local_cache():
+    """Dọn dẹp thư mục staging markdown và các file cache json cục bộ để cào mới từ đầu"""
+    logger.info("========== ĐANG DỌN DẸP CACHE VÀ STAGING LOCAL ==========")
+    import shutil
+    if os.path.exists(MARKDOWN_DIR):
+        try:
+            shutil.rmtree(MARKDOWN_DIR)
+            os.makedirs(MARKDOWN_DIR, exist_ok=True)
+        except PermissionError as pe:
+            logger.error(
+                f"❌ Lỗi phân quyền khi xóa {MARKDOWN_DIR}: {pe}\n"
+                f"👉 Một số file PDF/MD do Docker hoặc tiến trình root tạo ra. Vui lòng chạy lệnh sau trên terminal:\n"
+                f"   sudo chown -R $USER:$USER /home/anhhao/workSpace/IUH_Academic_Counseling_Chatbot/data/ingestion"
+            )
+            raise
+    
+    files_to_remove = [
+        CHILDREN_FILE,
+        os.path.join(DATA_DIR, "parents.json"),
+        os.path.join(DATA_DIR, "mock_supabase_state.json")
+    ]
+    for fp in files_to_remove:
+        if os.path.exists(fp):
+            try:
+                os.remove(fp)
+                logger.info(f"Đã xóa file tạm: {fp}")
+            except PermissionError:
+                logger.warning(f"Không thể xóa {fp} do thiếu quyền sở hữu.")
+    logger.info("✅ ĐÃ DỌN DẸP SẠCH LOCAL STAGING DIR!")
 
 def run_chunking():
     logger.info("========== BƯỚC 2: CẮT NHỎ MARKDOWN (CHUNKING) ==========")
@@ -81,7 +153,7 @@ def run_chunking():
         logger.error(f"Thư mục {MARKDOWN_DIR} trống. Vui lòng chạy bước cào (crawl) trước!")
         return []
         
-    chunker = HybridChunker(max_child_size=600, overlap=100)
+    chunker = HybridChunker(max_child_size=600, overlap=100, max_parent_tokens=1200)
     parents, children = chunker.process_directory(MARKDOWN_DIR)
 
     # --- DEDUPLICATION AT INDEX TIME ---
@@ -127,11 +199,26 @@ def run_embedding():
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="IUH Academic Counseling Data Pipeline")
-    parser.add_argument('--step', type=str, choices=['all', 'extract', 'crawl', 'chunk', 'embed'], default='all',
-                        help='Chọn bước để chạy (all, extract, crawl, chunk, embed)')
+    parser.add_argument('--step', type=str, choices=['all', 'extract', 'crawl', 'chunk', 'embed', 'reset'], default='all',
+                        help='Chọn bước để chạy (all, extract, crawl, chunk, embed, reset)')
+    parser.add_argument('--reset-db', action='store_true',
+                        help='Xóa sạch dữ liệu cũ trong Supabase (documents, document_parents, document_chunks, semantic_cache) trước khi chạy')
+    parser.add_argument('--clean-local', action='store_true',
+                        help='Xóa sạch staging_markdown và mock_supabase_state.json để cào mới hoàn toàn từ web')
     args = parser.parse_args()
 
     logger.info(f"BẮT ĐẦU CHẠY PIPELINE (Chế độ: {args.step.upper()})...")
+    
+    # 1. Reset CSDL nếu được yêu cầu hoặc nếu step == 'reset'
+    if args.reset_db or args.step == 'reset':
+        reset_database()
+        if args.step == 'reset':
+            logger.info("✅ Hoàn tất thao tác xóa CSDL!")
+            exit(0)
+            
+    # 2. Xóa local staging nếu được yêu cầu
+    if args.clean_local:
+        clean_local_cache()
     
     urls = []
     if args.step in ['all', 'extract']:
