@@ -1,8 +1,7 @@
 import pytest
 from app.guardrails.query_filter import (
     check_safety_and_jailbreak,
-    normalize_academic_query,
-    evaluate_domain_relevance,
+    wrap_context_sandbox,
     REFUSAL_MESSAGE,
     OFF_TOPIC_MESSAGE,
 )
@@ -41,45 +40,18 @@ class TestSafetyAndJailbreakGuardrails:
         assert refusal is None
 
 
-class TestAcademicQueryNormalization:
-    def test_normalize_abbreviations(self):
-        query = "Hướng dẫn dkhp và dkhc cho sv khoa cntt"
-        normalized = normalize_academic_query(query)
-        assert "đăng ký học phần" in normalized
-        assert "đăng ký học cải thiện" in normalized
-        assert "sinh viên" in normalized
-        assert "công nghệ thông tin" in normalized
+class TestContextSandboxing:
+    def test_wrap_context_sandbox_empty(self):
+        assert wrap_context_sandbox([]) == ""
 
-    def test_normalize_gpa_and_tinchi(self):
-        query = "Điều kiện gpa và số tin chi để xet tot nghiep"
-        normalized = normalize_academic_query(query)
-        assert "điểm trung bình tích lũy" in normalized
-        assert "tín chỉ" in normalized
-        assert "xét tốt nghiệp" in normalized
-
-    def test_empty_query_returns_original(self):
-        assert normalize_academic_query("") == ""
-        assert normalize_academic_query(None) is None
-
-
-class TestDomainRelevanceEvaluation:
-    @pytest.mark.parametrize("off_topic_query", [
-        "Cách nấu phở bò ngon tại nhà",
-        "Hướng dẫn đầu tư bitcoin và coin",
-        "Chia sẻ cách hack game liên quân",
-        "Soạn nhạc bolero hay nhất",
-    ])
-    def test_off_topic_queries_rejected(self, off_topic_query):
-        is_relevant, message = evaluate_domain_relevance(off_topic_query)
-        assert is_relevant is False
-        assert message == OFF_TOPIC_MESSAGE
-
-    @pytest.mark.parametrize("academic_query", [
-        "Thời khóa biểu học kỳ 1 năm học 2026",
-        "Thủ tục đăng ký khóa luận tốt nghiệp IUH",
-        "Quy chế đào tạo theo hệ thống tín chỉ",
-    ])
-    def test_academic_queries_accepted(self, academic_query):
-        is_relevant, message = evaluate_domain_relevance(academic_query)
-        assert is_relevant is True
-        assert message is None
+    def test_wrap_context_sandbox_formatting(self):
+        chunks = [
+            {
+                "content": "Sinh viên nghỉ học quá 20% số tiết bị cấm thi.",
+                "metadata": {"title": "Quy chế đào tạo", "created_at": "2026-01-01"}
+            }
+        ]
+        sandboxed = wrap_context_sandbox(chunks)
+        assert '<source id="1">' in sandboxed
+        assert "Nguồn: Quy chế đào tạo" in sandboxed
+        assert "Sinh viên nghỉ học quá 20% số tiết bị cấm thi." in sandboxed

@@ -11,6 +11,26 @@ def _strip_thinking_tags(text: str) -> str:
     """Removes <thinking>...</thinking> blocks and trailing whitespace from a completed text."""
     return re.sub(r'<thinking>.*?</thinking>\s*', '', text, flags=re.DOTALL)
 
+def parse_self_reflection(text: str) -> dict:
+    """
+    Extracts Self-RAG reflection tags (<doc_relevance>, <conflict_detected>, <answer_confidence>)
+    from the model's <thinking> block for observability and cache gating.
+    """
+    if not text:
+        return {"doc_relevance": "UNKNOWN", "conflict_detected": "UNKNOWN", "answer_confidence": "UNKNOWN"}
+    thinking_match = re.search(r'<thinking>(.*?)</thinking>', text, re.DOTALL)
+    if not thinking_match:
+        return {"doc_relevance": "UNKNOWN", "conflict_detected": "UNKNOWN", "answer_confidence": "UNKNOWN"}
+    content = thinking_match.group(1)
+    doc_rel = re.search(r'<doc_relevance>\s*(\w+)\s*</doc_relevance>', content, re.IGNORECASE)
+    conflict = re.search(r'<conflict_detected>\s*(\w+)\s*</conflict_detected>', content, re.IGNORECASE)
+    confidence = re.search(r'<answer_confidence>\s*(\w+)\s*</answer_confidence>', content, re.IGNORECASE)
+    return {
+        "doc_relevance": doc_rel.group(1).upper() if doc_rel else "UNKNOWN",
+        "conflict_detected": conflict.group(1).upper() if conflict else "UNKNOWN",
+        "answer_confidence": confidence.group(1).upper() if confidence else "UNKNOWN",
+    }
+
 from app.services.llm_providers import get_llm_provider
 
 from app.schemas.chat import ChatMessage, SendMessagePayload, ApiResult
@@ -192,7 +212,7 @@ async def process_chat_message(
                     generated_text += text
         except Exception as e:
             logger.exception(f"Error collecting LLM stream: {e}")
-            generated_text = f"⚠️ Lỗi AI: {e}"
+            return ApiResult(ok=False, error={"message": f"Đã xảy ra lỗi AI: {e}"})
 
         latency_ms = int((time.perf_counter() - start_time) * 1000)
 
@@ -214,19 +234,20 @@ async def process_chat_message(
                 _rm = router_model if 'router_model' in locals() else "Unknown"
                 _lm = provider.last_used_model if 'provider' in locals() else "Unknown"
                 
+                reflection = parse_self_reflection(generated_text)
                 asyncio.create_task(write_full_rag_log_to_md(
                     clean_session_id, normalized_query, retrieval_query, rag_data['chunks'], rag_data['past_memories'],
                     _rlat, _rl, _ll, _pt, _ct, generated_text, _rm, _lm, intent,
-                    need_retrieval=True, router_reason=router_reason, sub_queries=queries
+                    need_retrieval=True, router_reason=router_reason, sub_queries=queries,
+                    self_reflection=reflection
                 ))
         except Exception as _e:
             logger.error(f"Failed to write full markdown log: {_e}")
 
         assistant_message = _build_assistant_message(generated_text, citations)
 
-        # Trigger async cache write-back in background so the user doesn't wait for it
-        if not generated_text.startswith("⚠️"):
-            asyncio.create_task(async_cache_writeback(retrieval_query, generated_text, top_doc_score, query_embedding))
+        # Trigger async cache write-back in background (quality validation handled internally by async_cache_writeback)
+        asyncio.create_task(async_cache_writeback(retrieval_query, generated_text, top_doc_score, query_embedding))
 
         return ApiResult(
             ok=True,
@@ -521,28 +542,31 @@ async def process_chat_message_stream(
                 _sqs = queries if 'queries' in locals() else []
                 _pq = primary_query if 'primary_query' in locals() else normalized_query
 
+                reflection = parse_self_reflection(accumulated_text)
                 if 'rag_data' in locals() and rag_data:
                     _rlat = rag_data.get('retrieval_latency_ms', 0)
                     asyncio.create_task(write_full_rag_log_to_md(
                         clean_session_id, normalized_query, _pq, rag_data['chunks'], rag_data['past_memories'],
                         _rlat, _rl, _ll, _pt, _ct, accumulated_text, _rm, _lm, intent,
-                        need_retrieval=True, router_reason=_rr, sub_queries=_sqs
+                        need_retrieval=True, router_reason=_rr, sub_queries=_sqs,
+                        self_reflection=reflection
                     ))
                 elif not _nr:
                     asyncio.create_task(write_full_rag_log_to_md(
                         clean_session_id, normalized_query, _pq, [], [],
                         0, _rl, _ll, _pt, _ct, accumulated_text, _rm, _lm, intent,
-                        need_retrieval=False, router_reason=_rr, sub_queries=_sqs
+                        need_retrieval=False, router_reason=_rr, sub_queries=_sqs,
+                        self_reflection=reflection
                     ))
             except Exception as _e:
                 logger.error(f"Failed to write full markdown log: {_e}")
             
-            # Trigger async cache write-back ONLY when retrieval was needed and successful
-            if not accumulated_text.startswith("⚠️") and ('need_retrieval' in locals() and need_retrieval):
+            # Trigger async cache write-back if retrieval was needed (quality validation handled internally by async_cache_writeback)
+            if 'need_retrieval' in locals() and need_retrieval:
                 _rq = primary_query if 'primary_query' in locals() else ""
                 _tds = top_doc_score if 'top_doc_score' in locals() else 0.0
                 _qe = query_embedding if 'query_embedding' in locals() else None
-                if _rq and _qe and _tds >= 0.25:
+                if _rq:
                     asyncio.create_task(async_cache_writeback(_rq, accumulated_text, _tds, _qe))
 
 # --- Helper Methods ---

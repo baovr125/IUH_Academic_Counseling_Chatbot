@@ -114,7 +114,7 @@ def _write_cache_hit_log(session_id: str, original_query: str, rewritten_query: 
 async def log_cache_hit_to_md(session_id: str, original_query: str, rewritten_query: str, cache_hit_data: dict, latency_ms: int, router_model: str = "Unknown", intent: str = "Unknown") -> str:
     return await asyncio.to_thread(_write_cache_hit_log, session_id, original_query, rewritten_query, cache_hit_data, latency_ms, router_model, intent)
 
-def _write_full_log(session_id: str, original_query: str, rewritten_query: str, chunks: list, past_memories: list, retrieval_latency_ms: int, rewrite_latency_ms: int, llm_latency_ms: int, prompt_tokens: int, completion_tokens: int, ai_answer: str, router_model: str = "Unknown", llm_model: str = "Unknown", intent: str = "Unknown", need_retrieval: bool = True, router_reason: str = "", sub_queries: list = None) -> str:
+def _write_full_log(session_id: str, original_query: str, rewritten_query: str, chunks: list, past_memories: list, retrieval_latency_ms: int, rewrite_latency_ms: int, llm_latency_ms: int, prompt_tokens: int, completion_tokens: int, ai_answer: str, router_model: str = "Unknown", llm_model: str = "Unknown", intent: str = "Unknown", need_retrieval: bool = True, router_reason: str = "", sub_queries: list = None, self_reflection: dict = None) -> str:
     now = datetime.now()
     date_str = now.strftime("%Y-%m-%d")
     time_str = now.strftime("%H%M%S")
@@ -155,6 +155,26 @@ def _write_full_log(session_id: str, original_query: str, rewritten_query: str, 
                 f.write(f"- **Completion Tokens:** {completion_tokens}\n")
                 f.write(f"- **Total Tokens:** {prompt_tokens + completion_tokens}\n")
             f.write("\n---\n\n")
+
+            if self_reflection:
+                doc_rel = self_reflection.get("doc_relevance", "N/A")
+                conf_det = self_reflection.get("conflict_detected", "N/A")
+                ans_conf = self_reflection.get("answer_confidence", "N/A")
+                f.write("## Self-RAG Reflection\n\n")
+                f.write(f"- **Doc Relevance (ISREL):** `{doc_rel}`\n")
+                f.write(f"- **Conflict Detected:** `{conf_det}`\n")
+                f.write(f"- **Answer Confidence (ISSUP):** `{ans_conf}`\n\n")
+                if conf_det == "YES":
+                    f.write("> [!WARNING] **MÂU THUẪN QUY CHẾ (CF-RAG)**: Phát hiện mâu thuẫn thông tin giữa các tài liệu trong CSDL được truy xuất.\n\n")
+                    try:
+                        conflict_dir = os.path.join(base_log, "conflicts")
+                        os.makedirs(conflict_dir, exist_ok=True)
+                        conflict_file = os.path.join(conflict_dir, f"{date_str}.md")
+                        with open(conflict_file, "a", encoding="utf-8") as cf:
+                            cf.write(f"- **[{time_str}]** Session `{session_id}` | Query: *\"{original_query}\"* | Log: `[{file_name}](../{date_str}/{file_name})`\n")
+                    except Exception:
+                        pass
+                f.write("---\n\n")
             
             f.write("## AI Answer & Thinking Stage\n\n")
             f.write(ai_answer + "\n\n---\n\n")
@@ -201,8 +221,8 @@ def _write_full_log(session_id: str, original_query: str, rewritten_query: str, 
         print(f"Error writing full log: {e}")
         return ""
 
-async def write_full_rag_log_to_md(session_id: str, original_query: str, rewritten_query: str, chunks: list, past_memories: list, retrieval_latency_ms: int, rewrite_latency_ms: int, llm_latency_ms: int, prompt_tokens: int, completion_tokens: int, ai_answer: str, router_model: str = "Unknown", llm_model: str = "Unknown", intent: str = "Unknown", need_retrieval: bool = True, router_reason: str = "", sub_queries: list = None) -> str:
-    return await asyncio.to_thread(_write_full_log, session_id, original_query, rewritten_query, chunks, past_memories, retrieval_latency_ms, rewrite_latency_ms, llm_latency_ms, prompt_tokens, completion_tokens, ai_answer, router_model, llm_model, intent, need_retrieval, router_reason, sub_queries)
+async def write_full_rag_log_to_md(session_id: str, original_query: str, rewritten_query: str, chunks: list, past_memories: list, retrieval_latency_ms: int, rewrite_latency_ms: int, llm_latency_ms: int, prompt_tokens: int, completion_tokens: int, ai_answer: str, router_model: str = "Unknown", llm_model: str = "Unknown", intent: str = "Unknown", need_retrieval: bool = True, router_reason: str = "", sub_queries: list = None, self_reflection: dict = None) -> str:
+    return await asyncio.to_thread(_write_full_log, session_id, original_query, rewritten_query, chunks, past_memories, retrieval_latency_ms, rewrite_latency_ms, llm_latency_ms, prompt_tokens, completion_tokens, ai_answer, router_model, llm_model, intent, need_retrieval, router_reason, sub_queries, self_reflection)
 
 def _write_blocked_log(session_id: str, original_query: str, block_reason: str, block_source: str, ai_answer: str) -> str:
     now = datetime.now()

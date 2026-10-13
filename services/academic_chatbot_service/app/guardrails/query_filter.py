@@ -53,9 +53,14 @@ def wrap_context_sandbox(chunks: list) -> str:
         
         # Trích xuất các metadata hữu ích cho CF-RAG
         title = metadata.get("title", "")
-        upload_time = metadata.get("created_at") or metadata.get("upload_time", "Không rõ")
+        upload_time = metadata.get("created_at") or metadata.get("upload_time")
         
-        meta_str = f"Nguồn: {title}\nNgày cập nhật lên CSDL: {upload_time}\n" if title else f"Ngày cập nhật lên CSDL: {upload_time}\n"
+        meta_lines = []
+        if title:
+            meta_lines.append(f"Nguồn: {title}")
+        if upload_time:
+            meta_lines.append(f"Ngày cập nhật lên CSDL: {upload_time}")
+        meta_str = "\n".join(meta_lines) + "\n" if meta_lines else ""
         
         formatted_parts.append(f'<source id="{idx}">\n{meta_str}{content}\n</source>')
     body = "\n\n".join(formatted_parts)

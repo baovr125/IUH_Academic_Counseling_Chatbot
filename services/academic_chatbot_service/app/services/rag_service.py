@@ -261,38 +261,30 @@ async def async_cache_writeback(query_text: str, answer: str, top_doc_score: flo
     Validates LLM answer against RAG context and blocks bad responses from entering cache.
     """
     try:
-        # Rule 1: Relevance check
+        # Rule 1: Relevance check (blocks empty context or low-relevance retrievals)
         if top_doc_score < 0.25:
             logger.info(f"Cache writeback skipped: low top_doc_score {top_doc_score}")
             return
             
-        # Rule 2: Anti-Fallback check
-        fallback_phrases = [
-            "tôi không biết", 
-            "xin lỗi", 
-            "tôi chưa được cung cấp", 
-            "không tìm thấy tài liệu",
-            "không thể trả lời"
-        ]
-        answer_lower = answer.lower()
-        if any(phrase in answer_lower for phrase in fallback_phrases):
-            logger.info("Cache writeback skipped: fallback phrase detected")
-            return
-            
-        # Rule 3: Length check
-        if not (30 <= len(answer) <= 3000):
+        # Rule 2: Length check (blocks empty/truncated answers)
+        if not (10 <= len(answer) <= 3000):
             logger.info(f"Cache writeback skipped: invalid length {len(answer)}")
             return
             
-        # Rule 4: Self-RAG Confidence check
+        # Rule 3: Self-RAG Reflection check (NO hardcoding - dynamic model reflection)
         if "<answer_confidence>" in answer:
             import re
-            match = re.search(r'<answer_confidence>(.*?)</answer_confidence>', answer, re.IGNORECASE)
-            if match:
-                confidence = match.group(1).strip().upper()
-                if confidence != "HIGH":
-                    logger.info(f"Cache writeback skipped: Self-RAG confidence is {confidence}")
-                    return
+            match_conf = re.search(r'<answer_confidence>\s*(\w+)\s*</answer_confidence>', answer, re.IGNORECASE)
+            if match_conf and match_conf.group(1).strip().upper() != "HIGH":
+                logger.info(f"Cache writeback skipped: Self-RAG confidence is {match_conf.group(1)}")
+                return
+
+        if "<doc_relevance>" in answer:
+            import re
+            match_doc = re.search(r'<doc_relevance>\s*(\w+)\s*</doc_relevance>', answer, re.IGNORECASE)
+            if match_doc and match_doc.group(1).strip().upper() == "NO":
+                logger.info("Cache writeback skipped: Self-RAG doc_relevance is NO")
+                return
                     
         query_vector = query_embedding if query_embedding else await get_query_embedding(query_text)
         
@@ -352,6 +344,20 @@ async def invalidate_semantic_cache():
 # --- 2. Hybrid Retrieval & Multi-Query Reranking ---
 RERANKER_THRESHOLD: float = 0.10
 GOOD_SCORE_THRESHOLD: float = 0.65
+
+def get_adaptive_candidate_count(estimated_score: float = 0.5) -> int:
+    """
+    Self-RAG Dynamic Candidate Count:
+    Adjusts candidate retrieval count dynamically based on relevance quality:
+    - High quality (score >= 0.80): 30 candidates (accelerates reranker)
+    - Moderate quality (0.50 <= score < 0.80): 50 candidates (default balanced)
+    - Low/uncertain quality (score < 0.50): 70 candidates (high recall)
+    """
+    if estimated_score >= 0.80:
+        return 30
+    if estimated_score >= 0.50:
+        return 50
+    return 70
 
 async def retrieve_relevant_chunks_multi(
     queries: List[str], 
