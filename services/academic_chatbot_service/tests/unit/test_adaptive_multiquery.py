@@ -214,6 +214,116 @@ class TestAdaptiveMultiQueryQuotaAndThresholds:
             expected_score = 1 / (1 + math.exp(-1.8))
             assert math.isclose(dieu_8_item["rerank_score"], expected_score, rel_tol=1e-4)
 
+    @pytest.mark.asyncio
+    async def test_parent_aware_quota_prevents_sibling_starvation(self):
+        """
+        Kiểm tra cơ chế Parent-Aware Quota (Sự cố log 064717):
+        Khi có nhiều sibling child chunks thuộc cùng 1 parent (da443b12),
+        chúng không được chiếm hết quota và loại bỏ các parent quan trọng khác (2846fdfd).
+        Hệ thống phải đảm bảo lấy đủ tối thiểu 3 distinct parent sections.
+        """
+        chunks = [
+            {
+                "id": "c1",
+                "parent_id": "p-da443b12",
+                "content": "Chuẩn đầu ra mục 1",
+                "parent_content": "Section Chuẩn đầu ra...",
+                "metadata": {"title": "Chuẩn đầu ra ngoại ngữ"}
+            },
+            {
+                "id": "c2",
+                "parent_id": "p-da443b12",
+                "content": "Chuẩn đầu ra mục 2",
+                "parent_content": "Section Chuẩn đầu ra...",
+                "metadata": {"title": "Chuẩn đầu ra ngoại ngữ"}
+            },
+            {
+                "id": "c3",
+                "parent_id": "p-6e07f82e",
+                "content": "Chuẩn đầu vào",
+                "parent_content": "Section Chuẩn đầu vào...",
+                "metadata": {"title": "Chuẩn đầu vào ngoại ngữ"}
+            },
+            {
+                "id": "c4",
+                "parent_id": "p-2846fdfd",
+                "content": "Chương V: Quy chế tốt nghiệp & Chuẩn đầu ra Bậc 3",
+                "parent_content": "Section Chương V: Quy chế tốt nghiệp...",
+                "metadata": {"title": "Quy chế tốt nghiệp"}
+            },
+            {
+                "id": "c5",
+                "parent_id": "p-other",
+                "content": "Nội dung khác",
+                "parent_content": "Section khác...",
+                "metadata": {"title": "Quy chế khác"}
+            }
+        ]
+
+        # Raw scores ứng với: 0.6995, 0.6730, 0.6378, 0.6082, 0.5000
+        raw_scores = [0.845, 0.722, 0.566, 0.440, 0.0]
+
+        mock_supabase = MagicMock()
+        mock_reranker = MagicMock()
+        mock_reranker.predict.return_value = raw_scores
+
+        with patch("app.services.rag_service.get_supabase_client", return_value=mock_supabase), \
+             patch("app.services.rag_service.get_query_embedding", new_callable=AsyncMock, return_value=[0.1]*768), \
+             patch("app.services.rag_service.get_reranker", return_value=mock_reranker):
+
+            mock_supabase.rpc.return_value = MagicMock(execute=MagicMock(return_value=MagicMock(data=chunks)))
+
+            result, top_score = await retrieve_relevant_chunks_multi(["chuẩn tiếng anh đầu ra khóa 18"])
+
+            # Đảm bảo trả về đúng 3 distinct parent sections
+            assert len(result) == 3
+
+            parent_ids = [c.get("parent_id") for c in result]
+            assert "p-da443b12" in parent_ids
+            assert "p-6e07f82e" in parent_ids
+            assert "p-2846fdfd" in parent_ids  # Chương V không bị starve out!
+            assert "p-other" not in parent_ids
+
+            # Parent da443b12 có score là max giữa c1 và c2 (~0.6995)
+            p_da44 = next(c for c in result if c.get("parent_id") == "p-da443b12")
+            assert math.isclose(p_da44["rerank_score"], 1 / (1 + math.exp(-0.845)), rel_tol=1e-4)
+
+    @pytest.mark.asyncio
+    async def test_parent_aware_quota_multiple_good_parents(self):
+        """
+        Kiểm tra khi có nhiều distinct parents với điểm good (>= 0.65):
+        Hệ thống lấy tối đa max_per_query (6 cho 1 query) distinct parents
+        mà không bị các chunks con trùng parent lấn át.
+        """
+        chunks = [
+            {"id": "p1_c1", "parent_id": "p1", "content": "p1_1", "parent_content": "P1 full", "metadata": {}},
+            {"id": "p1_c2", "parent_id": "p1", "content": "p1_2", "parent_content": "P1 full", "metadata": {}},
+            {"id": "p2_c1", "parent_id": "p2", "content": "p2_1", "parent_content": "P2 full", "metadata": {}},
+            {"id": "p2_c2", "parent_id": "p2", "content": "p2_2", "parent_content": "P2 full", "metadata": {}},
+            {"id": "p3_c1", "parent_id": "p3", "content": "p3_1", "parent_content": "P3 full", "metadata": {}},
+            {"id": "p4_c1", "parent_id": "p4", "content": "p4_1", "parent_content": "P4 full", "metadata": {}},
+            {"id": "p5_c1", "parent_id": "p5", "content": "p5_1", "parent_content": "P5 full", "metadata": {}},
+        ]
+        # Tất cả đều có raw score = 1.0 (sigmoid = 0.731 >= 0.65)
+        raw_scores = [1.0] * len(chunks)
+
+        mock_supabase = MagicMock()
+        mock_reranker = MagicMock()
+        mock_reranker.predict.return_value = raw_scores
+
+        with patch("app.services.rag_service.get_supabase_client", return_value=mock_supabase), \
+             patch("app.services.rag_service.get_query_embedding", new_callable=AsyncMock, return_value=[0.1]*768), \
+             patch("app.services.rag_service.get_reranker", return_value=mock_reranker):
+
+            mock_supabase.rpc.return_value = MagicMock(execute=MagicMock(return_value=MagicMock(data=chunks)))
+
+            result, _ = await retrieve_relevant_chunks_multi(["query"])
+
+            # 5 distinct parents (p1, p2, p3, p4, p5) đều có điểm >= 0.65 -> cả 5 đều được chọn
+            assert len(result) == 5
+            parent_ids = {c.get("parent_id") for c in result}
+            assert parent_ids == {"p1", "p2", "p3", "p4", "p5"}
+
 
 class TestAdaptiveQueryRewriterLogic:
     """Kiểm tra phản hồi của generate_standalone_query với các tình huống định tuyến."""
