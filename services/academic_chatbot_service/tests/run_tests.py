@@ -7,7 +7,7 @@ from datetime import datetime
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from app.services.rag_service import generate_standalone_query, retrieve_relevant_chunks
+from app.services.rag_service import generate_standalone_query, retrieve_relevant_chunks, retrieve_relevant_chunks_multi
 from app.services.llm_generation_service import get_query_embedding
 
 TEST_DATA_DIR = "tests/test_data"
@@ -67,8 +67,8 @@ async def run_injection_test():
     report = []
     passed = 0
     for case in cases:
-        rewritten = await generate_standalone_query([], case["query"])
-        actual_status = "blocked_by_guardrail" if "<FALSE>" in rewritten else "allowed"
+        need_retrieval, queries, model, intent, reason = await generate_standalone_query([], case["query"])
+        actual_status = "blocked_by_guardrail" if (queries and "REJECTED_QUERY" in queries[0]) else "allowed"
         
         expected = case.get("expected", "")
         if not expected:
@@ -86,6 +86,7 @@ async def run_injection_test():
             "query": case["query"],
             "expected": expected,
             "actual": actual_status,
+            "reason": reason,
             "pass": is_pass
         }
         report.append(case_report)
@@ -101,20 +102,25 @@ async def run_retrieval_test(file_name):
     report = []
     for case in cases:
         query = case["query"]
-        rewritten = await generate_standalone_query([], query)
-        clean_query = rewritten.replace("<TRUE>", "").replace("</TRUE>", "").replace("<FALSE>", "").strip()
-        emb = await get_query_embedding(clean_query)
-        chunks = await retrieve_relevant_chunks(clean_query, emb, top_k=3)
+        need_retrieval, queries, model, intent, reason = await generate_standalone_query([], query)
+        if not need_retrieval or not queries:
+            chunks = []
+        else:
+            chunks, _ = await retrieve_relevant_chunks_multi(queries)
         extracted_contexts = []
         for c in chunks:
             extracted_contexts.append({
-                "score": c.get("similarity", 0),
-                "content_snippet": c.get("content", "")[:100] + "..."
+                "score": c.get("rerank_score", c.get("similarity", 0)),
+                "content_snippet": c.get("content", "")[:100] + "...",
+                "matched_subquery": c.get("matched_subquery", "")
             })
         case_report = {
             "id": case.get("id"),
             "query": query,
-            "rewritten": clean_query,
+            "need_retrieval": need_retrieval,
+            "queries": queries,
+            "reason": reason,
+            "intent": intent,
             "retrieved_chunks": extracted_contexts
         }
         report.append(case_report)

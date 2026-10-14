@@ -6,7 +6,7 @@ logger = logging.getLogger(__name__)
 import re
 import math
 import threading
-from typing import List, Optional
+from typing import List, Optional, Tuple, Union, Dict, Any
 import json
 import httpx
 import redis.asyncio as redis
@@ -81,15 +81,21 @@ def get_embedder():
             
             onnx_path = "/app/hf_models/vietnamese-bi-encoder-onnx"
             import os
+            loaded_onnx = False
             if os.path.exists(os.path.join(onnx_path, "onnx", "model.onnx")):
-                logger.info(f"Loading Bi-Encoder model (ONNX Optimized) from {onnx_path} on {dev}")
-                # Explicitly set providers to avoid TensorRT lookup
-                if dev == "cuda":
-                    model_kwargs = {"provider": "CUDAExecutionProvider"}
-                else:
-                    model_kwargs = {"provider": "CPUExecutionProvider"}
-                _embedder_model = SentenceTransformer(onnx_path, backend="onnx", model_kwargs=model_kwargs)
-            else:
+                try:
+                    logger.info(f"Loading Bi-Encoder model (ONNX Optimized) from {onnx_path} on {dev}")
+                    # Explicitly set providers to avoid TensorRT lookup
+                    if dev == "cuda":
+                        model_kwargs = {"provider": "CUDAExecutionProvider"}
+                    else:
+                        model_kwargs = {"provider": "CPUExecutionProvider"}
+                    _embedder_model = SentenceTransformer(onnx_path, backend="onnx", model_kwargs=model_kwargs)
+                    loaded_onnx = True
+                except Exception as e:
+                    logger.warning(f"Failed to load Bi-Encoder ONNX model: {e}. Falling back to PyTorch model.")
+            
+            if not loaded_onnx:
                 logger.info(f"Loading Bi-Encoder model (PyTorch) on device: {dev}")
                 kwargs = {}
                 if dev == "cuda":
@@ -108,15 +114,21 @@ def get_reranker():
             
             onnx_path = "/app/hf_models/bge-reranker-v2-m3-onnx"
             import os
+            loaded_onnx = False
             if os.path.exists(os.path.join(onnx_path, "onnx", "model.onnx")):
-                logger.info(f"Loading Cross-Encoder model (ONNX Optimized) from {onnx_path} on {dev}")
-                # Explicitly set providers to avoid TensorRT lookup
-                if dev == "cuda":
-                    model_kwargs = {"provider": "CUDAExecutionProvider"}
-                else:
-                    model_kwargs = {"provider": "CPUExecutionProvider"}
-                _reranker_model = CrossEncoder(onnx_path, backend="onnx", model_kwargs=model_kwargs)
-            else:
+                try:
+                    logger.info(f"Loading Cross-Encoder model (ONNX Optimized) from {onnx_path} on {dev}")
+                    # Explicitly set providers to avoid TensorRT lookup
+                    if dev == "cuda":
+                        model_kwargs = {"provider": "CUDAExecutionProvider"}
+                    else:
+                        model_kwargs = {"provider": "CPUExecutionProvider"}
+                    _reranker_model = CrossEncoder(onnx_path, backend="onnx", model_kwargs=model_kwargs)
+                    loaded_onnx = True
+                except Exception as e:
+                    logger.warning(f"Failed to load Cross-Encoder ONNX model: {e}. Falling back to PyTorch model.")
+            
+            if not loaded_onnx:
                 logger.info(f"Loading Cross-Encoder model (PyTorch) on device: {dev}")
                 kwargs = {}
                 if dev == "cuda":
@@ -261,38 +273,30 @@ async def async_cache_writeback(query_text: str, answer: str, top_doc_score: flo
     Validates LLM answer against RAG context and blocks bad responses from entering cache.
     """
     try:
-        # Rule 1: Relevance check
+        # Rule 1: Relevance check (blocks empty context or low-relevance retrievals)
         if top_doc_score < 0.25:
             logger.info(f"Cache writeback skipped: low top_doc_score {top_doc_score}")
             return
             
-        # Rule 2: Anti-Fallback check
-        fallback_phrases = [
-            "tôi không biết", 
-            "xin lỗi", 
-            "tôi chưa được cung cấp", 
-            "không tìm thấy tài liệu",
-            "không thể trả lời"
-        ]
-        answer_lower = answer.lower()
-        if any(phrase in answer_lower for phrase in fallback_phrases):
-            logger.info("Cache writeback skipped: fallback phrase detected")
-            return
-            
-        # Rule 3: Length check
-        if not (30 <= len(answer) <= 3000):
+        # Rule 2: Length check (blocks empty/truncated answers)
+        if not (10 <= len(answer) <= 3000):
             logger.info(f"Cache writeback skipped: invalid length {len(answer)}")
             return
             
-        # Rule 4: Self-RAG Confidence check
+        # Rule 3: Self-RAG Reflection check (NO hardcoding - dynamic model reflection)
         if "<answer_confidence>" in answer:
             import re
-            match = re.search(r'<answer_confidence>(.*?)</answer_confidence>', answer, re.IGNORECASE)
-            if match:
-                confidence = match.group(1).strip().upper()
-                if confidence != "HIGH":
-                    logger.info(f"Cache writeback skipped: Self-RAG confidence is {confidence}")
-                    return
+            match_conf = re.search(r'<answer_confidence>\s*(\w+)\s*</answer_confidence>', answer, re.IGNORECASE)
+            if match_conf and match_conf.group(1).strip().upper() != "HIGH":
+                logger.info(f"Cache writeback skipped: Self-RAG confidence is {match_conf.group(1)}")
+                return
+
+        if "<doc_relevance>" in answer:
+            import re
+            match_doc = re.search(r'<doc_relevance>\s*(\w+)\s*</doc_relevance>', answer, re.IGNORECASE)
+            if match_doc and match_doc.group(1).strip().upper() == "NO":
+                logger.info("Cache writeback skipped: Self-RAG doc_relevance is NO")
+                return
                     
         query_vector = query_embedding if query_embedding else await get_query_embedding(query_text)
         
@@ -349,127 +353,230 @@ async def invalidate_semantic_cache():
         logger.exception(f"Lỗi khi xóa Semantic Cache: {e}")
 
 
-# --- 2. Hybrid Retrieval & Reranking ---
-async def retrieve_relevant_chunks(query_text: str, query_embedding: list = None, top_k: int = 5, candidate_count: int = 30):
+# --- 2. Hybrid Retrieval & Multi-Query Reranking ---
+RERANKER_THRESHOLD: float = 0.20
+GOOD_SCORE_THRESHOLD: float = 0.65
+
+def get_adaptive_candidate_count(estimated_score: float = 0.5) -> int:
     """
-    Stage 1: Retrieve candidate_count (30) chunks via Supabase Hybrid RRF RPC.
-    Stage 2: Cross-Encoder Reranking using BAAI/bge-reranker-v2-m3 -> Top k (5).
-    Offloads CPU-bound ML inference to background thread pool.
+    Self-RAG Dynamic Candidate Count:
+    Adjusts candidate retrieval count dynamically based on relevance quality:
+    - High quality (score >= 0.80): 30 candidates (accelerates reranker)
+    - Moderate quality (0.50 <= score < 0.80): 50 candidates (default balanced)
+    - Low/uncertain quality (score < 0.50): 70 candidates (high recall)
     """
-    query_vector = query_embedding if query_embedding else await get_query_embedding(query_text)
+    if estimated_score >= 0.80:
+        return 30
+    if estimated_score >= 0.50:
+        return 50
+    return 70
+
+async def retrieve_relevant_chunks_multi(
+    queries: List[str], 
+    top_k: int = 8, 
+    candidate_count: int = 50
+) -> Tuple[List[dict], float]:
+    """
+    Multi-Query Hybrid Retrieval & Query-Specific Cross-Encoder Reranking:
+    1. Runs parallel Supabase Hybrid RRF RPC for each subquery via asyncio.gather.
+    2. Reranks candidate chunks with their specific matching subquery using bge-reranker-v2-m3.
+    3. Enforces dynamic quota per subquery (floor 2 per query, ceiling max 6 or 10, threshold >= 0.65).
+    4. De-duplicates and expands neighbor window context.
+    Returns: (expanded_chunks, top_doc_score)
+    """
+    if not queries:
+        return [], 0.0
+
+    # Clean and limit max 4 sub-queries
+    valid_queries = [q.strip() for q in queries if q and q.strip()][:4]
+    if not valid_queries:
+        return [], 0.0
 
     supabase = get_supabase_client()
     if not supabase:
-        return []
+        return [], 0.0
 
-    try:
-        def _call_rpc():
-            return supabase.rpc(
-                "match_chunks_hybrid_rrf",
-                {
-                    "query_text": query_text,
-                    "query_embedding": query_vector,
-                    "match_count": candidate_count
-                }
-            ).execute()
+    num_q = len(valid_queries)
+    # Dynamic Quota Allocation based on agreed rules:
+    # 1 query: default 3, max 5 (tối ưu Lost-in-the-Middle cho tiếng Việt)
+    # 2 queries: default 4 (2/query), max 5
+    # 3 queries: default 6 (2/query), max 8
+    # 4 queries: default 8 (2/query), max 8
+    floor_per_query = 2 if num_q > 1 else 3
+    if num_q == 1:
+        max_ceiling = 5
+        max_per_query = 5
+    elif num_q == 2:
+        max_ceiling = 5
+        max_per_query = 3
+    elif num_q == 3:
+        max_ceiling = 8
+        max_per_query = 3
+    else:  # num_q == 4
+        max_ceiling = 8
+        max_per_query = 3
 
-        response = await asyncio.to_thread(_call_rpc)
-        chunks = response.data or []
-    except Exception as e:
-        logger.exception(f"Hybrid RRF retrieval failed: {e}")
-        chunks = []
+    # Step 1: Concurrently generate query embeddings for all subqueries
+    query_embeddings = await asyncio.gather(*(get_query_embedding(q) for q in valid_queries))
 
-    if not chunks:
-        return []
+    # Step 2: Retrieve candidate chunks concurrently for each query
+    async def _fetch_candidates(q_text: str, q_vec: list):
+        try:
+            def _call_rpc():
+                return supabase.rpc(
+                    "match_chunks_hybrid_rrf",
+                    {
+                        "query_text": q_text,
+                        "query_embedding": q_vec,
+                        "match_count": candidate_count
+                    }
+                ).execute()
+            response = await asyncio.to_thread(_call_rpc)
+            return response.data or []
+        except Exception as e:
+            logger.exception(f"Hybrid RRF retrieval failed for subquery '{q_text[:30]}...': {e}")
+            return []
 
-    pairs = []
-    for c in chunks:
-        meta = c.get("metadata", {}) or {}
-        title = meta.get("title") or meta.get("sourceTitle", "")
-        text = f"{title}\n{c.get('content', '')}".strip()
-        pairs.append((query_text, text))
+    candidates_per_query = await asyncio.gather(
+        *(_fetch_candidates(q, vec) for q, vec in zip(valid_queries, query_embeddings))
+    )
 
     reranker = get_reranker()
-    batch_size = 4 if get_device() == "cuda" else 4
-    scores = await asyncio.to_thread(lambda: reranker.predict(pairs, batch_size=batch_size))
-    for idx, chunk in enumerate(chunks):
-        score = float(scores[idx])
-        chunk["rerank_score"] = 1 / (1 + math.exp(-score))  # Apply Sigmoid
+    batch_size = 32 if get_device() == "cuda" else 8
 
-    chunks = sorted(chunks, key=lambda x: x["rerank_score"], reverse=True)
-    
-    # User Request: Display chunks with score > 0.75. If less than 3 chunks meet this, fallback to top 3 chunks.
-    filtered_chunks = [c for c in chunks if c["rerank_score"] > 0.75]
-    if len(filtered_chunks) < 3:
-        filtered_chunks = chunks[:3]
-        
-    top_chunks = filtered_chunks[:top_k]
+    # Step 3: Query-specific Reranking for each subquery
+    selected_chunks_by_query = []
+    all_top_scores = []
+    raw_max_score = 0.0
 
-    if top_chunks:
-        logger.info(f"Top Rerank Score for query '{query_text[:30]}...': {top_chunks[0]['rerank_score']:.4f}")
+    for q_idx, (q_text, chunks) in enumerate(zip(valid_queries, candidates_per_query)):
+        if not chunks:
+            continue
 
-    RERANKER_THRESHOLD = 0.10
-    if not top_chunks or top_chunks[0]["rerank_score"] < RERANKER_THRESHOLD:
-        logger.warning(f"All chunks rejected. Top score {top_chunks[0]['rerank_score']:.4f} is below threshold {RERANKER_THRESHOLD}.")
-        return []
+        pairs = []
+        for c in chunks:
+            meta = c.get("metadata", {}) or {}
+            title = meta.get("title") or meta.get("sourceTitle", "")
+            text = f"{title}\n{c.get('content', '')}".strip()
+            pairs.append((q_text, text))
 
-    expanded_chunks = await expand_neighbors(top_chunks, window=1, supabase=supabase)
-    return expanded_chunks
+        try:
+            scores = await asyncio.to_thread(lambda: reranker.predict(pairs, batch_size=batch_size))
+            scored_chunks = []
+            for idx, chunk in enumerate(chunks):
+                c_copy = dict(chunk)
+                score = float(scores[idx])
+                # CrossEncoder (BAAI/bge-reranker-v2-m3) already outputs probabilities in [0.0, 1.0].
+                # If a model or mock returns raw logits outside [0.0, 1.0], apply Sigmoid once.
+                if score < 0.0 or score > 1.0:
+                    score = 1.0 / (1.0 + math.exp(-score))
+                c_copy["rerank_score"] = score
+                c_copy["matched_subquery"] = q_text
+                scored_chunks.append(c_copy)
 
-async def expand_neighbors(top_chunks: List[dict], window: int = 1, supabase=None) -> List[dict]:
-    if not top_chunks or not supabase:
-        return top_chunks
-
-    needed_pairs = set()
-    for chunk in top_chunks:
-        doc_id = chunk.get("document_id")
-        idx = chunk.get("chunk_index")
-        if doc_id and idx is not None:
-            for offset in range(-window, window + 1):
-                if idx + offset >= 0:
-                    needed_pairs.add((doc_id, idx + offset))
-
-    if not needed_pairs:
-        return top_chunks
-
-    try:
-        doc_ids = list(set([p[0] for p in needed_pairs]))
-        def _fetch_docs():
-            return supabase.table("document_chunks").select("document_id, chunk_index, content").in_("document_id", doc_ids).execute()
+            # Sort descending by rerank_score
+            scored_chunks = sorted(scored_chunks, key=lambda x: x["rerank_score"], reverse=True)
+            if scored_chunks:
+                raw_max_score = max(raw_max_score, scored_chunks[0]["rerank_score"])
             
-        res = await asyncio.to_thread(_fetch_docs)
-        all_doc_chunks = res.data or []
-        
-        chunk_map = {}
-        for c in all_doc_chunks:
-            chunk_map[(c["document_id"], c["chunk_index"])] = c
-
-        merged_results = []
-        for top_c in top_chunks:
-            doc_id = top_c.get("document_id")
-            idx = top_c.get("chunk_index")
-            if not doc_id or idx is None:
-                merged_results.append(top_c)
+            # Filter valid chunks above safe threshold (0.40)
+            valid_chunks = [c for c in scored_chunks if c["rerank_score"] >= RERANKER_THRESHOLD]
+            if not valid_chunks:
                 continue
-                
-            context_parts = []
-            for offset in range(-window, window + 1):
-                neighbor = chunk_map.get((doc_id, idx + offset))
-                if neighbor:
-                    context_parts.append(neighbor.get("content", ""))
-                    
-            merged_content = "\n...\n".join(context_parts)
-            merged_chunk = dict(top_c)
-            merged_chunk["content"] = merged_content
-            merged_results.append(merged_chunk)
-            
-        return merged_results
-    except Exception as e:
-        logger.exception(f"Failed to expand neighbor chunks: {e}")
-        return top_chunks
 
-from typing import Tuple
-async def generate_standalone_query(history: list, current_query: str) -> Tuple[str, str, str]:
+            all_top_scores.append(valid_chunks[0]["rerank_score"])
+
+            # SOTA Parent-Aware Quota Selection:
+            # Group candidate chunks by parent section, preserving the highest-scoring child chunk
+            # for each distinct parent so that sibling child chunks do not crowd out vital sections.
+            seen_parents = set()
+            distinct_parent_chunks = []
+            for chunk in valid_chunks:
+                p_id = chunk.get("parent_id") or chunk.get("id")
+                if p_id not in seen_parents:
+                    seen_parents.add(p_id)
+                    distinct_parent_chunks.append(chunk)
+
+            # Filter distinct parent chunks with good score (>= 0.65)
+            good_parent_chunks = [c for c in distinct_parent_chunks if c["rerank_score"] >= GOOD_SCORE_THRESHOLD]
+
+            # Quota selection based on distinct parent sections:
+            # If good parent sections >= floor_per_query, take up to max_per_query distinct parents.
+            # Otherwise, fallback to take at least floor_per_query distinct parents (if available).
+            if len(good_parent_chunks) >= floor_per_query:
+                picked = good_parent_chunks[:max_per_query]
+            else:
+                picked = distinct_parent_chunks[:floor_per_query]
+
+            selected_chunks_by_query.append(picked)
+        except Exception as e:
+            logger.exception(f"Reranking failed for subquery '{q_text}': {e}")
+            continue
+
+    # Step 4: Merge & Deduplicate across subqueries in round-robin fashion
+    merged_map = {}
+    max_group_len = max((len(group) for group in selected_chunks_by_query), default=0)
+    for i in range(max_group_len):
+        for group in selected_chunks_by_query:
+            if i < len(group):
+                chunk = group[i]
+                c_id = chunk.get("id")
+                if c_id not in merged_map:
+                    merged_map[c_id] = chunk
+                else:
+                    # Keep higher rerank_score if duplicate
+                    if chunk["rerank_score"] > merged_map[c_id]["rerank_score"]:
+                        merged_map[c_id] = chunk
+
+    # Step 5: SOTA Parent Document Retrieval (Small-to-Big Collapse)
+    # Collapse multiple child chunks from the same parent section into a single cohesive Parent record
+    parent_map = {}
+    for chunk in merged_map.values():
+        p_id = chunk.get("parent_id") or chunk.get("id")
+        if p_id not in parent_map:
+            p_item = dict(chunk)
+            if chunk.get("parent_content"):
+                p_item["child_content"] = chunk.get("content", "")
+                p_item["content"] = chunk["parent_content"]
+            parent_map[p_id] = p_item
+        else:
+            # Update with highest rerank_score and matching subquery among sibling chunks
+            if chunk.get("rerank_score", 0) > parent_map[p_id].get("rerank_score", 0):
+                parent_map[p_id]["rerank_score"] = chunk["rerank_score"]
+                parent_map[p_id]["matched_subquery"] = chunk.get("matched_subquery")
+                if chunk.get("content"):
+                    parent_map[p_id]["child_content"] = chunk.get("content", "")
+
+    final_chunks = list(parent_map.values())
+    final_chunks = sorted(final_chunks, key=lambda x: x["rerank_score"], reverse=True)[:max_ceiling]
+
+    top_doc_score = max(all_top_scores) if all_top_scores else raw_max_score
+
+    if final_chunks:
+        logger.info(f"Multi-Query ({num_q} queries): Selected {len(final_chunks)} parent sections, Top Score: {top_doc_score:.4f}")
+
+    if not final_chunks or top_doc_score < RERANKER_THRESHOLD:
+        logger.warning(f"All chunks rejected. Top score {top_doc_score:.4f} is below threshold {RERANKER_THRESHOLD}.")
+        return [], 0.0
+
+    return final_chunks, top_doc_score
+
+async def retrieve_relevant_chunks(query_text: str, query_embedding: list = None, top_k: int = 5, candidate_count: int = 30):
+    """Backward-compatible wrapper for single query retrieval."""
+    chunks, _ = await retrieve_relevant_chunks_multi([query_text], top_k=top_k, candidate_count=candidate_count)
+    return chunks
+
+from typing import Tuple, List, Union
+
+async def generate_standalone_query(history: list, current_query: str) -> Tuple[bool, List[str], str, str, str]:
+    """
+    Module Adaptive Query Rewriter & Router (Slim):
+    1. Đánh giá nhu cầu truy xuất CSDL (need_retrieval: true/false).
+    2. Phân loại ý định vào 1 trong 7 intents.
+    3. Phân rã câu hỏi kép thành 1 đến tối đa 4 sub-queries độc lập.
+    4. Kiểm soát an toàn (Guardrail / Rejected query).
+    Returns: (need_retrieval: bool, queries: List[str], router_model: str, intent: str, reason: str)
+    """
     last_user_msg = None
     if history:
         for msg in reversed(history):
@@ -477,53 +584,76 @@ async def generate_standalone_query(history: list, current_query: str) -> Tuple[
                 last_user_msg = msg['content']
                 break
 
-    context_str = f"Lịch sử chat:\n- Sinh viên: {last_user_msg}\n" if last_user_msg and last_user_msg != current_query else ""
+    context_str = f"Lịch sử chat gần nhất:\n- Sinh viên: {last_user_msg}\n" if last_user_msg and last_user_msg != current_query else ""
 
     rewrite_prompt = (
-        "Nhiệm vụ 1: Phân loại ý định (intent) của sinh viên vào 1 trong 7 nhóm: PROCEDURE, REGULATION, CRISIS, GENERAL, ADVISING, COMPLAINT, TECH_SUPPORT.\n"
-        "Nhiệm vụ 2: Viết lại câu hỏi để tối ưu hóa cho công cụ tìm kiếm (Search Engine).\n\n"
-        "Quy tắc quan trọng:\n"
-        "- Lĩnh vực: PROCEDURE (Hướng dẫn thủ tục), REGULATION (Tra cứu quy chế/điểm), CRISIS (Lo sợ/Trễ hạn), GENERAL (Thông tin chung), ADVISING (Xin lời khuyên/Định hướng), COMPLAINT (Phàn nàn/Góp ý), TECH_SUPPORT (Lỗi website/App/IT).\n"
-        "- Trả về kết quả ĐÚNG CHUẨN JSON như sau: {\"result\": \"câu đã viết lại hoặc REJECTED_QUERY\", \"intent\": \"CATEGORY\"}\n"
-        "- Nếu là câu hỏi CHÀO HỎI hoặc NGOÀI LỀ, result phải là \"REJECTED_QUERY\", intent là \"GENERAL\".\n"
-        "- TRƯỜNG `result` PHẢI LÀ CÂU TRUY VẤN THUẦN TÚY TỐI ƯU CHO TÌM KIẾM, KHÔNG CHỨA TỪ KHÓA CẢM XÚC HAY NHÃN INTENT (ví dụ: không được ghi 'lo lắng', 'sợ hãi' vào result).\n\n"
-        "VÍ DỤ:\n"
-        "Câu gốc: Dạ em trễ hạn học phí rồi làm sao đây ạ lo quá\n"
-        "JSON: {\"result\": \"cách xử lý khi trễ hạn nộp học phí\", \"intent\": \"CRISIS\"}\n\n"
-        "Câu gốc: Thủ tục xin cấp lại thẻ sinh viên\n"
-        "JSON: {\"result\": \"thủ tục xin cấp lại thẻ sinh viên\", \"intent\": \"PROCEDURE\"}\n\n"
+        "Bạn là AI Router & Query Rewriter cho Chatbot Tư vấn Học vụ Đại học IUH.\n"
+        "Phân tích câu hỏi của sinh viên và trả về chuỗi JSON gồm: 'need_retrieval', 'intent', 'queries'.\n\n"
+        "QUY TẮC:\n"
+        "1. GUARDRAIL: Nếu câu hỏi quấy phá, vi phạm an toàn, hoặc ngoài lề không liên quan trường học:\n"
+        "   -> 'need_retrieval': false, 'intent': 'GENERAL', 'queries': [\"REJECTED_QUERY\"].\n"
+        "2. ĐÁNH GIÁ NHU CẦU: 'need_retrieval': false khi chỉ chào hỏi xã giao, cảm ơn, tán gẫu; 'need_retrieval': true khi hỏi về quy chế, thủ tục, điểm, học phí, v.v.\n"
+        "3. PHÂN LOẠI INTENT: Chọn 1 trong 7 nhóm: PROCEDURE, REGULATION, CRISIS, GENERAL, ADVISING, COMPLAINT, TECH_SUPPORT.\n"
+        "4. TÌM KIẾM (queries):\n"
+        "   - Nếu need_retrieval=false: queries=[].\n"
+        "   - Nếu câu hỏi có nhiều ý riêng biệt: Tách thành 2 đến tối đa 3 câu tìm kiếm độc lập.\n"
+        "   - Nếu câu hỏi chỉ có 1 ý: Giữ nguyên từ khóa cốt lõi. TUYỆT ĐỐI KHÔNG thêm từ đồng nghĩa suy diễn (như 'tiêu chuẩn', 'hướng dẫn'), KHÔNG gắn thêm chữ 'IUH'.\n\n"
+        "VÍ DỤ MẪU:\n"
+        "1. Câu kép đa ý:\n"
+        "Sinh viên: Em muốn bảo lưu kỳ này và rút học phí thì làm thế nào?\n"
+        "JSON: {\"need_retrieval\": true, \"intent\": \"PROCEDURE\", \"queries\": [\"điều kiện hồ sơ xin tạm dừng tiến độ học tập bảo lưu kết quả\", \"quy định rút và hoàn trả học phí khi tạm dừng học tập\"]}\n\n"
+        "2. Xã giao / cảm ơn:\n"
+        "Sinh viên: Dạ em hiểu rồi, cảm ơn ad nhiều ạ!\n"
+        "JSON: {\"need_retrieval\": false, \"intent\": \"GENERAL\", \"queries\": []}\n\n"
+        "3. Câu đơn bảo toàn từ khóa gốc:\n"
+        "Sinh viên: Điều kiện xét học bổng khuyến khích học tập?\n"
+        "JSON: {\"need_retrieval\": true, \"intent\": \"REGULATION\", \"queries\": [\"điều kiện xét học bổng khuyến khích học tập\"]}\n\n"
         "THỰC HÀNH:\n"
         f"{context_str}"
-        f"Câu gốc: {current_query}\n"
+        f"Sinh viên: {current_query}\n"
         "JSON:"
     )
 
     from app.services.llm_providers import get_rewriter_provider
     provider = get_rewriter_provider()
     
-    system_inst = "Chỉ trả về chuỗi JSON chứa field 'result' và 'intent', KHÔNG kèm theo bất kỳ giải thích nào."
+    system_inst = "Chỉ trả về chuỗi JSON hợp lệ chứa các trường 'need_retrieval', 'intent', 'queries', KHÔNG kèm theo bất kỳ văn bản giải thích nào khác."
     res = await provider.generate_text(prompt=rewrite_prompt, system_instruction=system_inst, temperature=0.0)
 
     if res:
         import json
-        
-        start_idx = res.rfind("{")
+        start_idx = res.find("{")
         end_idx = res.rfind("}")
         
         if start_idx != -1 and end_idx != -1 and start_idx < end_idx:
             json_str = res[start_idx:end_idx+1]
             try:
                 data = json.loads(json_str)
-                res_val = data.get("result", "")
-                intent_val = data.get("intent", "GENERAL").upper()
-                if "REJECTED_QUERY" in res_val.upper():
-                    return "<FALSE>", provider.last_used_model, intent_val
-                return f"<TRUE> {res_val}", provider.last_used_model, intent_val
+                reason = data.get("reason", "")
+                need_retrieval = bool(data.get("need_retrieval", True))
+                raw_queries = data.get("queries", [])
+                if isinstance(raw_queries, str):
+                    raw_queries = [raw_queries]
+                intent = data.get("intent", "GENERAL").upper()
+
+                # Handle Rejected / Off-topic
+                if any("REJECTED_QUERY" in str(q).upper() for q in raw_queries):
+                    return False, ["REJECTED_QUERY"], provider.last_used_model, intent, reason
+
+                if not need_retrieval:
+                    return False, [], provider.last_used_model, intent, reason
+
+                clean_queries = [str(q).strip() for q in raw_queries if str(q).strip()]
+                if not clean_queries:
+                    clean_queries = [current_query]
+
+                return True, clean_queries[:4], provider.last_used_model, intent, reason
             except Exception as e:
                 import logging
                 logging.getLogger(__name__).warning(f"Failed to parse extracted JSON: {e}. String: {json_str}")
 
-    return f"<TRUE> {current_query}", provider.last_used_model, "GENERAL"
+    # Fallback in case of parsing or generation failure
+    return True, [current_query], provider.last_used_model, "GENERAL", "Fallback parsing error"
 
 
 
@@ -541,8 +671,14 @@ def build_dynamic_system_instruction(intent: str, memory_str: str, context_str: 
     rules = INTENT_RULES.get(intent, "")
     few_shots = INTENT_FEW_SHOTS.get(intent, "")
     
+    # Đảm bảo khối context chỉ bọc đúng 1 lần thẻ <retrieved_context>
+    if "<retrieved_context>" in context_str:
+        retrieved_block = context_str
+    else:
+        retrieved_block = f"<retrieved_context>\n{context_str}\n</retrieved_context>"
+
     final_prompt = f"{base_prompt}\n\n{rules}\n\n{few_shots}\n\n"
-    final_prompt += f"{memory_str}\n\n<retrieved_context>\n{context_str}\n</retrieved_context>\n\n"
+    final_prompt += f"{memory_str}\n\n{retrieved_block}\n\n"
     final_prompt += f"<user_query>\n{content}\n</user_query>"
     return final_prompt
 
@@ -572,20 +708,29 @@ async def retrieve_past_memory(session_id: str, query_embedding: list, current_q
         logger.warning(f"Failed to retrieve past memory: {e}")
         return []
 
-async def build_rag_payload(session_id: str, content: str, retrieval_query: str, query_embedding: list = None, intent: str = "GENERAL"):
+async def build_rag_payload(session_id: str, content: str, retrieval_queries: Union[List[str], str], query_embedding: list = None, intent: str = "GENERAL"):
     history = await asyncio.to_thread(get_session_history_from_db, session_id)
     filtered_history = [
         msg for msg in history
         if not (msg["role"] == "user" and msg["content"] == content)
     ]
 
+    queries_list = [retrieval_queries] if isinstance(retrieval_queries, str) else retrieval_queries
+    queries_list = [q.strip() for q in queries_list if q and q.strip()]
+    if not queries_list:
+        queries_list = [content]
+
     import time
     t0 = time.perf_counter()
-    chunks = await retrieve_relevant_chunks(retrieval_query, query_embedding=query_embedding, top_k=5, candidate_count=30)
-    
-    # --- HYBRID MEMORY: Fetch semantic past messages ---
-    past_memories = await retrieve_past_memory(session_id, query_embedding, content)
+    chunks, top_doc_score = await retrieve_relevant_chunks_multi(queries_list)
     retrieval_latency_ms = int((time.perf_counter() - t0) * 1000)
+
+    # --- HYBRID MEMORY: Fetch semantic past messages using primary query embedding ---
+    primary_emb = query_embedding
+    if not primary_emb:
+        primary_emb = await get_query_embedding(queries_list[0])
+    past_memories = await retrieve_past_memory(session_id, primary_emb, content)
+
     memory_str = ""
     if past_memories:
         memory_str = "\n\n[KÝ ỨC DÀI HẠN TỪ LỊCH SỬ CHAT TRƯỚC ĐÂY KHỚP VỚI NGỮ CẢNH]\n"
@@ -594,11 +739,11 @@ async def build_rag_payload(session_id: str, content: str, retrieval_query: str,
             memory_str += f"- {role_vi} từng nói: {m['content']}\n"
         memory_str += "Hãy dùng thông tin này nếu nó giúp giải quyết câu hỏi hiện tại của sinh viên.\n"
 
-
     rag_data = {
         'chunks': chunks,
         'past_memories': past_memories,
-        'retrieval_latency_ms': retrieval_latency_ms
+        'retrieval_latency_ms': retrieval_latency_ms,
+        'queries': queries_list
     }
 
     citations = []
@@ -640,7 +785,7 @@ async def build_rag_payload(session_id: str, content: str, retrieval_query: str,
             url=meta.get("source_url")
         ))
 
-    context_str = wrap_context_sandbox(chunks) if chunks else "<retrieved_context>\nKhông tìm thấy tài liệu phù hợp trong CSDL.\n</retrieved_context>"
+    context_str = wrap_context_sandbox(chunks, user_query=content) if chunks else "<retrieved_context>\nKhông tìm thấy tài liệu phù hợp trong CSDL.\n</retrieved_context>"
 
     system_instruction = build_dynamic_system_instruction(intent, memory_str, context_str, content)
 
@@ -650,5 +795,5 @@ async def build_rag_payload(session_id: str, content: str, retrieval_query: str,
         contents.append({"role": role, "content": turn["content"]})
     contents.append({"role": "user", "content": content})
 
-    top_doc_score = chunks[0].get("rerank_score", 0.0) if chunks else 0.0
-    return history, retrieval_query, citations, chunk_ids, system_instruction, contents, top_doc_score, rag_data
+    primary_query_str = queries_list[0] if queries_list else content
+    return history, primary_query_str, citations, chunk_ids, system_instruction, contents, top_doc_score, rag_data

@@ -317,7 +317,7 @@ WITH vector_search AS (
         ROW_NUMBER() OVER (ORDER BY c.embedding <=> query_embedding ASC) AS vector_rank
     FROM document_chunks c
     ORDER BY c.embedding <=> query_embedding ASC
-    LIMIT 30
+    LIMIT GREATEST(match_count * 2, 60)
 ),
 keyword_search AS (
     SELECT 
@@ -327,7 +327,7 @@ keyword_search AS (
         ) AS keyword_rank
     FROM document_chunks c
     WHERE c.fts_tokens @@ websearch_to_tsquery('simple', public.unaccent(query_text))
-    LIMIT 30
+    LIMIT GREATEST(match_count * 2, 60)
 ),
 rrf_fusion AS (
     SELECT 

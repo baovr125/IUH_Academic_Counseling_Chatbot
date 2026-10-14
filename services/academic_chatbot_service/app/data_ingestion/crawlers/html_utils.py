@@ -37,12 +37,15 @@ def clean_html_boilerplate(soup):
     for div in soup.find_all('div', class_=re.compile(r'pdf-download|viewpdf', re.I)):
         div.decompose()
         
-    bad_classes = ['pbmit-rpw-content', 'post-navigation', 'nav-links', 'widget-title', 'widget']
+    bad_classes = [
+        'pbmit-rpw-content', 'post-navigation', 'nav-links', 'widget-title', 'widget',
+        'box-right-content', 'box-content-list', 'element-detail', 'statistic-content', 'cooperate-content'
+    ]
     for bad_class in bad_classes:
         for tag in soup.find_all(class_=re.compile(bad_class, re.I)):
             tag.decompose()
 
-    for pattern in [r'\d+\s*lượt xem', r'Tải file thiết kế', r'Download file', r'Vui lòng xem file pdf']:
+    for pattern in [r'Các câu hỏi khác', r'Đơn vị liên kết', r'\d+\s*lượt xem', r'Tải file thiết kế', r'Download file', r'Vui lòng xem file pdf']:
         for node in soup.find_all(string=re.compile(pattern, re.I)):
             parent = node.parent
             if parent: parent.decompose()

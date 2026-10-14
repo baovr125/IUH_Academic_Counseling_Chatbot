@@ -1,7 +1,7 @@
 import re
 from urllib.parse import urlparse
 
-ALLOWED_DOMAINS = ["iuh.edu.vn", "camnang.iuh.edu.vn", "tuyensinh.iuh.edu.vn"]
+ALLOWED_DOMAINS = ["iuh.edu.vn", "camnang.iuh.edu.vn", "tuyensinh.iuh.edu.vn", "ctsv.iuh.edu.vn", "csm.iuh.edu.vn"]
 
 SOCIAL_MEDIA_PATTERN = re.compile(
     r'(facebook\.com|twitter\.com|instagram\.com|youtube\.com|tiktok\.com|zalo\.me|linkedin\.com)', 
@@ -58,15 +58,34 @@ def clean_and_verify_url(url):
             "/hop-tac", "/tin-tuc-dao-tao", "/tin-tuc", "/tags", 
             "/guong-dien-hinh", "/nghien-cuu", "/su-kien", 
             "/thanh-tich-hoc-tap", "/ky-nang-mem", "/kham-pha-iuh", 
-            "/hoat-dong-phong-trao", "/en/", "sinh-vien-tinh-nguyen"
+            "/hoat-dong-phong-trao", "/en/", "sinh-vien-tinh-nguyen", "/tin-tuc-su-kien"
         ]
         if any(b in parsed.path.lower() for b in iuh_blacklist):
+            return None
+        
+    if netloc == "csm.iuh.edu.vn":
+        csm_blacklist = [
+            "/tin-tuc-su-kien",
+            "/lich-su-hinh-thanh",
+            "/nhan-su-trung-tam",
+        ]
+        if any(b in parsed.path.lower() for b in csm_blacklist):
+            return None
+            
+    if netloc == "ctsv.iuh.edu.vn":
+        url = re.sub(r'@{2,}', '@', url)
+        ctsv_blacklist = [
+            "news.html@213@y-te-hoc-duong",
+            "news.html@211@hoat-dong-phong-trao",
+            "/upload/images",
+            "/admins",
+        ]
+        if any(b in parsed.path.lower() for b in ctsv_blacklist):
             return None
             
     if netloc == "tuyensinh.iuh.edu.vn":
         tuyensinh_whitelist = [
-            "/quyche", "/nganhdaotao", "/diemchuan", "/deants", 
-            "/files_thongbao/thongbaotuyensinhlienthongdot12026.pdf"
+            "/quyche", "/nganhdaotao", "/diemchuan", "/deants"
         ]
         if not any(parsed.path.lower() == w for w in tuyensinh_whitelist):
             return None

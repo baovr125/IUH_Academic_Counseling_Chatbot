@@ -1,3 +1,4 @@
+import re
 import time
 import random
 import requests
@@ -94,12 +95,19 @@ class URLExtractor:
             logger.error(f"Lỗi quét danh mục: {e}")
             return list(urls)
 
-    def extract_from_bfs(self, start_url, max_depth=3):
-        logger.info(f"\n🚀 BẮT ĐẦU QUÉT BFS: {start_url} (Độ sâu: {max_depth})")
+    def extract_from_bfs(self, start_url, max_depth=5, strict_domain=True):
+        logger.info(f"\n🚀 BẮT ĐẦU QUÉT BFS: {start_url} (Độ sâu: {max_depth}, Giữ miền: {strict_domain})")
         visited = set()
         queue = [(start_url, 0)]
         blacklist = ['video', 'gallery', '.pdf', '.doc', '.docx', '.png', '.jpg', '.zip', '.rar']
         collected_urls = set()
+        seen_feedback_ids = set()
+        seen_news_ids = set()
+        start_netloc = urlparse(start_url).netloc
+
+        def _extract_ctsv_item_id(url_str: str) -> str:
+            matches = re.findall(r'@([0-9]{3,6})', url_str)
+            return matches[-1] if matches else None
 
         while queue:
             current_url, depth = queue.pop(0)
@@ -117,7 +125,7 @@ class URLExtractor:
                 
                 for a_tag in soup.find_all("a", href=True):
                     href = a_tag["href"].strip()
-                    if not href or href.startswith(('javascript:', 'mailto:', 'tel:')): 
+                    if not href or href.startswith(('javascript:', 'mailto:', 'tel:', '#')): 
                         continue
                     
                     full_url = urljoin(current_url, href)
@@ -126,17 +134,49 @@ class URLExtractor:
                         continue
                         
                     parsed = urlparse(clean_url)
+                    
+                    # PHẦN 3: Giữ đúng miền của start_url để tránh nhảy sang domain khác làm loãng BFS
+                    if strict_domain and parsed.netloc != start_netloc:
+                        continue
+                        
                     path = parsed.path.lower()
                     
                     if any(b in path for b in blacklist): 
                         continue
                     
-                    has_valid_extension = path.endswith('.html') or path.endswith('.php') or "." not in path.split('/')[-1]
-                    
-                    if "camnang.iuh.edu.vn" in parsed.netloc:
-                        has_valid_extension = True
+                    # PHẦN 2: Nhận diện extension hợp lệ bao gồm URL đặc thù của CTSV (.html@), CSM, và Camnang
+                    has_valid_extension = (
+                        path.endswith('.html') or 
+                        path.endswith('.php') or 
+                        "." not in path.split('/')[-1] or
+                        ".html@" in path or
+                        parsed.netloc in ["ctsv.iuh.edu.vn", "csm.iuh.edu.vn", "camnang.iuh.edu.vn"]
+                    )
                         
                     if has_valid_extension:
+                        # Xử lý khử trùng lặp và chặn vòng lặp sidebar cho CTSV
+                        if parsed.netloc == "ctsv.iuh.edu.vn":
+                            # 1. Feedback detail là nút lá (leaf node)
+                            if "feedback.html" in clean_url and "@detail@" in clean_url:
+                                fb_id = _extract_ctsv_item_id(clean_url)
+                                if fb_id:
+                                    if fb_id not in seen_feedback_ids:
+                                        seen_feedback_ids.add(fb_id)
+                                        collected_urls.add(clean_url)
+                                        logger.info(f"[BFS-CTSV] 💬 Phát hiện câu hỏi phản hồi mới (ID {fb_id}): {clean_url}")
+                                # Detail là nút lá, không cho vào hàng đợi queue để tránh quét sidebar lặp vòng
+                                continue
+                                
+                            # 2. News detail là nút lá (leaf node)
+                            if "news.html" in clean_url and "@detail@" in clean_url:
+                                news_id = _extract_ctsv_item_id(clean_url)
+                                if news_id:
+                                    if news_id not in seen_news_ids:
+                                        seen_news_ids.add(news_id)
+                                        collected_urls.add(clean_url)
+                                        logger.info(f"[BFS-CTSV] 📰 Phát hiện tin tức mới (ID {news_id}): {clean_url}")
+                                continue
+
                         if clean_url not in collected_urls:
                             collected_urls.add(clean_url)
                             logger.info(f"[BFS] 🔗 Phát hiện link mới: {clean_url}")
@@ -148,5 +188,5 @@ class URLExtractor:
                 
             self._random_sleep(0.2, 0.6)
 
-        logger.info(f"✅ Hoàn thành quét BFS cho {start_url}. Vét được {len(collected_urls)} links.")
+        logger.info(f"✅ Hoàn thành quét BFS cho {start_url}. Vét được {len(collected_urls)} links (Gồm {len(seen_feedback_ids)} feedback, {len(seen_news_ids)} news CTSV).")
         return list(collected_urls)

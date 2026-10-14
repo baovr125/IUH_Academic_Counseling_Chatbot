@@ -18,7 +18,10 @@ from app.services.supabase_client import get_supabase_client
 
 router = APIRouter(prefix="/api/admin/ingest", tags=["Admin Ingestion"])
 
-DATA_DIR = "/app/app/data_ingestion/data"
+_docker_data_dir = "/app/app/data_ingestion/data"
+DATA_DIR = _docker_data_dir if os.path.exists(_docker_data_dir) else os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "../../../../data/ingestion")
+)
 
 STAGING_DIR = os.path.join(DATA_DIR, "staging_markdown")
 CHILDREN_FILE = os.path.join(DATA_DIR, "children.json")
@@ -45,7 +48,7 @@ def run_unified_pipeline(new_markdown_files: List[str] = None):
         
         set_status("chunking", "Đang cắt nhỏ (chunking) dữ liệu Markdown...")
         
-        chunker = HybridChunker(max_child_size=600, overlap=100)
+        chunker = HybridChunker(max_child_size=600, overlap=100, max_parent_tokens=1200)
         # Instead of processing the whole directory, the HybridChunker currently processes the whole directory anyway.
         # We will just let it process everything in MARKDOWN_DIR for now to ensure index is rebuilt,
         # or we could optimize it later. The prompt said "reuse existing functions".
@@ -75,7 +78,7 @@ def run_unified_pipeline(new_markdown_files: List[str] = None):
         # Tận dụng mô hình đã load sẵn trên RAM/VRAM của Chatbot
         embed_model = get_embedder()
         embedder = SupabaseEmbedder(embedder_instance=embed_model)
-        embedder.run_embedding(CHILDREN_FILE)
+        embedder.run_embedding(CHILDREN_FILE, parents_file)
         
 
         
@@ -309,11 +312,17 @@ async def process_full_extract_and_crawl(extra_urls: List[str]):
             iuh_thong_bao = extractor.extract_from_category("https://iuh.edu.vn/vi/thong-bao.html", max_pages=10)
             all_urls.update(iuh_thong_bao)
             
-            iuh_static = extractor.extract_from_bfs("https://iuh.edu.vn/", max_depth=0)
+            iuh_static = extractor.extract_from_bfs("https://iuh.edu.vn/", max_depth=2)
             all_urls.update(iuh_static)
             
-            camnang_bfs = extractor.extract_from_bfs("https://camnang.iuh.edu.vn/", max_depth=10)
+            camnang_bfs = extractor.extract_from_bfs("https://camnang.iuh.edu.vn/", max_depth=5)
             all_urls.update(camnang_bfs)
+            
+            ctsv_bfs = extractor.extract_from_bfs("https://ctsv.iuh.edu.vn/", max_depth=4)
+            all_urls.update(ctsv_bfs)
+            
+            csm_bfs = extractor.extract_from_bfs("https://csm.iuh.edu.vn/", max_depth=3)
+            all_urls.update(csm_bfs)
             
             tuyensinh_urls = [
                 "https://tuyensinh.iuh.edu.vn/quyChe",
@@ -329,7 +338,7 @@ async def process_full_extract_and_crawl(extra_urls: List[str]):
         set_status("crawling", f"Đã trích xuất {len(final_urls)} URLs. Đang tiến hành cào dữ liệu...")
         crawler = ContentCrawler(output_dir=STAGING_DIR, max_workers=5)
         # For this massive pipeline, we disable recursive BFS on the crawler because URLExtractor already did it
-        await asyncio.to_thread(crawler.run_crawl, final_urls, False)
+        await asyncio.to_thread(crawler.run_crawl, final_urls, False, None)
         
         # Run chunking & embedding
         await asyncio.to_thread(run_unified_pipeline)

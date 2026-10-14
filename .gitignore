@@ -19,7 +19,6 @@ scratch/
 
 # Bỏ qua file môi trường 
 .env
-.env.prod
 
 # skip agent skills
 .agent/
