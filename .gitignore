@@ -57,3 +57,6 @@ Translated_*.pdf
 
 # Logs
 *.log
+
+run_tests.bat
+run_tests.sh
