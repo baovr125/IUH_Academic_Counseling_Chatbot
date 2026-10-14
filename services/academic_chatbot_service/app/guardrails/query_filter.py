@@ -43,11 +43,34 @@ def check_safety_and_jailbreak(query: str) -> Optional[str]:
             return REFUSAL_MESSAGE
     return None
 
-def wrap_context_sandbox(chunks: list) -> str:
+def _sandwich_reorder(chunks: list) -> list:
+    """
+    Sắp xếp chunks theo Sandwich Pattern để giảm thiểu hiện tượng Lost-in-the-Middle.
+    Input: Danh sách chunks đã sắp xếp giảm dần theo điểm liên quan (rerank_score).
+    Output: [#1, #3, #5, ..., #4, #2] — đưa các tài liệu phù hợp nhất về 2 đầu (primacy & recency).
+    """
+    if len(chunks) <= 2:
+        return chunks
+
+    left = []   # rank 1, 3, 5... (chỉ số 0, 2, 4...)
+    right = []  # rank 2, 4, 6... (chỉ số 1, 3, 5...)
+
+    for i, chunk in enumerate(chunks):
+        if i % 2 == 0:
+            left.append(chunk)
+        else:
+            right.append(chunk)
+
+    return left + list(reversed(right))
+
+
+def wrap_context_sandbox(chunks: list, user_query: str = "") -> str:
     if not chunks:
         return ""
+    
+    reordered_chunks = _sandwich_reorder(chunks)
     formatted_parts = []
-    for idx, c in enumerate(chunks, 1):
+    for idx, c in enumerate(reordered_chunks, 1):
         content = c.get("content", "").strip()
         metadata = c.get("metadata", {}) or {}
         
@@ -64,4 +87,9 @@ def wrap_context_sandbox(chunks: list) -> str:
         
         formatted_parts.append(f'<source id="{idx}">\n{meta_str}{content}\n</source>')
     body = "\n\n".join(formatted_parts)
-    return f"<retrieved_context>\n{body}\n</retrieved_context>"
+
+    echo_part = ""
+    if user_query and user_query.strip():
+        echo_part = f"\n\n<query_reminder>\nCâu hỏi cần trả lời: {user_query.strip()}\n</query_reminder>"
+
+    return f"<retrieved_context>\n{body}{echo_part}\n</retrieved_context>"

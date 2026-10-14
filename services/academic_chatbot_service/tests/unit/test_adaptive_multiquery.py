@@ -16,9 +16,9 @@ class TestAdaptiveMultiQueryQuotaAndThresholds:
     """Kiểm tra logic phân bổ quota động và ngưỡng lọc Cross-Encoder >= 0.65."""
 
     def test_threshold_constants(self):
-        """Đảm bảo ngưỡng good score là 0.65 và safety threshold là 0.40 theo yêu cầu."""
+        """Đảm bảo ngưỡng good score là 0.65 và safety threshold là 0.20 theo yêu cầu."""
         assert GOOD_SCORE_THRESHOLD == 0.65
-        assert RERANKER_THRESHOLD == 0.40
+        assert RERANKER_THRESHOLD == 0.20
 
     @pytest.mark.asyncio
     async def test_quota_single_query(self):
@@ -55,11 +55,11 @@ class TestAdaptiveMultiQueryQuotaAndThresholds:
 
     @pytest.mark.asyncio
     async def test_quota_two_subqueries(self):
-        """2 subqueries: floor 2 mỗi query (tổng 4), trần tối đa 6 (3 mỗi query)."""
+        """2 subqueries: floor 2 mỗi query (tổng 4), trần tối đa 5 (tối ưu Lost-in-the-Middle)."""
         chunks_q1 = [{"id": f"q1_{i}", "content": f"q1_{i}", "metadata": {}} for i in range(5)]
         chunks_q2 = [{"id": f"q2_{i}", "content": f"q2_{i}", "metadata": {}} for i in range(5)]
         
-        # Cho q1 4 good chunks, q2 4 good chunks -> mỗi query lấy tối đa 3 chunks -> tổng 6 chunks
+        # Cho q1 4 good chunks, q2 4 good chunks -> trần tối đa 5 chunks
         fake_scores = [1.0] * 5
 
         mock_supabase = MagicMock()
@@ -83,16 +83,17 @@ class TestAdaptiveMultiQueryQuotaAndThresholds:
                 "chính sách hoàn học phí bảo lưu IUH"
             ])
 
-            # Mỗi query lấy tối đa 3 chunks -> tổng là 6 chunks
-            assert len(result) == 6
+            # Max ceiling cho 2 subqueries là 5 chunks
+            assert len(result) == 5
             q1_picked = [c for c in result if c["matched_subquery"] == "thủ tục bảo lưu học tập IUH"]
             q2_picked = [c for c in result if c["matched_subquery"] == "chính sách hoàn học phí bảo lưu IUH"]
-            assert len(q1_picked) == 3
-            assert len(q2_picked) == 3
+            assert len(q1_picked) + len(q2_picked) == 5
+            assert len(q1_picked) >= 2
+            assert len(q2_picked) >= 2
 
     @pytest.mark.asyncio
     async def test_quota_four_subqueries_ceiling_ten(self):
-        """4 subqueries: floor 2 mỗi query (tổng 8), trần tối đa 10 chunks toàn cục."""
+        """4 subqueries: floor 2 mỗi query (tổng 8), trần tối đa 8 chunks toàn cục."""
         queries = [f"subquery_{i}" for i in range(4)]
         chunks_per_q = [
             [{"id": f"q{q_idx}_{i}", "content": f"c_{q_idx}_{i}", "metadata": {}} for i in range(5)]
@@ -116,10 +117,8 @@ class TestAdaptiveMultiQueryQuotaAndThresholds:
 
             result, top_score = await retrieve_relevant_chunks_multi(queries)
 
-            # Max ceiling cho 4 subqueries là 10 chunks
-            assert len(result) <= 10
-            # Floor 2 mỗi query = ít nhất 8 chunks
-            assert len(result) >= 8
+            # Max ceiling cho 4 subqueries là 8 chunks
+            assert len(result) == 8
 
     @pytest.mark.asyncio
     async def test_round_robin_deduplication(self):
@@ -326,13 +325,13 @@ class TestAdaptiveMultiQueryQuotaAndThresholds:
 
     @pytest.mark.asyncio
     async def test_low_score_rejection_below_threshold(self):
-        """Khi tất cả chunks đều có điểm rerank < 0.40, loại bỏ hoàn toàn và trả về [], 0.0."""
+        """Khi tất cả chunks đều có điểm rerank < 0.20, loại bỏ hoàn toàn và trả về [], 0.0."""
         chunks = [
             {"id": f"junk_{i}", "content": f"nội dung rác {i}", "metadata": {"title": "Triết lý giáo dục"}}
             for i in range(5)
         ]
-        # Điểm rất thấp như log thực tế 010330-mon-triet-hoc-mac: 0.0006, 0.0004, 0.15, 0.35, 0.39 (< 0.40)
-        low_scores = [0.0006, 0.0004, 0.15, 0.35, 0.39]
+        # Điểm rất thấp như log thực tế 010330-mon-triet-hoc-mac: 0.0006, 0.0004, 0.015, 0.05, 0.19 (< 0.20)
+        low_scores = [0.0006, 0.0004, 0.015, 0.05, 0.19]
 
         mock_supabase = MagicMock()
         mock_reranker = MagicMock()

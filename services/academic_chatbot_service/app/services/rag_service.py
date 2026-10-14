@@ -81,15 +81,21 @@ def get_embedder():
             
             onnx_path = "/app/hf_models/vietnamese-bi-encoder-onnx"
             import os
+            loaded_onnx = False
             if os.path.exists(os.path.join(onnx_path, "onnx", "model.onnx")):
-                logger.info(f"Loading Bi-Encoder model (ONNX Optimized) from {onnx_path} on {dev}")
-                # Explicitly set providers to avoid TensorRT lookup
-                if dev == "cuda":
-                    model_kwargs = {"provider": "CUDAExecutionProvider"}
-                else:
-                    model_kwargs = {"provider": "CPUExecutionProvider"}
-                _embedder_model = SentenceTransformer(onnx_path, backend="onnx", model_kwargs=model_kwargs)
-            else:
+                try:
+                    logger.info(f"Loading Bi-Encoder model (ONNX Optimized) from {onnx_path} on {dev}")
+                    # Explicitly set providers to avoid TensorRT lookup
+                    if dev == "cuda":
+                        model_kwargs = {"provider": "CUDAExecutionProvider"}
+                    else:
+                        model_kwargs = {"provider": "CPUExecutionProvider"}
+                    _embedder_model = SentenceTransformer(onnx_path, backend="onnx", model_kwargs=model_kwargs)
+                    loaded_onnx = True
+                except Exception as e:
+                    logger.warning(f"Failed to load Bi-Encoder ONNX model: {e}. Falling back to PyTorch model.")
+            
+            if not loaded_onnx:
                 logger.info(f"Loading Bi-Encoder model (PyTorch) on device: {dev}")
                 kwargs = {}
                 if dev == "cuda":
@@ -108,15 +114,21 @@ def get_reranker():
             
             onnx_path = "/app/hf_models/bge-reranker-v2-m3-onnx"
             import os
+            loaded_onnx = False
             if os.path.exists(os.path.join(onnx_path, "onnx", "model.onnx")):
-                logger.info(f"Loading Cross-Encoder model (ONNX Optimized) from {onnx_path} on {dev}")
-                # Explicitly set providers to avoid TensorRT lookup
-                if dev == "cuda":
-                    model_kwargs = {"provider": "CUDAExecutionProvider"}
-                else:
-                    model_kwargs = {"provider": "CPUExecutionProvider"}
-                _reranker_model = CrossEncoder(onnx_path, backend="onnx", model_kwargs=model_kwargs)
-            else:
+                try:
+                    logger.info(f"Loading Cross-Encoder model (ONNX Optimized) from {onnx_path} on {dev}")
+                    # Explicitly set providers to avoid TensorRT lookup
+                    if dev == "cuda":
+                        model_kwargs = {"provider": "CUDAExecutionProvider"}
+                    else:
+                        model_kwargs = {"provider": "CPUExecutionProvider"}
+                    _reranker_model = CrossEncoder(onnx_path, backend="onnx", model_kwargs=model_kwargs)
+                    loaded_onnx = True
+                except Exception as e:
+                    logger.warning(f"Failed to load Cross-Encoder ONNX model: {e}. Falling back to PyTorch model.")
+            
+            if not loaded_onnx:
                 logger.info(f"Loading Cross-Encoder model (PyTorch) on device: {dev}")
                 kwargs = {}
                 if dev == "cuda":
@@ -386,22 +398,22 @@ async def retrieve_relevant_chunks_multi(
 
     num_q = len(valid_queries)
     # Dynamic Quota Allocation based on agreed rules:
-    # 1 query: default 3, max 6
-    # 2 queries: default 4 (2/query), max 6 (3/query)
-    # 3 queries: default 6 (2/query), max 10
-    # 4 queries: default 8 (2/query), max 10
+    # 1 query: default 3, max 5 (tối ưu Lost-in-the-Middle cho tiếng Việt)
+    # 2 queries: default 4 (2/query), max 5
+    # 3 queries: default 6 (2/query), max 8
+    # 4 queries: default 8 (2/query), max 8
     floor_per_query = 2 if num_q > 1 else 3
     if num_q == 1:
-        max_ceiling = 6
-        max_per_query = 6
+        max_ceiling = 5
+        max_per_query = 5
     elif num_q == 2:
-        max_ceiling = 6
+        max_ceiling = 5
         max_per_query = 3
     elif num_q == 3:
-        max_ceiling = 10
-        max_per_query = 4
+        max_ceiling = 8
+        max_per_query = 3
     else:  # num_q == 4
-        max_ceiling = 10
+        max_ceiling = 8
         max_per_query = 3
 
     # Step 1: Concurrently generate query embeddings for all subqueries
@@ -659,8 +671,14 @@ def build_dynamic_system_instruction(intent: str, memory_str: str, context_str: 
     rules = INTENT_RULES.get(intent, "")
     few_shots = INTENT_FEW_SHOTS.get(intent, "")
     
+    # Đảm bảo khối context chỉ bọc đúng 1 lần thẻ <retrieved_context>
+    if "<retrieved_context>" in context_str:
+        retrieved_block = context_str
+    else:
+        retrieved_block = f"<retrieved_context>\n{context_str}\n</retrieved_context>"
+
     final_prompt = f"{base_prompt}\n\n{rules}\n\n{few_shots}\n\n"
-    final_prompt += f"{memory_str}\n\n<retrieved_context>\n{context_str}\n</retrieved_context>\n\n"
+    final_prompt += f"{memory_str}\n\n{retrieved_block}\n\n"
     final_prompt += f"<user_query>\n{content}\n</user_query>"
     return final_prompt
 
@@ -767,7 +785,7 @@ async def build_rag_payload(session_id: str, content: str, retrieval_queries: Un
             url=meta.get("source_url")
         ))
 
-    context_str = wrap_context_sandbox(chunks) if chunks else "<retrieved_context>\nKhông tìm thấy tài liệu phù hợp trong CSDL.\n</retrieved_context>"
+    context_str = wrap_context_sandbox(chunks, user_query=content) if chunks else "<retrieved_context>\nKhông tìm thấy tài liệu phù hợp trong CSDL.\n</retrieved_context>"
 
     system_instruction = build_dynamic_system_instruction(intent, memory_str, context_str, content)
 
