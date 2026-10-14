@@ -4,7 +4,12 @@ import asyncio
 import re
 from typing import Tuple, Optional, Any
 from fastapi import HTTPException
-from app.services.cache_service import get_cached_translation, set_cached_translation, get_domain_version
+from app.services.cache_service import (
+    get_cached_translation,
+    get_translation_text_hash,
+    set_cached_translation,
+    get_domain_version,
+)
 from app.services.llm_service import get_nllb_translator, LANG_MAP, get_gemini_client
 from app.services.supabase_client import get_supabase
 from app.utils.logger import logger
@@ -170,7 +175,7 @@ async def translate_text(text: str, source_lang: str = "en", target_lang: str = 
                 
             final_translated = html_translator.reconstruct_html(html_with_placeholders, translated_texts)
             
-            set_cached_translation(cache_key, final_translated)
+            await asyncio.to_thread(set_cached_translation, cache_key, final_translated)
             latency = (time.perf_counter() - start_time) * 1000
             return final_translated, False, round(latency, 2), uncertain_warning, detected_lang, detection_details
         except Exception as e:
@@ -195,7 +200,7 @@ async def translate_text(text: str, source_lang: str = "en", target_lang: str = 
             )
             if res.choices and res.choices[0].message.content:
                 translated = res.choices[0].message.content.strip()
-                set_cached_translation(cache_key, translated)
+                await asyncio.to_thread(set_cached_translation, cache_key, translated)
                 latency = (time.perf_counter() - start_time) * 1000
                 return translated, False, round(latency, 2), uncertain_warning, detected_lang, detection_details
         except Exception as e:
@@ -208,13 +213,16 @@ async def translate_text(text: str, source_lang: str = "en", target_lang: str = 
         client = get_gemini_client()
         if client:
             try:
-                res = client.models.generate_content(
-                    model="gemini-2.5-flash",
-                    contents=prompt
+                res = await asyncio.wait_for(
+                    client.aio.models.generate_content(
+                        model="gemini-2.5-flash",
+                        contents=prompt,
+                    ),
+                    timeout=_gemini_timeout_seconds(),
                 )
                 if res and res.text:
                     translated = res.text.strip()
-                    set_cached_translation(cache_key, translated)
+                    await asyncio.to_thread(set_cached_translation, cache_key, translated)
                     latency = (time.perf_counter() - start_time) * 1000
                     return translated, False, round(latency, 2), uncertain_warning, detected_lang, detection_details
             except Exception as e:
