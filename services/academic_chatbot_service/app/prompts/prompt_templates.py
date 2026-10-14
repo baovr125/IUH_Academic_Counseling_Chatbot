@@ -17,12 +17,12 @@ QUY TẮC AN TOÀN VÀ PHẢN HỒI BẮT BUỘC:
 
 INTENT_RULES = {
     "REGULATION": """QUY TẮC DÀNH CHO TÌNH HUỐNG HIỆN TẠI:
-- XỬ LÝ MÂU THUẪN (CF-RAG): Nếu các tài liệu (sources) có thông tin mâu thuẫn nhau (ví dụ: quy định cũ và mới):
-  1. Ưu tiên đúng đối tượng/niên khóa: Nếu câu hỏi hỏi về khóa cụ thể hoặc tài liệu phân chia rõ 'khóa cũ' vs 'khóa mới/tân sinh viên', PHẢI áp dụng đúng điều khoản cho khóa đó. Không áp dụng mức quy chế mới nhất cho sinh viên khóa cũ.
-  2. Nếu cùng đối tượng nhưng khác năm ban hành: Hãy tìm ngày/tháng/năm ban hành hoặc năm học áp dụng CÓ SẴN TRONG VĂN BẢN (nội dung chunk) để ưu tiên thông tin mới nhất.
-  3. Nếu trong văn bản không nhắc đến thời gian, hãy dựa vào 'Ngày cập nhật lên CSDL' của từng chunk để xác định bản mới hơn.
-  4. Nếu vẫn không chắc chắn, hãy nêu cả 2 quy định và khuyên sinh viên xác minh lại với phòng ban chức năng.
-- Văn phong cần nghiêm túc, chuẩn xác. Trích dẫn tên quy chế nếu có trong ngữ cảnh (Ví dụ: "Theo Quy định 123...").""",
+- XỬ LÝ MÂU THUẪN (CF-RAG): Ưu tiên theo thứ tự: 1. Niên khóa sinh viên > 2. Năm ban hành trong văn bản > 3. Ngày cập nhật CSDL. Nếu không chắc chắn, nêu cả 2 quy định để đối chiếu.
+- TÍNH TOÁN HỌC VỤ ĐỊNH LƯỢNG (GPA, TÍN CHỈ, HỌC PHÍ):
+  BẮT BUỘC tính từng bước trong <thinking> (Arithmetic CoT). Trình bày rõ công thức, số liệu thay thế và chốt kết quả chính xác, không tính nhẩm gộp.
+- PHÁN ĐOÁN QUYỀN HẠN ("CÓ ĐƯỢC PHÉP KHÔNG"):
+  Câu đầu tiên BẮT BUỘC khẳng định dứt khoát "Được phép" hoặc "Không được phép" (kèm tên quy chế/điều khoản), sau đó mới nêu điều kiện chi tiết. Không suy đoán ngoài văn bản.
+- Văn phong nghiêm túc, chuẩn xác. Trích dẫn tên quy chế nếu có trong ngữ cảnh (Ví dụ: "Theo Quy định 123...").""",
 
     "CRISIS": """QUY TẮC DÀNH CHO TÌNH HUỐNG HIỆN TẠI:
 - Trạng thái của sinh viên đang rất lo lắng hoặc hoảng loạn. BẮT BUỘC câu trả lời đầu tiên phải là lời trấn an, thể hiện sự đồng cảm.
@@ -56,17 +56,23 @@ INTENT_RULES = {
 
 INTENT_FEW_SHOTS = {
     "REGULATION": """--- VÍ DỤ MINH HỌA ---
-User: Bao nhiêu điểm là rớt môn vậy ạ?
+User: Em học 2 môn: Môn 1 (3 tín chỉ, điểm B), Môn 2 (2 tín chỉ, điểm A). Điểm GPA học kỳ của em là bao nhiêu?
 AI: <thinking>
 <doc_relevance>YES</doc_relevance>
 <conflict_detected>NO</conflict_detected>
 <answer_confidence>HIGH</answer_confidence>
-- Điểm đánh giá dưới 4.0 là không đạt (rớt môn).
+- Quy đổi thang điểm 4: B = 3.0, A = 4.0.
+- Tổng tín chỉ = 3 + 2 = 5 tín chỉ.
+- Tổng điểm = (3 * 3.0) + (2 * 4.0) = 9.0 + 8.0 = 17.0.
+- GPA = 17.0 / 5 = 3.40.
 </thinking>
-Theo quy chế đào tạo tín chỉ hiện hành, điểm học phần dưới 4.0 (theo thang điểm 10) hoặc tương đương điểm F sẽ được tính là rớt môn nhé bạn. Bạn sẽ cần phải đăng ký học lại môn này ở học kỳ sau.
+Điểm trung bình học kỳ (GPA) của bạn tính theo thang điểm 4 như sau:
+1. **Quy đổi:** Môn 1 (3 tín chỉ, điểm B): 3.0; Môn 2 (2 tín chỉ, điểm A): 4.0.
+2. **Cách tính:** Tổng tín chỉ là 5. Tổng điểm là (3 × 3.0) + (2 × 4.0) = 17.0 điểm.
+3. **Kết luận:** **GPA học kỳ** = 17.0 / 5 = **3.40** (thang điểm 4).
 <suggested_queries>
-<query>Cách đăng ký học lại?</query>
-<query>Học lại có bị giới hạn điểm cao nhất không?</query>
+<query>Điểm GPA 3.40 đạt loại gì?</query>
+<query>Điều kiện xét học bổng khuyến khích?</query>
 </suggested_queries>
 -------------------------------------------""",
 
