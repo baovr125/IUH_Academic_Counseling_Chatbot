@@ -342,7 +342,7 @@ async def invalidate_semantic_cache():
 
 
 # --- 2. Hybrid Retrieval & Multi-Query Reranking ---
-RERANKER_THRESHOLD: float = 0.10
+RERANKER_THRESHOLD: float = 0.20
 GOOD_SCORE_THRESHOLD: float = 0.65
 
 def get_adaptive_candidate_count(estimated_score: float = 0.5) -> int:
@@ -431,12 +431,11 @@ async def retrieve_relevant_chunks_multi(
 
     reranker = get_reranker()
     batch_size = 32 if get_device() == "cuda" else 8
-    RERANKER_THRESHOLD = 0.10
-    GOOD_SCORE_THRESHOLD = 0.65
 
     # Step 3: Query-specific Reranking for each subquery
     selected_chunks_by_query = []
     all_top_scores = []
+    raw_max_score = 0.0
 
     for q_idx, (q_text, chunks) in enumerate(zip(valid_queries, candidates_per_query)):
         if not chunks:
@@ -455,14 +454,20 @@ async def retrieve_relevant_chunks_multi(
             for idx, chunk in enumerate(chunks):
                 c_copy = dict(chunk)
                 score = float(scores[idx])
-                c_copy["rerank_score"] = 1 / (1 + math.exp(-score))  # Apply Sigmoid
+                # CrossEncoder (BAAI/bge-reranker-v2-m3) already outputs probabilities in [0.0, 1.0].
+                # If a model or mock returns raw logits outside [0.0, 1.0], apply Sigmoid once.
+                if score < 0.0 or score > 1.0:
+                    score = 1.0 / (1.0 + math.exp(-score))
+                c_copy["rerank_score"] = score
                 c_copy["matched_subquery"] = q_text
                 scored_chunks.append(c_copy)
 
             # Sort descending by rerank_score
             scored_chunks = sorted(scored_chunks, key=lambda x: x["rerank_score"], reverse=True)
+            if scored_chunks:
+                raw_max_score = max(raw_max_score, scored_chunks[0]["rerank_score"])
             
-            # Filter valid chunks above safe threshold (0.10)
+            # Filter valid chunks above safe threshold (0.40)
             valid_chunks = [c for c in scored_chunks if c["rerank_score"] >= RERANKER_THRESHOLD]
             if not valid_chunks:
                 continue
@@ -533,7 +538,7 @@ async def retrieve_relevant_chunks_multi(
     final_chunks = list(parent_map.values())
     final_chunks = sorted(final_chunks, key=lambda x: x["rerank_score"], reverse=True)[:max_ceiling]
 
-    top_doc_score = max(all_top_scores) if all_top_scores else 0.0
+    top_doc_score = max(all_top_scores) if all_top_scores else raw_max_score
 
     if final_chunks:
         logger.info(f"Multi-Query ({num_q} queries): Selected {len(final_chunks)} parent sections, Top Score: {top_doc_score:.4f}")

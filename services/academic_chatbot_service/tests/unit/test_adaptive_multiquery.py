@@ -16,9 +16,9 @@ class TestAdaptiveMultiQueryQuotaAndThresholds:
     """Kiểm tra logic phân bổ quota động và ngưỡng lọc Cross-Encoder >= 0.65."""
 
     def test_threshold_constants(self):
-        """Đảm bảo ngưỡng good score là 0.65 và safety threshold là 0.10 theo yêu cầu."""
+        """Đảm bảo ngưỡng good score là 0.65 và safety threshold là 0.40 theo yêu cầu."""
         assert GOOD_SCORE_THRESHOLD == 0.65
-        assert RERANKER_THRESHOLD == 0.10
+        assert RERANKER_THRESHOLD == 0.40
 
     @pytest.mark.asyncio
     async def test_quota_single_query(self):
@@ -284,9 +284,9 @@ class TestAdaptiveMultiQueryQuotaAndThresholds:
             assert "p-2846fdfd" in parent_ids  # Chương V không bị starve out!
             assert "p-other" not in parent_ids
 
-            # Parent da443b12 có score là max giữa c1 và c2 (~0.6995)
+            # Parent da443b12 có score là max giữa c1 và c2 (0.845)
             p_da44 = next(c for c in result if c.get("parent_id") == "p-da443b12")
-            assert math.isclose(p_da44["rerank_score"], 1 / (1 + math.exp(-0.845)), rel_tol=1e-4)
+            assert math.isclose(p_da44["rerank_score"], 0.845, rel_tol=1e-4)
 
     @pytest.mark.asyncio
     async def test_parent_aware_quota_multiple_good_parents(self):
@@ -323,6 +323,32 @@ class TestAdaptiveMultiQueryQuotaAndThresholds:
             assert len(result) == 5
             parent_ids = {c.get("parent_id") for c in result}
             assert parent_ids == {"p1", "p2", "p3", "p4", "p5"}
+
+    @pytest.mark.asyncio
+    async def test_low_score_rejection_below_threshold(self):
+        """Khi tất cả chunks đều có điểm rerank < 0.40, loại bỏ hoàn toàn và trả về [], 0.0."""
+        chunks = [
+            {"id": f"junk_{i}", "content": f"nội dung rác {i}", "metadata": {"title": "Triết lý giáo dục"}}
+            for i in range(5)
+        ]
+        # Điểm rất thấp như log thực tế 010330-mon-triet-hoc-mac: 0.0006, 0.0004, 0.15, 0.35, 0.39 (< 0.40)
+        low_scores = [0.0006, 0.0004, 0.15, 0.35, 0.39]
+
+        mock_supabase = MagicMock()
+        mock_reranker = MagicMock()
+        mock_reranker.predict.return_value = low_scores
+
+        with patch("app.services.rag_service.get_supabase_client", return_value=mock_supabase), \
+             patch("app.services.rag_service.get_query_embedding", new_callable=AsyncMock, return_value=[0.1]*768), \
+             patch("app.services.rag_service.get_reranker", return_value=mock_reranker):
+
+            mock_supabase.rpc.return_value = MagicMock(execute=MagicMock(return_value=MagicMock(data=chunks)))
+
+            result, top_score = await retrieve_relevant_chunks_multi(["môn Triết học Mác có thay thế bằng môn CNXHKH"])
+
+            # Toàn bộ chunks bị loại bỏ, trả về list rỗng để tránh tốn input token cho LLM
+            assert result == []
+            assert top_score == 0.0
 
 
 class TestAdaptiveQueryRewriterLogic:
