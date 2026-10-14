@@ -11,18 +11,46 @@ JAILBREAK_PATTERNS = [
     r"(?i)\bpretend\s+(you\s+have\s+no|you\s+are\s+not\s+bound\s+by)\s+(rules|safety|restrictions)\b",
     r"(?i)\b(từ\s+giờ|hãy)\s+(đóng\s+vai|hóa\s+thân|nhập\s+vai)\s+(người\s+dùng\s+root|hacker|AI\s+không\s+giới\s+hạn|admin)\b",
     r"(?i)\bbỏ\s+qua\s+mọi\s+(quy\s+định|giới\s+hạn|luật\s+an\s+toàn)\b",
-    r"(?i)<\|im_start\|>",
-    r"(?i)<\|im_end\|>",
-    r"(?i)\[INST\]",
-    r"(?i)\[/INST\]",
-    r"(?i)</?system>",
     r"(?i)\bsudo\s+mode\b",
     r"(?i)\badmin\s+override\b",
     r"(?i)\blệnh\s+từ\s+phòng\s+đào\s+tạo\b",
-    r"(?i)\bcập\s+nhật\s+hệ\s+thống\b"
+    r"(?i)\bcập\s+nhật\s+hệ\s+thống\b",
 ]
 
-COMPILED_JAILBREAK_REGEX = [re.compile(p) for p in JAILBREAK_PATTERNS]
+STRUCTURAL_TAG_PATTERNS = [
+    # 1. RAG Context & Framing tags
+    r"(?i)</?retrieved_context\b[^>]*>",
+    r"(?i)</?source\b[^>]*>",
+    r"(?i)</?user_query\b[^>]*>",
+    r"(?i)</?query_reminder\b[^>]*>",
+
+    # 2. Self-RAG & Thinking / Reasoning tags
+    r"(?i)</?thinking\b[^>]*>",
+    r"(?i)</?think\b[^>]*>",
+    r"(?i)</?doc_relevance\b[^>]*>",
+    r"(?i)</?conflict_detected\b[^>]*>",
+    r"(?i)</?answer_confidence\b[^>]*>",
+    r"(?i)</?suggested_queries\b[^>]*>",
+    r"(?i)</?query\b[^>]*>",
+
+    # 3. System / Role / Prompt injection tags
+    r"(?i)</?system\b[^>]*>",
+    r"(?i)</?system_instruction\b[^>]*>",
+    r"(?i)</?instruction\b[^>]*>",
+    r"(?i)</?context\b[^>]*>",
+    r"(?i)</?prompt\b[^>]*>",
+    r"(?i)</?rules\b[^>]*>",
+
+    # 4. Chat template delimiters & LLM special tokens
+    r"(?i)<\|(?:im_start|im_end|im_sep|system|user|assistant|start_header_id|end_header_id|eot_id)\|?>",
+    r"(?i)\[/?INST\]",
+    r"(?i)\[/?SYS\]",
+    r"(?i)<<SYS>>",
+    r"(?i)<</SYS>>",
+]
+
+ALL_SAFETY_PATTERNS = JAILBREAK_PATTERNS + STRUCTURAL_TAG_PATTERNS
+COMPILED_JAILBREAK_REGEX = [re.compile(p) for p in ALL_SAFETY_PATTERNS]
 
 REFUSAL_MESSAGE = (
     "⚠️ **Cảnh báo an toàn**: Câu lệnh của bạn chứa từ ngữ hoặc mục đích can thiệp hệ thống không phù hợp. "
