@@ -57,7 +57,7 @@ export default function DashboardPage() {
           <div className="space-y-6 lg:col-span-8">
             {/* Daily Action Hub (Student vs Public) */}
             {isStudent ? (
-              <StudentDailyActionHub stats={stats} />
+              <StudentDailyActionHub />
             ) : (
               <PublicDocTranslationHub stats={stats} />
             )}

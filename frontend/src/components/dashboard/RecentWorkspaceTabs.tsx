@@ -12,6 +12,7 @@ import {
   FileCheck,
 } from "lucide-react";
 import type { DashboardStats, RecentDocument, RecentChatPreview } from "../../types";
+import { SampleDataBadge } from "./SampleDataBadge";
 
 interface RecentWorkspaceTabsProps {
   stats: DashboardStats;
@@ -40,7 +41,7 @@ export const RecentWorkspaceTabs: React.FC<RecentWorkspaceTabsProps> = ({
               className={`flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-semibold transition-all cursor-pointer ${
                 activeTab === "docs"
                   ? "bg-white text-blue-600 shadow-sm dark:bg-slate-800 dark:text-blue-400"
-                  : "text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
+                  : "text-slate-600 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
               }`}
             >
               <FileText size={14} />
@@ -53,7 +54,7 @@ export const RecentWorkspaceTabs: React.FC<RecentWorkspaceTabsProps> = ({
               className={`flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-semibold transition-all cursor-pointer ${
                 activeTab === "chats"
                   ? "bg-white text-blue-600 shadow-sm dark:bg-slate-800 dark:text-blue-400"
-                  : "text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
+                  : "text-slate-600 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
               }`}
             >
               <MessageSquare size={14} />
@@ -62,21 +63,24 @@ export const RecentWorkspaceTabs: React.FC<RecentWorkspaceTabsProps> = ({
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={() => navigate(activeTab === "docs" ? "/translation-doc" : "/chat")}
-          className="flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-        >
-          <span>{activeTab === "docs" ? "Xem tất cả tài liệu" : "Lịch sử cuộc trò chuyện"}</span>
-          <ArrowRight size={13} />
-        </button>
+        <div className="flex flex-wrap items-center gap-3">
+          <SampleDataBadge />
+          <button
+            type="button"
+            onClick={() => navigate(activeTab === "docs" ? "/translation-doc" : "/chat")}
+            className="flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+          >
+            <span>{activeTab === "docs" ? "Xem tất cả tài liệu" : "Lịch sử cuộc trò chuyện"}</span>
+            <ArrowRight size={13} />
+          </button>
+        </div>
       </div>
 
       {/* Tab 1: Documents Content */}
       {activeTab === "docs" && (
         <div className="mt-4 space-y-2.5">
           {recentDocs.length === 0 ? (
-            <div className="py-8 text-center text-xs text-slate-400">
+            <div className="py-8 text-center text-xs text-slate-500 dark:text-slate-400">
               <FileText size={28} className="mx-auto mb-2 opacity-40" />
               <p>Chưa có tài liệu nào được dịch gần đây.</p>
               <button
@@ -91,7 +95,7 @@ export const RecentWorkspaceTabs: React.FC<RecentWorkspaceTabsProps> = ({
             recentDocs.map((doc) => (
               <div
                 key={doc.id}
-                className="group flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 rounded-2xl border border-slate-100 bg-slate-50/50 p-3.5 transition-all hover:border-blue-200 hover:bg-blue-50/30 dark:border-slate-700/60 dark:bg-slate-900/40 dark:hover:border-blue-800 dark:hover:bg-slate-900/80"
+                className="group flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 rounded-2xl border border-slate-100 bg-slate-50/50 p-3.5 transition-all hover:border-blue-200 hover:bg-blue-50/30 dark:border-slate-700/60 dark:bg-slate-900/40 dark:hover:border-blue-800 dark:hover:bg-slate-900/80"
               >
                 <div className="flex items-start gap-3 min-w-0">
                   <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-600 dark:bg-blue-950 dark:text-blue-400">
@@ -111,7 +115,7 @@ export const RecentWorkspaceTabs: React.FC<RecentWorkspaceTabsProps> = ({
                         {doc.translatedTitle}
                       </p>
                     )}
-                    <div className="mt-1 flex items-center gap-3 text-[11px] text-slate-400">
+                    <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[11px] text-slate-500 dark:text-slate-400">
                       {doc.pageCount && <span>{doc.pageCount} trang</span>}
                       {doc.fileSize && <span>• {doc.fileSize}</span>}
                       <span className="flex items-center gap-1">
@@ -148,7 +152,7 @@ export const RecentWorkspaceTabs: React.FC<RecentWorkspaceTabsProps> = ({
       {activeTab === "chats" && (
         <div className="mt-4 space-y-2.5">
           {recentChats.length === 0 ? (
-            <div className="py-8 text-center text-xs text-slate-400">
+            <div className="py-8 text-center text-xs text-slate-500 dark:text-slate-400">
               <MessageSquare size={28} className="mx-auto mb-2 opacity-40" />
               <p>Chưa có phiên trò chuyện nào.</p>
               <button
@@ -177,7 +181,7 @@ export const RecentWorkspaceTabs: React.FC<RecentWorkspaceTabsProps> = ({
                     <p className="truncate text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 max-w-xl">
                       {chat.lastMessage}
                     </p>
-                    <div className="mt-1 flex items-center gap-2 text-[11px] text-slate-400">
+                    <div className="mt-1 flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400">
                       <span>{chat.messageCount} tin nhắn</span>
                       <span>• Cập nhật {chat.updatedAt}</span>
                     </div>

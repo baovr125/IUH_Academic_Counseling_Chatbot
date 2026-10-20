@@ -29,7 +29,7 @@ export function FormattedMarkdown({ content }: FormattedMarkdownProps) {
               className="rounded-md my-2"
             />
           ) : (
-            <code {...rest} className="bg-black/10 rounded px-1 py-0.5 text-xs font-mono text-inherit">
+            <code {...rest} className="bg-black/10 rounded px-1 py-0.5 text-xs font-mono text-inherit dark:bg-white/15">
               {children}
             </code>
           );
@@ -37,15 +37,15 @@ export function FormattedMarkdown({ content }: FormattedMarkdownProps) {
         table({ node, ...props }: any) {
           return (
             <div className="overflow-x-auto my-2">
-              <table className="min-w-full border-collapse border border-black/20" {...props} />
+              <table className="min-w-full border-collapse border border-black/20 dark:border-white/25" {...props} />
             </div>
           );
         },
         th({ node, ...props }: any) {
-          return <th className="border border-black/20 px-3 py-2 bg-black/5 font-semibold text-left" {...props} />;
+          return <th className="border border-black/20 px-3 py-2 bg-black/5 font-semibold text-left dark:border-white/25 dark:bg-white/10" {...props} />;
         },
         td({ node, ...props }: any) {
-          return <td className="border border-black/20 px-3 py-2" {...props} />;
+          return <td className="border border-black/20 px-3 py-2 dark:border-white/25" {...props} />;
         },
         a({ node, ...props }: any) {
           return <a className="underline hover:opacity-80 font-medium" target="_blank" rel="noopener noreferrer" {...props} />;
@@ -60,7 +60,7 @@ export function FormattedMarkdown({ content }: FormattedMarkdownProps) {
           return <ol className="list-decimal ml-5 my-1.5 space-y-1" {...props} />;
         },
         h2({ node, ...props }: any) {
-          return <h2 className="font-bold text-lg mt-3 mb-1 border-b border-black/10 pb-1" {...props} />;
+          return <h2 className="font-bold text-lg mt-3 mb-1 border-b border-black/10 pb-1 dark:border-white/20" {...props} />;
         },
         h3({ node, ...props }: any) {
           return <h3 className="font-bold text-base mt-2 mb-1" {...props} />;

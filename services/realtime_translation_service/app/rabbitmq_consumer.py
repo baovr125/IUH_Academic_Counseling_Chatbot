@@ -2,12 +2,12 @@ import os
 import json
 import asyncio
 import aio_pika
-import edge_tts
 import hashlib
 from typing import Optional
 from app.utils.logger import logger
 from app.utils.minio_client import upload_audio_bytes, audio_exists
 from app.services.cache_service import set_cached_audio_url
+from app.services.tts_service import resolve_voice, synthesize
 
 RABBITMQ_HOST = os.environ.get("RABBITMQ_HOST", "rabbitmq")
 RABBITMQ_PORT = int(os.environ.get("RABBITMQ_PORT", "5672"))
@@ -16,38 +16,12 @@ RABBITMQ_PASS = os.environ.get("RABBITMQ_DEFAULT_PASS", "guest")
 
 RABBITMQ_URL = f"amqp://{RABBITMQ_USER}:{RABBITMQ_PASS}@{RABBITMQ_HOST}:{RABBITMQ_PORT}/"
 
-VOICE_MAP = {
-    # Short 2-letter codes
-    "vi": "vi-VN-HoaiMyNeural",
-    "en": "en-US-AriaNeural",       # AriaNeural: Giọng phát âm chuẩn từ điển Mỹ, rõ âm gió & trọng âm
-    "de": "de-DE-KillianNeural",    # KillianNeural: Chuẩn ngữ âm Hochdeutsch tiếng Đức
-    "zh": "zh-CN-XiaoxiaoNeural",
-    "ja": "ja-JP-NanamiNeural",
-    "ko": "ko-KR-SunHiNeural",
-    "fr": "fr-FR-DeniseNeural",
-    "es": "es-ES-ElviraNeural",
-    "ru": "ru-RU-SvetlanaNeural",
-    "th": "th-TH-PremwadeeNeural",
-    # Full Locale codes
-    "vi-vn": "vi-VN-HoaiMyNeural",
-    "en-us": "en-US-AriaNeural",
-    "en-gb": "en-GB-RyanNeural",
-    "de-de": "de-DE-KillianNeural",
-    "zh-cn": "zh-CN-XiaoxiaoNeural",
-    "ja-jp": "ja-JP-NanamiNeural",
-    "ko-kr": "ko-KR-SunHiNeural",
-    "fr-fr": "fr-FR-DeniseNeural",
-    "es-es": "es-ES-ElviraNeural",
-    "ru-ru": "ru-RU-SvetlanaNeural",
-    "th-th": "th-TH-PremwadeeNeural"
-}
-
 _channel: aio_pika.Channel = None
 _exchange: aio_pika.Exchange = None
 
 async def generate_and_upload_tts(term: str, lang_code: str, card_id: str, phonetic: Optional[str] = None) -> str:
     cleaned_lang = (lang_code or "en").strip().lower().replace("_", "-")
-    voice = VOICE_MAP.get(cleaned_lang) or VOICE_MAP.get(cleaned_lang[:2], "en-US-AriaNeural")
+    voice = resolve_voice(cleaned_lang)
     lang_prefix = cleaned_lang[:2]
     clean_term = term.strip().lower()
     term_hash = hashlib.md5(f"{lang_prefix}_{clean_term}".encode('utf-8')).hexdigest()
@@ -59,14 +33,7 @@ async def generate_and_upload_tts(term: str, lang_code: str, card_id: str, phone
         return f"/api/v1/translate/audio/{object_name}"
         
     # 2. Tổng hợp âm thanh chất lượng cao trực tiếp qua Microsoft Edge Neural Engine (Rate -4%)
-    communicate = edge_tts.Communicate(clean_term, voice, rate="-4%")
-    audio_data = bytearray()
-    
-    async for chunk in communicate.stream():
-        if chunk["type"] == "audio":
-            audio_data.extend(chunk["data"])
-            
-    complete_audio = bytes(audio_data)
+    complete_audio = await synthesize(clean_term, voice)  # ném TTSUnavailable nếu lỗi: không bao giờ tải lên tệp rỗng
     audio_url = upload_audio_bytes(object_name, complete_audio)
     
     cache_key = hashlib.md5(f"{clean_term}_{voice}".encode('utf-8')).hexdigest()

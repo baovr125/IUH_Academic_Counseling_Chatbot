@@ -113,7 +113,7 @@ export function ChatMessageBubble({
       <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-blue-600 text-white">
         <Bot size={15} />
       </div>
-      <div className="max-w-[75%] rounded-2xl rounded-tl-sm bg-blue-50 px-4 py-3 text-sm text-slate-700">
+      <div className="max-w-[75%] rounded-2xl rounded-tl-sm bg-blue-50 px-4 py-3 text-sm text-slate-700 dark:bg-blue-950/40 dark:text-slate-200">
         {message.status === "pending" && !message.content ? (
           <TypingIndicator />
         ) : (
@@ -123,7 +123,7 @@ export function ChatMessageBubble({
               <span className="inline-block h-3 w-1.5 animate-pulse rounded-sm bg-blue-400 ml-0.5 align-baseline" />
             )}
             {uniqueCitations && uniqueCitations.length > 0 && (
-              <div className="mt-2 flex flex-col gap-1.5 border-t border-blue-100 pt-2">
+              <div className="mt-2 flex flex-col gap-1.5 border-t border-blue-100 pt-2 dark:border-blue-900/50">
                 <div className="flex flex-wrap items-center gap-1.5">
                   <span className="text-xs text-slate-400">Nguồn:</span>
                   {(sourcesExpanded ? uniqueCitations : uniqueCitations.slice(0, 2)).map((c) => (
@@ -132,7 +132,7 @@ export function ChatMessageBubble({
                   {!sourcesExpanded && uniqueCitations.length > 2 && (
                     <button
                       onClick={() => setSourcesExpanded(true)}
-                      className="text-xs text-blue-500 hover:text-blue-700 underline px-1"
+                      className="text-xs text-blue-500 hover:text-blue-700 underline px-1 dark:text-blue-400 dark:hover:text-blue-300"
                     >
                       +{uniqueCitations.length - 2} xem thêm
                     </button>
@@ -140,7 +140,7 @@ export function ChatMessageBubble({
                   {sourcesExpanded && uniqueCitations.length > 2 && (
                     <button
                       onClick={() => setSourcesExpanded(false)}
-                      className="text-xs text-slate-400 hover:text-slate-600 underline px-1"
+                      className="text-xs text-slate-400 hover:text-slate-600 underline px-1 dark:hover:text-slate-200"
                     >
                       Thu gọn
                     </button>
@@ -150,13 +150,13 @@ export function ChatMessageBubble({
             )}
             {isLatest && followUps.length > 0 && (
               <div className="mt-3 flex flex-col gap-2">
-                <span className="text-xs font-medium text-slate-500">Gợi ý câu hỏi:</span>
+                <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Gợi ý câu hỏi:</span>
                 <div className="flex flex-wrap gap-2">
                   {followUps.map((text, i) => (
                     <button
                       key={i}
                       onClick={() => onSendMessage && onSendMessage(text)}
-                      className="text-left text-xs text-blue-700 bg-blue-100 hover:bg-blue-200 border border-blue-200 rounded-xl px-3 py-1.5 transition-colors"
+                      className="text-left text-xs text-blue-700 bg-blue-100 hover:bg-blue-200 border border-blue-200 rounded-xl px-3 py-1.5 transition-colors dark:text-blue-300 dark:bg-blue-900/40 dark:border-blue-800 dark:hover:bg-blue-800/60"
                     >
                       {text}
                     </button>
@@ -165,32 +165,32 @@ export function ChatMessageBubble({
               </div>
             )}
             {message.status === "complete" && (
-              <div className="mt-3 flex flex-col gap-2 border-t border-blue-100 pt-2">
+              <div className="mt-3 flex flex-col gap-2 border-t border-blue-100 pt-2 dark:border-blue-900/50">
                 <div className="flex items-center gap-2">
                   <button
                     onClick={handleCopy}
-                    className="p-1.5 rounded-md transition-colors text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+                    className="p-1.5 rounded-md transition-colors text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-700 dark:hover:text-slate-200"
                     title="Sao chép"
                   >
-                    {copied ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
+                    {copied ? <Check size={14} className="text-green-500 dark:text-green-400" /> : <Copy size={14} />}
                   </button>
                   <button
                     onClick={() => handleFeedback('like')}
-                    className={`p-1.5 rounded-md transition-colors ${feedback === 'like' ? 'bg-blue-100 text-blue-600' : 'text-slate-400 hover:bg-slate-100 hover:text-slate-600'}`}
+                    className={`p-1.5 rounded-md transition-colors ${feedback === 'like' ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300' : 'text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-700 dark:hover:text-slate-200'}`}
                     title="Hữu ích"
                   >
                     <ThumbsUp size={14} />
                   </button>
                   <button
                     onClick={() => handleFeedback('dislike')}
-                    className={`p-1.5 rounded-md transition-colors ${feedback === 'dislike' ? 'bg-red-100 text-red-600' : 'text-slate-400 hover:bg-slate-100 hover:text-slate-600'}`}
+                    className={`p-1.5 rounded-md transition-colors ${feedback === 'dislike' ? 'bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-300' : 'text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-700 dark:hover:text-slate-200'}`}
                     title="Không hữu ích"
                   >
                     <ThumbsDown size={14} />
                   </button>
                   <button
                     onClick={() => setShowComment(!showComment)}
-                    className={`p-1.5 rounded-md transition-colors ${showComment ? 'bg-slate-200 text-slate-700' : 'text-slate-400 hover:bg-slate-100 hover:text-slate-600'}`}
+                    className={`p-1.5 rounded-md transition-colors ${showComment ? 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200' : 'text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-700 dark:hover:text-slate-200'}`}
                     title="Thêm bình luận"
                   >
                     <MessageSquare size={14} />
@@ -198,7 +198,7 @@ export function ChatMessageBubble({
                   {message.cacheStatus === "HIT" && previousUserMessage && onSendMessage && (
                     <button
                       onClick={() => onSendMessage(previousUserMessage.content, true)}
-                      className="flex items-center gap-1 p-1.5 rounded-md transition-colors text-amber-600 hover:bg-amber-100 ml-auto text-xs font-medium"
+                      className="flex items-center gap-1 p-1.5 rounded-md transition-colors text-amber-600 hover:bg-amber-100 ml-auto text-xs font-medium dark:text-amber-400 dark:hover:bg-amber-900/50"
                       title="Bỏ qua cache và tạo lại câu trả lời mới"
                     >
                       <RefreshCw size={12} />
@@ -213,7 +213,7 @@ export function ChatMessageBubble({
                       value={comment}
                       onChange={(e) => setComment(e.target.value)}
                       placeholder="Nhập góp ý của bạn..."
-                      className="flex-1 rounded-md border border-slate-200 px-3 py-1.5 text-xs text-slate-700 outline-none focus:border-blue-500"
+                      className="flex-1 rounded-md border border-slate-200 px-3 py-1.5 text-xs text-slate-700 outline-none focus:border-blue-500 dark:border-slate-600 dark:text-slate-200"
                       onKeyDown={(e) => { if (e.key === 'Enter') handleCommentSubmit(); }}
                     />
                     <button

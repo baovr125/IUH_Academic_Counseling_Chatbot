@@ -7,8 +7,8 @@ class TestTranslationApiIntegration:
         res = client.get("/health")
         assert res.status_code == 200
         data = res.json()
-        assert data["ok"] is True
         assert data["service"] == "realtime_translation_service"
+        assert data["tts"]["status"] in ("unknown", "ok", "degraded")
 
     def test_translate_text_endpoint(self, client):
         with patch("app.routers.translation.translate_text", new_callable=AsyncMock) as mock_trans:
@@ -82,14 +82,12 @@ class TestTranslationApiIntegration:
             mock_set_cache.assert_called_once()
 
     @pytest.mark.asyncio
-    def test_tts_endpoint_fallback_returns_204(self, client):
-        with patch("app.routers.translation.audio_exists") as mock_exists, \
-             patch("app.routers.translation.edge_tts.Communicate") as mock_communicate:
-            
+    def test_tts_endpoint_upstream_failure_returns_503_not_silent_204(self, client):
+        with patch("app.routers.translation.audio_exists") as mock_exists,              patch("app.services.tts_service.RETRY_DELAY_S", 0),              patch("app.routers.translation.edge_tts.Communicate") as mock_communicate:
             mock_exists.return_value = False
-            
-            # Mock edge_tts.Communicate to raise exception
             mock_communicate.side_effect = Exception("TTS Engine Error")
 
             res = client.get("/api/v1/translate/tts?text=hello_error&lang=en")
-            assert res.status_code == 204
+            assert res.status_code == 503
+            assert res.json()["error"]["code"] == "TTS_UPSTREAM_FAILED"
+            assert res.headers["retry-after"] == "30"

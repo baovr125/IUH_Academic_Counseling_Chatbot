@@ -1,0 +1,34 @@
+{
+  "variant": "three_stage",
+  "dataset": "passages",
+  "runs": 8,
+  "ok": 8,
+  "provider_outage": 0,
+  "system_failures": 0,
+  "items": 79,
+  "count_fulfilment_ge90pct": "100.0% [68-100] (8/8)",
+  "mean_returned_ratio": 0.988,
+  "runs_with_duplicates": 0,
+  "schema_valid_rate_of_candidates": "100.0% [96-100] (86/86)",
+  "reviewer_reject_rate": "2.3% [1-8] (2/86)",
+  "reviewer_fix_rate": "13.9% [8-23] (11/79)",
+  "example_contains_term": "100.0% [95-100] (79/79)",
+  "ipa_present_and_valid": "100.0% [95-100] (79/79)",
+  "example_translation_present": "100.0% [95-100] (79/79)",
+  "verified_share": "88.6% [80-94] (70/79)",
+  "latency_s": {
+    "p50": 6.2,
+    "p95": 7.0,
+    "mean": 6.1
+  },
+  "tokens_per_run": {
+    "prompt": 2299,
+    "completion": 2121
+  },
+  "tokens_per_returned_item": 447.5,
+  "llm_calls_per_run": 3.0,
+  "error_codes": {},
+  "providers": {
+    "groq:openai/gpt-oss-120b": 8
+  }
+}

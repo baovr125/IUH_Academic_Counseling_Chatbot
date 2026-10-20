@@ -1,6 +1,5 @@
 import React, { useState, useRef } from "react";
 import {
-  X,
   UploadCloud,
   FileSpreadsheet,
   Download,
@@ -10,6 +9,7 @@ import {
   FileText
 } from "lucide-react";
 import { getExcelTemplateDownloadUrl, type BulkImportResult } from "../../../services/flashcardService";
+import { FcModal } from "../ui";
 import type { BackendDeck } from "../../../services/flashcardService";
 
 interface ImportExcelModalProps {
@@ -103,35 +103,24 @@ export const ImportExcelModal: React.FC<ImportExcelModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-      <div className="w-full max-w-lg rounded-3xl bg-white p-6 sm:p-7 shadow-2xl animate-in zoom-in-95 duration-200 flex flex-col gap-4">
-        {/* Header */}
-        <div className="flex items-center justify-between border-b border-slate-100 pb-3.5">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
-              <FileSpreadsheet size={22} />
-            </div>
-            <div>
-              <h3 className="text-base font-bold text-slate-800">Nhập từ vựng từ Excel / CSV</h3>
-              <p className="text-[11px] text-slate-400">
-                Thêm hàng loạt từ mới vào sổ <strong className="text-slate-600">"{deck.title}"</strong>
-              </p>
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={handleClose}
-            className="rounded-full p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
-          >
-            <X size={18} />
-          </button>
-        </div>
-
+    <FcModal
+      title="Nhập từ vựng từ Excel / CSV"
+      description={
+        <>
+          Thêm hàng loạt từ mới vào sổ <strong className="text-slate-600 dark:text-slate-300">"{deck.title}"</strong>
+        </>
+      }
+      icon={<FileSpreadsheet size={22} />}
+      size="lg"
+      onClose={handleClose}
+      dismissible={!isLoading}
+    >
+      <div className="flex flex-col gap-4">
         {/* Template Download Banner */}
-        <div className="flex items-center justify-between rounded-2xl bg-blue-50/70 p-3.5 border border-blue-100 text-xs">
-          <div className="flex items-center gap-2.5 text-blue-900">
-            <FileText size={18} className="text-blue-600 flex-shrink-0" />
-            <span>Chưa có mẫu file chuẩn? Tải file mẫu mẫu để điền từ:</span>
+        <div className="flex items-center justify-between rounded-2xl bg-blue-50/70 p-3.5 border border-blue-100 text-xs dark:bg-blue-950/30 dark:border-blue-900/50">
+          <div className="flex items-center gap-2.5 text-blue-900 dark:text-blue-200">
+            <FileText size={18} className="text-blue-600 flex-shrink-0 dark:text-blue-400" />
+            <span>Chưa có mẫu file chuẩn? Tải file mẫu để điền từ:</span>
           </div>
           <a
             href={getExcelTemplateDownloadUrl()}
@@ -155,10 +144,10 @@ export const ImportExcelModal: React.FC<ImportExcelModalProps> = ({
               onClick={() => fileInputRef.current?.click()}
               className={`flex flex-col items-center justify-center rounded-3xl border-2 border-dashed p-7 text-center transition-all cursor-pointer ${
                 isDragOver
-                  ? "border-emerald-500 bg-emerald-50/40"
+                  ? "border-emerald-500 bg-emerald-50/40 dark:bg-emerald-950/30"
                   : selectedFile
                   ? "border-blue-400 bg-blue-50/20"
-                  : "border-slate-200 bg-slate-50/60 hover:border-slate-300 hover:bg-slate-50"
+                  : "border-slate-200 bg-slate-50/60 hover:border-slate-300 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900/40 dark:hover:bg-slate-700"
               }`}
             >
               <input
@@ -171,27 +160,27 @@ export const ImportExcelModal: React.FC<ImportExcelModalProps> = ({
 
               {selectedFile ? (
                 <div className="flex flex-col items-center gap-2">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
                     <FileSpreadsheet size={26} />
                   </div>
                   <div className="text-center">
-                    <p className="text-sm font-bold text-slate-800 break-all">{selectedFile.name}</p>
-                    <p className="text-xs text-slate-500 mt-0.5">{formatFileSize(selectedFile.size)}</p>
+                    <p className="text-sm font-bold text-slate-800 break-all dark:text-slate-100">{selectedFile.name}</p>
+                    <p className="text-xs text-slate-500 mt-0.5 dark:text-slate-400">{formatFileSize(selectedFile.size)}</p>
                   </div>
-                  <span className="text-[11px] font-semibold text-blue-600 mt-1 hover:underline">
+                  <span className="text-[11px] font-semibold text-blue-600 mt-1 hover:underline dark:text-blue-400">
                     Bấm để chọn file khác
                   </span>
                 </div>
               ) : (
                 <div className="flex flex-col items-center gap-2">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-400">
                     <UploadCloud size={26} />
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-slate-700">
-                      Kéo thả file Excel / CSV vào đây, hoặc <span className="text-blue-600">chọn từ máy tính</span>
+                    <p className="text-xs font-bold text-slate-700 dark:text-slate-200">
+                      Kéo thả file Excel / CSV vào đây, hoặc <span className="text-blue-600 dark:text-blue-300">chọn từ máy tính</span>
                     </p>
-                    <p className="text-[11px] text-slate-400 mt-1">
+                    <p className="text-[11px] text-slate-500 mt-1 dark:text-slate-300">
                       Hỗ trợ định dạng .xlsx, .xls, .csv (Tối đa 2,000 từ / 5MB)
                     </p>
                   </div>
@@ -201,15 +190,15 @@ export const ImportExcelModal: React.FC<ImportExcelModalProps> = ({
 
             {/* Error Message */}
             {errorMsg && (
-              <div className="flex items-center gap-2 rounded-2xl bg-rose-50 p-3 text-xs text-rose-700 border border-rose-200 animate-in fade-in duration-150">
+              <div className="flex items-center gap-2 rounded-2xl bg-rose-50 p-3 text-xs text-rose-700 border border-rose-200 animate-in fade-in duration-150 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800">
                 <AlertCircle size={16} className="flex-shrink-0" />
                 <span>{errorMsg}</span>
               </div>
             )}
 
             {/* Format Instructions */}
-            <div className="rounded-2xl bg-slate-50 p-3.5 text-[11px] text-slate-500 border border-slate-100">
-              <p className="font-semibold text-slate-700 mb-1">💡 Hỗ trợ Đa Ngôn Ngữ & Tiêu đề linh hoạt:</p>
+            <div className="rounded-2xl bg-slate-50 p-3.5 text-[11px] text-slate-500 border border-slate-100 dark:bg-slate-900/50 dark:text-slate-400 dark:border-slate-700">
+              <p className="font-semibold text-slate-700 mb-1 dark:text-slate-200">💡 Hỗ trợ Đa Ngôn Ngữ & Tiêu đề linh hoạt:</p>
               <ul className="list-disc pl-4 space-y-1">
                 <li>
                   <strong>Cột 1 (Bắt buộc) - Từ vựng</strong>: Từ gốc bằng bất kỳ ngôn ngữ nào (Anh, Đức, Pháp, Nhật, Trung, Hàn, Nga, v.v.). <em>Tiêu đề cột: Term, Từ vựng, Word, Wort, Mot, 单次, 単語...</em>
@@ -227,17 +216,17 @@ export const ImportExcelModal: React.FC<ImportExcelModalProps> = ({
                   <strong>Cột 5 (Tùy chọn) - Ví dụ</strong>: Câu ví dụ ngữ cảnh tương ứng với từ vựng.
                 </li>
               </ul>
-              <p className="mt-2 text-[10.5px] text-slate-400 italic">
+              <p className="mt-2 text-[10.5px] text-slate-500 italic dark:text-slate-400">
                 * Mẹo: Tiêu đề cột có thể viết bằng tiếng Việt hoặc tiếng Anh. Nếu file không có dòng tiêu đề, hệ thống sẽ tự động gán dữ liệu theo thứ tự 5 cột trên.
               </p>
             </div>
 
             {/* Actions */}
-            <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+            <div className="flex justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-700">
               <button
                 type="button"
                 onClick={handleClose}
-                className="rounded-xl px-4 py-2.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 transition-colors"
+                className="rounded-xl px-4 py-2.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 transition-colors dark:text-slate-300 dark:hover:bg-slate-700"
               >
                 Hủy
               </button>
@@ -263,36 +252,36 @@ export const ImportExcelModal: React.FC<ImportExcelModalProps> = ({
         ) : (
           /* Result Summary */
           <div className="flex flex-col gap-4 py-2 animate-in zoom-in-95 duration-200">
-            <div className="rounded-2xl bg-emerald-50 p-5 text-center border border-emerald-200 flex flex-col items-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 mb-2">
+            <div className="rounded-2xl bg-emerald-50 p-5 text-center border border-emerald-200 flex flex-col items-center dark:bg-emerald-950/40 dark:border-emerald-800">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 mb-2 dark:bg-emerald-900/40 dark:text-emerald-400">
                 <CheckCircle2 size={28} />
               </div>
-              <h4 className="text-base font-bold text-emerald-900">Nhập dữ liệu thành công!</h4>
-              <p className="text-xs text-emerald-700 mt-1">
+              <h4 className="text-base font-bold text-emerald-900 dark:text-emerald-200">Nhập dữ liệu thành công!</h4>
+              <p className="text-xs text-emerald-700 mt-1 dark:text-emerald-300">
                 Toàn bộ từ vựng đã được nạp vào sổ thẻ và tự động khởi tạo thuật toán FSRS.
               </p>
             </div>
 
             <div className="grid grid-cols-2 gap-3 text-center">
-              <div className="rounded-2xl bg-slate-50 p-3.5 border border-slate-200">
-                <span className="text-[11px] text-slate-500 font-medium">Thêm mới thành công</span>
-                <p className="text-xl font-extrabold text-emerald-600 mt-0.5">
+              <div className="rounded-2xl bg-slate-50 p-3.5 border border-slate-200 dark:bg-slate-900/50 dark:border-slate-600">
+                <span className="text-[11px] text-slate-500 font-medium dark:text-slate-400">Thêm mới thành công</span>
+                <p className="text-xl font-extrabold text-emerald-600 mt-0.5 dark:text-emerald-400">
                   +{importResult.inserted} <span className="text-xs font-medium">thẻ</span>
                 </p>
               </div>
-              <div className="rounded-2xl bg-slate-50 p-3.5 border border-slate-200">
-                <span className="text-[11px] text-slate-500 font-medium">Bỏ qua (Trùng lặp)</span>
-                <p className="text-xl font-extrabold text-slate-600 mt-0.5">
+              <div className="rounded-2xl bg-slate-50 p-3.5 border border-slate-200 dark:bg-slate-900/50 dark:border-slate-600">
+                <span className="text-[11px] text-slate-500 font-medium dark:text-slate-400">Bỏ qua (Trùng lặp)</span>
+                <p className="text-xl font-extrabold text-slate-600 mt-0.5 dark:text-slate-300">
                   {importResult.skipped_duplicates} <span className="text-xs font-medium">thẻ</span>
                 </p>
               </div>
             </div>
 
-            <p className="text-[11px] text-slate-400 italic text-center">
+            <p className="text-[11px] text-slate-500 italic text-center dark:text-slate-400">
               🔊 Hệ thống âm thanh Edge Neural TTS đang sinh trước giọng phát âm chuẩn cho các từ mới ở chế độ nền.
             </p>
 
-            <div className="flex justify-end pt-2 border-t border-slate-100">
+            <div className="flex justify-end pt-2 border-t border-slate-100 dark:border-slate-700">
               <button
                 type="button"
                 onClick={handleClose}
@@ -304,6 +293,6 @@ export const ImportExcelModal: React.FC<ImportExcelModalProps> = ({
           </div>
         )}
       </div>
-    </div>
+    </FcModal>
   );
 };

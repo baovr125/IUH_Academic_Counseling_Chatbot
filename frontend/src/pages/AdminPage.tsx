@@ -416,7 +416,7 @@ export default function AdminPage() {
                 
                 <div className="overflow-x-auto border border-slate-200 rounded-lg">
                   <table className="w-full text-left text-sm">
-                    <thead className="bg-slate-50 text-slate-600 font-medium border-b border-slate-200">
+                    <thead className="bg-slate-50 text-slate-600 font-medium border-b border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700">
                       <tr>
                         <th className="px-4 py-4 w-16 text-center">STT</th>
                         <th className="px-6 py-4">Tên tài liệu / Tiêu đề</th>
@@ -461,7 +461,7 @@ export default function AdminPage() {
                               {editingDocId === doc.id ? (
                                 <input
                                   type="text"
-                                  className="w-full border border-blue-500 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
+                                  className="w-full border border-blue-500 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white text-slate-800 dark:bg-slate-900 dark:text-slate-100"
                                   value={editTitle}
                                   onChange={(e) => setEditTitle(e.target.value)}
                                   onBlur={() => handleUpdateTitle(doc.id)}

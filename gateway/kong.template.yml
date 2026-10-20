@@ -231,3 +231,23 @@ services:
               uri_param_names:
                 - jwt
                 - token
+      # Sinh từ vựng bằng AI: tốn quota LLM nên giới hạn chặt hơn mức chung (đường dẫn dài hơn nên được khớp trước).
+      - name: flashcard-vocabulary-routes
+        paths:
+          - /api/v1/flashcards/vocabulary
+          - /api/flashcards/vocabulary
+        strip_path: false
+        plugins:
+          - name: jwt
+            config:
+              claims_to_verify:
+                - exp
+              maximum_expiration: 86400
+              uri_param_names:
+                - jwt
+                - token
+          - name: rate-limiting
+            config:
+              minute: 6
+              hour: 60
+              policy: local

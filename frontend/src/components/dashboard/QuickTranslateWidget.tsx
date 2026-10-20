@@ -12,22 +12,15 @@ import {
   Volume2,
 } from "lucide-react";
 import { translateText } from "../../services/translationService";
-import { addCardToDeck, getDecks, createCustomDeck, LANG_CONFIG } from "../../services/deckStorage";
-import { useAuth } from "../../hooks/useAuth";
+import { LANG_CONFIG, LANG_CODES } from "../../services/deckStorage";
+import { SaveFlashcardModal, type SavedInfo } from "../translation/SaveFlashcardModal";
+import type { DraftInput } from "../../services/flashcardDraft";
 
-const POPULAR_LANGUAGES = [
-  { code: "en", label: "Tiếng Anh", flag: "🇬🇧" },
-  { code: "vi", label: "Tiếng Việt", flag: "🇻🇳" },
-  { code: "ja", label: "Tiếng Nhật", flag: "🇯🇵" },
-  { code: "ko", label: "Tiếng Hàn", flag: "🇰🇷" },
-  { code: "zh", label: "Tiếng Trung", flag: "🇨🇳" },
-  { code: "de", label: "Tiếng Đức", flag: "🇩🇪" },
-  { code: "fr", label: "Tiếng Pháp", flag: "🇫🇷" },
-];
+/** Đủ 10 ngôn ngữ của hệ thống (cùng danh sách với Realtime Translation và Flashcard). */
+const LANGUAGES = LANG_CODES.map((code) => ({ code, label: LANG_CONFIG[code].viName, flag: LANG_CONFIG[code].flag }));
 
 export const QuickTranslateWidget: React.FC = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
 
   const [sourceLang, setSourceLang] = useState("vi");
   const [targetLang, setTargetLang] = useState("en");
@@ -35,6 +28,9 @@ export const QuickTranslateWidget: React.FC = () => {
   const [translatedResult, setTranslatedResult] = useState("");
   const [isTranslating, setIsTranslating] = useState(false);
   const [isSavedFlashcard, setIsSavedFlashcard] = useState(false);
+  const [savedMessage, setSavedMessage] = useState<string | null>(null);
+  const [saveInput, setSaveInput] = useState<DraftInput | null>(null);
+  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [translateError, setTranslateError] = useState<string | null>(null);
 
@@ -77,31 +73,31 @@ export const QuickTranslateWidget: React.FC = () => {
     }
   };
 
+  /** Mở hộp thoại lưu: ngôn ngữ thẻ lấy từ ngôn ngữ nguồn đã chọn (widget này không có chế độ tự nhận diện). */
   const handleSaveToFlashcard = () => {
     if (!inputText.trim() || !translatedResult.trim()) return;
-
-    try {
-      const term = targetLang === "vi" ? inputText.trim() : translatedResult.trim();
-      const definition = targetLang === "vi" ? translatedResult.trim() : inputText.trim();
-      const example = `IUH Academic Context: ${inputText.trim()}`;
-
-      addCardToDeck(
-        targetLang,
-        term,
-        definition,
-        example,
-        "noun",
-        undefined,
-        user?.id
-      );
-
-      setIsSavedFlashcard(true);
-      setTimeout(() => setIsSavedFlashcard(false), 3000);
-    } catch (e) {
-      console.error("Error saving card:", e);
-    }
+    setSaveInput({
+      sourceLang,
+      targetLang,
+      sourceText: inputText,
+      translatedText: translatedResult,
+      detection: null,
+      selection: null,
+    });
+    setIsSaveModalOpen(true);
   };
 
+  const handleSaved = (info: SavedInfo) => {
+    setSavedMessage(
+      info.pending
+        ? "Đã lưu tạm trên thiết bị (chưa đồng bộ)"
+        : info.created
+        ? `Đã lưu vào Flashcard ${LANG_CONFIG[info.langCode]?.viName ?? ""}`.trim()
+        : "Đã cập nhật thẻ"
+    );
+    setIsSavedFlashcard(true);
+    setTimeout(() => setIsSavedFlashcard(false), 3000);
+  };
 
   const handleCopy = () => {
     if (!translatedResult) return;
@@ -122,7 +118,7 @@ export const QuickTranslateWidget: React.FC = () => {
             <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">
               Dịch thuật Đa Ngôn ngữ Nhanh (Redis Cache &lt;5ms)
             </h3>
-            <p className="text-[11px] text-slate-400">Tra cứu nhanh từ vựng chuyên ngành & lưu thẻ học</p>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">Tra cứu nhanh từ vựng chuyên ngành & lưu thẻ học</p>
           </div>
         </div>
 
@@ -144,7 +140,7 @@ export const QuickTranslateWidget: React.FC = () => {
             onChange={(e) => setSourceLang(e.target.value)}
             className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 focus:outline-none focus:border-blue-500"
           >
-            {POPULAR_LANGUAGES.map((lang) => (
+            {LANGUAGES.map((lang) => (
               <option key={`src_${lang.code}`} value={lang.code}>
                 {lang.flag} {lang.label}
               </option>
@@ -155,7 +151,7 @@ export const QuickTranslateWidget: React.FC = () => {
         <button
           type="button"
           onClick={handleSwap}
-          className="flex h-8 w-8 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:text-slate-200 transition-transform active:scale-95 shadow-sm cursor-pointer"
+          className="flex h-8 w-8 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-200 transition-transform active:scale-95 shadow-sm cursor-pointer"
           title="Đảo chiều ngôn ngữ"
         >
           <ArrowRightLeft size={14} />
@@ -167,7 +163,7 @@ export const QuickTranslateWidget: React.FC = () => {
             onChange={(e) => setTargetLang(e.target.value)}
             className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 focus:outline-none focus:border-blue-500"
           >
-            {POPULAR_LANGUAGES.map((lang) => (
+            {LANGUAGES.map((lang) => (
               <option key={`tgt_${lang.code}`} value={lang.code}>
                 {lang.flag} {lang.label}
               </option>
@@ -194,7 +190,7 @@ export const QuickTranslateWidget: React.FC = () => {
             className="w-full resize-none bg-transparent text-xs text-slate-800 placeholder-slate-400 focus:outline-none dark:text-slate-100 dark:placeholder-slate-500"
           />
           <div className="mt-2 flex items-center justify-between pt-2 border-t border-slate-200/60 dark:border-slate-800">
-            <span className="text-[11px] text-slate-400">{inputText.length} ký tự</span>
+            <span className="text-[11px] text-slate-500 dark:text-slate-400">{inputText.length} ký tự</span>
             <button
               type="button"
               onClick={() => handleTranslate()}
@@ -226,7 +222,7 @@ export const QuickTranslateWidget: React.FC = () => {
             ) : translateError ? (
               <p role="alert" className="text-xs font-medium text-red-600 dark:text-red-400">{translateError}</p>
             ) : (
-              <p className="text-xs italic text-slate-400">Kết quả dịch thuật AI sẽ hiển thị tại đây...</p>
+              <p className="text-xs italic text-slate-500 dark:text-slate-400">Kết quả dịch thuật AI sẽ hiển thị tại đây...</p>
             )}
           </div>
 
@@ -254,7 +250,7 @@ export const QuickTranslateWidget: React.FC = () => {
                 {isSavedFlashcard ? (
                   <>
                     <Check size={13} />
-                    <span>Đã lưu vào Flashcard</span>
+                    <span>{savedMessage ?? "Đã lưu vào Flashcard"}</span>
                   </>
                 ) : (
                   <>
@@ -267,6 +263,13 @@ export const QuickTranslateWidget: React.FC = () => {
           )}
         </div>
       </div>
+
+      <SaveFlashcardModal
+        isOpen={isSaveModalOpen}
+        onClose={() => setIsSaveModalOpen(false)}
+        input={saveInput}
+        onSaved={handleSaved}
+      />
     </div>
   );
 };

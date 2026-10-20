@@ -1,0 +1,694 @@
+{
+  "summary": {
+    "sampled_words": 100,
+    "dictionary_coverage": "34.0% [25-44] (34/100)",
+    "exact_match_among_covered": "76.5% [60-88] (26/34)",
+    "close_match_among_covered(>=0.8)": "100.0% [90-100] (34/34)",
+    "note": "Cận dưới: từ điển trộn giọng Anh/Mỹ; chỉ tính các từ đơn có mục từ điển."
+  },
+  "records": [
+    {
+      "word": "presentation",
+      "ai_ipa": "/ˌprɛzənˈteɪʃən/",
+      "dictionary": []
+    },
+    {
+      "word": "outbreak",
+      "ai_ipa": "/ˈaʊtˌbreɪk/",
+      "dictionary": null
+    },
+    {
+      "word": "debug",
+      "ai_ipa": "/dɪˈbʌɡ/",
+      "dictionary": null
+    },
+    {
+      "word": "close",
+      "ai_ipa": "/kloʊs/",
+      "dictionary": [
+        "/kloʊs/",
+        "/kloʊz/",
+        "/kləʊs/",
+        "/kləʊz/"
+      ],
+      "exact": true,
+      "best_ratio": 1.0,
+      "close": true
+    },
+    {
+      "word": "interpretability",
+      "ai_ipa": "/ɪnˌtɜrprɪtəˈbɪləti/",
+      "dictionary": null
+    },
+    {
+      "word": "passport",
+      "ai_ipa": "/ˈpæspɔrt/",
+      "dictionary": null
+    },
+    {
+      "word": "accommodation",
+      "ai_ipa": "/əˌkɑməˈdeɪʃən/",
+      "dictionary": [
+        "/ə.ˌkɑm.ə.ˈdeɪ.ʃən/",
+        "/ə.ˌkɒm.ə.ˈdeɪ.ʃən/"
+      ],
+      "exact": true,
+      "best_ratio": 1.0,
+      "close": true
+    },
+    {
+      "word": "epidemiology",
+      "ai_ipa": "/ˌɛpɪˌdɛmɪˈɑlədʒi/",
+      "dictionary": null
+    },
+    {
+      "word": "preventive",
+      "ai_ipa": "/prɪˈvɛntɪv/",
+      "dictionary": null
+    },
+    {
+      "word": "field",
+      "ai_ipa": "/fiːld/",
+      "dictionary": null
+    },
+    {
+      "word": "deployment",
+      "ai_ipa": "/dɪˈploɪmənt/",
+      "dictionary": null
+    },
+    {
+      "word": "commuter",
+      "ai_ipa": "/kəˈmjuː.tɚ/",
+      "dictionary": null
+    },
+    {
+      "word": "overcrowded",
+      "ai_ipa": "/ˌoʊ.vɚˈkraʊd.ɪd/",
+      "dictionary": null
+    },
+    {
+      "word": "resolve",
+      "ai_ipa": "/rɪˈzɑlv/",
+      "dictionary": null
+    },
+    {
+      "word": "weakness",
+      "ai_ipa": "/ˈwiːk.nəs/",
+      "dictionary": [
+        "/ˈwiːk.nəs/"
+      ],
+      "exact": true,
+      "best_ratio": 1.0,
+      "close": true
+    },
+    {
+      "word": "index",
+      "ai_ipa": "/ˈɪndɛks/",
+      "dictionary": [
+        "/ˈɪndɛks/"
+      ],
+      "exact": true,
+      "best_ratio": 1.0,
+      "close": true
+    },
+    {
+      "word": "child",
+      "ai_ipa": "/tʃaɪld/",
+      "dictionary": [
+        "/t͡ʃaɪld/"
+      ],
+      "exact": true,
+      "best_ratio": 1.0,
+      "close": true
+    },
+    {
+      "word": "friend",
+      "ai_ipa": "/frɛnd/",
+      "dictionary": [
+        "/fɹɛnd/"
+      ],
+      "exact": true,
+      "best_ratio": 1.0,
+      "close": true
+    },
+    {
+      "word": "subsidize",
+      "ai_ipa": "/ˈsʌb.sɪ.daɪz/",
+      "dictionary": null
+    },
+    {
+      "word": "escalate",
+      "ai_ipa": "/ˈɛskəleɪt/",
+      "dictionary": null
+    },
+    {
+      "word": "viral",
+      "ai_ipa": "/ˈvaɪrəl/",
+      "dictionary": null
+    },
+    {
+      "word": "automate",
+      "ai_ipa": "/ˈɔːtəˌmeɪt/",
+      "dictionary": null
+    },
+    {
+      "word": "sun",
+      "ai_ipa": "/sʌn/",
+      "dictionary": [
+        "/sʌn/"
+      ],
+      "exact": true,
+      "best_ratio": 1.0,
+      "close": true
+    },
+    {
+      "word": "sustainable",
+      "ai_ipa": "/səˈsteɪnəbl/",
+      "dictionary": null
+    },
+    {
+      "word": "encryption",
+      "ai_ipa": "/ɪnˈkrɪpʃən/",
+      "dictionary": null
+    },
+    {
+      "word": "database",
+      "ai_ipa": "/ˈdeɪtəˌbeɪs/",
+      "dictionary": [
+        "/ˈdeɪtəˌbeɪs/"
+      ],
+      "exact": true,
+      "best_ratio": 1.0,
+      "close": true
+    },
+    {
+      "word": "query",
+      "ai_ipa": "/ˈkwɪri/",
+      "dictionary": null
+    },
+    {
+      "word": "complaint",
+      "ai_ipa": "/kəmˈpleɪnt/",
+      "dictionary": [
+        "/kəmˈpleɪnt/"
+      ],
+      "exact": true,
+      "best_ratio": 1.0,
+      "close": true
+    },
+    {
+      "word": "resume",
+      "ai_ipa": "/rɪˈzuːm/",
+      "dictionary": null
+    },
+    {
+      "word": "renewable",
+      "ai_ipa": "/rɪˈnjuːəbl/",
+      "dictionary": null
+    },
+    {
+      "word": "mitigate",
+      "ai_ipa": "/ˈmɪtɪˌɡeɪt/",
+      "dictionary": [
+        "/ˈmɪt.ɪ.ɡeɪt/"
+      ],
+      "exact": true,
+      "best_ratio": 1.0,
+      "close": true
+    },
+    {
+      "word": "promptly",
+      "ai_ipa": "/ˈprɑmptli/",
+      "dictionary": null
+    },
+    {
+      "word": "redevelop",
+      "ai_ipa": "/ˌriː.dɪˈvɛlp/",
+      "dictionary": null
+    },
+    {
+      "word": "emission",
+      "ai_ipa": "/ɪˈmɪʃən/",
+      "dictionary": [
+        "/ɪˈmɪʃn̩/"
+      ],
+      "exact": false,
+      "best_ratio": 0.833,
+      "close": true
+    },
+    {
+      "word": "rain",
+      "ai_ipa": "/reɪn/",
+      "dictionary": [
+        "/ɹeɪn/"
+      ],
+      "exact": true,
+      "best_ratio": 1.0,
+      "close": true
+    },
+    {
+      "word": "negotiate",
+      "ai_ipa": "/nɪˈɡoʊʃieɪt/",
+      "dictionary": [
+        "/nəˈɡoʊ.ʃi.eɪt/",
+        "/nəˈɡəʊ.ʃi.eɪt/"
+      ],
+      "exact": false,
+      "best_ratio": 0.9,
+      "close": true
+    },
+    {
+      "word": "curriculum",
+      "ai_ipa": "/kəˈrɪkjʊləm/",
+      "dictionary": [
+        "/kəˈɹɪk.jə.ləm/",
+        "/kəˈɹɪkjələm/"
+      ],
+      "exact": false,
+      "best_ratio": 0.9,
+      "close": true
+    },
+    {
+      "word": "spicy",
+      "ai_ipa": "/ˈspaɪsi/",
+      "dictionary": []
+    },
+    {
+      "word": "sibling",
+      "ai_ipa": "/ˈsɪblɪŋ/",
+      "dictionary": null
+    },
+    {
+      "word": "influence",
+      "ai_ipa": "/ˈɪnflʊəns/",
+      "dictionary": []
+    },
+    {
+      "word": "cheap",
+      "ai_ipa": "/tʃiːp/",
+      "dictionary": [
+        "/t͡ʃip/",
+        "/t͡ʃiːp/"
+      ],
+      "exact": true,
+      "best_ratio": 1.0,
+      "close": true
+    },
+    {
+      "word": "inquiry",
+      "ai_ipa": "/ˈɪnkwəri/",
+      "dictionary": null
+    },
+    {
+      "word": "parent",
+      "ai_ipa": "/ˈpɛrənt/",
+      "dictionary": [
+        "/ˈpeəɹənt/",
+        "/ˈpɛəɹənt/"
+      ],
+      "exact": false,
+      "best_ratio": 0.923,
+      "close": true
+    },
+    {
+      "word": "buy",
+      "ai_ipa": "/baɪ/",
+      "dictionary": [
+        "/baɪ/"
+      ],
+      "exact": true,
+      "best_ratio": 1.0,
+      "close": true
+    },
+    {
+      "word": "cold",
+      "ai_ipa": "/koʊld/",
+      "dictionary": [
+        "/koʊld/",
+        "/kɔʊld/"
+      ],
+      "exact": true,
+      "best_ratio": 1.0,
+      "close": true
+    },
+    {
+      "word": "gentrification",
+      "ai_ipa": "/ˌdʒɛn.trɪ.fɪˈkeɪ.ʃən/",
+      "dictionary": null
+    },
+    {
+      "word": "recycle",
+      "ai_ipa": "/riˈsaɪkəl/",
+      "dictionary": [
+        "/ɹiˈsaɪkəl/"
+      ],
+      "exact": true,
+      "best_ratio": 1.0,
+      "close": true
+    },
+    {
+      "word": "algorithm",
+      "ai_ipa": "/ˈælɡəˌrɪðəm/",
+      "dictionary": null
+    },
+    {
+      "word": "match",
+      "ai_ipa": "/mætʃ/",
+      "dictionary": [
+        "/mæt͡ʃ/"
+      ],
+      "exact": true,
+      "best_ratio": 1.0,
+      "close": true
+    },
+    {
+      "word": "professional",
+      "ai_ipa": "/prəˈfɛʃənl/",
+      "dictionary": null
+    },
+    {
+      "word": "snow",
+      "ai_ipa": "/snoʊ/",
+      "dictionary": [
+        "/snoʊ/",
+        "/snəʊ/"
+      ],
+      "exact": true,
+      "best_ratio": 1.0,
+      "close": true
+    },
+    {
+      "word": "contagious",
+      "ai_ipa": "/kənˈteɪdʒəs/",
+      "dictionary": null
+    },
+    {
+      "word": "recipe",
+      "ai_ipa": "/ˈrɛsɪpi/",
+      "dictionary": null
+    },
+    {
+      "word": "bias",
+      "ai_ipa": "/ˈbaɪəs/",
+      "dictionary": null
+    },
+    {
+      "word": "digitalization",
+      "ai_ipa": "/ˌdɪdʒɪtəlaɪˈzeɪʃən/",
+      "dictionary": null
+    },
+    {
+      "word": "sweet",
+      "ai_ipa": "/swiːt/",
+      "dictionary": null
+    },
+    {
+      "word": "deforestation",
+      "ai_ipa": "/ˌdiːˌfɔːrɪˈsteɪʃən/",
+      "dictionary": [
+        "/dɪˌfɒɹɪsˈteɪʃən/"
+      ],
+      "exact": false,
+      "best_ratio": 0.846,
+      "close": true
+    },
+    {
+      "word": "immunize",
+      "ai_ipa": "/ɪˈmjuːnaɪz/",
+      "dictionary": null
+    },
+    {
+      "word": "minute",
+      "ai_ipa": "/ˈmɪnɪt/",
+      "dictionary": []
+    },
+    {
+      "word": "hydrate",
+      "ai_ipa": "/ˈhaɪˌdreɪt/",
+      "dictionary": null
+    },
+    {
+      "word": "malware",
+      "ai_ipa": "/ˈmælˌwɛr/",
+      "dictionary": null
+    },
+    {
+      "word": "diet",
+      "ai_ipa": "/ˈdaɪət/",
+      "dictionary": null
+    },
+    {
+      "word": "scalable",
+      "ai_ipa": "/ˈskeɪləbl/",
+      "dictionary": null
+    },
+    {
+      "word": "itinerary",
+      "ai_ipa": "/aɪˈtɪnərəri/",
+      "dictionary": null
+    },
+    {
+      "word": "pay",
+      "ai_ipa": "/peɪ/",
+      "dictionary": [
+        "/peɪ/"
+      ],
+      "exact": true,
+      "best_ratio": 1.0,
+      "close": true
+    },
+    {
+      "word": "price",
+      "ai_ipa": "/praɪs/",
+      "dictionary": [
+        "/pɹaɪs/"
+      ],
+      "exact": true,
+      "best_ratio": 1.0,
+      "close": true
+    },
+    {
+      "word": "pollution",
+      "ai_ipa": "/pəˈluːʃən/",
+      "dictionary": [
+        "/pəˈl(j)uːʃn̩/"
+      ],
+      "exact": false,
+      "best_ratio": 0.8,
+      "close": true
+    },
+    {
+      "word": "ingredients",
+      "ai_ipa": "/ɪnˈɡriːdiənts/",
+      "dictionary": null
+    },
+    {
+      "word": "retrieve",
+      "ai_ipa": "/rɪˈtriːv/",
+      "dictionary": null
+    },
+    {
+      "word": "fresh",
+      "ai_ipa": "/frɛʃ/",
+      "dictionary": [
+        "/fɹɛʃ/"
+      ],
+      "exact": true,
+      "best_ratio": 1.0,
+      "close": true
+    },
+    {
+      "word": "assist",
+      "ai_ipa": "/əˈsɪst/",
+      "dictionary": null
+    },
+    {
+      "word": "phishing",
+      "ai_ipa": "/ˈfɪʃɪŋ/",
+      "dictionary": null
+    },
+    {
+      "word": "feedback",
+      "ai_ipa": "/ˈfidˌbæk/",
+      "dictionary": [
+        "/ˈfiːdˌbæk/"
+      ],
+      "exact": true,
+      "best_ratio": 1.0,
+      "close": true
+    },
+    {
+      "word": "vaccination",
+      "ai_ipa": "/ˌvæksɪˈneɪʃən/",
+      "dictionary": null
+    },
+    {
+      "word": "innovative",
+      "ai_ipa": "/ˈɪnəveɪtɪv/",
+      "dictionary": null
+    },
+    {
+      "word": "discussion",
+      "ai_ipa": "/dɪˈskʌʃən/",
+      "dictionary": null
+    },
+    {
+      "word": "sleep",
+      "ai_ipa": "/sliːp/",
+      "dictionary": null
+    },
+    {
+      "word": "coach",
+      "ai_ipa": "/koʊtʃ/",
+      "dictionary": [
+        "/koʊtʃ/",
+        "/kəʊtʃ/"
+      ],
+      "exact": true,
+      "best_ratio": 1.0,
+      "close": true
+    },
+    {
+      "word": "balance",
+      "ai_ipa": "/ˈbæl.əns/",
+      "dictionary": [
+        "/ˈbæləns/"
+      ],
+      "exact": true,
+      "best_ratio": 1.0,
+      "close": true
+    },
+    {
+      "word": "compile",
+      "ai_ipa": "/kəmˈpaɪl/",
+      "dictionary": null
+    },
+    {
+      "word": "update",
+      "ai_ipa": "/ˈʌpˌdeɪt/",
+      "dictionary": []
+    },
+    {
+      "word": "sanitation",
+      "ai_ipa": "/ˌsænɪˈteɪʃən/",
+      "dictionary": null
+    },
+    {
+      "word": "delete",
+      "ai_ipa": "/dɪˈliːt/",
+      "dictionary": [
+        "/diˈliːt/"
+      ],
+      "exact": false,
+      "best_ratio": 0.8,
+      "close": true
+    },
+    {
+      "word": "slice",
+      "ai_ipa": "/slaɪs/",
+      "dictionary": [
+        "/slaɪs/"
+      ],
+      "exact": true,
+      "best_ratio": 1.0,
+      "close": true
+    },
+    {
+      "word": "fitness",
+      "ai_ipa": "/ˈfɪt.nəs/",
+      "dictionary": [
+        "/ˈfɪtnəs/"
+      ],
+      "exact": true,
+      "best_ratio": 1.0,
+      "close": true
+    },
+    {
+      "word": "firewall",
+      "ai_ipa": "/ˈfaɪərˌwɔːl/",
+      "dictionary": null
+    },
+    {
+      "word": "overfit",
+      "ai_ipa": "/ˌoʊvərˈfɪt/",
+      "dictionary": null
+    },
+    {
+      "word": "flight",
+      "ai_ipa": "/flaɪt/",
+      "dictionary": null
+    },
+    {
+      "word": "schedule",
+      "ai_ipa": "/ˈskɛdʒuːl/",
+      "dictionary": [
+        "/ʃɛ.djuːl/",
+        "/ˈskɛ.djuːl/",
+        "/ˈskɛ.dʒu.əl/"
+      ],
+      "exact": false,
+      "best_ratio": 0.933,
+      "close": true
+    },
+    {
+      "word": "shine",
+      "ai_ipa": "/ʃaɪn/",
+      "dictionary": [
+        "/ʃaɪn/"
+      ],
+      "exact": true,
+      "best_ratio": 1.0,
+      "close": true
+    },
+    {
+      "word": "patch",
+      "ai_ipa": "/pætʃ/",
+      "dictionary": null
+    },
+    {
+      "word": "platform",
+      "ai_ipa": "/ˈplætfɔːrm/",
+      "dictionary": null
+    },
+    {
+      "word": "infrastructure",
+      "ai_ipa": "/ˈɪn.frəˌstrʌk.tʃɚ/",
+      "dictionary": null
+    },
+    {
+      "word": "authenticate",
+      "ai_ipa": "/ɔːˈθɛntɪkeɪt/",
+      "dictionary": null
+    },
+    {
+      "word": "stress",
+      "ai_ipa": "/strɛs/",
+      "dictionary": null
+    },
+    {
+      "word": "framework",
+      "ai_ipa": "/ˈfreɪmˌwɜrk/",
+      "dictionary": null
+    },
+    {
+      "word": "nutrition",
+      "ai_ipa": "/nuːˈtrɪʃ.ən/",
+      "dictionary": null
+    },
+    {
+      "word": "clarify",
+      "ai_ipa": "/ˈklærɪfaɪ/",
+      "dictionary": null
+    },
+    {
+      "word": "store",
+      "ai_ipa": "/stɔr/",
+      "dictionary": null
+    },
+    {
+      "word": "cloud",
+      "ai_ipa": "/klaʊd/",
+      "dictionary": null
+    }
+  ]
+}

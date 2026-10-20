@@ -28,7 +28,8 @@ describe("Flashcard StudyMode Component", () => {
   const defaultProps = {
     deck: mockDeck,
     studyQueue: [mockCard],
-    isLoading: false,
+    stats: null,
+    onNextSession: vi.fn(),
     onRateFSRS: vi.fn(),
     onVerifySpelling: vi.fn(),
     onPlayAudio: vi.fn(),
@@ -75,7 +76,7 @@ describe("Flashcard StudyMode Component", () => {
     const cardHint = screen.getByText(/Bấm vào thẻ/i);
     fireEvent.click(cardHint);
 
-    const goodButton = screen.getByText(/\[3\] Tốt/i);
+    const goodButton = screen.getByRole("button", { name: /Tốt/ });
     fireEvent.click(goodButton);
 
     expect(onRateMock).toHaveBeenCalledWith("card-1", 3);

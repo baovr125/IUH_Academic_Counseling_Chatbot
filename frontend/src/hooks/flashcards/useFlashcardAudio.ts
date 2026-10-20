@@ -1,21 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from "react";
+import { toSpeechLocale } from "../../services/speech";
 
-export const getTTSLangCode = (langCode?: string): string => {
-  const map: Record<string, string> = {
-    en: "en-US",
-    de: "de-DE",
-    zh: "zh-CN",
-    ja: "ja-JP",
-    ko: "ko-KR",
-    fr: "fr-FR",
-    es: "es-ES",
-    ru: "ru-RU",
-    th: "th-TH",
-    vi: "vi-VN"
-  };
-  const clean = (langCode || "en").toLowerCase().replace("_", "-");
-  return map[clean] || map[clean.slice(0, 2)] || "en-US";
-};
+export const getTTSLangCode = (langCode?: string): string => toSpeechLocale(langCode) ?? "en-US";
 
 export const getApiBaseUrl = (): string => {
   const env = (import.meta as any).env || {};

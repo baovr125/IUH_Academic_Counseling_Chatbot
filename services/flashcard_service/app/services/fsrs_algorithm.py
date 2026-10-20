@@ -1,11 +1,98 @@
+"""Lập lịch ôn tập FSRS (gói ``fsrs`` >= 6, API ``Scheduler``).
+
+Ánh xạ giữa bảng ``flashcards`` và ``fsrs.Card``:
+
+- ``state`` trong DB: 0 = New, 1 = Learning, 2 = Review, 3 = Relearning. Gói ``fsrs`` 6.x không có
+  trạng thái New (thẻ mới là ``Learning`` với ``stability=None``), nên New được dựng bằng ``Card()`` mới.
+- DB không lưu ``step`` (bước học trong ngày) nên Scheduler được cấu hình ``learning_steps=()`` và
+  ``relearning_steps=()``: thẻ ra khỏi trạng thái mới sau lần ôn đầu và luôn có khoảng cách tính bằng ngày.
+  Vì thế sau khi ôn thẻ chỉ ở trạng thái Review (2).
+- ``reps``, ``lapses``, ``elapsed_days``, ``scheduled_days`` do module này tự tính vì ``Card`` mới không giữ chúng.
+
+Nếu không nạp được ``fsrs`` (thiếu gói hoặc sai phiên bản) module chuyển sang bộ lập lịch dự phòng
+đơn giản và ghi log CẢNH BÁO; ``HAS_FSRS`` cho biết nhánh nào đang chạy để test/health-check phát hiện.
+"""
 import datetime
-from typing import Dict, Any, Optional
+from typing import Any, Dict, Optional
+
+from app.utils.logger import logger
 
 try:
-    from fsrs import FSRS, Card, Rating, State
+    from fsrs import Card, Rating, Scheduler, State
+
     HAS_FSRS = True
-except ImportError:
+except ImportError:  # pragma: no cover - phụ thuộc môi trường
     HAS_FSRS = False
+    logger.warning(
+        "Không nạp được `fsrs` >= 6 (Scheduler): đang dùng bộ lập lịch DỰ PHÒNG, stability/difficulty "
+        "KHÔNG phải kết quả FSRS. Cài `fsrs>=6,<7` theo requirements.txt."
+    )
+
+_scheduler: Optional["Scheduler"] = None
+
+
+def _get_scheduler() -> "Scheduler":
+    global _scheduler
+    if _scheduler is None:
+        _scheduler = Scheduler(learning_steps=(), relearning_steps=(), enable_fuzzing=True)
+    return _scheduler
+
+
+def _parse_dt(value: Any) -> Optional[datetime.datetime]:
+    if not value:
+        return None
+    if isinstance(value, datetime.datetime):
+        dt = value
+    else:
+        try:
+            dt = datetime.datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+        except ValueError:
+            return None
+    return dt if dt.tzinfo else dt.replace(tzinfo=datetime.timezone.utc)
+
+
+def _positive(value: Any) -> Optional[float]:
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return None
+    return number if number > 0 else None
+
+
+def _build_card(card_dict: Dict[str, Any], now: datetime.datetime) -> "Card":
+    """Dựng ``fsrs.Card`` từ hàng DB. Thẻ chưa có stability/difficulty hợp lệ được coi là thẻ mới."""
+    stability = _positive(card_dict.get("stability"))
+    difficulty = _positive(card_dict.get("difficulty"))
+    last_review = _parse_dt(card_dict.get("last_review"))
+    if stability is None or difficulty is None or last_review is None:
+        return Card()
+    return Card(
+        state=State.Review,
+        step=None,
+        stability=stability,
+        difficulty=min(10.0, max(1.0, difficulty)),
+        due=_parse_dt(card_dict.get("due")) or now,
+        last_review=last_review,
+    )
+
+
+def _fallback(grade: int, repetition: int, now: datetime.datetime, card_dict: Dict[str, Any]) -> Dict[str, Any]:
+    """Bộ lập lịch dự phòng cố định (KHÔNG phải FSRS)."""
+    failed = grade <= 1
+    new_reps = 0 if failed else repetition + 1
+    interval = 1 if failed else (3 if repetition == 0 else int(2.5 * (repetition + 1)))
+    return {
+        "state": 2,
+        "reps": new_reps,
+        "lapses": int(card_dict.get("lapses") or 0) + (1 if failed and repetition > 0 else 0),
+        "stability": round(float(card_dict.get("stability") or 2.5), 4),
+        "difficulty": round(float(card_dict.get("difficulty") or 1.0), 4),
+        "elapsed_days": 0,
+        "scheduled_days": interval,
+        "last_review": now.isoformat(),
+        "due": (now + datetime.timedelta(days=interval)).isoformat(),
+    }
+
 
 def calculate_fsrs(
     grade: int,
@@ -13,98 +100,39 @@ def calculate_fsrs(
     repetition: int = 0,
     stability: float = 0.0,
     difficulty: float = 0.0,
-    due_date: Optional[str] = None
+    due_date: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
-    grade: 1 (Again), 2 (Hard), 3 (Good), 4 (Easy)
-    Returns updated FSRS fields matching standard Card representation.
+    grade: 1 (Again), 2 (Hard), 3 (Good), 4 (Easy).
+    Trả về các cột FSRS cần ghi lại vào ``flashcards``.
     """
     now = datetime.datetime.now(datetime.timezone.utc)
-    
+    if card_dict is None:
+        card_dict = {"reps": repetition, "stability": stability, "difficulty": difficulty, "due": due_date}
+    reps = int(card_dict.get("reps") or repetition or 0)
+
     if not HAS_FSRS:
-        # Fallback to deterministic interval logic
-        new_reps = 0 if grade <= 1 else repetition + 1
-        new_interval = 1 if grade <= 1 else (3 if repetition == 0 else int(2.5 * (repetition + 1)))
-        next_due = now + datetime.timedelta(days=new_interval)
-        return {
-            "state": 1 if grade <= 1 else 2,
-            "reps": new_reps,
-            "lapses": 1 if grade <= 1 else 0,
-            "stability": round(stability or 2.5, 4),
-            "difficulty": round(difficulty or 1.0, 4),
-            "elapsed_days": 1,
-            "scheduled_days": new_interval,
-            "last_review": now.isoformat(),
-            "due": next_due.isoformat()
-        }
+        return _fallback(grade, reps, now, card_dict)
 
-    f = FSRS()
-    card = Card()
-    
-    if card_dict:
-        card.reps = card_dict.get("reps", repetition)
-        card.lapses = card_dict.get("lapses", 0)
-        card.elapsed_days = card_dict.get("elapsed_days", 0)
-        card.scheduled_days = card_dict.get("scheduled_days", 0)
-        
-        state_val = card_dict.get("state", 0)
-        if isinstance(state_val, int) and 0 <= state_val <= 3:
-            card.state = State(state_val)
-            
-        st = card_dict.get("stability", stability)
-        if st and float(st) > 0:
-            card.stability = float(st)
-            
-        df = card_dict.get("difficulty", difficulty)
-        if df and float(df) > 0:
-            card.difficulty = float(df)
-            
-        last_rev = card_dict.get("last_review")
-        if last_rev:
-            try:
-                card.last_review = datetime.datetime.fromisoformat(last_rev)
-            except Exception:
-                pass
-                
-        due_val = card_dict.get("due", due_date)
-        if due_val:
-            try:
-                card.due = datetime.datetime.fromisoformat(due_val)
-            except Exception:
-                card.due = now
-    else:
-        card.reps = repetition
-        if stability > 0:
-            card.stability = stability
-        if difficulty > 0:
-            card.difficulty = difficulty
-        if due_date:
-            try:
-                card.due = datetime.datetime.fromisoformat(due_date)
-            except Exception:
-                card.due = now
+    card = _build_card(card_dict, now)
+    was_review = card.state == State.Review and card.stability is not None
+    last_review = card.last_review
 
-    rating_map = {
-        1: Rating.Again,
-        2: Rating.Hard,
-        3: Rating.Good,
-        4: Rating.Easy
-    }
-    rating = rating_map.get(grade, Rating.Good)
-    
-    scheduling_cards = f.repeat(card, now)
-    new_card = scheduling_cards[rating].card
-    
-    state_int = int(new_card.state.value) if hasattr(new_card.state, 'value') else int(new_card.state)
-    
+    rating = {1: Rating.Again, 2: Rating.Hard, 3: Rating.Good, 4: Rating.Easy}.get(grade, Rating.Good)
+    new_card, _log = _get_scheduler().review_card(card, rating, now)
+
+    lapses = int(card_dict.get("lapses") or 0) + (1 if was_review and rating == Rating.Again else 0)
+    elapsed_days = max(0, (now - last_review).days) if last_review else 0
+    scheduled_days = max(0, round((new_card.due - now).total_seconds() / 86400))
+
     return {
-        "state": state_int,
-        "reps": new_card.reps,
-        "lapses": new_card.lapses,
+        "state": int(new_card.state.value),
+        "reps": reps + 1,
+        "lapses": lapses,
         "stability": round(float(new_card.stability), 4),
         "difficulty": round(float(new_card.difficulty), 4),
-        "elapsed_days": new_card.elapsed_days,
-        "scheduled_days": new_card.scheduled_days,
-        "last_review": new_card.last_review.isoformat() if new_card.last_review else now.isoformat(),
-        "due": new_card.due.isoformat()
+        "elapsed_days": elapsed_days,
+        "scheduled_days": scheduled_days,
+        "last_review": (new_card.last_review or now).isoformat(),
+        "due": new_card.due.isoformat(),
     }

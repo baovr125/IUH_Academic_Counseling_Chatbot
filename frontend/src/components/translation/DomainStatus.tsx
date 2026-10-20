@@ -15,9 +15,9 @@ export interface DomainStatusProps {
  * trường hợp từ thuộc nhiều lĩnh vực hiện thành khung chọn trong vùng bản dịch.
  */
 const SEVERITY_STYLE: Record<WarningSeverity, { box: string; icon: string }> = {
-  info: { box: "bg-blue-50 text-blue-700 border-blue-100", icon: "text-blue-500" },
-  warning: { box: "bg-amber-50 text-amber-800 border-amber-200", icon: "text-amber-500" },
-  error: { box: "bg-red-50 text-red-700 border-red-200", icon: "text-red-500" },
+  info: { box: "bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-900/50", icon: "text-blue-500 dark:text-blue-400" },
+  warning: { box: "bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800", icon: "text-amber-500 dark:text-amber-400" },
+  error: { box: "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/40 dark:text-red-300 dark:border-red-800", icon: "text-red-500 dark:text-red-400" },
 };
 
 /** Cảnh báo đã có giao diện riêng (khung chọn lĩnh vực) nên không hiện thành banner. */
@@ -40,7 +40,7 @@ export const DomainStatus: React.FC<DomainStatusProps> = ({ warnings, waiting })
       <div
         data-testid="domain-waiting"
         role="status"
-        className="bg-slate-50 text-slate-500 px-6 py-2 text-xs border-b border-slate-100 flex items-center gap-2"
+        className="bg-slate-50 text-slate-500 px-6 py-2 text-xs border-b border-slate-100 flex items-center gap-2 dark:bg-slate-900/50 dark:text-slate-400 dark:border-slate-700"
       >
         <Clock size={14} className="shrink-0" />
         <span>Sẽ dịch sau {formatSeconds(DOMAIN_DEBOUNCE_MS)} giây ngừng gõ (Ctrl+Enter để dịch ngay).</span>

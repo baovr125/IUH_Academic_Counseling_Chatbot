@@ -23,13 +23,13 @@ export function ChatComposer({ onSend, isSending, onAbort }: ChatComposerProps) 
   };
 
   return (
-    <div className="border-t border-slate-200 bg-white px-6 py-4">
+    <div className="border-t border-slate-200 bg-white px-6 py-4 dark:border-slate-600 dark:bg-slate-800">
       <div className="mb-3 flex flex-wrap gap-2">
         {QUICK_ACTIONS.map((action) => (
           <button
             key={action.label}
             onClick={() => setValue(action.label)}
-            className="rounded-full border border-slate-200 px-3 py-1.5 text-xs text-slate-600 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700"
+            className="rounded-full border border-slate-200 px-3 py-1.5 text-xs text-slate-600 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 dark:border-slate-600 dark:text-slate-300 dark:hover:border-blue-600 dark:hover:bg-blue-950/50 dark:hover:text-blue-300"
           >
             <span className="mr-1">{action.icon}</span>
             {action.label}
@@ -37,8 +37,8 @@ export function ChatComposer({ onSend, isSending, onAbort }: ChatComposerProps) 
         ))}
       </div>
 
-      <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 shadow-sm">
-        <button className="text-slate-400 hover:text-slate-600" title="Attach file">
+      <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 shadow-sm dark:border-slate-600 dark:bg-slate-800">
+        <button className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200" title="Attach file">
           <Paperclip size={18} />
         </button>
         <input
@@ -47,7 +47,7 @@ export function ChatComposer({ onSend, isSending, onAbort }: ChatComposerProps) 
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleSend()}
           placeholder="Ask the Knowledge Hub..."
-          className="flex-1 border-none bg-transparent text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none"
+          className="flex-1 border-none bg-transparent text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none dark:text-slate-200 dark:placeholder:text-slate-500"
         />
         <span className="text-xs text-slate-400 mr-2 select-none">
           {value.length}/2000
@@ -55,7 +55,7 @@ export function ChatComposer({ onSend, isSending, onAbort }: ChatComposerProps) 
         {isSending ? (
           <button
             onClick={onAbort}
-            className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-600 transition-colors hover:bg-red-200"
+            className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-600 transition-colors hover:bg-red-200 dark:bg-red-900/40 dark:text-red-400 dark:hover:bg-red-800/60"
             title="Stop generating"
           >
             <Square fill="currentColor" size={12} />
@@ -64,7 +64,7 @@ export function ChatComposer({ onSend, isSending, onAbort }: ChatComposerProps) 
           <button
             onClick={handleSend}
             disabled={!value.trim() || value.length > 2000}
-            className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-200"
+            className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-200 dark:disabled:bg-slate-700"
           >
             <Send size={15} />
           </button>

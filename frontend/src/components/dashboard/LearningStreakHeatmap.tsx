@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Flame, Calendar, Info } from "lucide-react";
 import type { DashboardStats, LearningStreakDay } from "../../types";
+import { SampleDataBadge } from "./SampleDataBadge";
 
 interface LearningStreakHeatmapProps {
   stats: DashboardStats;
@@ -10,6 +11,7 @@ export const LearningStreakHeatmap: React.FC<LearningStreakHeatmapProps> = ({ st
   const [hoveredDay, setHoveredDay] = useState<{ date: string; count: number } | null>(null);
 
   // 84 days = 12 weeks x 7 days
+  const isLive = stats.streakSource === "live";
   const streakDays: LearningStreakDay[] = stats.streak && stats.streak.length === 84
     ? stats.streak
     : Array.from({ length: 84 }, (_, i) => ({
@@ -27,7 +29,7 @@ export const LearningStreakHeatmap: React.FC<LearningStreakHeatmapProps> = ({ st
       case 2:
         return "bg-amber-300 hover:bg-amber-400";
       case 1:
-        return "bg-orange-100 dark:bg-orange-950/70 hover:bg-orange-200";
+        return "bg-orange-100 dark:bg-orange-950/70 hover:bg-orange-200 dark:hover:bg-orange-900/70";
       default:
         return "bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700";
     }
@@ -45,22 +47,26 @@ export const LearningStreakHeatmap: React.FC<LearningStreakHeatmapProps> = ({ st
           </div>
           <div>
             <h3 className="text-xs font-bold text-slate-800 dark:text-slate-100">
-              Chuỗi Hoạt Động Học Tập ({stats.streakDays} ngày)
+              Chuỗi Hoạt Động Học Tập{isLive ? ` (${stats.streakDays} ngày)` : ""}
             </h3>
-            <p className="text-[10px] text-slate-400">Tần suất học tập & tương tác AI trong 12 tuần</p>
+            <p className="text-[10px] text-slate-500 dark:text-slate-400">Tần suất học tập & tương tác AI trong 12 tuần</p>
           </div>
         </div>
 
-        <span className="text-[11px] font-bold text-orange-600 dark:text-orange-400">
-          🔥 Đang duy trì
-        </span>
+        {isLive ? (
+          stats.streakDays > 0 && (
+            <span className="shrink-0 whitespace-nowrap text-[11px] font-bold text-orange-700 dark:text-orange-400">🔥 Đang duy trì</span>
+          )
+        ) : (
+          <SampleDataBadge />
+        )}
       </div>
 
       {/* Heatmap Grid */}
       <div className="mt-4 overflow-x-auto pb-1">
         <div className="flex items-start gap-1.5 min-w-[280px]">
           {/* Day Labels */}
-          <div className="flex flex-col justify-between text-[9px] font-medium text-slate-400 h-[88px] pr-1 py-0.5">
+          <div className="flex flex-col justify-between text-[9px] font-medium text-slate-500 h-[88px] pr-1 py-0.5 dark:text-slate-400">
             <span>T2</span>
             <span>T4</span>
             <span>T6</span>
@@ -93,7 +99,7 @@ export const LearningStreakHeatmap: React.FC<LearningStreakHeatmapProps> = ({ st
       </div>
 
       {/* Footer Info & Legend */}
-      <div className="mt-3 flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-700/60 text-[10px] text-slate-400">
+      <div className="mt-3 flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-700/60 text-[10px] text-slate-500 dark:text-slate-400">
         <div>
           {hoveredDay ? (
             <span className="font-semibold text-slate-700 dark:text-slate-300">

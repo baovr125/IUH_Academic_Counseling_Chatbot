@@ -15,29 +15,31 @@ import {
 } from "../../services/deckStorage";
 
 export const DECKS_QUERY_KEY = ["flashcard_decks"];
-export const getDecksQueryKey = (userId?: string) => ["flashcard_decks", userId || "guest"];
+export const getDecksQueryKey = (userId?: string, langCode?: string) => ["flashcard_decks", userId || "guest", langCode || "all"];
 
-export function useDecks() {
+/** Sổ thẻ của người dùng; có `langCode` thì chỉ lấy sổ của ngôn ngữ đó (lọc ở máy chủ) và đã xác nhận ngôn ngữ. */
+export function useDecks(langCode?: string, enabled: boolean = true) {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const userId = user?.id;
 
   const decksQuery = useQuery({
-    queryKey: getDecksQueryKey(userId),
+    queryKey: getDecksQueryKey(userId, langCode),
+    enabled,
     queryFn: async (): Promise<BackendDeck[]> => {
       let allDecks: BackendDeck[] = [];
 
       try {
-        const res = await fetchBackendDecks();
+        const res = await fetchBackendDecks(langCode);
         if (res.ok && res.data && res.data.length > 0) {
-          allDecks = [...res.data];
+          allDecks = langCode ? res.data.filter((d) => d.lang_confirmed !== false) : [...res.data];
         }
       } catch (e) {
         console.warn("fetchBackendDecks error in useDecks:", e);
       }
 
       // Merge with local storage decks for this specific user
-      const local = getLocalDecks(userId);
+      const local = getLocalDecks(userId).filter((ld) => !langCode || ld.langCode === langCode);
       for (const ld of local) {
         const existing = allDecks.find((d) => d.id === ld.id);
         if (!existing) {
@@ -68,16 +70,15 @@ export function useDecks() {
       const resolvedDesc = description?.trim() || `Sổ thẻ từ vựng ${meta.flag}`;
 
       let createdDeck: BackendDeck | null = null;
-      try {
-        const res = await createBackendDeck(resolvedTitle, resolvedDesc, langCode);
-        if (res.ok && res.data) {
-          createdDeck = res.data;
-        }
-      } catch (e) {
-        console.warn("createBackendDeck error:", e);
+      const res = await createBackendDeck(resolvedTitle, resolvedDesc, langCode);
+      if (res.ok && res.data) {
+        createdDeck = res.data;
+      } else if (!res.ok && !res.error.network) {
+        // Lỗi nghiệp vụ (vd 422 ngôn ngữ, 503 chưa migrate): báo cho người dùng, không tạo sổ giả cục bộ.
+        throw new Error(res.error.message);
       }
 
-      // Sync to local storage for this user
+      // Sync to local storage for this user (nếu không kết nối được máy chủ thì đây là bản lưu tạm duy nhất)
       const localDeck = createCustomDeck(langCode, resolvedTitle, resolvedDesc, createdDeck?.id, userId);
       if (!createdDeck) {
         createdDeck = {
@@ -93,6 +94,8 @@ export function useDecks() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: DECKS_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: ["flashcard_language_summary"] });
+      queryClient.invalidateQueries({ queryKey: ["flashcard_language_cards"] });
     }
   });
 
@@ -123,6 +126,8 @@ export function useDecks() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: DECKS_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: ["flashcard_language_summary"] });
+      queryClient.invalidateQueries({ queryKey: ["flashcard_language_cards"] });
     }
   });
 
@@ -142,6 +147,8 @@ export function useDecks() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: DECKS_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: ["flashcard_language_summary"] });
+      queryClient.invalidateQueries({ queryKey: ["flashcard_language_cards"] });
     }
   });
 

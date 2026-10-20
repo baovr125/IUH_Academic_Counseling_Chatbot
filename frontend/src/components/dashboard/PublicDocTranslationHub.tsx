@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  FileText,
-  UploadCloud,
   ArrowRight,
   Sparkles,
   Search,
@@ -13,6 +11,7 @@ import {
   BookOpen,
 } from "lucide-react";
 import type { DashboardStats } from "../../types";
+import { FlashcardDueCard } from "./FlashcardDueCard";
 
 interface PublicDocTranslationHubProps {
   stats: DashboardStats;
@@ -61,51 +60,8 @@ export const PublicDocTranslationHub: React.FC<PublicDocTranslationHubProps> = (
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-      {/* 1. Document Translation & PDF RAG Card */}
-      <div className="flex flex-col justify-between rounded-3xl border border-blue-200/80 bg-gradient-to-br from-blue-50/60 via-white to-indigo-50/40 p-6 shadow-sm dark:border-blue-900/60 dark:bg-gradient-to-br dark:from-slate-800 dark:via-slate-800 dark:to-blue-950/30 transition-all hover:shadow-md">
-        <div>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-md shadow-blue-600/30">
-                <FileText size={20} />
-              </div>
-              <div>
-                <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">
-                  Dịch thuật PDF & Document RAG
-                </h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400">Nghiên cứu tài liệu học thuật AI</p>
-              </div>
-            </div>
-            <span className="rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-bold text-blue-700 dark:bg-blue-950 dark:text-blue-300">
-              Chuyên ngành
-            </span>
-          </div>
-
-          <div
-            onClick={() => navigate("/translation-doc")}
-            className="mt-4 flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-blue-300 bg-white/80 p-5 text-center transition-all hover:border-blue-500 hover:bg-blue-50/50 dark:border-blue-800 dark:bg-slate-900/50 dark:hover:bg-slate-900/80 cursor-pointer group"
-          >
-            <UploadCloud size={32} className="text-blue-500 transition-transform group-hover:-translate-y-1" />
-            <p className="mt-2 text-xs font-bold text-slate-700 dark:text-slate-200">
-              Nhấn để tải lên file PDF / DOCX
-            </p>
-            <p className="mt-0.5 text-[11px] text-slate-400">
-              AI tự động dịch toàn văn, trích xuất thuật ngữ & hỏi đáp theo file
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-4 pt-3 border-t border-blue-100 dark:border-slate-700/60">
-          <button
-            type="button"
-            onClick={() => navigate("/translation-doc")}
-            className="group flex w-full items-center justify-center gap-2 rounded-2xl bg-blue-600 px-4 py-2.5 text-xs font-bold text-white shadow-md shadow-blue-600/25 hover:bg-blue-700 transition-all cursor-pointer hover:scale-[1.01]"
-          >
-            <span>Mở Trình Dịch Tài Liệu Nghiên Cứu</span>
-            <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
-          </button>
-        </div>
-      </div>
+      {/* 1. Ôn tập thẻ từ vựng (số liệu thật; thay cho thẻ Dịch thuật PDF cũ, việc dịch PDF vẫn có ở banner đầu trang và thanh bên) */}
+      <FlashcardDueCard />
 
       {/* 2. AI Admission & General Exploration Card */}
       <div className="flex flex-col justify-between rounded-3xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-800 transition-all hover:shadow-md">
@@ -118,7 +74,7 @@ export const PublicDocTranslationHub: React.FC<PublicDocTranslationHubProps> = (
               <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">
                 Tư vấn Tuyển sinh & Khám phá IUH
               </h3>
-              <p className="text-xs text-slate-400">Giải đáp mọi thông tin về trường</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Giải đáp mọi thông tin về trường</p>
             </div>
           </div>
 
@@ -142,7 +98,7 @@ export const PublicDocTranslationHub: React.FC<PublicDocTranslationHubProps> = (
 
           {/* Smart Admission Chips */}
           <div className="mt-3.5 space-y-1.5">
-            <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Câu hỏi phổ biến:</p>
+            <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider dark:text-slate-400">Câu hỏi phổ biến:</p>
             <div className="flex flex-wrap gap-1.5">
               {ADMISSION_PROMPT_CHIPS.map((chip, idx) => {
                 const Icon = chip.icon;
@@ -163,7 +119,7 @@ export const PublicDocTranslationHub: React.FC<PublicDocTranslationHubProps> = (
         </div>
 
         <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between text-xs">
-          <span className="text-slate-400">RAG Chatbot AI thông minh</span>
+          <span className="text-slate-500 dark:text-slate-400">RAG Chatbot AI thông minh</span>
           <button
             type="button"
             onClick={() => navigate("/chat")}

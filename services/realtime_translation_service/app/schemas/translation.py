@@ -20,6 +20,9 @@ class FlashcardExtractRequest(BaseModel):
     word: str = Field(..., min_length=1, max_length=100)
     context: str = Field(..., min_length=1, max_length=1000)
     domain: Optional[str] = ""
+    # Ngôn ngữ của `word` (không nhận 'auto'/'vi': không đoán). Thiếu -> hành vi cũ (tương thích ngược).
+    source_lang: Optional[str] = Field(None, pattern="^(en|de|zh|ja|ko|fr|es|ru|th)$")
+    target_lang: str = Field("vi", pattern="^vi$")
 
 class LookupRequest(BaseModel):
     word: str = Field(..., min_length=1, max_length=100)

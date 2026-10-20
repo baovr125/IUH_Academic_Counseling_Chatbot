@@ -49,7 +49,7 @@ export const DashboardHeroBanner: React.FC<DashboardHeroBannerProps> = ({
             </span>
 
             {isStudent && stats.currentWeek && (
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-orange-500/80 px-2.5 py-0.5 text-xs font-medium text-white shadow-sm">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-orange-700/90 px-2.5 py-0.5 text-xs font-medium text-white shadow-sm">
                 <Calendar size={12} />
                 <span>Tuần {stats.currentWeek} • {stats.semesterName || "HK1 2025-2026"}</span>
               </span>

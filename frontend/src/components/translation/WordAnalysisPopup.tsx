@@ -29,10 +29,10 @@ interface WordAnalysisPopupProps {
 }
 
 const POS_COLORS: Record<string, string> = {
-  n: "bg-blue-100 text-blue-700 border-blue-200",
-  v: "bg-green-100 text-green-700 border-green-200",
-  a: "bg-orange-100 text-orange-700 border-orange-200",
-  r: "bg-purple-100 text-purple-700 border-purple-200",
+  n: "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/40 dark:text-blue-300 dark:border-blue-800",
+  v: "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/40 dark:text-green-300 dark:border-green-800",
+  a: "bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900/40 dark:text-orange-300 dark:border-orange-800",
+  r: "bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/40 dark:text-purple-300 dark:border-purple-800",
 };
 
 const POS_LABELS: Record<string, string> = {
@@ -81,35 +81,35 @@ export const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({
 
   const renderMeaning = (meaning: MeaningDef, isContextual: boolean) => {
     const posCode = meaning.pos || "unknown";
-    const posClass = POS_COLORS[posCode] || "bg-gray-100 text-gray-700 border-gray-200";
+    const posClass = POS_COLORS[posCode] || "bg-gray-100 text-gray-700 border-gray-200 dark:bg-slate-700 dark:text-slate-200 dark:border-slate-600";
     const posLabel = POS_LABELS[posCode] || posCode;
 
     return (
-      <div className={`mb-4 pb-4 border-b border-gray-100 last:border-0 last:pb-0 last:mb-0 ${isContextual ? 'bg-amber-50/50 p-2 rounded-md -mx-2' : ''}`}>
+      <div className={`mb-4 pb-4 border-b border-gray-100 last:border-0 last:pb-0 last:mb-0 dark:border-slate-700 ${isContextual ? 'bg-amber-50/50 p-2 rounded-md -mx-2 dark:bg-amber-950/30' : ''}`}>
         <div className="flex items-center gap-2 mb-1">
           <span className={`px-2 py-0.5 text-xs font-semibold rounded border ${posClass}`}>
             {posLabel}
           </span>
           {isContextual && (
-            <span className="text-xs font-medium text-amber-600 bg-amber-100 px-1.5 py-0.5 rounded">
+            <span className="text-xs font-medium text-amber-600 bg-amber-100 px-1.5 py-0.5 rounded dark:text-amber-400 dark:bg-amber-900/40">
               Context Match
             </span>
           )}
         </div>
-        <div className="text-sm font-medium text-gray-900 mb-0.5">
+        <div className="text-sm font-medium text-gray-900 mb-0.5 dark:text-slate-100">
           {meaning.target_language_meaning}
         </div>
-        <div className="text-xs text-gray-500 italic mb-2">
+        <div className="text-xs text-gray-500 italic mb-2 dark:text-slate-400">
           {meaning.english_definition}
         </div>
         
         {meaning.examples && meaning.examples.length > 0 && (
-          <div className="pl-3 border-l-2 border-indigo-100 space-y-1">
+          <div className="pl-3 border-l-2 border-indigo-100 space-y-1 dark:border-indigo-900/50">
             {meaning.examples.map((ex, i) => (
               <div key={i}>
-                <div className="text-xs text-gray-700">"{ex}"</div>
+                <div className="text-xs text-gray-700 dark:text-slate-200">"{ex}"</div>
                 {meaning.target_language_examples[i] && (
-                  <div className="text-xs text-gray-500">"{meaning.target_language_examples[i]}"</div>
+                  <div className="text-xs text-gray-500 dark:text-slate-400">"{meaning.target_language_examples[i]}"</div>
                 )}
               </div>
             ))}
@@ -122,7 +122,7 @@ export const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({
   return (
     <div
       ref={popupRef}
-      className="fixed z-50 bg-white rounded-lg shadow-xl border border-gray-200 w-80 max-w-[90vw] overflow-hidden flex flex-col font-sans transition-all duration-200 ease-in-out"
+      className="fixed z-50 bg-white rounded-lg shadow-xl border border-gray-200 w-80 max-w-[90vw] overflow-hidden flex flex-col font-sans transition-all duration-200 ease-in-out dark:bg-slate-800 dark:border-slate-600"
       style={{
         left: Math.min(position.x, window.innerWidth - 320),
         top: position.y + 10,
@@ -131,9 +131,9 @@ export const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({
       onMouseDown={(e) => e.preventDefault()} // Prevent text deselect
     >
       {/* Header */}
-      <div className="bg-gradient-to-r from-indigo-50 to-blue-50 px-4 py-3 flex items-center justify-between border-b border-gray-100">
-        <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-          <span className="text-indigo-600">
+      <div className="bg-gradient-to-r from-indigo-50 to-blue-50 px-4 py-3 flex items-center justify-between border-b border-gray-100 dark:from-indigo-950/40 dark:to-blue-950/40 dark:border-slate-700">
+        <h3 className="font-semibold text-gray-900 flex items-center gap-2 dark:text-slate-100">
+          <span className="text-indigo-600 dark:text-indigo-400">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
@@ -142,7 +142,7 @@ export const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({
         </h3>
         <button 
           onClick={onClose}
-          className="text-gray-400 hover:text-gray-600 transition-colors"
+          className="text-gray-400 hover:text-gray-600 transition-colors dark:hover:text-slate-200"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -154,7 +154,7 @@ export const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({
       <div className="overflow-y-auto flex-1 p-4 custom-scrollbar">
         {isLoading && (
           <div className="flex flex-col items-center justify-center py-6 text-gray-400">
-            <svg className="animate-spin w-8 h-8 mb-3 text-indigo-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <svg className="animate-spin w-8 h-8 mb-3 text-indigo-500 dark:text-indigo-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
@@ -164,15 +164,15 @@ export const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({
 
         {error && !isLoading && (
           <div className="flex flex-col items-center justify-center py-4 text-center">
-            <div className="w-10 h-10 bg-red-100 text-red-500 rounded-full flex items-center justify-center mb-3">
+            <div className="w-10 h-10 bg-red-100 text-red-500 rounded-full flex items-center justify-center mb-3 dark:bg-red-900/40 dark:text-red-400">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>
             </div>
-            <p className="text-sm text-red-600 mb-3">{error}</p>
+            <p className="text-sm text-red-600 mb-3 dark:text-red-400">{error}</p>
             <button 
               onClick={onRetry}
-              className="px-3 py-1.5 bg-red-50 text-red-600 text-sm font-medium rounded-md hover:bg-red-100 transition-colors"
+              className="px-3 py-1.5 bg-red-50 text-red-600 text-sm font-medium rounded-md hover:bg-red-100 transition-colors dark:bg-red-950/40 dark:text-red-400 dark:hover:bg-red-900/50"
             >
               Try Again
             </button>
@@ -183,9 +183,9 @@ export const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({
           <div>
             <div className="mb-4">
               <div className="flex items-end gap-2 mb-1">
-                <h4 className="text-xl font-bold text-gray-900">{data.word}</h4>
+                <h4 className="text-xl font-bold text-gray-900 dark:text-slate-100">{data.word}</h4>
                 {data.lemma && data.lemma.toLowerCase() !== data.word.toLowerCase() && (
-                  <span className="text-sm text-gray-500 mb-0.5">({data.lemma})</span>
+                  <span className="text-sm text-gray-500 mb-0.5 dark:text-slate-400">({data.lemma})</span>
                 )}
               </div>
             </div>
@@ -197,7 +197,7 @@ export const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({
             )}
 
             {data.other_meanings && data.other_meanings.length > 0 && (
-              <div className="mt-4 pt-4 border-t border-gray-200">
+              <div className="mt-4 pt-4 border-t border-gray-200 dark:border-slate-600">
                 <h5 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Other Meanings</h5>
                 {data.other_meanings.map((m, idx) => (
                   <React.Fragment key={idx}>
@@ -208,7 +208,7 @@ export const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({
             )}
             
             {(!data.contextual_meaning && (!data.other_meanings || data.other_meanings.length === 0)) && (
-               <div className="text-center py-4 text-sm text-gray-500">
+               <div className="text-center py-4 text-sm text-gray-500 dark:text-slate-400">
                  No detailed analysis available for this word.
                </div>
             )}
@@ -218,7 +218,7 @@ export const WordAnalysisPopup: React.FC<WordAnalysisPopupProps> = ({
       
       {/* Footer Info */}
       {data && !isLoading && !error && (
-        <div className="bg-gray-50 px-4 py-2 border-t border-gray-100 flex justify-between items-center text-[10px] text-gray-400">
+        <div className="bg-gray-50 px-4 py-2 border-t border-gray-100 flex justify-between items-center text-[10px] text-gray-400 dark:bg-slate-900/50 dark:border-slate-700">
           <span>{data.cached ? '⚡ Cached' : 'Powered by WordNet + NLLB'}</span>
           <span>{data.latency_ms}ms</span>
         </div>

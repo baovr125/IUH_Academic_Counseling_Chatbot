@@ -77,11 +77,11 @@ export default function ChatPage() {
         onLoadMoreSessions={loadMoreSessions}
       />
 
-      <div className="flex min-w-0 flex-1 flex-col bg-slate-50">
+      <div className="flex min-w-0 flex-1 flex-col bg-slate-50 dark:bg-slate-900/50">
         <div ref={scrollRef} onScroll={handleScroll} className="flex-1 space-y-4 overflow-y-auto px-6 py-5">
           {isLoadingMoreMessages && (
-             <div className="py-2 text-center text-xs text-slate-500 flex justify-center items-center gap-2">
-                <div className="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-slate-600"></div>
+             <div className="py-2 text-center text-xs text-slate-500 flex justify-center items-center gap-2 dark:text-slate-400">
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-slate-600 dark:border-slate-600"></div>
                 Đang tải tin nhắn cũ...
              </div>
           )}
@@ -98,7 +98,7 @@ export default function ChatPage() {
           <div ref={messagesEndRef} />
 
           {error && (
-            <div className="mx-auto max-w-md rounded-lg bg-red-50 px-3 py-2 text-center text-xs text-red-600">
+            <div className="mx-auto max-w-md rounded-lg bg-red-50 px-3 py-2 text-center text-xs text-red-600 dark:bg-red-950/40 dark:text-red-400">
               {error}
             </div>
           )}

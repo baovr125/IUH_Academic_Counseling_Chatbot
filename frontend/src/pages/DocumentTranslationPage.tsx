@@ -24,19 +24,14 @@ import {
   ShieldCheck
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import {
-  LANG_CONFIG,
-  getDecks,
-  createCustomDeck,
-  addCardToDeck,
-  type FlashcardDeck
-} from "../services/deckStorage";
+import { LANG_CONFIG, isLearnableLang } from "../services/deckStorage";
 import {
   fetchBackendDecks,
   createBackendDeck,
-  createBackendCard,
   type BackendDeck
 } from "../services/flashcardService";
+import { newRequestId, saveWordToCollection } from "../services/flashcardSave";
+import { toSpeechLocale } from "../services/speech";
 import { getToken } from "../services/authService";
 import { useAuth } from "../hooks/useAuth";
 
@@ -102,7 +97,19 @@ export default function DocumentTranslationPage() {
   const [selectedDeckId, setSelectedDeckId] = useState<string>("");
   const [newDeckTitle, setNewDeckTitle] = useState("");
   const [availableDecks, setAvailableDecks] = useState<BackendDeck[]>([]);
-  const [saveSuccessDetail, setSaveSuccessDetail] = useState<{ count: number; deckTitle: string } | null>(null);
+  const [saveSuccessDetail, setSaveSuccessDetail] = useState<{
+    count: number;
+    duplicates: number;
+    failed: number;
+    pending: number;
+    deckTitle: string;
+    langCode: string;
+    error?: string;
+  } | null>(null);
+  // Cặp ngôn ngữ của CHÍNH tài liệu đã dịch (ô chọn ngôn ngữ có thể bị đổi sau đó nên không dùng trực tiếp để lưu thẻ).
+  const [docLangs, setDocLangs] = useState<{ source: string; target: string } | null>(null);
+  // Chỉ lưu được khi thuật ngữ là ngoại ngữ và nghĩa là tiếng Việt: thẻ thuộc bộ sưu tập của ngôn ngữ nguồn.
+  const savableLang = docLangs && docLangs.target === "vi" && isLearnableLang(docLangs.source) ? docLangs.source : null;
 
   // Ref to track latest state for async event listeners
   const selectedFileRef = useRef(selectedFile);
@@ -159,6 +166,9 @@ export default function DocumentTranslationPage() {
           setDocId(data.docId);
           if (data.sourceLang) setSourceLang(data.sourceLang);
           if (data.targetLang) setTargetLang(data.targetLang);
+          const savedDocSource = data.docSourceLang ?? data.sourceLang;
+          const savedDocTarget = data.docTargetLang ?? data.targetLang;
+          if (savedDocSource && savedDocTarget) setDocLangs({ source: savedDocSource, target: savedDocTarget });
           if (data.selectedFile) setSelectedFile(data.selectedFile);
           if (data.translatedText) setTranslatedText(data.translatedText);
           if (data.glossary) setGlossary(data.glossary);
@@ -290,6 +300,7 @@ export default function DocumentTranslationPage() {
     setIsExtractingGlossary(false);
     setIsCompleted(false);
     setProgressPercent(5);
+    setDocLangs({ source: sourceLang, target: targetLang });
     setStatusMessage("Đang tải tài liệu PDF lên hệ thống AI...");
 
     try {
@@ -324,6 +335,8 @@ export default function DocumentTranslationPage() {
         docId: currentDocId,
         sourceLang,
         targetLang,
+        docSourceLang: sourceLang,
+        docTargetLang: targetLang,
         selectedFile: selectedFileRef.current,
         isCompleted: false,
         progressPercent: 10,
@@ -385,6 +398,8 @@ export default function DocumentTranslationPage() {
                 docId: currentDocId,
                 sourceLang,
                 targetLang,
+                docSourceLang: sourceLang,
+                docTargetLang: targetLang,
                 selectedFile: selectedFileRef.current,
                 translatedText: data.translated_text || "",
                 glossary: data.glossary || [],
@@ -467,126 +482,85 @@ export default function DocumentTranslationPage() {
       alert("Vui lòng chọn ít nhất một thuật ngữ để lưu.");
       return;
     }
+    if (!savableLang) return;
     setIsDeckModalOpen(true);
     setIsLoadingDecks(true);
 
-    let allDecks: BackendDeck[] = [];
-    try {
-      const res = await fetchBackendDecks();
-      if (res.ok && res.data && res.data.length > 0) {
-        allDecks = [...res.data];
-      }
-    } catch (e) {
-      console.warn("fetchBackendDecks failed in DocumentTranslationPage:", e);
-    }
+    // Chỉ sổ của đúng ngôn ngữ tài liệu (lọc ở máy chủ) và đã xác nhận ngôn ngữ.
+    const res = await fetchBackendDecks(savableLang);
+    const decks = res.ok ? (res.data || []).filter((d) => d.lang_confirmed !== false && !d.is_system) : [];
+    setAvailableDecks(decks);
 
-    // Merge with local storage
-    const local = getDecks();
-    for (const ld of local) {
-      if (!allDecks.some((d) => d.id === ld.id)) {
-        allDecks.push({
-          id: ld.id,
-          title: ld.title,
-          description: ld.description,
-          lang_code: ld.langCode,
-          langCode: ld.langCode,
-          icon_flag: ld.iconFlag,
-          cards_count: ld.cards ? ld.cards.length : 0
-        });
-      }
-    }
-
-    setAvailableDecks(allDecks);
-
-    if (allDecks.length > 0) {
-      const match = allDecks.find((d) => (d.lang_code || d.langCode) === sourceLang);
-      setSelectedDeckId(match ? match.id : allDecks[0].id);
-      setDeckOption("existing");
-    } else {
-      setDeckOption("new");
-      const meta = LANG_CONFIG[sourceLang] || { defaultTitle: `Sổ từ vựng ${sourceLang.toUpperCase()}` };
-      setNewDeckTitle(meta.defaultTitle);
-    }
-
+    // "" = sổ mặc định của ngôn ngữ đó (tự tạo nếu chưa có).
+    setSelectedDeckId("");
+    setDeckOption("existing");
+    setNewDeckTitle(LANG_CONFIG[savableLang].defaultTitle);
     setIsLoadingDecks(false);
   };
 
   const handleSaveKeywordsToDeck = async () => {
-    if (selectedGlossaryIndices.size === 0) return;
+    if (selectedGlossaryIndices.size === 0 || !savableLang) return;
     setIsSavingCards(true);
 
     try {
-      let targetDeckId = selectedDeckId;
-      let targetDeckTitle = "";
+      let targetDeckId: string | undefined = selectedDeckId || undefined;
+      let targetDeckTitle = availableDecks.find((d) => d.id === selectedDeckId)?.title || LANG_CONFIG[savableLang].defaultTitle;
 
       if (deckOption === "new") {
-        const meta = LANG_CONFIG[sourceLang] || { defaultTitle: `Sổ từ vựng ${sourceLang.toUpperCase()}` };
-        const title = newDeckTitle.trim() || meta.defaultTitle;
+        const title = newDeckTitle.trim() || LANG_CONFIG[savableLang].defaultTitle;
         const desc = `Trích xuất từ tài liệu: ${selectedFile?.name || "Bản dịch PDF"}`;
-
-        try {
-          const deckRes = await createBackendDeck(title, desc, sourceLang);
-          if (deckRes.ok && deckRes.data) {
-            targetDeckId = deckRes.data.id;
-            targetDeckTitle = deckRes.data.title;
-            // Đồng bộ LocalStorage
-            createCustomDeck(sourceLang, targetDeckTitle, desc, targetDeckId);
-          } else {
-            const localDeck = createCustomDeck(sourceLang, title, desc);
-            targetDeckId = localDeck.id;
-            targetDeckTitle = localDeck.title;
-          }
-        } catch {
-          const localDeck = createCustomDeck(sourceLang, title, desc);
-          targetDeckId = localDeck.id;
-          targetDeckTitle = localDeck.title;
+        const deckRes = await createBackendDeck(title, desc, savableLang);
+        if (!deckRes.ok) {
+          setSaveSuccessDetail({ count: 0, duplicates: 0, failed: 0, pending: 0, deckTitle: title, langCode: savableLang, error: deckRes.error.message });
+          setSavedKeywordsSuccess(true);
+          setIsDeckModalOpen(false);
+          return;
         }
-      } else {
-        const currentDeck = availableDecks.find((d) => d.id === selectedDeckId);
-        targetDeckId = selectedDeckId;
-        targetDeckTitle = currentDeck?.title || "Sổ thẻ";
+        targetDeckId = deckRes.data.id;
+        targetDeckTitle = deckRes.data.title;
       }
 
       const selectedItems = Array.from(selectedGlossaryIndices).map((i) => glossary[i]);
-      let savedCount = 0;
+      const tally = { count: 0, duplicates: 0, failed: 0, pending: 0 };
+      let lastError: string | undefined;
 
       for (const item of selectedItems) {
         const termClean = (item.term || "").trim();
         const termTranslation = (item.translation || item.vi || "").trim();
-        if (!termClean || !termTranslation) continue;
-
-        // 1. Gửi request lưu thẻ lên Backend Flashcard Service
-        try {
-          await createBackendCard({
-            deckId: targetDeckId,
-            term: termClean,
-            definition: termTranslation,
-            phonetic: item.phonetic || undefined,
-            exampleSentence: item.context || `Trích xuất từ tài liệu: ${selectedFile?.name || "Bản dịch"}`,
-            partOfSpeech: "phrase",
-            langCode: sourceLang
-          });
-        } catch (err) {
-          console.warn("createBackendCard fallback to local:", err);
+        if (!termClean || !termTranslation) {
+          tally.failed++;
+          continue;
         }
-
-        // 2. Luôn đồng bộ vào LocalStorage để sẵn sàng hiển thị ngay cả khi offline
-        addCardToDeck(
-          sourceLang,
-          termClean,
-          termTranslation,
-          item.context || `Trích xuất từ tài liệu: ${selectedFile?.name || "Bản dịch"}`,
-          "phrase",
-          targetDeckId
+        const result = await saveWordToCollection(
+          {
+            clientRequestId: newRequestId(),
+            sourceLang: savableLang,
+            term: termClean,
+            translation: termTranslation,
+            phonetic: item.phonetic || undefined,
+            example: item.context || undefined,
+            deckId: targetDeckId,
+          },
+          user?.id
         );
-        savedCount++;
+        if (result.kind === "saved") {
+          tally.count++;
+          targetDeckTitle = result.deckTitle;
+        } else if (result.kind === "duplicate") {
+          tally.duplicates++;
+        } else if (result.kind === "pending") {
+          tally.pending++;
+        } else {
+          tally.failed++;
+          lastError = result.message;
+        }
       }
 
-      setSaveSuccessDetail({ count: savedCount, deckTitle: targetDeckTitle });
+      setSaveSuccessDetail({ ...tally, deckTitle: targetDeckTitle, langCode: savableLang, error: lastError });
       setSavedKeywordsSuccess(true);
       setIsDeckModalOpen(false);
-      setSelectedGlossaryIndices(new Set()); // Reset selections
-      setTimeout(() => setSavedKeywordsSuccess(false), 7000);
+      if (tally.failed === 0) setSelectedGlossaryIndices(new Set());
+      setTimeout(() => setSavedKeywordsSuccess(false), 9000);
     } catch (e: any) {
       console.error("Error saving cards", e);
       alert(e?.message || "Đã xảy ra lỗi khi lưu thẻ.");
@@ -668,7 +642,7 @@ export default function DocumentTranslationPage() {
     const sessionId = ++playbackSessionRef.current;
     setPlayingGlossaryTerm(trimmed);
 
-    const voiceLang = langCode === "en" ? "en-US" : (langCode === "vi" ? "vi-VN" : langCode);
+    const voiceLang = toSpeechLocale(langCode) ?? "en-US";
     const resolvedUrl = `${baseUrl}/api/v1/translate/tts?text=${encodeURIComponent(trimmed)}&lang=${voiceLang}`;
 
     const audio = new Audio(resolvedUrl);
@@ -716,12 +690,12 @@ export default function DocumentTranslationPage() {
       <div className="mb-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
           <div className="flex items-center gap-2">
-            <Languages className="h-6 w-6 text-blue-600" />
-            <h1 className="text-xl font-bold text-slate-800">
+            <Languages className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+            <h1 className="text-xl font-bold text-slate-800 dark:text-slate-100">
               Dịch Thuật Tài Liệu PDF & Trích Xuất Từ Điển Học Thuật IUH
             </h1>
           </div>
-          <p className="mt-1 text-xs text-slate-500">
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
             Dịch bài báo khoa học PDF giữ nguyên cấu trúc trang, hiển thị PDF bản dịch trực tiếp và trích xuất từ điển học vụ vào Flashcard
           </p>
         </div>
@@ -730,7 +704,7 @@ export default function DocumentTranslationPage() {
           <button
             type="button"
             onClick={() => navigate("/translation")}
-            className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
+            className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
           >
             <AlignLeft size={16} />
             <span>Dịch Văn Bản</span>
@@ -738,7 +712,7 @@ export default function DocumentTranslationPage() {
           <button
             type="button"
             onClick={() => navigate("/flashcards")}
-            className="flex items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 px-3.5 py-2 text-xs font-semibold text-blue-700 hover:bg-blue-100 transition-colors"
+            className="flex items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 px-3.5 py-2 text-xs font-semibold text-blue-700 hover:bg-blue-100 transition-colors dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-300 dark:hover:bg-blue-900/50"
           >
             <BookOpen size={16} />
             <span>Sổ Thẻ Flashcard</span>
@@ -747,14 +721,14 @@ export default function DocumentTranslationPage() {
       </div>
 
       {/* Language Selector Bar (Default: EN -> VI) */}
-      <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-600 dark:bg-slate-800">
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-slate-500">Ngôn ngữ gốc:</span>
+            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Ngôn ngữ gốc:</span>
             <select
               value={sourceLang}
               onChange={(e) => setSourceLang(e.target.value)}
-              className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-800 focus:border-blue-500 focus:outline-none"
+              className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-800 focus:border-blue-500 focus:outline-none dark:border-slate-600 dark:bg-slate-900/50 dark:text-slate-100"
             >
               {Object.entries(LANG_CONFIG).map(([code, meta]) => (
                 <option key={code} value={code}>
@@ -768,17 +742,17 @@ export default function DocumentTranslationPage() {
             type="button"
             onClick={swapLanguages}
             title="Đổi chiều ngôn ngữ"
-            className="rounded-full border border-slate-200 p-2 text-slate-500 hover:bg-slate-100 hover:text-blue-600 transition-colors"
+            className="rounded-full border border-slate-200 p-2 text-slate-500 hover:bg-slate-100 hover:text-blue-600 transition-colors dark:border-slate-600 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-blue-400"
           >
             <ArrowRightLeft size={16} />
           </button>
 
           <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-slate-500">Dịch sang:</span>
+            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Dịch sang:</span>
             <select
               value={targetLang}
               onChange={(e) => setTargetLang(e.target.value)}
-              className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-800 focus:border-blue-500 focus:outline-none"
+              className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-800 focus:border-blue-500 focus:outline-none dark:border-slate-600 dark:bg-slate-900/50 dark:text-slate-100"
             >
               {Object.entries(LANG_CONFIG).map(([code, meta]) => (
                 <option key={code} value={code}>
@@ -815,37 +789,37 @@ export default function DocumentTranslationPage() {
         {/* LEFT COLUMN: Upload, Progress & Glossary */}
         <div className="space-y-4 lg:col-span-5 flex flex-col">
           {/* Upload Dropzone */}
-          <div className="relative flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50/60 p-5 text-center hover:bg-slate-100/50 transition-colors cursor-pointer">
+          <div className="relative flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50/60 p-5 text-center hover:bg-slate-100/50 transition-colors cursor-pointer dark:border-slate-600 dark:bg-slate-900/40 dark:hover:bg-slate-800/60">
             <input
               type="file"
               accept=".pdf"
               onChange={handleFileUpload}
               className="absolute inset-0 z-10 cursor-pointer opacity-0"
             />
-            <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-xl bg-red-100 text-red-600 shadow-sm">
+            <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-xl bg-red-100 text-red-600 shadow-sm dark:bg-red-900/40 dark:text-red-400">
               <FileText size={22} />
             </div>
-            <div className="text-xs font-bold text-slate-800">
+            <div className="text-xs font-bold text-slate-800 dark:text-slate-100">
               Nhấp hoặc kéo thả tài liệu PDF học thuật
             </div>
-            <div className="mt-1 text-[11px] text-slate-400">
+            <div className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
               Hỗ trợ file PDF tối đa 10MB, giữ nguyên cấu trúc trang & bảng biểu
             </div>
           </div>
 
           {/* Selected File Card & Processing Progress */}
           {selectedFile && (
-            <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+            <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-600 dark:bg-slate-800">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-red-50 border border-red-100 shadow-sm">
-                    <FileText className="h-7 w-7 text-red-500" />
+                  <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-red-50 border border-red-100 shadow-sm dark:bg-red-950/40 dark:border-red-900/50">
+                    <FileText className="h-7 w-7 text-red-500 dark:text-red-400" />
                   </div>
                   <div>
-                    <div className="text-xs font-bold text-slate-800 break-all">
+                    <div className="text-xs font-bold text-slate-800 break-all dark:text-slate-100">
                       {selectedFile.name}
                     </div>
-                    <div className="mt-0.5 flex items-center gap-2 text-[11px] text-slate-500">
+                    <div className="mt-0.5 flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400">
                       <span>{selectedFile.size}</span>
                       <span>•</span>
                       <span>{selectedFile.pagesOrSlides}</span>
@@ -860,12 +834,12 @@ export default function DocumentTranslationPage() {
 
               {/* Progress Bar & Status text */}
               {(isTranslating || progressPercent > 0 || isCompleted) && (
-                <div className="mt-4 border-t border-slate-100 pt-3">
+                <div className="mt-4 border-t border-slate-100 pt-3 dark:border-slate-700">
                   <div className="mb-1.5 flex items-center justify-between text-xs font-semibold">
-                    <span className="text-slate-600">{statusMessage}</span>
-                    <span className="text-blue-600 font-bold">{progressPercent}%</span>
+                    <span className="text-slate-600 dark:text-slate-300">{statusMessage}</span>
+                    <span className="text-blue-600 font-bold dark:text-blue-400">{progressPercent}%</span>
                   </div>
-                  <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100">
+                  <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-700">
                     <div
                       className="h-full rounded-full bg-blue-600 transition-all duration-500"
                       style={{ width: `${progressPercent}%` }}
@@ -877,15 +851,15 @@ export default function DocumentTranslationPage() {
           )}
 
           {/* Academic Glossary Card */}
-          <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm flex-1 flex flex-col">
+          <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm flex-1 flex flex-col dark:border-slate-600 dark:bg-slate-800">
             <div className="mb-3 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <BookMarked size={18} className="text-indigo-600" />
-                <span className="text-xs font-bold text-slate-800">
+                <BookMarked size={18} className="text-indigo-600 dark:text-indigo-400" />
+                <span className="text-xs font-bold text-slate-800 dark:text-slate-100">
                   Glossary ({glossary.length})
                 </span>
                 {isExtractingGlossary && (
-                  <span className="flex items-center gap-1 rounded-full bg-indigo-50 border border-indigo-200 px-2 py-0.5 text-[10px] font-bold text-indigo-700 animate-pulse">
+                  <span className="flex items-center gap-1 rounded-full bg-indigo-50 border border-indigo-200 px-2 py-0.5 text-[10px] font-bold text-indigo-700 animate-pulse dark:bg-indigo-950/40 dark:border-indigo-800 dark:text-indigo-300">
                     <Loader2 size={11} className="animate-spin" />
                     <span>Đang trích xuất...</span>
                   </span>
@@ -894,14 +868,19 @@ export default function DocumentTranslationPage() {
 
               {glossary.length > 0 && (
                 <div className="flex items-center gap-3">
-                  <button onClick={toggleAllGlossary} className="text-[11px] text-slate-500 hover:text-blue-600 font-medium transition-colors">
+                  <button onClick={toggleAllGlossary} className="text-[11px] text-slate-500 hover:text-blue-600 font-medium transition-colors dark:text-slate-400 dark:hover:text-blue-400">
                     {selectedGlossaryIndices.size === glossary.length ? "Bỏ chọn tất cả" : "Chọn tất cả"}
                   </button>
                   <button
                     type="button"
                     onClick={handleOpenDeckModal}
-                    disabled={selectedGlossaryIndices.size === 0}
-                    className="flex items-center gap-1 rounded-lg bg-indigo-50 px-2.5 py-1.5 text-[11px] font-bold text-indigo-700 hover:bg-indigo-100 disabled:opacity-50 transition-all active:scale-95"
+                    disabled={selectedGlossaryIndices.size === 0 || !savableLang}
+                    title={
+                      savableLang
+                        ? `Lưu vào bộ sưu tập ${LANG_CONFIG[savableLang].viName}`
+                        : "Chỉ lưu được thuật ngữ khi dịch từ một ngoại ngữ sang tiếng Việt"
+                    }
+                    className="flex items-center gap-1 rounded-lg bg-indigo-50 px-2.5 py-1.5 text-[11px] font-bold text-indigo-700 hover:bg-indigo-100 disabled:opacity-50 transition-all active:scale-95 dark:bg-indigo-950/40 dark:text-indigo-300 dark:hover:bg-indigo-900/50"
                   >
                     <BookmarkPlus size={14} />
                     <span>Lưu thẻ ({selectedGlossaryIndices.size})</span>
@@ -910,52 +889,74 @@ export default function DocumentTranslationPage() {
               )}
             </div>
 
-            {savedKeywordsSuccess && (
-              <div className="mb-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 rounded-xl bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 p-3 text-xs font-medium text-emerald-900 shadow-sm animate-in fade-in slide-in-from-top-2 duration-300">
+            {glossary.length > 0 && !savableLang && (
+              <div role="note" className="mb-3 rounded-xl border border-amber-200 bg-amber-50 p-2.5 text-[11px] font-medium text-amber-800 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300">
+                Tài liệu này được dịch giữa{" "}
+                {docLangs ? `${LANG_CONFIG[docLangs.source]?.viName ?? docLangs.source} → ${LANG_CONFIG[docLangs.target]?.viName ?? docLangs.target}` : "các ngôn ngữ chưa rõ"}
+                . Flashcard chỉ lưu thuật ngữ ngoại ngữ kèm nghĩa tiếng Việt — hãy dịch tài liệu từ một ngoại ngữ sang tiếng Việt để lưu thẻ.
+              </div>
+            )}
+
+            {savedKeywordsSuccess && saveSuccessDetail && (
+              <div
+                role="status"
+                className={`mb-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 rounded-xl border p-3 text-xs font-medium shadow-sm animate-in fade-in slide-in-from-top-2 duration-300 ${
+                  saveSuccessDetail.count > 0 || saveSuccessDetail.pending > 0
+                    ? "bg-gradient-to-r from-emerald-50 to-teal-50 border-emerald-200 text-emerald-900 dark:from-emerald-950/40 dark:border-emerald-800 dark:text-emerald-200"
+                    : "bg-red-50 border-red-200 text-red-800 dark:bg-red-950/40 dark:border-red-800 dark:text-red-300"
+                }`}
+              >
                 <div className="flex items-center gap-2.5">
                   <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-600 text-white shrink-0 shadow-sm">
                     <CheckCircle2 size={16} />
                   </div>
                   <div>
-                    <span className="font-bold text-emerald-800">Lưu Flashcard thành công!</span>
-                    <p className="text-[11px] text-emerald-700 mt-0.5">
-                      Đã lưu <strong>{saveSuccessDetail?.count || selectedGlossaryIndices.size} thuật ngữ</strong> vào sổ thẻ <strong>"{saveSuccessDetail?.deckTitle || "Sổ thẻ"}"</strong>.
+                    <span className="font-bold">
+                      {saveSuccessDetail.count > 0 || saveSuccessDetail.pending > 0 ? "Kết quả lưu Flashcard" : "Không lưu được Flashcard"}
+                    </span>
+                    <p className="text-[11px] mt-0.5">
+                      Đã lưu <strong>{saveSuccessDetail.count}</strong> thuật ngữ vào sổ <strong>"{saveSuccessDetail.deckTitle}"</strong> (
+                      {LANG_CONFIG[saveSuccessDetail.langCode]?.viName})
+                      {saveSuccessDetail.duplicates > 0 && <>; bỏ qua <strong>{saveSuccessDetail.duplicates}</strong> thuật ngữ đã có</>}
+                      {saveSuccessDetail.pending > 0 && <>; <strong>{saveSuccessDetail.pending}</strong> thuật ngữ lưu tạm trên thiết bị (chưa đồng bộ)</>}
+                      {saveSuccessDetail.failed > 0 && <>; <strong>{saveSuccessDetail.failed}</strong> thuật ngữ lỗi</>}
+                      .{saveSuccessDetail.error ? ` ${saveSuccessDetail.error}` : ""}
                     </p>
                   </div>
                 </div>
                 <button
                   type="button"
-                  onClick={() => navigate("/flashcards")}
-                  className="flex items-center gap-1 text-[11px] font-bold text-emerald-800 bg-emerald-100/80 hover:bg-emerald-200/80 px-2.5 py-1.5 rounded-lg transition-all shrink-0 hover:shadow-xs active:scale-95 cursor-pointer"
+                  onClick={() => navigate(`/flashcards/${saveSuccessDetail.langCode}`)}
+                  className="flex items-center gap-1 text-[11px] font-bold text-emerald-800 bg-emerald-100/80 hover:bg-emerald-200/80 px-2.5 py-1.5 rounded-lg transition-all shrink-0 hover:shadow-xs active:scale-95 cursor-pointer dark:text-emerald-300"
                 >
-                  <span>Mở Flashcard</span>
+                  <span>Mở bộ sưu tập {LANG_CONFIG[saveSuccessDetail.langCode]?.viName}</span>
                   <ExternalLink size={12} />
                 </button>
               </div>
             )}
 
             {isExtractingGlossary && glossary.length === 0 ? (
-              <div className="flex flex-1 flex-col items-center justify-center py-8 text-center bg-indigo-50/50 rounded-xl border border-dashed border-indigo-200 p-4 animate-pulse">
-                <Loader2 size={24} className="mb-2 animate-spin text-indigo-600" />
-                <span className="text-xs font-bold text-indigo-900">Đang phân tích & trích xuất thuật ngữ AI...</span>
-                <span className="text-[11px] text-indigo-500 mt-1">Đang tạo phiên âm IPA và giọng phát âm chuẩn</span>
+              <div className="flex flex-1 flex-col items-center justify-center py-8 text-center bg-indigo-50/50 rounded-xl border border-dashed border-indigo-200 p-4 animate-pulse dark:bg-indigo-950/30 dark:border-indigo-800">
+                <Loader2 size={24} className="mb-2 animate-spin text-indigo-600 dark:text-indigo-400" />
+                <span className="text-xs font-bold text-indigo-900 dark:text-indigo-200">Đang phân tích & trích xuất thuật ngữ AI...</span>
+                <span className="text-[11px] text-indigo-500 mt-1 dark:text-indigo-400">Đang tạo phiên âm IPA và giọng phát âm chuẩn</span>
               </div>
             ) : glossary.length === 0 ? (
-              <div className="flex flex-1 flex-col items-center justify-center py-8 text-center text-slate-400">
-                <AlertCircle size={24} className="mb-1 text-slate-300" />
+              <div className="flex flex-1 flex-col items-center justify-center py-8 text-center text-slate-500 dark:text-slate-400">
+                <AlertCircle size={24} className="mb-1 text-slate-300 dark:text-slate-600" />
                 <span className="text-xs">Chưa có thuật ngữ trích xuất</span>
-                <span className="text-[11px] text-slate-400 mt-0.5">Thuật ngữ sẽ tự động xuất hiện khi dịch tài liệu</span>
+                <span className="text-[11px] text-slate-500 mt-0.5 dark:text-slate-400">Thuật ngữ sẽ tự động xuất hiện khi dịch tài liệu</span>
               </div>
             ) : (
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 overflow-y-auto max-h-[220px] pr-1">
                 {glossary.map((g, i) => (
-                  <div key={i} className={`relative rounded-xl border ${selectedGlossaryIndices.has(i) ? 'border-blue-400 bg-blue-50/50' : 'border-slate-200 bg-slate-50/70'} p-2.5 text-xs transition-all cursor-pointer group hover:border-blue-300 shadow-sm`} onClick={() => toggleGlossaryItem(i)}>
+                  <div key={i} className={`relative rounded-xl border ${selectedGlossaryIndices.has(i) ? 'border-blue-400 bg-blue-50/50 dark:border-blue-600 dark:bg-blue-950/30' : 'border-slate-200 bg-slate-50/70 dark:border-slate-600 dark:bg-slate-900/40'} p-2.5 text-xs transition-all cursor-pointer group hover:border-blue-300 shadow-sm dark:hover:border-blue-600`} onClick={() => toggleGlossaryItem(i)}>
                     <div className="flex items-start justify-between mb-1.5">
                       <div className="flex items-start gap-2 max-w-[80%]">
-                        <input type="checkbox" checked={selectedGlossaryIndices.has(i)} readOnly className="mt-0.5 rounded text-blue-600 border-slate-300 focus:ring-0 shrink-0" />
+                        <input type="checkbox" checked={selectedGlossaryIndices.has(i)} readOnly className="mt-0.5 rounded text-blue-600 border-slate-300 focus:ring-0 shrink-0 dark:text-blue-400 dark:border-slate-600" />
                         <div>
-                           <div className="font-bold text-slate-800 break-words">{g.term}</div>
-                           {g.phonetic && <div className="text-[10.5px] text-slate-500 font-mono mt-0.5">{g.phonetic}</div>}
+                           <div className="font-bold text-slate-800 break-words dark:text-slate-100">{g.term}</div>
+                           {g.phonetic && <div className="text-[10.5px] text-slate-500 font-mono mt-0.5 dark:text-slate-400">{g.phonetic}</div>}
                         </div>
                       </div>
                       
@@ -964,16 +965,16 @@ export default function DocumentTranslationPage() {
                         onClick={(e) => { e.stopPropagation(); playAudio(g.term, sourceLang); }}
                         className={`p-1.5 rounded-full transition-colors shrink-0 flex items-center justify-center cursor-pointer ${
                           playingGlossaryTerm === g.term
-                            ? "text-blue-700 bg-blue-100 shadow-inner"
-                            : "text-blue-600 hover:text-blue-800 hover:bg-blue-100/80 bg-blue-50/50"
+                            ? "text-blue-700 bg-blue-100 shadow-inner dark:text-blue-300 dark:bg-blue-900/40"
+                            : "text-blue-600 hover:text-blue-800 hover:bg-blue-100/80 bg-blue-50/50 dark:text-blue-400 dark:bg-blue-950/30 dark:hover:bg-blue-900/50"
                         }`}
                         title={playingGlossaryTerm === g.term ? "Dừng phát âm" : "Phát âm"}
                       >
-                        <Volume2 size={15} className={playingGlossaryTerm === g.term ? "animate-pulse text-blue-700" : ""} />
+                        <Volume2 size={15} className={playingGlossaryTerm === g.term ? "animate-pulse text-blue-700 dark:text-blue-300" : ""} />
                       </button>
                     </div>
                     
-                    <div className="text-blue-700 font-medium ml-[22px]">{g.translation || g.vi}</div>
+                    <div className="text-blue-700 font-medium ml-[22px] dark:text-blue-300">{g.translation || g.vi}</div>
                     {g.context && <div className="text-[10px] text-slate-400 ml-[22px] mt-1">{g.context}</div>}
                   </div>
                 ))}
@@ -984,27 +985,27 @@ export default function DocumentTranslationPage() {
 
         {/* RIGHT COLUMN: Dedicated Translated Document Result Frame (PDF Embedded Viewer) */}
         <div className="lg:col-span-7 flex flex-col">
-          <div className="flex-1 rounded-2xl border border-slate-200 bg-white shadow-sm flex flex-col overflow-hidden min-h-[560px]">
+          <div className="flex-1 rounded-2xl border border-slate-200 bg-white shadow-sm flex flex-col overflow-hidden min-h-[560px] dark:border-slate-600 dark:bg-slate-800">
             
             {/* Header of Result Frame */}
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 bg-slate-50/80 px-4 py-3">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 bg-slate-50/80 px-4 py-3 dark:border-slate-700 dark:bg-slate-900/50">
               <div className="flex items-center gap-2.5">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 text-blue-700">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
                   <FileCheck size={18} />
                 </div>
                 <div>
-                  <h3 className="text-xs font-bold text-slate-800">
+                  <h3 className="text-xs font-bold text-slate-800 dark:text-slate-100">
                     Khung Hiển Thị Bản Dịch PDF
                   </h3>
-                  <div className="flex items-center gap-2 text-[10px] text-slate-500">
+                  <div className="flex items-center gap-2 text-[10px] text-slate-500 dark:text-slate-400">
                     <span className="font-medium">{selectedFile?.title || "Chưa chọn tài liệu"}</span>
                     {selectedFile && (
-                      <span className="rounded bg-blue-50 px-1.5 py-0.5 text-[9px] font-bold text-blue-600 uppercase">
+                      <span className="rounded bg-blue-50 px-1.5 py-0.5 text-[9px] font-bold text-blue-600 uppercase dark:bg-blue-950/40 dark:text-blue-400">
                         {sourceLang} ➔ {targetLang}
                       </span>
                     )}
                     {modelUsed && (
-                      <span className="rounded bg-purple-50 px-1.5 py-0.5 text-[9px] font-bold text-purple-700">
+                      <span className="rounded bg-purple-50 px-1.5 py-0.5 text-[9px] font-bold text-purple-700 dark:bg-purple-950/40 dark:text-purple-300">
                         🤖 {modelUsed}
                       </span>
                     )}
@@ -1018,7 +1019,7 @@ export default function DocumentTranslationPage() {
                   <button
                     type="button"
                     onClick={handleResetTranslation}
-                    className="flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors shadow-sm"
+                    className="flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors shadow-sm dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                     title="Dịch tài liệu PDF khác"
                   >
                     <RotateCcw size={14} />
@@ -1030,7 +1031,7 @@ export default function DocumentTranslationPage() {
                   <button
                     type="button"
                     onClick={handleOpenPdfNewTab}
-                    className="flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors shadow-sm"
+                    className="flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors shadow-sm dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
                     title="Mở PDF tab mới"
                   >
                     <ExternalLink size={14} />
@@ -1042,13 +1043,13 @@ export default function DocumentTranslationPage() {
                   type="button"
                   onClick={handleCopyText}
                   disabled={!translatedText}
-                  className="flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40 transition-colors shadow-sm"
+                  className="flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40 transition-colors shadow-sm dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
                   title="Sao chép văn bản Markdown"
                 >
                   {copied ? (
                     <>
-                      <Check size={14} className="text-green-600" />
-                      <span className="text-green-600">Đã chép</span>
+                      <Check size={14} className="text-green-600 dark:text-green-400" />
+                      <span className="text-green-600 dark:text-green-400">Đã chép</span>
                     </>
                   ) : (
                     <>
@@ -1071,14 +1072,14 @@ export default function DocumentTranslationPage() {
             </div>
 
             {/* Sub-Header Tabs */}
-            <div className="flex border-b border-slate-100 bg-white px-4 pt-2">
+            <div className="flex border-b border-slate-100 bg-white px-4 pt-2 dark:border-slate-700 dark:bg-slate-800">
               <button
                 type="button"
                 onClick={() => setActiveTab("pdf")}
                 className={`flex items-center gap-1.5 border-b-2 px-3 py-2 text-xs font-bold transition-colors ${
                   activeTab === "pdf"
-                    ? "border-blue-600 text-blue-600"
-                    : "border-transparent text-slate-500 hover:text-slate-700"
+                    ? "border-blue-600 text-blue-600 dark:text-blue-400"
+                    : "border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
                 }`}
               >
                 <FileType size={14} />
@@ -1090,8 +1091,8 @@ export default function DocumentTranslationPage() {
                 onClick={() => setActiveTab("markdown")}
                 className={`flex items-center gap-1.5 border-b-2 px-3 py-2 text-xs font-bold transition-colors ${
                   activeTab === "markdown"
-                    ? "border-blue-600 text-blue-600"
-                    : "border-transparent text-slate-500 hover:text-slate-700"
+                    ? "border-blue-600 text-blue-600 dark:text-blue-400"
+                    : "border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
                 }`}
               >
                 <Eye size={14} />
@@ -1103,8 +1104,8 @@ export default function DocumentTranslationPage() {
                 onClick={() => setActiveTab("summary")}
                 className={`flex items-center gap-1.5 border-b-2 px-3 py-2 text-xs font-bold transition-colors ${
                   activeTab === "summary"
-                    ? "border-blue-600 text-blue-600"
-                    : "border-transparent text-slate-500 hover:text-slate-700"
+                    ? "border-blue-600 text-blue-600 dark:text-blue-400"
+                    : "border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
                 }`}
               >
                 <Sparkles size={14} />
@@ -1113,16 +1114,16 @@ export default function DocumentTranslationPage() {
             </div>
 
             {/* Body Content Area */}
-            <div className="flex-1 p-3 overflow-hidden bg-slate-100/60 flex flex-col">
+            <div className="flex-1 p-3 overflow-hidden bg-slate-100/60 flex flex-col dark:bg-slate-900/40">
               
               {/* LOADING STATE */}
               {isTranslating && !isCompleted && (
                 <div className="flex h-full flex-col items-center justify-center py-20 text-center">
-                  <Loader2 size={38} className="animate-spin text-blue-600 mb-3" />
-                  <div className="text-sm font-bold text-slate-800">
+                  <Loader2 size={38} className="animate-spin text-blue-600 mb-3 dark:text-blue-400" />
+                  <div className="text-sm font-bold text-slate-800 dark:text-slate-100">
                     Đang dịch & render file PDF bản dịch...
                   </div>
-                  <div className="mt-1 text-xs text-slate-500 max-w-sm">
+                  <div className="mt-1 text-xs text-slate-500 max-w-sm dark:text-slate-400">
                     {statusMessage} ({progressPercent}%)
                   </div>
                 </div>
@@ -1131,9 +1132,9 @@ export default function DocumentTranslationPage() {
               {/* EMPTY STATE */}
               {!isTranslating && !isCompleted && (
                 <div className="flex h-full flex-col items-center justify-center py-20 text-center">
-                  <FileText size={42} className="text-slate-300 mb-3" />
-                  <div className="text-sm font-bold text-slate-700">Chưa có bản dịch PDF</div>
-                  <div className="mt-1 text-xs text-slate-400 max-w-xs leading-relaxed">
+                  <FileText size={42} className="text-slate-300 mb-3 dark:text-slate-600" />
+                  <div className="text-sm font-bold text-slate-700 dark:text-slate-200">Chưa có bản dịch PDF</div>
+                  <div className="mt-1 text-xs text-slate-500 max-w-xs leading-relaxed dark:text-slate-400">
                     Vui lòng chọn tài liệu PDF tiếng Anh và nhấn <strong>"Bắt đầu dịch tài liệu"</strong> để xem file PDF bản dịch trực tiếp tại đây.
                   </div>
                 </div>
@@ -1144,7 +1145,7 @@ export default function DocumentTranslationPage() {
                 <div className="flex-1 flex flex-col overflow-hidden h-full">
                   {/* TAB 1: PDF EMBEDDED VIEWER */}
                   {activeTab === "pdf" && (
-                    <div className="flex-1 w-full h-full min-h-[500px] rounded-xl overflow-hidden border border-slate-200 bg-slate-900 shadow-inner flex flex-col">
+                    <div className="flex-1 w-full h-full min-h-[500px] rounded-xl overflow-hidden border border-slate-200 bg-slate-900 shadow-inner flex flex-col dark:border-slate-600">
                       <object
                         data={`${pdfUrl}#toolbar=1&navpanes=0&view=FitH`}
                         type="application/pdf"
@@ -1173,7 +1174,7 @@ export default function DocumentTranslationPage() {
                   {/* TAB 2: MARKDOWN TEXT PREVIEW */}
                   {activeTab === "markdown" && (
                     <div className="flex-1 p-2 overflow-y-auto max-h-[520px]">
-                      <div className="rounded-xl border border-slate-200 bg-white p-5 text-xs text-slate-800 shadow-sm leading-relaxed whitespace-pre-wrap font-sans">
+                      <div className="rounded-xl border border-slate-200 bg-white p-5 text-xs text-slate-800 shadow-sm leading-relaxed whitespace-pre-wrap font-sans dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100">
                         {translatedText || "Không có văn bản Markdown."}
                       </div>
                     </div>
@@ -1182,22 +1183,22 @@ export default function DocumentTranslationPage() {
                   {/* TAB 3: SUMMARY */}
                   {activeTab === "summary" && (
                     <div className="flex-1 p-2 space-y-4 overflow-y-auto max-h-[520px]">
-                      <div className="rounded-xl border border-blue-100 bg-blue-50/60 p-4">
-                        <div className="flex items-center gap-2 font-bold text-blue-900 text-xs mb-1">
-                          <Sparkles size={16} className="text-blue-600" />
+                      <div className="rounded-xl border border-blue-100 bg-blue-50/60 p-4 dark:border-blue-900/50 dark:bg-blue-950/30">
+                        <div className="flex items-center gap-2 font-bold text-blue-900 text-xs mb-1 dark:text-blue-200">
+                          <Sparkles size={16} className="text-blue-600 dark:text-blue-400" />
                           <span>Tóm Tắt Tổng Quan Tài Liệu</span>
                         </div>
-                        <p className="text-xs text-blue-800 leading-relaxed">
+                        <p className="text-xs text-blue-800 leading-relaxed dark:text-blue-300">
                           Nội dung tài liệu đã được dịch thành công và render thành định dạng file PDF chuẩn giữ nguyên cấu trúc trình bày.
                         </p>
                       </div>
 
                       {glossary.length > 0 && (
-                        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm space-y-2">
-                          <div className="font-bold text-slate-800 text-xs mb-2">Từ vựng & Thuật ngữ trích xuất ({glossary.length}):</div>
+                        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm space-y-2 dark:border-slate-600 dark:bg-slate-800">
+                          <div className="font-bold text-slate-800 text-xs mb-2 dark:text-slate-100">Từ vựng & Thuật ngữ trích xuất ({glossary.length}):</div>
                           {glossary.slice(0, 8).map((g, i) => (
-                            <div key={i} className="flex items-start gap-2 text-xs text-slate-700">
-                              <CheckCircle2 size={15} className="text-green-600 flex-shrink-0 mt-0.5" />
+                            <div key={i} className="flex items-start gap-2 text-xs text-slate-700 dark:text-slate-200">
+                              <CheckCircle2 size={15} className="text-green-600 flex-shrink-0 mt-0.5 dark:text-green-400" />
                               <span><strong>{g.term}</strong>: {g.translation || g.vi}</span>
                             </div>
                           ))}
@@ -1210,7 +1211,7 @@ export default function DocumentTranslationPage() {
             </div>
 
             {/* Footer Bar of Result Frame */}
-            <div className="flex items-center justify-between border-t border-slate-100 bg-slate-50/80 px-4 py-2.5 text-[11px] text-slate-500">
+            <div className="flex items-center justify-between border-t border-slate-100 bg-slate-50/80 px-4 py-2.5 text-[11px] text-slate-500 dark:border-slate-700 dark:text-slate-400 dark:bg-slate-900/50">
               <div className="flex items-center gap-3">
                 <span>Trình xem PDF Trực Tiếp</span>
                 <span>•</span>
@@ -1218,8 +1219,8 @@ export default function DocumentTranslationPage() {
               </div>
 
               {isCompleted && (
-                <div className="flex items-center gap-2 text-green-700 font-semibold">
-                  <CheckCircle2 size={13} className="text-green-600" />
+                <div className="flex items-center gap-2 text-green-700 font-semibold dark:text-green-300">
+                  <CheckCircle2 size={13} className="text-green-600 dark:text-green-400" />
                   <span>PDF Rendered & Ready</span>
                 </div>
               )}
@@ -1232,72 +1233,75 @@ export default function DocumentTranslationPage() {
       {/* Deck Selection Modal */}
       {isDeckModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="w-full max-w-sm rounded-2xl bg-white p-5 shadow-2xl border border-slate-100">
-            <h3 className="mb-1 text-lg font-bold text-slate-800 flex items-center gap-2">
-              <BookmarkPlus size={20} className="text-blue-600"/>
+          <div className="w-full max-w-sm rounded-2xl bg-white p-5 shadow-2xl border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
+            <h3 className="mb-1 text-lg font-bold text-slate-800 flex items-center gap-2 dark:text-slate-100">
+              <BookmarkPlus size={20} className="text-blue-600 dark:text-blue-400"/>
               Lưu Thẻ Flashcard
             </h3>
-            <p className="mb-4 text-xs text-slate-500 leading-relaxed">
-              Bạn đang lưu <strong className="text-slate-700">{selectedGlossaryIndices.size} thuật ngữ</strong>. Vui lòng chọn sổ thẻ đích:
+            <p className="mb-4 text-xs text-slate-500 leading-relaxed dark:text-slate-400">
+              Bạn đang lưu <strong className="text-slate-700 dark:text-slate-200">{selectedGlossaryIndices.size} thuật ngữ</strong>
+              {savableLang ? <> vào bộ sưu tập <strong className="text-slate-700 dark:text-slate-200">{LANG_CONFIG[savableLang].flag} {LANG_CONFIG[savableLang].viName}</strong></> : null}. Vui lòng chọn sổ thẻ đích:
             </p>
 
             {isLoadingDecks ? (
-              <div className="flex items-center justify-center py-6 gap-2 text-xs text-slate-500">
-                <Loader2 size={18} className="animate-spin text-blue-600" />
+              <div className="flex items-center justify-center py-6 gap-2 text-xs text-slate-500 dark:text-slate-400">
+                <Loader2 size={18} className="animate-spin text-blue-600 dark:text-blue-400" />
                 <span>Đang tải danh sách sổ thẻ...</span>
               </div>
             ) : (
               <div className="space-y-4">
                 <label className="flex flex-col gap-2 cursor-pointer group">
-                  <div className="flex items-center gap-2 text-sm font-semibold text-slate-700 group-hover:text-blue-600 transition-colors">
-                    <input type="radio" name="deckOption" value="existing" checked={deckOption === "existing"} onChange={() => setDeckOption("existing")} className="text-blue-600 focus:ring-0 border-slate-300 w-4 h-4" />
+                  <div className="flex items-center gap-2 text-sm font-semibold text-slate-700 group-hover:text-blue-600 transition-colors dark:text-slate-200">
+                    <input type="radio" name="deckOption" value="existing" checked={deckOption === "existing"} onChange={() => setDeckOption("existing")} className="text-blue-600 focus:ring-0 border-slate-300 w-4 h-4 dark:text-blue-400 dark:border-slate-600" />
                     Lưu vào sổ thẻ hiện có
                   </div>
                   {deckOption === "existing" && (
                     <select
                       value={selectedDeckId}
                       onChange={(e) => setSelectedDeckId(e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs font-medium text-slate-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none ml-6 max-w-[90%] shadow-sm transition-all"
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs font-medium text-slate-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none ml-6 max-w-[90%] shadow-sm transition-all dark:border-slate-600 dark:bg-slate-900/50 dark:text-slate-100 dark:focus:ring-blue-900/40"
                     >
-                      {availableDecks.map(d => (
+                      <option value="">
+                        {savableLang ? LANG_CONFIG[savableLang].flag : "🌐"} {availableDecks.find((d) => d.is_default)?.title ?? (savableLang ? LANG_CONFIG[savableLang].defaultTitle : "Sổ mặc định")} (sổ mặc định)
+                      </option>
+                      {availableDecks.filter((d) => !d.is_default).map(d => (
                         <option key={d.id} value={d.id}>{d.icon_flag || d.iconFlag || "🌐"} {d.title} ({d.cards_count || 0} thẻ)</option>
                       ))}
-                      {availableDecks.length === 0 && <option value="" disabled>Chưa có sổ thẻ nào</option>}
                     </select>
                   )}
                 </label>
 
                 <label className="flex flex-col gap-2 cursor-pointer group mt-2">
-                  <div className="flex items-center gap-2 text-sm font-semibold text-slate-700 group-hover:text-blue-600 transition-colors">
-                    <input type="radio" name="deckOption" value="new" checked={deckOption === "new"} onChange={() => setDeckOption("new")} className="text-blue-600 focus:ring-0 border-slate-300 w-4 h-4" />
+                  <div className="flex items-center gap-2 text-sm font-semibold text-slate-700 group-hover:text-blue-600 transition-colors dark:text-slate-200">
+                    <input type="radio" name="deckOption" value="new" checked={deckOption === "new"} onChange={() => setDeckOption("new")} className="text-blue-600 focus:ring-0 border-slate-300 w-4 h-4 dark:text-blue-400 dark:border-slate-600" />
                     Tạo sổ thẻ mới
                   </div>
                   {deckOption === "new" && (
                     <input
                       type="text"
-                      placeholder={`Nhập tên sổ thẻ mới... (VD: Sổ từ ${sourceLang.toUpperCase()})`}
+                      placeholder={savableLang ? LANG_CONFIG[savableLang].defaultTitle : "Tên sổ thẻ mới"}
                       value={newDeckTitle}
                       onChange={(e) => setNewDeckTitle(e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs font-medium text-slate-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none ml-6 max-w-[90%] shadow-sm transition-all placeholder:text-slate-400"
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs font-medium text-slate-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none ml-6 max-w-[90%] shadow-sm transition-all placeholder:text-slate-400 dark:border-slate-600 dark:bg-slate-900/50 dark:text-slate-100 dark:focus:ring-blue-900/40 dark:placeholder:text-slate-500"
                     />
                   )}
                 </label>
               </div>
             )}
 
-            <div className="mt-6 flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+            <div className="mt-6 flex items-center justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-700">
               <button
                 type="button"
                 onClick={() => setIsDeckModalOpen(false)}
                 disabled={isSavingCards}
-                className="rounded-xl px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors disabled:opacity-50 cursor-pointer"
+                className="rounded-xl px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors disabled:opacity-50 cursor-pointer dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white"
               >
                 Hủy bỏ
               </button>
               <button
                 type="button"
                 onClick={handleSaveKeywordsToDeck}
-                disabled={isSavingCards || isLoadingDecks || (deckOption === "existing" && !selectedDeckId) || (deckOption === "new" && !newDeckTitle.trim())}
+                disabled={isSavingCards || isLoadingDecks || (deckOption === "new" && !newDeckTitle.trim())}
                 className="flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-xs font-bold text-white hover:bg-blue-700 disabled:opacity-50 disabled:hover:bg-blue-600 transition-colors shadow-sm cursor-pointer"
               >
                 {isSavingCards ? (
@@ -1318,8 +1322,8 @@ export default function DocumentTranslationPage() {
       )}
 
       {/* Privacy Policy Note */}
-      <div className="mt-4 flex items-center gap-2.5 rounded-xl bg-slate-50 border border-slate-200 px-4 py-2.5 text-[11px] text-slate-500 shadow-sm">
-        <ShieldCheck size={16} className="text-blue-600 shrink-0" />
+      <div className="mt-4 flex items-center gap-2.5 rounded-xl bg-slate-50 border border-slate-200 px-4 py-2.5 text-[11px] text-slate-500 shadow-sm dark:bg-slate-900/50 dark:border-slate-600 dark:text-slate-400">
+        <ShieldCheck size={16} className="text-blue-600 shrink-0 dark:text-blue-400" />
         <span>
           <strong>Lưu ý bảo mật:</strong> Nội dung tài liệu và kết quả dịch chỉ được lưu tạm thời trong phiên làm việc hiện tại. Nếu bạn tải lại trang (F5 / Reload), dữ liệu vẫn được giữ nguyên. Tuy nhiên, khi bạn chuyển sang trang khác, quay lại trang trước hoặc đăng xuất, toàn bộ dữ liệu sẽ tự động được xóa để bảo mật.
         </span>

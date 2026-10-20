@@ -8,7 +8,7 @@ edge-tts>=0.4.0
 openpyxl>=3.1.2
 python-multipart>=0.0.9
 
-fsrs
+fsrs>=6.0.0,<7.0.0
 aio-pika
 python-jose[cryptography]>=3.3.0
 

@@ -14,7 +14,7 @@ export const FloatingMenu: React.FC<FloatingMenuProps> = ({ x, y, onSave, onSpea
   return (
     <div 
       id="word-analysis-floating-menu"
-      className="absolute z-50 flex items-center bg-gray-900 rounded-lg shadow-2xl animate-fade-in-up"
+      className="absolute z-50 flex items-center bg-gray-900 rounded-lg shadow-2xl animate-fade-in-up dark:ring-1 dark:ring-slate-600"
       style={{ left: `${x}px`, top: `${y}px`, transform: "translate(-50%, -100%)", marginTop: "-10px" }}
     >
       <div className="absolute w-3 h-3 bg-gray-900 rotate-45" style={{ bottom: "-6px", left: "50%", transform: "translateX(-50%) rotate(45deg)" }}></div>

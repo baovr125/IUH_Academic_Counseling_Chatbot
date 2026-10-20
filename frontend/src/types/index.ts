@@ -123,20 +123,9 @@ export interface AdmissionNews {
   link?: string;
 }
 
-export interface FlashcardSummary {
-  dueTodayCount: number;
-  totalMastered: number;
-  dailyGoal: number;
-  dailyLearned: number;
-  topDeckTitle?: string;
-  topDeckId?: string;
-  totalCards?: number;
-}
-
 export interface PublicUserProductivity {
   totalDocsTranslated: number;
   totalPagesProcessed: number;
-  totalWordsMastered: number;
   timeSavedHours: number;
 }
 
@@ -150,16 +139,16 @@ export interface DashboardStats {
   currentWeek?: number;
   semesterCompletionPercent: number;
   lastSyncedAt: string;
-  vocabularyLearnedToday: number;
   gpaScore: number;
   gpaDelta: number;
   creditsEarned: number;
   creditsTotal: number;
   streakDays: number;
   streak: LearningStreakDay[];
+  /** "live": streak/heatmap lấy từ nhật ký ôn tập thật; "sample": dữ liệu mẫu (khách, hoặc không tải được). */
+  streakSource: "live" | "sample";
   recentDocuments: RecentDocument[];
   recentChatSessions?: RecentChatPreview[];
-  flashcardSummary: FlashcardSummary;
   academicDeadlines: AcademicDeadline[];
   publicProductivity?: PublicUserProductivity;
   admissionNews?: AdmissionNews[];
@@ -358,6 +347,10 @@ export interface ApiError {
   code?: string;
   field?: string;
   details?: ApiErrorDetail[];
+  /** Dữ liệu kèm theo của lỗi nghiệp vụ (vd DUPLICATE_CARD kèm thẻ đã có). */
+  data?: any;
+  /** true = không nhận được phản hồi HTTP nào (mất mạng / máy chủ không chạy). */
+  network?: boolean;
   /** Có khi lỗi đến từ bước nhận diện ngôn ngữ nguồn (LANG_* / INVALID_INPUT). */
   detection?: LanguageDetectionDetails;
 }

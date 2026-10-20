@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
-import { X } from "lucide-react";
+import React, { useId, useState, useEffect } from "react";
 import { LANG_CONFIG } from "../../../services/deckStorage";
 import type { BackendDeck } from "../../../services/flashcardService";
+import { FcButton, FcInput, FcModal, FcSelect } from "../ui";
 
 interface EditDeckModalProps {
   deck: BackendDeck | null;
@@ -19,6 +19,7 @@ export const EditDeckModal: React.FC<EditDeckModalProps> = ({
   const [title, setTitle] = useState("");
   const [desc, setDesc] = useState("");
   const [langCode, setLangCode] = useState("en");
+  const formId = useId();
 
   useEffect(() => {
     if (deck) {
@@ -30,6 +31,8 @@ export const EditDeckModal: React.FC<EditDeckModalProps> = ({
 
   if (!deck) return null;
 
+  const originalLang = deck.lang_code || deck.langCode || "en";
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) return;
@@ -38,74 +41,42 @@ export const EditDeckModal: React.FC<EditDeckModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
-      <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-xl animate-in zoom-in-95 duration-200">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-base font-bold text-slate-800">Chỉnh Sửa Sổ Thẻ</h3>
-          <button
-            type="button"
-            onClick={onClose}
-            className="text-slate-400 hover:text-slate-600 transition-colors"
-          >
-            <X size={18} />
-          </button>
-        </div>
-
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1.5">Ngôn ngữ sổ thẻ (*)</label>
-            <select
-              value={langCode}
-              onChange={(e) => setLangCode(e.target.value)}
-              className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-blue-500 focus:bg-white focus:outline-none"
-            >
-              {Object.entries(LANG_CONFIG).map(([code, meta]) => (
+    <FcModal
+      title="Chỉnh Sửa Sổ Thẻ"
+      onClose={onClose}
+      dismissible={!isLoading}
+      footer={
+        <>
+          <FcButton variant="ghost" onClick={onClose} disabled={isLoading}>
+            Hủy
+          </FcButton>
+          <FcButton type="submit" form={formId} variant="primary" disabled={!title.trim()} loading={isLoading}>
+            {isLoading ? "Đang lưu..." : "Cập nhật Sổ Thẻ"}
+          </FcButton>
+        </>
+      }
+    >
+      <form id={formId} onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <div>
+          <FcSelect label="Ngôn ngữ sổ thẻ (*)" value={langCode} onChange={(e) => setLangCode(e.target.value)}>
+            {Object.entries(LANG_CONFIG)
+              .filter(([code, meta]) => meta.learnable || code === (deck.lang_code || deck.langCode))
+              .map(([code, meta]) => (
                 <option key={code} value={code}>
-                  {meta.flag} {meta.label}
+                  {meta.label}
                 </option>
               ))}
-            </select>
-          </div>
+          </FcSelect>
+          {langCode !== originalLang && (
+            <p role="note" className="mt-1.5 text-xs font-medium text-amber-700 dark:text-amber-300">
+              Đổi ngôn ngữ sẽ chuyển toàn bộ thẻ của sổ này sang bộ sưu tập {LANG_CONFIG[langCode]?.viName}.
+            </p>
+          )}
+        </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1.5">Tên sổ thẻ (*)</label>
-            <input
-              type="text"
-              required
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1.5">Mô tả sổ thẻ</label>
-            <input
-              type="text"
-              value={desc}
-              onChange={(e) => setDesc(e.target.value)}
-              className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
-            />
-          </div>
-
-          <div className="mt-3 flex justify-end gap-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="rounded-xl px-4 py-2.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 transition-colors"
-            >
-              Hủy
-            </button>
-            <button
-              type="submit"
-              disabled={isLoading || !title.trim()}
-              className="rounded-2xl bg-blue-600 px-5 py-2.5 text-xs font-bold text-white hover:bg-blue-700 shadow-sm disabled:opacity-50 transition-all"
-            >
-              {isLoading ? "Đang lưu..." : "Cập nhật Sổ Thẻ"}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        <FcInput label="Tên sổ thẻ (*)" type="text" required value={title} onChange={(e) => setTitle(e.target.value)} />
+        <FcInput label="Mô tả sổ thẻ" type="text" value={desc} onChange={(e) => setDesc(e.target.value)} />
+      </form>
+    </FcModal>
   );
 };

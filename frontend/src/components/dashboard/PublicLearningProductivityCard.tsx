@@ -10,6 +10,9 @@ import {
   Sparkles,
 } from "lucide-react";
 import type { DashboardStats } from "../../types";
+import { useFlashcardOverview } from "../../hooks/flashcards/useFlashcardOverview";
+import { FcSkeleton } from "../flashcards/ui";
+import { SampleDataBadge } from "./SampleDataBadge";
 
 interface PublicLearningProductivityCardProps {
   stats: DashboardStats;
@@ -19,10 +22,11 @@ export const PublicLearningProductivityCard: React.FC<PublicLearningProductivity
   stats,
 }) => {
   const navigate = useNavigate();
+  const flashcards = useFlashcardOverview();
+  const masteredLoading = flashcards.status === "loading";
 
   const totalDocs = stats.publicProductivity?.totalDocsTranslated ?? 18;
   const totalPages = stats.publicProductivity?.totalPagesProcessed ?? 142;
-  const totalWords = stats.publicProductivity?.totalWordsMastered ?? 248;
   const timeSaved = stats.publicProductivity?.timeSavedHours ?? 16.5;
 
   return (
@@ -35,13 +39,13 @@ export const PublicLearningProductivityCard: React.FC<PublicLearningProductivity
           </div>
           <div>
             <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">Năng Suất Học Thuật Cá Nhân</h3>
-            <p className="text-[11px] text-slate-400">Thống kê dịch thuật & từ vựng AI</p>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">Thống kê dịch thuật & từ vựng AI</p>
           </div>
         </div>
 
-        <span className="flex items-center gap-1 rounded-full bg-orange-50 px-2.5 py-0.5 text-xs font-bold text-orange-600 dark:bg-orange-950/60 dark:text-orange-400">
+        <span className="flex items-center gap-1 rounded-full bg-orange-50 px-2.5 py-0.5 text-xs font-bold text-orange-700 dark:bg-orange-950/60 dark:text-orange-400">
           <Flame size={13} className="fill-orange-500" />
-          {stats.streakDays} ngày
+          {stats.streakSource === "live" ? `${stats.streakDays} ngày` : "—"}
         </span>
       </div>
 
@@ -54,10 +58,11 @@ export const PublicLearningProductivityCard: React.FC<PublicLearningProductivity
               <FileCheck2 size={15} />
               <span>Tài liệu đã dịch</span>
             </div>
+            <SampleDataBadge className="mt-1.5" />
             <p className="mt-1.5 text-2xl font-extrabold text-slate-900 dark:text-white">
               {totalDocs}
             </p>
-            <p className="text-[11px] text-slate-400">{totalPages} trang PDF</p>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">{totalPages} trang PDF</p>
           </div>
 
           {/* Flashcards */}
@@ -66,10 +71,10 @@ export const PublicLearningProductivityCard: React.FC<PublicLearningProductivity
               <BookMarked size={15} />
               <span>Từ vựng đã học</span>
             </div>
-            <p className="mt-1.5 text-2xl font-extrabold text-slate-900 dark:text-white">
-              {totalWords}
-            </p>
-            <p className="text-[11px] text-slate-400">Thẻ FSRS tích lũy</p>
+            <div className="mt-1.5 text-2xl font-extrabold text-slate-900 dark:text-white" data-testid="mastered-value">
+              {masteredLoading ? <FcSkeleton className="h-7 w-12" /> : flashcards.mastered === null ? "—" : flashcards.mastered.toLocaleString("vi-VN")}
+            </div>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">Thẻ đã thuộc (FSRS)</p>
           </div>
         </div>
 
@@ -82,6 +87,7 @@ export const PublicLearningProductivityCard: React.FC<PublicLearningProductivity
             <div>
               <p className="text-slate-800 dark:text-slate-200 font-bold">Thời gian tiết kiệm nhờ AI</p>
               <p className="text-[11px] text-slate-500 dark:text-slate-400">Dịch nhanh & trích xuất ngữ cảnh</p>
+              <SampleDataBadge className="mt-1" />
             </div>
           </div>
           <span className="text-base font-extrabold text-emerald-700 dark:text-emerald-400">

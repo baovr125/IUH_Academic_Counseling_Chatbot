@@ -1,6 +1,7 @@
 import React from "react";
 import { Calendar, AlertCircle, Clock, ExternalLink, ChevronRight } from "lucide-react";
 import type { DashboardStats, AcademicDeadline } from "../../types";
+import { SampleDataBadge } from "./SampleDataBadge";
 
 interface IuhAcademicCalendarWidgetProps {
   stats: DashboardStats;
@@ -41,7 +42,8 @@ export const IuhAcademicCalendarWidget: React.FC<IuhAcademicCalendarWidgetProps>
             <h3 className="text-xs font-bold text-slate-800 dark:text-slate-100">
               Lịch Học Vụ & Sự Kiện IUH
             </h3>
-            <p className="text-[10px] text-slate-400">Cổng thông tin đào tạo & khảo thí</p>
+            <p className="text-[10px] text-slate-500 dark:text-slate-400">Cổng thông tin đào tạo & khảo thí</p>
+            <SampleDataBadge className="mt-1" />
           </div>
         </div>
 
@@ -72,7 +74,7 @@ export const IuhAcademicCalendarWidget: React.FC<IuhAcademicCalendarWidgetProps>
                     {dl.tag}
                   </span>
                   {dl.daysRemaining !== undefined && (
-                    <span className="text-[10px] font-semibold text-slate-400">
+                    <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400">
                       Còn {dl.daysRemaining} ngày
                     </span>
                   )}
@@ -80,7 +82,7 @@ export const IuhAcademicCalendarWidget: React.FC<IuhAcademicCalendarWidgetProps>
                 <h4 className="mt-1 text-xs font-bold text-slate-800 dark:text-slate-200 leading-snug">
                   {dl.title}
                 </h4>
-                <div className="mt-1 flex items-center gap-1 text-[11px] text-slate-400">
+                <div className="mt-1 flex items-center gap-1 text-[11px] text-slate-500 dark:text-slate-400">
                   <Clock size={11} />
                   <span>{dl.date}</span>
                 </div>

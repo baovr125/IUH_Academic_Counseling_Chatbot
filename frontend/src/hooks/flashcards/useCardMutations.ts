@@ -96,6 +96,8 @@ export function useCardMutations(deckId?: string) {
       queryClient.invalidateQueries({ queryKey: ["flashcard_cards", variables.deckId] });
       queryClient.invalidateQueries({ queryKey: ["flashcard_cards"] });
       queryClient.invalidateQueries({ queryKey: DECKS_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: ["flashcard_language_summary"] });
+      queryClient.invalidateQueries({ queryKey: ["flashcard_language_cards"] });
     }
   });
 
@@ -157,6 +159,8 @@ export function useCardMutations(deckId?: string) {
       queryClient.invalidateQueries({ queryKey: ["flashcard_cards", variables.deckId] });
       queryClient.invalidateQueries({ queryKey: ["flashcard_cards"] });
       queryClient.invalidateQueries({ queryKey: DECKS_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: ["flashcard_language_summary"] });
+      queryClient.invalidateQueries({ queryKey: ["flashcard_language_cards"] });
     }
   });
 
@@ -183,6 +187,8 @@ export function useCardMutations(deckId?: string) {
       queryClient.invalidateQueries({ queryKey: ["flashcard_cards", variables.deckId] });
       queryClient.invalidateQueries({ queryKey: ["flashcard_cards"] });
       queryClient.invalidateQueries({ queryKey: DECKS_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: ["flashcard_language_summary"] });
+      queryClient.invalidateQueries({ queryKey: ["flashcard_language_cards"] });
     }
   });
 
@@ -323,6 +329,8 @@ export function useCardMutations(deckId?: string) {
       queryClient.invalidateQueries({ queryKey: ["flashcard_cards", variables.deckId] });
       queryClient.invalidateQueries({ queryKey: ["flashcard_cards"] });
       queryClient.invalidateQueries({ queryKey: DECKS_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: ["flashcard_language_summary"] });
+      queryClient.invalidateQueries({ queryKey: ["flashcard_language_cards"] });
     }
   });
 

@@ -23,7 +23,7 @@ export default function TranslationPage() {
   };
 
   return (
-    <div className="min-h-full w-full bg-gradient-to-br from-indigo-50/50 via-white to-blue-50/50">
+    <div className="min-h-full w-full bg-gradient-to-br from-indigo-50/50 via-white to-blue-50/50 dark:from-indigo-950/30 dark:via-slate-900 dark:to-blue-950/30">
       <div className="mx-auto flex h-full max-w-6xl flex-col p-6 lg:p-8">
         {/* Top Header */}
         <div className="mb-8 flex flex-col justify-between gap-6 sm:flex-row sm:items-center">
@@ -32,16 +32,16 @@ export default function TranslationPage() {
               <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-600 shadow-lg shadow-blue-600/30">
                 <Languages className="h-6 w-6 text-white" />
               </div>
-              <h1 className="text-2xl font-bold tracking-tight text-slate-800">Translation Studio</h1>
+              <h1 className="text-2xl font-bold tracking-tight text-slate-800 dark:text-slate-100">Translation Studio</h1>
             </div>
-            <p className="mt-2 text-sm text-slate-500 font-medium">Dịch thuật đa ngôn ngữ chuyên ngành với AI & Lưu Flashcard thông minh</p>
+            <p className="mt-2 text-sm text-slate-500 font-medium dark:text-slate-400">Dịch thuật đa ngôn ngữ chuyên ngành với AI & Lưu Flashcard thông minh</p>
           </div>
 
           <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={() => navigate("/translation-doc")}
-              className="group flex items-center gap-2 rounded-xl border border-blue-200 bg-blue-50/80 px-4 py-2.5 text-sm font-semibold text-blue-700 backdrop-blur-sm transition-all hover:bg-blue-100 hover:shadow-sm hover:shadow-blue-200/50"
+              className="group flex items-center gap-2 rounded-xl border border-blue-200 bg-blue-50/80 px-4 py-2.5 dark:bg-blue-950/40 text-sm font-semibold text-blue-700 backdrop-blur-sm transition-all hover:bg-blue-100 hover:shadow-sm hover:shadow-blue-200/50 dark:border-blue-800 dark:text-blue-300 dark:hover:bg-blue-900/50"
             >
               <FileText size={18} className="transition-transform group-hover:scale-110" />
               <span>Dịch Tài Liệu</span>
@@ -50,7 +50,7 @@ export default function TranslationPage() {
             <button
               type="button"
               onClick={() => navigate("/flashcards")}
-              className="group flex items-center gap-2 rounded-xl border border-slate-200 bg-white/80 px-4 py-2.5 text-sm font-semibold text-slate-700 backdrop-blur-sm transition-all hover:bg-slate-50 hover:shadow-sm"
+              className="group flex items-center gap-2 rounded-xl border border-slate-200 bg-white/80 px-4 py-2.5 text-sm font-semibold text-slate-700 backdrop-blur-sm transition-all hover:bg-slate-50 hover:shadow-sm dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-700 dark:bg-slate-800/80"
             >
               <BookOpen size={18} className="transition-transform group-hover:scale-110" />
               <span>Sổ Thẻ Flashcard</span>

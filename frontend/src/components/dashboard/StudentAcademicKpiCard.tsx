@@ -8,6 +8,7 @@ import {
   BookOpen,
 } from "lucide-react";
 import type { DashboardStats } from "../../types";
+import { SampleDataBadge } from "./SampleDataBadge";
 
 interface StudentAcademicKpiCardProps {
   stats: DashboardStats;
@@ -22,7 +23,7 @@ export const StudentAcademicKpiCard: React.FC<StudentAcademicKpiCardProps> = ({ 
   const remainingCredits = Math.max(0, creditsTotal - creditsEarned);
 
   const getGpaClassification = (score: number) => {
-    if (score >= 3.6) return { label: "Xuất sắc", color: "text-emerald-600 bg-emerald-50 dark:bg-emerald-950/60 dark:text-emerald-400" };
+    if (score >= 3.6) return { label: "Xuất sắc", color: "text-emerald-700 bg-emerald-50 dark:bg-emerald-950/60 dark:text-emerald-400" };
     if (score >= 3.2) return { label: "Giỏi", color: "text-blue-600 bg-blue-50 dark:bg-blue-950/60 dark:text-blue-400" };
     if (score >= 2.5) return { label: "Khá", color: "text-amber-600 bg-amber-50 dark:bg-amber-950/60 dark:text-amber-400" };
     return { label: "Trung bình", color: "text-slate-600 bg-slate-100 dark:bg-slate-700 dark:text-slate-300" };
@@ -40,13 +41,14 @@ export const StudentAcademicKpiCard: React.FC<StudentAcademicKpiCardProps> = ({ 
           </div>
           <div>
             <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">Tiến độ Học tập Cá nhân</h3>
-            <p className="text-[11px] text-slate-400">Tích lũy tín chỉ & Điểm học phần</p>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">Tích lũy tín chỉ & Điểm học phần</p>
+            <SampleDataBadge className="mt-1" />
           </div>
         </div>
 
-        <span className="flex items-center gap-1 rounded-full bg-orange-50 px-2.5 py-0.5 text-xs font-bold text-orange-600 dark:bg-orange-950/60 dark:text-orange-400">
+        <span className="flex items-center gap-1 rounded-full bg-orange-50 px-2.5 py-0.5 text-xs font-bold text-orange-700 dark:bg-orange-950/60 dark:text-orange-400">
           <Flame size={13} className="fill-orange-500" />
-          {stats.streakDays} ngày
+          {stats.streakSource === "live" ? `${stats.streakDays} ngày` : "—"}
         </span>
       </div>
 
@@ -54,10 +56,10 @@ export const StudentAcademicKpiCard: React.FC<StudentAcademicKpiCardProps> = ({ 
         {/* 1. GPA Score Big Number */}
         <div className="flex items-center justify-between rounded-2xl bg-gradient-to-r from-blue-50/70 via-indigo-50/40 to-slate-50 p-4 dark:from-slate-900/80 dark:to-slate-900/40 border border-blue-100/60 dark:border-slate-700/60">
           <div>
-            <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Điểm GPA Tích lũy</p>
+            <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider dark:text-slate-400">Điểm GPA Tích lũy</p>
             <div className="mt-1 flex items-baseline gap-2">
               <span className="text-3xl font-extrabold text-slate-900 dark:text-white">{gpa.toFixed(2)}</span>
-              <span className="text-xs text-slate-400">/ 4.00</span>
+              <span className="text-xs text-slate-500 dark:text-slate-400">/ 4.00</span>
             </div>
           </div>
 
@@ -65,7 +67,7 @@ export const StudentAcademicKpiCard: React.FC<StudentAcademicKpiCardProps> = ({ 
             <span className={`inline-block rounded-lg px-2.5 py-0.5 text-xs font-bold ${gpaClass.color}`}>
               {gpaClass.label}
             </span>
-            <div className="flex items-center justify-end gap-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+            <div className="flex items-center justify-end gap-1 text-[11px] font-semibold text-emerald-700 dark:text-emerald-400">
               <TrendingUp size={12} />
               <span>+{delta.toFixed(2)} so với kỳ trước</span>
             </div>
@@ -88,7 +90,7 @@ export const StudentAcademicKpiCard: React.FC<StudentAcademicKpiCardProps> = ({ 
             />
           </div>
 
-          <div className="flex justify-between text-[11px] text-slate-400 pt-0.5">
+          <div className="flex justify-between text-[11px] text-slate-500 pt-0.5 dark:text-slate-400">
             <span>Đã hoàn thành {creditsEarned} TC</span>
             <span>Còn lại {remainingCredits} TC tốt nghiệp</span>
           </div>

@@ -1,5 +1,5 @@
 from typing import Optional, List
-from fastapi import APIRouter, Header, Depends, HTTPException, UploadFile, File
+from fastapi import APIRouter, Header, Depends, HTTPException, Query, UploadFile, File
 from fastapi.responses import Response, StreamingResponse
 import edge_tts
 from app.schemas.flashcards import (
@@ -24,7 +24,9 @@ from app.services.flashcard_service import (
     get_deck_cards,
     get_study_queue,
     verify_spelling,
-    delete_card
+    delete_card,
+    get_study_stats,
+    get_review_streak
 )
 from app.services.excel_importer import (
     parse_excel_or_csv,
@@ -84,13 +86,13 @@ async def tts_endpoint(text: str, lang: str = "en"):
     try:
         communicate = edge_tts.Communicate(text.strip(), voice, rate="-4%")
         audio_data = bytearray()
-        
+
         async for chunk in communicate.stream():
             if chunk["type"] == "audio":
                 audio_data.extend(chunk["data"])
-                
+
         complete_audio = bytes(audio_data)
-        
+
         return Response(
             content=complete_audio,
             media_type="audio/mpeg",
@@ -110,15 +112,16 @@ async def create_deck_endpoint(
     user_id: str = Depends(get_current_user_id)
 ):
     """Tạo bộ thẻ mới cho người dùng đã đăng nhập."""
-    data = await create_deck(payload.title, payload.description, user_id, lang_code=payload.lang_code or "en")
+    data = await create_deck(payload.title, payload.description, user_id, lang_code=payload.lang_code)
     return ApiResult(ok=True, data=data)
 
 @router.get("/decks", response_model=ApiResult)
 async def get_decks_endpoint(
+    lang_code: Optional[str] = Query(None, max_length=10),
     user_id: str = Depends(get_current_user_id)
 ):
-    """Lấy danh sách các bộ thẻ của người dùng hiện tại."""
-    data = await get_decks(user_id)
+    """Lấy danh sách các bộ thẻ của người dùng hiện tại; `lang_code` lọc ngay ở máy chủ (mã sai -> 422)."""
+    data = await get_decks(user_id, lang_code=lang_code)
     return ApiResult(ok=True, data=data)
 
 @router.put("/decks/{deck_id}", response_model=ApiResult)
@@ -158,15 +161,36 @@ async def get_deck_cards_endpoint(
 @router.get("/decks/{deck_id}/study-queue", response_model=ApiResult)
 async def get_study_queue_endpoint(
     deck_id: str,
-    limit: int = 50,
+    limit: int = Query(50, ge=1, le=200),
+    new_limit: int = Query(20, ge=0, le=100),
+    weak_only: bool = False,
     user_id: str = Depends(get_current_user_id)
 ):
     """
-    Lấy hàng đợi thẻ ôn tập thông minh (Smart Study Queue):
-    - Tự động quyết định chế độ ôn tập (Lật thẻ hoặc Gõ chính tả)
-    - Tự sinh câu đục lỗ Cloze từ câu ví dụ nếu có.
+    Hàng đợi ôn tập thông minh (Smart Study Queue):
+    - Thẻ đến hạn lên trước (quá hạn lâu nhất trước), sau đó tới thẻ mới (tối đa `new_limit`).
+    - `weak_only=true`: chỉ các thẻ hay quên để ôn riêng.
+    - Mỗi thẻ có chế độ gợi ý (flip / spelling / choice / listening) và câu đục lỗ Cloze nếu có ví dụ.
     """
-    data = await get_study_queue(deck_id=deck_id, user_id=user_id, limit=limit)
+    data = await get_study_queue(deck_id=deck_id, user_id=user_id, limit=limit, new_limit=new_limit, weak_only=weak_only)
+    return ApiResult(ok=True, data=data)
+
+@router.get("/decks/{deck_id}/study-stats", response_model=ApiResult)
+async def get_study_stats_endpoint(
+    deck_id: str,
+    user_id: str = Depends(get_current_user_id)
+):
+    """Thống kê tiến độ của deck: tổng, mới, đến hạn, đang học, đã thuộc, từ yếu."""
+    data = await get_study_stats(deck_id, user_id)
+    return ApiResult(ok=True, data=data)
+
+@router.get("/stats/streak", response_model=ApiResult)
+async def get_streak_endpoint(
+    days: int = Query(84, ge=7, le=366),
+    user_id: str = Depends(get_current_user_id)
+):
+    """Hoạt động ôn tập theo ngày (heatmap) và chuỗi ngày học liên tiếp, tính từ nhật ký ôn tập."""
+    data = await get_review_streak(user_id, days)
     return ApiResult(ok=True, data=data)
 
 @router.post("/cards", response_model=ApiResult)
@@ -184,9 +208,9 @@ async def create_card_endpoint(
         audio_url=payload.audio_url,
         example_sentence=payload.example_sentence,
         part_of_speech=payload.part_of_speech,
-        lang_code=payload.lang_code or "en"
+        lang_code=payload.lang_code
     )
-    
+
     # Luôn kích hoạt sự kiện để worker đảm bảo file âm thanh đã được tạo và lưu trữ trên MinIO
     card_id = data.get("id")
     if card_id:
@@ -194,13 +218,13 @@ async def create_card_endpoint(
             await publish_flashcard_created_event(
                 card_id=card_id,
                 term=payload.front_text,
-                lang_code=payload.lang_code or "en",
+                lang_code=data.get("lang_code"),
                 user_id=user_id,
                 phonetic=payload.phonetic
             )
         except Exception as e:
             logger.warning(f"Could not publish flashcard.created event: {e}")
-            
+
     return ApiResult(ok=True, data=data)
 
 @router.post("/cards/{card_id}/verify-spelling", response_model=ApiResult)
@@ -321,7 +345,7 @@ async def import_excel_endpoint(
         deck_id=deck_id,
         user_id=user_id,
         cards_data=cards_data,
-        lang_code=lang_code or "en"
+        lang_code=lang_code
     )
 
     return ApiResult(ok=True, data=result)

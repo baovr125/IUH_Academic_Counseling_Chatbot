@@ -187,11 +187,23 @@ export async function streamTranslation(
   }
 }
 
+/** Thông tin thẻ do AI trích xuất; `meaning` là nghĩa tiếng Việt (khi truyền sourceLang). */
+export interface ExtractedFlashcard {
+  word?: string;
+  phonetic?: string;
+  part_of_speech?: string;
+  meaning?: string;
+  example?: string;
+  example_translation?: string;
+}
+
 export async function extractFlashcard(
   word: string,
   context: string,
-  domain: string = ""
-): Promise<ApiResult<any>> {
+  domain: string = "",
+  sourceLang?: string,
+  signal?: AbortSignal
+): Promise<ApiResult<ExtractedFlashcard>> {
   try {
     const token = getToken();
     const headers: Record<string, string> = { "Content-Type": "application/json" };
@@ -200,7 +212,14 @@ export async function extractFlashcard(
     const res = await fetch(getApiUrl("/api/v1/translate/flashcard"), {
       method: "POST",
       headers,
-      body: JSON.stringify({ word, context, domain }),
+      signal,
+      // Chỉ gửi source_lang khi đã biết chắc (không gửi "auto"): backend sẽ từ chối giá trị lạ.
+      body: JSON.stringify({
+        word,
+        context: context || word,
+        domain,
+        ...(sourceLang ? { source_lang: sourceLang, target_lang: "vi" } : {}),
+      }),
     });
 
     if (res.ok) {

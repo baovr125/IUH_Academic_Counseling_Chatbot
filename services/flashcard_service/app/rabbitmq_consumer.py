@@ -2,8 +2,9 @@ import os
 import json
 import asyncio
 import aio_pika
+from app.utils.languages import normalize_lang
 from app.utils.logger import logger
-from app.services.flashcard_service import create_deck, create_card, update_card_audio_url
+from app.services.flashcard_service import create_deck, create_card, update_card_audio_url, get_decks, get_deck_cards
 from starlette.concurrency import run_in_threadpool
 
 RABBITMQ_HOST = os.environ.get("RABBITMQ_HOST", "rabbitmq")
@@ -14,6 +15,7 @@ RABBITMQ_PASS = os.environ.get("RABBITMQ_DEFAULT_PASS", "guest")
 RABBITMQ_URL = f"amqp://{RABBITMQ_USER}:{RABBITMQ_PASS}@{RABBITMQ_HOST}:{RABBITMQ_PORT}/"
 
 _channel: aio_pika.Channel = None
+_exchange = None  # được gán khi kết nối RabbitMQ thành công
 from typing import Optional
 
 async def publish_flashcard_created_event(card_id: str, term: str, lang_code: str = "en", user_id: str = "anonymous", phonetic: Optional[str] = None):
@@ -47,7 +49,11 @@ async def process_doc_translated_event(message: aio_pika.IncomingMessage):
             glossary = data.get("glossary_json", [])
             user_id = data.get("user_id", "anonymous")
             file_name = data.get("file_name", "Tài liệu")
-            source_lang = (data.get("source_lang") or "en").strip().lower()
+            source_lang = normalize_lang(data.get("source_lang"))
+            if not source_lang or source_lang == "vi":
+                # Không đoán ngôn ngữ: thiếu/sai/'auto' thì bỏ qua (kèm log) thay vì tạo thẻ vào nhầm bộ sưu tập.
+                logger.warning(f"DocTranslated bỏ qua: source_lang={data.get('source_lang')!r} không xác định được ngôn ngữ để học.")
+                return
             doc_id = data.get("doc_id", "")
             
             if not glossary:
@@ -155,3 +161,19 @@ async def start_rabbitmq_consumer():
     except Exception as e:
         logger.error(f"Failed to start RabbitMQ consumer: {e}")
         return None
+
+
+async def connect_rabbitmq_with_retry(interval_seconds: float = 5.0, max_interval_seconds: float = 30.0):
+    """
+    Thử kết nối RabbitMQ cho tới khi được (chạy ở nền). `depends_on` của docker compose chỉ đợi container
+    khởi động chứ không đợi RabbitMQ sẵn sàng, nên lần kết nối đầu thường thất bại; trước đây service bỏ cuộc
+    vĩnh viễn và mất event TTS / doc.translated. Backoff tăng dần tới `max_interval_seconds`.
+    """
+    delay = interval_seconds
+    while True:
+        connection = await start_rabbitmq_consumer()
+        if connection:
+            return connection
+        logger.warning(f"RabbitMQ chưa sẵn sàng, thử lại sau {delay:.0f}s")
+        await asyncio.sleep(delay)
+        delay = min(delay * 1.5, max_interval_seconds)

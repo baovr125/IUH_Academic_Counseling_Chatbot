@@ -2,6 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { School, ArrowRight, ExternalLink, Sparkles, Award } from "lucide-react";
 import type { DashboardStats, AdmissionNews } from "../../types";
+import { SampleDataBadge } from "./SampleDataBadge";
 
 interface AdmissionAndEventsWidgetProps {
   stats: DashboardStats;
@@ -23,7 +24,8 @@ export const AdmissionAndEventsWidget: React.FC<AdmissionAndEventsWidgetProps> =
             <h3 className="text-xs font-bold text-slate-800 dark:text-slate-100">
               Tuyển Sinh & Điểm Chuẩn IUH
             </h3>
-            <p className="text-[10px] text-slate-400">Thông tin chính thức từ Hội đồng Tuyển sinh</p>
+            <p className="text-[10px] text-slate-500 dark:text-slate-400">Thông tin chính thức từ Hội đồng Tuyển sinh</p>
+            <SampleDataBadge className="mt-1" />
           </div>
         </div>
 
@@ -49,7 +51,7 @@ export const AdmissionAndEventsWidget: React.FC<AdmissionAndEventsWidgetProps> =
               <span className="rounded-md bg-blue-50 px-2 py-0.5 text-[10px] font-bold text-blue-700 dark:bg-blue-950/60 dark:text-blue-300">
                 {item.badge}
               </span>
-              <span className="text-[10px] font-semibold text-slate-400">{item.date}</span>
+              <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400">{item.date}</span>
             </div>
             <h4 className="mt-1.5 text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 leading-snug">
               {item.title}
@@ -66,7 +68,7 @@ export const AdmissionAndEventsWidget: React.FC<AdmissionAndEventsWidgetProps> =
           href="https://tuyensinh.iuh.edu.vn"
           target="_blank"
           rel="noreferrer"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:underline"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:underline dark:text-blue-400"
         >
           <span>Xem Cổng Tuyển sinh IUH Chính thức</span>
           <ExternalLink size={12} />

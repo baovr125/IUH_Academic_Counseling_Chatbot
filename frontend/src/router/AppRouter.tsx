@@ -44,7 +44,10 @@ export function AppRouter() {
         <Route path="/chat" element={<ChatPage />} />
         <Route path="/translation" element={<TranslationPage />} />
         <Route path="/translation-doc" element={<DocumentTranslationPage />} />
+        {/* /flashcards -> chọn ngôn ngữ; /flashcards/:lang -> bộ sưu tập; /flashcards/:lang/decks/:deckId -> chi tiết sổ */}
         <Route path="/flashcards" element={<FlashcardPage />} />
+        <Route path="/flashcards/:lang" element={<FlashcardPage />} />
+        <Route path="/flashcards/:lang/decks/:deckId" element={<FlashcardPage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route

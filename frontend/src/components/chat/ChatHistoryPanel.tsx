@@ -104,7 +104,7 @@ export function ChatHistoryPanel({
                       setEditingId(null);
                     }
                   }}
-                  className="w-full rounded-md border border-blue-500 bg-white px-2 py-1 text-xs text-slate-800 focus:outline-none shadow-sm"
+                  className="w-full rounded-md border border-blue-500 bg-white px-2 py-1 text-xs text-slate-800 focus:outline-none shadow-sm dark:bg-slate-800 dark:text-slate-100"
                 />
               </div>
             );
@@ -116,8 +116,8 @@ export function ChatHistoryPanel({
               onClick={() => onSelectSession(session.id)}
               className={`group flex w-full cursor-pointer items-center justify-between gap-1.5 rounded-lg px-2 py-2 text-left text-sm transition-colors ${
                 isActive
-                  ? "bg-orange-50 text-orange-700 font-medium"
-                  : "text-slate-600 hover:bg-slate-100"
+                  ? "bg-orange-50 text-orange-700 font-medium dark:bg-orange-950/40 dark:text-orange-300"
+                  : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700"
               }`}
             >
               <div className="flex min-w-0 flex-1 items-center gap-2">
@@ -129,14 +129,14 @@ export function ChatHistoryPanel({
                 <button
                   onClick={(e) => handleStartEdit(e, session)}
                   title="Rename conversation"
-                  className="rounded p-1 text-slate-400 hover:bg-slate-200 hover:text-slate-700"
+                  className="rounded p-1 text-slate-400 hover:bg-slate-200 hover:text-slate-700 dark:hover:bg-slate-600 dark:hover:text-slate-200"
                 >
                   <Pencil size={13} />
                 </button>
                 <button
                   onClick={(e) => handleDeleteClick(e, session)}
                   title="Delete conversation"
-                  className="rounded p-1 text-slate-400 hover:bg-red-100 hover:text-red-600"
+                  className="rounded p-1 text-slate-400 hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/50 dark:hover:text-red-400"
                 >
                   <Trash2 size={13} />
                 </button>
@@ -149,13 +149,13 @@ export function ChatHistoryPanel({
 
   return (
     <>
-      <div className="flex h-full w-60 flex-shrink-0 flex-col border-r border-slate-200 bg-white px-2 py-3">
+      <div className="flex h-full w-60 flex-shrink-0 flex-col border-r border-slate-200 bg-white px-2 py-3 dark:border-slate-600 dark:bg-slate-800">
         <div className="mb-2 flex items-center justify-between px-2">
-          <span className="text-sm font-semibold text-slate-700">Chat History</span>
+          <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Chat History</span>
           <button
             onClick={onNewChat}
             title="New chat"
-            className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+            className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-700 dark:hover:text-slate-200"
           >
             <SquarePen size={15} />
           </button>
@@ -164,7 +164,7 @@ export function ChatHistoryPanel({
         {isLoading ? (
           <div className="space-y-2 px-2">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-6 animate-pulse rounded bg-slate-100" />
+              <div key={i} className="h-6 animate-pulse rounded bg-slate-100 dark:bg-slate-700" />
             ))}
           </div>
         ) : (
@@ -174,15 +174,15 @@ export function ChatHistoryPanel({
             {renderGroup("Older", older)}
             
             {hasMoreSessions && (
-              <div className="py-2 text-center mt-2 border-t border-slate-100 pt-3">
+              <div className="py-2 text-center mt-2 border-t border-slate-100 pt-3 dark:border-slate-700">
                 <button
                   onClick={onLoadMoreSessions}
                   disabled={isLoadingMoreSessions}
-                  className="text-[11px] font-medium text-slate-500 hover:text-slate-700 disabled:opacity-50 flex items-center justify-center gap-1.5 mx-auto"
+                  className="text-[11px] font-medium text-slate-500 hover:text-slate-700 disabled:opacity-50 flex items-center justify-center gap-1.5 mx-auto dark:text-slate-400 dark:hover:text-slate-200"
                 >
                   {isLoadingMoreSessions ? (
                      <>
-                        <div className="h-3 w-3 animate-spin rounded-full border-2 border-slate-300 border-t-slate-600"></div>
+                        <div className="h-3 w-3 animate-spin rounded-full border-2 border-slate-300 border-t-slate-600 dark:border-slate-600"></div>
                         Đang tải...
                      </>
                   ) : (
@@ -198,15 +198,15 @@ export function ChatHistoryPanel({
       {/* --- Delete Confirmation Popup Modal --- */}
       {deletingTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm animate-in fade-in">
-          <div className="w-full max-w-sm rounded-2xl bg-white p-5 shadow-2xl border border-slate-100 animate-in zoom-in-95">
+          <div className="w-full max-w-sm rounded-2xl bg-white p-5 shadow-2xl border border-slate-100 animate-in zoom-in-95 dark:bg-slate-800 dark:border-slate-700">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-red-100 text-red-600">
+              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-400">
                 <AlertTriangle size={20} />
               </div>
               <div>
-                <h3 className="text-base font-semibold text-slate-800">Xác nhận xóa cuộc trò chuyện</h3>
-                <p className="mt-1 text-xs text-slate-500">
-                  Bạn có chắc chắn muốn xóa cuộc trò chuyện <strong className="text-slate-700">"{deletingTarget.title}"</strong> không?
+                <h3 className="text-base font-semibold text-slate-800 dark:text-slate-100">Xác nhận xóa cuộc trò chuyện</h3>
+                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                  Bạn có chắc chắn muốn xóa cuộc trò chuyện <strong className="text-slate-700 dark:text-slate-200">"{deletingTarget.title}"</strong> không?
                 </p>
               </div>
             </div>
@@ -214,7 +214,7 @@ export function ChatHistoryPanel({
             <div className="mt-5 flex items-center justify-end gap-2">
               <button
                 onClick={() => setDeletingTarget(null)}
-                className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors"
+                className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
               >
                 Hủy
               </button>

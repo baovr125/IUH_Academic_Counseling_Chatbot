@@ -20,3 +20,27 @@ class TestFSRSAlgorithm:
         result_easy = calculate_fsrs(grade=4, repetition=1)
         
         assert result_easy["scheduled_days"] >= result_hard["scheduled_days"]
+
+
+class TestFSRSIsReal:
+    """Chặn việc lặng lẽ rơi về bộ lập lịch dự phòng (từng xảy ra khi gói `fsrs` đổi API)."""
+
+    def test_real_fsrs_library_is_loaded(self):
+        from app.services import fsrs_algorithm
+        assert fsrs_algorithm.HAS_FSRS is True
+
+    def test_stability_grows_after_successful_reviews_and_drops_after_lapse(self):
+        import datetime
+        card = {"state": 0, "reps": 0, "lapses": 0, "stability": 0.0, "difficulty": 0.0}
+        first = calculate_fsrs(grade=3, card_dict=card)
+        assert first["state"] == 2 and first["reps"] == 1
+
+        past = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=first["scheduled_days"])
+        card = {**card, **first, "last_review": past.isoformat(), "due": datetime.datetime.now(datetime.timezone.utc).isoformat()}
+        second = calculate_fsrs(grade=3, card_dict=card)
+        assert second["stability"] > first["stability"]
+        assert second["scheduled_days"] > first["scheduled_days"]
+
+        lapsed = calculate_fsrs(grade=1, card_dict={**card, **second})
+        assert lapsed["lapses"] == 1
+        assert lapsed["stability"] < second["stability"]

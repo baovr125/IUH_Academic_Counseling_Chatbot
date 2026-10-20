@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Depends
-from fastapi.responses import StreamingResponse, Response
+from fastapi.responses import StreamingResponse, Response, JSONResponse
 from sse_starlette.sse import EventSourceResponse
 import edge_tts
 import hashlib
@@ -15,6 +15,7 @@ from app.services.translation_service import translate_text
 from app.services.language_detection import adetect_language_detailed
 from app.services.llm_service import stream_translation, extract_flashcard
 from app.services.dictionary_service import get_word_audio
+from app.services.tts_service import VOICE_MAP, TTSUnavailable, resolve_voice, synthesize
 from app.services.cache_service import get_cached_audio_url, set_cached_audio_url
 from app.utils.minio_client import upload_audio_bytes, get_audio_bytes, audio_exists
 from app.utils.logger import logger
@@ -22,38 +23,8 @@ from app.utils.security import get_current_user_id
 
 router = APIRouter(tags=["Real-time Translation Service"])
 
-TTS_VOICE_MAP = {
-    # Short 2-letter codes
-    "vi": "vi-VN-HoaiMyNeural",
-    "en": "en-US-AriaNeural",       # AriaNeural: Giọng phát âm chuẩn từ điển Mỹ, rõ âm gió & trọng âm
-    "de": "de-DE-KillianNeural",    # KillianNeural: Chuẩn ngữ âm Hochdeutsch tiếng Đức
-    "zh": "zh-CN-XiaoxiaoNeural",
-    "ja": "ja-JP-NanamiNeural",
-    "ko": "ko-KR-SunHiNeural",
-    "fr": "fr-FR-DeniseNeural",
-    "es": "es-ES-ElviraNeural",
-    "ru": "ru-RU-SvetlanaNeural",
-    "th": "th-TH-PremwadeeNeural",
-    # Locale codes
-    "vi-vn": "vi-VN-HoaiMyNeural",
-    "en-us": "en-US-AriaNeural",
-    "en-gb": "en-GB-RyanNeural",     # RyanNeural: Chuẩn RP Anh - Anh Oxford
-    "de-de": "de-DE-KillianNeural",
-    "zh-cn": "zh-CN-XiaoxiaoNeural",
-    "ja-jp": "ja-JP-NanamiNeural",
-    "ko-kr": "ko-KR-SunHiNeural",
-    "fr-fr": "fr-FR-DeniseNeural",
-    "es-es": "es-ES-ElviraNeural",
-    "ru-ru": "ru-RU-SvetlanaNeural",
-    "th-th": "th-TH-PremwadeeNeural"
-}
-
-def resolve_voice(lang: str) -> str:
-    cleaned = (lang or "en").strip().lower().replace("_", "-")
-    if cleaned in TTS_VOICE_MAP:
-        return TTS_VOICE_MAP[cleaned]
-    prefix = cleaned[:2]
-    return TTS_VOICE_MAP.get(prefix, "en-US-AriaNeural")
+# Bảng giọng đọc dùng chung với consumer RabbitMQ (xem app/services/tts_service.py).
+TTS_VOICE_MAP = VOICE_MAP
 
 
 @router.get("/tts")
@@ -87,39 +58,33 @@ async def tts_endpoint(text: str, lang: str = "en"):
                 }
             )
             
-    # 2. Tổng hợp âm thanh trực tiếp qua Microsoft Neural Engine (<150ms)
+    # 2. Tổng hợp âm thanh trực tiếp qua Microsoft Neural Engine (có thử lại). Rate -4% giúp rõ phụ âm và âm đuôi.
     try:
-        # Rate -4% giúp phát âm rõ từng phụ âm và âm đuôi mà không làm chậm trải nghiệm realtime
-        communicate = edge_tts.Communicate(clean_text, voice, rate="-4%")
-        audio_data = bytearray()
-        
-        async for chunk in communicate.stream():
-            if chunk["type"] == "audio":
-                audio_data.extend(chunk["data"])
-                
-        complete_audio = bytes(audio_data)
-        if not complete_audio:
-            return Response(status_code=204)
-        
-        # 3. Lưu trữ vào MinIO và Cache URL vào Redis
-        try:
-            audio_url = upload_audio_bytes(object_name, complete_audio)
-            set_cached_audio_url(cache_key, audio_url)
-        except Exception:
-            pass
-        
-        return Response(
-            content=complete_audio,
-            media_type="audio/mpeg",
-            headers={
-                "Cache-Control": "public, max-age=604800",
-                "X-TTS-Voice": voice,
-                "X-Cache": "MISS"
-            }
+        complete_audio = await synthesize(clean_text, voice)
+    except TTSUnavailable:
+        # Không trả 204 im lặng: frontend cần biết để báo lỗi / chuyển sang giọng đọc của trình duyệt.
+        return JSONResponse(
+            status_code=503,
+            content={"ok": False, "error": {"code": "TTS_UPSTREAM_FAILED", "message": "Dịch vụ giọng đọc tạm thời không khả dụng."}},
+            headers={"Retry-After": "30"},
         )
-    except Exception as e:
-        logger.warning(f"TTS generation skipped for '{clean_text}': {e}")
-        return Response(status_code=204)
+
+    # 3. Lưu trữ vào MinIO và Cache URL vào Redis
+    try:
+        audio_url = upload_audio_bytes(object_name, complete_audio)
+        set_cached_audio_url(cache_key, audio_url)
+    except Exception:
+        pass
+
+    return Response(
+        content=complete_audio,
+        media_type="audio/mpeg",
+        headers={
+            "Cache-Control": "public, max-age=604800",
+            "X-TTS-Voice": voice,
+            "X-Cache": "MISS"
+        }
+    )
 
 
 @router.get("/audio/{object_name:path}")
@@ -202,17 +167,20 @@ async def flashcard_endpoint(payload: FlashcardExtractRequest, user_id: str = De
     flashcard_data = await extract_flashcard(
         word=payload.word,
         context=payload.context,
-        domain=payload.domain
+        domain=payload.domain,
+        source_lang=payload.source_lang,
     )
-    
-    # 2. Get optional phonetic from Dictionary API for metadata
-    try:
-        audio_info = await get_word_audio(payload.word, lang="en")
-        if audio_info and not flashcard_data.get("phonetic") and audio_info.get("phonetic"):
-            flashcard_data["phonetic"] = audio_info.get("phonetic", "")
-    except Exception:
-        pass
-            
+
+    # 2. Phiên âm bổ sung từ từ điển: chỉ có cho tiếng Anh/Đức; thiếu source_lang -> hành vi cũ (tiếng Anh).
+    dict_lang = payload.source_lang or "en"
+    if dict_lang in ("en", "de"):
+        try:
+            audio_info = await get_word_audio(payload.word, lang=dict_lang)
+            if audio_info and not flashcard_data.get("phonetic") and audio_info.get("phonetic"):
+                flashcard_data["phonetic"] = audio_info.get("phonetic", "")
+        except Exception:
+            pass
+
     return ApiResult(
         ok=True,
         data=flashcard_data

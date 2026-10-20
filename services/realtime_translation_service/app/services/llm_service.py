@@ -305,34 +305,33 @@ async def stream_translation(text: str, source_lang: str, target_lang: str, doma
             yield json.dumps({'error': 'Translation service unavailable.'})
 
 
-async def extract_flashcard(word: str, context: str, domain: str = "") -> dict:
-    """Extracts flashcard info returning JSON."""
-    groq_client = get_groq_client()
-    system_prompt = (
-        "You are an expert lexicographer and linguist. Extract vocabulary info. "
-        "For English and German words, provide an exact standard IPA phonetic transcription including primary/secondary stress marks (e.g. /əˈsɪŋkrənəs/ or /ˈkʁaŋkn̩ˌhaʊ̯s/). "
-        "Return EXACT JSON with keys: word, phonetic, part_of_speech, meaning. No extra text."
-    )
-    user_prompt = f"Word: '{word}'. Context: '{context}'. Domain: '{domain}'."
+async def extract_flashcard(word: str, context: str, domain: str = "", source_lang: Optional[str] = None) -> dict:
+    """Extracts flashcard info returning JSON. Có source_lang -> nghĩa tiếng Việt + phiên âm theo ngôn ngữ đó."""
+    from app.services.flashcard_extract import build_prompt, normalize_result
 
+    system_prompt, user_prompt = build_prompt(word, context, domain, source_lang)
     messages = [
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": user_prompt}
     ]
+    # Bài học có ngôn ngữ nguồn cần model mạnh hơn (CJK/Thái); không truyền thì giữ model cũ.
+    groq_model = os.getenv("GROQ_FLASHCARD_MODEL", "llama-3.1-8b-instant").strip() or "llama-3.1-8b-instant"
+    structured = bool(source_lang)
 
+    groq_client = get_groq_client()
     if groq_client:
         try:
             response = await groq_client.chat.completions.create(
-                model="llama-3.1-8b-instant",
+                model=groq_model,
                 messages=messages,
                 response_format={"type": "json_object"},
                 temperature=0.0
             )
-            content = response.choices[0].message.content
-            return json.loads(content)
+            data = json.loads(response.choices[0].message.content)
+            return normalize_result(data, word) if structured else data
         except Exception as e:
             logger.warning(f"Groq JSON extraction failed: {e}")
-    
+
     # Fallback to Gemini for JSON
     gemini_client = get_gemini_client()
     if gemini_client:
@@ -346,8 +345,9 @@ async def extract_flashcard(word: str, context: str, domain: str = "") -> dict:
                     response_mime_type="application/json"
                 )
             )
-            return json.loads(response.text)
+            data = json.loads(response.text)
+            return normalize_result(data, word) if structured else data
         except Exception as e:
             logger.error(f"Gemini Flashcard fallback failed: {e}")
-            
+
     return {}

@@ -1,16 +1,21 @@
 import React from "react";
-import { Plus, BookOpen, Pencil, Trash2, RefreshCw, FileSpreadsheet } from "lucide-react";
-import { LANG_CONFIG } from "../../services/deckStorage";
+import { ArrowRight, BookOpen, FileSpreadsheet, Library, Pencil, Plus, Trash2, Zap } from "lucide-react";
+import { LANG_CONFIG, isLearnableLang, normalizeLangCode } from "../../services/deckStorage";
 import type { BackendDeck } from "../../services/flashcardService";
+import { FcBadge, FcButton, FcCard, FcEmpty, FcLoading, FcMenu, FcSkeleton, LangFlag } from "./ui";
 
 interface DeckDashboardProps {
   decks: BackendDeck[];
   isLoading: boolean;
   onSelectDeck: (deck: BackendDeck) => void;
   onOpenCreateDeck: () => void;
+  onOpenGenerate: (deck?: BackendDeck) => void;
+  onOpenCatalog: () => void;
   onOpenEditDeck: (deck: BackendDeck) => void;
   onOpenDeleteDeck: (deck: BackendDeck) => void;
   onOpenImportExcel: (deck: BackendDeck) => void;
+  /** Có giá trị = đang xem bộ sưu tập của một ngôn ngữ: bỏ tiêu đề lớn, tạo sổ theo ngôn ngữ đó. */
+  lang?: string;
 }
 
 export const DeckDashboard: React.FC<DeckDashboardProps> = ({
@@ -18,128 +23,143 @@ export const DeckDashboard: React.FC<DeckDashboardProps> = ({
   isLoading,
   onSelectDeck,
   onOpenCreateDeck,
+  onOpenGenerate,
+  onOpenCatalog,
   onOpenEditDeck,
   onOpenDeleteDeck,
-  onOpenImportExcel
+  onOpenImportExcel,
+  lang
 }) => {
-  return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col p-8">
-      {/* Header */}
-      <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
-            <span>Sổ Thẻ Từ Vựng & Lặp Ngắt Quãng (FSRS)</span>
-            <span className="rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-bold text-blue-600 border border-blue-200">
-              Spaced Repetition
-            </span>
-          </h1>
-          <p className="mt-1 text-sm text-slate-500">
-            Học từ vựng thông minh qua phát âm chuẩn bản xứ, câu ngữ cảnh và thử thách gõ chính tả ngẫu nhiên.
-          </p>
-        </div>
+  const embedded = !!lang;
+  // Thư viện bộ từ (catalog) hiện chỉ có nội dung tiếng Anh; trình sinh từ bằng AI dùng được cho cả 9 ngôn ngữ học (không gồm tiếng Việt).
+  const showEnglishTools = !lang || lang === "en";
+  const showAiTool = !lang || isLearnableLang(lang);
+  const viName = lang ? LANG_CONFIG[lang]?.viName : undefined;
 
-        <button
-          type="button"
-          onClick={onOpenCreateDeck}
-          className="flex items-center gap-2 rounded-2xl bg-blue-600 px-5 py-3 text-sm font-bold text-white shadow-sm hover:bg-blue-700 transition-all hover:scale-105"
-        >
-          <Plus size={18} />
-          <span>Tạo Sổ Thẻ Mới</span>
-        </button>
+  return (
+    <div className={embedded ? "flex w-full flex-col" : "mx-auto flex w-full max-w-5xl flex-col p-8"}>
+      {/* Thanh công cụ */}
+      <div className={`${embedded ? "mb-5 sm:justify-end" : "mb-8 sm:justify-between"} flex flex-col gap-4 sm:flex-row sm:items-center`}>
+        {!embedded && (
+          <div>
+            <h1 className="flex items-center gap-2 text-2xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100">
+              <span>Sổ Thẻ Từ Vựng & Lặp Ngắt Quãng (FSRS)</span>
+              <FcBadge tone="blue">Spaced Repetition</FcBadge>
+            </h1>
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+              Học từ vựng thông minh qua phát âm chuẩn bản xứ, câu ngữ cảnh và thử thách gõ chính tả ngẫu nhiên.
+            </p>
+          </div>
+        )}
+
+        <div className="flex flex-wrap items-center gap-2">
+          {showEnglishTools && (
+            <FcButton variant="secondary" onClick={onOpenCatalog} icon={<Library size={16} />}>
+              Thư viện bộ từ
+            </FcButton>
+          )}
+          {showAiTool && (
+            <FcButton variant="soft" onClick={() => onOpenGenerate()} icon={<Zap size={16} />}>
+              Tạo từ vựng với AI
+            </FcButton>
+          )}
+          <FcButton variant="primary" onClick={onOpenCreateDeck} icon={<Plus size={16} />}>
+            {viName ? `Tạo sổ ${viName} mới` : "Tạo Sổ Thẻ Mới"}
+          </FcButton>
+        </div>
       </div>
 
-      {/* Decks Grid */}
       {isLoading ? (
-        <div className="flex flex-1 items-center justify-center min-h-[300px]">
-          <RefreshCw size={36} className="animate-spin text-blue-600" />
-        </div>
+        <FcLoading label="Đang tải sổ thẻ" className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {[0, 1, 2].map((n) => (
+            <FcCard key={n} padding="md" className="space-y-4">
+              <FcSkeleton className="h-9 w-12" />
+              <FcSkeleton className="h-5 w-3/4" />
+              <FcSkeleton className="h-4 w-full" />
+              <FcSkeleton className="h-4 w-1/2" />
+            </FcCard>
+          ))}
+        </FcLoading>
       ) : decks.length === 0 ? (
-        <div className="flex flex-1 flex-col items-center justify-center rounded-3xl border border-dashed border-slate-300 bg-white p-12 text-center min-h-[300px]">
-          <BookOpen size={56} className="mb-4 text-slate-300" />
-          <h3 className="text-lg font-bold text-slate-800">Chưa có sổ từ vựng nào</h3>
-          <p className="mt-1 max-w-md text-xs text-slate-500">
-            Hãy tạo một sổ từ vựng mới hoặc vào tính năng Dịch tài liệu để hệ thống tự động bóc tách từ vựng chuyên ngành vào sổ thẻ của bạn.
-          </p>
-          <button
-            type="button"
-            onClick={onOpenCreateDeck}
-            className="mt-6 flex items-center gap-2 rounded-2xl bg-blue-600 px-5 py-2.5 text-xs font-bold text-white shadow-sm hover:bg-blue-700"
-          >
-            <Plus size={16} />
-            <span>Tạo sổ thẻ đầu tiên</span>
-          </button>
-        </div>
+        <FcEmpty
+          icon={<BookOpen size={30} />}
+          title={viName ? `Chưa có sổ ${viName} nào` : "Chưa có sổ từ vựng nào"}
+          description={
+            viName
+              ? `Tạo một sổ mới, hoặc dịch một từ ${viName} ở Dịch thuật rồi bấm “Lưu Flashcard” — sổ mặc định sẽ được tạo tự động.`
+              : "Hãy tạo một sổ từ vựng mới hoặc vào tính năng Dịch tài liệu để hệ thống tự động bóc tách từ vựng chuyên ngành vào sổ thẻ của bạn."
+          }
+        >
+          {showAiTool && (
+            <FcButton variant="primary" onClick={() => onOpenGenerate()} icon={<Zap size={16} />}>
+              Nhờ AI tạo bộ từ vựng đầu tiên
+            </FcButton>
+          )}
+          {showEnglishTools && (
+            <FcButton variant="soft" onClick={onOpenCatalog} icon={<Library size={16} />}>
+              Khám phá thư viện bộ từ
+            </FcButton>
+          )}
+          <FcButton variant="secondary" onClick={onOpenCreateDeck} icon={<Plus size={16} />}>
+            Tạo sổ thẻ trống
+          </FcButton>
+        </FcEmpty>
       ) : (
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {decks.map((deck) => {
-            const langMeta = LANG_CONFIG[deck.lang_code || deck.langCode || "en"] || { flag: "🌐", label: "Ngoại ngữ" };
+            const code = normalizeLangCode(deck.lang_code || deck.langCode) ?? lang ?? null;
+            const count = deck.cards_count ?? 0;
             return (
-              <div
+              <FcCard
                 key={deck.id}
+                as="li"
+                padding="none"
+                interactive
+                // Chuột: bấm bất kỳ đâu trên thẻ để mở sổ. Bàn phím: dùng nút "Mở sổ" bên dưới (Enter/Space nổi bọt lên thẻ).
                 onClick={() => onSelectDeck(deck)}
-                className="group relative flex flex-col justify-between rounded-3xl border border-slate-200/80 bg-white p-6 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-blue-300 hover:shadow-md cursor-pointer"
+                className="group relative flex cursor-pointer flex-col focus-within:z-20 hover:z-10"
               >
-                <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="text-3xl">{deck.icon_flag || langMeta.flag}</span>
-                    <div className="flex items-center gap-2">
-                      <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600">
-                        {deck.cards_count !== undefined ? deck.cards_count : 0} thẻ
-                      </span>
-                      {/* Import Excel, Edit & Delete Action Buttons */}
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onOpenImportExcel(deck);
-                        }}
-                        className="rounded-full p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors"
-                        title="Nhập từ vựng từ Excel / CSV"
-                      >
-                        <FileSpreadsheet size={15} />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onOpenEditDeck(deck);
-                        }}
-                        className="rounded-full p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
-                        title="Chỉnh sửa sổ thẻ"
-                      >
-                        <Pencil size={15} />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onOpenDeleteDeck(deck);
-                        }}
-                        className="rounded-full p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
-                        title="Xóa sổ thẻ"
-                      >
-                        <Trash2 size={15} />
-                      </button>
-                    </div>
-                  </div>
+                <div className="flex items-start justify-between gap-3 p-5 pb-0">
+                  <LangFlag lang={code} size="lg" />
+                  <FcMenu
+                    label={`Tùy chọn sổ ${deck.title}`}
+                    items={[
+                      { key: "ai", label: "Thêm từ vựng bằng AI", icon: <Zap size={16} />, onClick: () => onOpenGenerate(deck), hidden: !(showAiTool && isLearnableLang(code)) },
+                      { key: "import", label: "Nhập từ Excel / CSV", icon: <FileSpreadsheet size={16} />, onClick: () => onOpenImportExcel(deck) },
+                      { key: "edit", label: "Chỉnh sửa sổ thẻ", icon: <Pencil size={16} />, onClick: () => onOpenEditDeck(deck) },
+                      { key: "delete", label: "Xóa sổ thẻ", icon: <Trash2 size={16} />, onClick: () => onOpenDeleteDeck(deck), tone: "danger" }
+                    ]}
+                  />
+                </div>
 
-                  <h3 className="text-base font-bold text-slate-800 group-hover:text-blue-600 transition-colors line-clamp-1">
+                <div className="flex-1 px-5 pt-4">
+                  <h3 className="line-clamp-1 text-base font-bold text-slate-800 transition-colors group-hover:text-blue-600 dark:text-slate-100 dark:group-hover:text-blue-300">
                     {deck.title}
                   </h3>
-                  <p className="mt-1.5 text-xs text-slate-500 line-clamp-2">
-                    {deck.description || `Sổ từ vựng ${langMeta.label}`}
+                  <p className="mt-1.5 line-clamp-2 text-sm text-slate-500 dark:text-slate-400">
+                    {deck.description || `Sổ từ vựng ${(code && LANG_CONFIG[code]?.label) || "Ngoại ngữ"}`}
                   </p>
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    <FcBadge tone="blue">{count} thẻ</FcBadge>
+                    {count === 0 && <FcBadge tone="amber">Trống</FcBadge>}
+                    {deck.is_default && <FcBadge tone="slate">Mặc định</FcBadge>}
+                  </div>
                 </div>
 
-                <div className="mt-6 flex items-center justify-between pt-4 border-t border-slate-100">
-                  <span className="text-xs font-semibold text-blue-600 flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-                    Bắt đầu học FSRS &rarr;
-                  </span>
+                <div className="mt-5 border-t border-slate-100 px-5 py-4 dark:border-slate-700">
+                  <button
+                    type="button"
+                    aria-label={`Mở sổ ${deck.title}`}
+                    className="flex items-center gap-1.5 rounded-lg text-sm font-semibold text-blue-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-blue-300"
+                  >
+                    {count === 0 ? "Mở sổ để thêm từ" : "Bắt đầu học FSRS"}
+                    <ArrowRight size={15} className="transition-transform group-hover:translate-x-1" aria-hidden="true" />
+                  </button>
                 </div>
-              </div>
+              </FcCard>
             );
           })}
-        </div>
+        </ul>
       )}
     </div>
   );

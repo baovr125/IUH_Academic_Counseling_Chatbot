@@ -1,3 +1,11 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Báo cho trình duyệt biết theme hiện tại để thanh cuộn, <select>, hộp kiểm, autofill... đổi theo. */
+:root {
+  color-scheme: light;
+}
+:root.dark {
+  color-scheme: dark;
+}

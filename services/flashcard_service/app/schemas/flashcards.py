@@ -4,7 +4,7 @@ from typing import Optional, List, Dict, Any
 class CreateDeckRequest(BaseModel):
     title: str = Field(..., min_length=1, max_length=100)
     description: Optional[str] = None
-    lang_code: Optional[str] = "en"
+    lang_code: str = Field(..., min_length=2, max_length=10)  # bắt buộc: không còn mặc định 'en' âm thầm
 
 class UpdateDeckRequest(BaseModel):
     title: Optional[str] = Field(None, min_length=1, max_length=100)
@@ -19,7 +19,7 @@ class CreateCardRequest(BaseModel):
     audio_url: Optional[str] = None
     example_sentence: Optional[str] = None
     part_of_speech: Optional[str] = None
-    lang_code: Optional[str] = "en"
+    lang_code: Optional[str] = None  # nếu có phải trùng ngôn ngữ của bộ thẻ; bỏ trống thì lấy theo bộ thẻ
 
 class UpdateCardRequest(BaseModel):
     front_text: Optional[str] = Field(None, min_length=1, max_length=500)
@@ -31,7 +31,7 @@ class UpdateCardRequest(BaseModel):
 
 class ReviewCardRequest(BaseModel):
     card_id: str
-    grade: int = Field(..., ge=0, le=5)  # Quality 0 to 5 (1: Again, 2: Hard, 3: Good, 4: Easy)
+    grade: int = Field(..., ge=1, le=4)  # 1: Again, 2: Hard, 3: Good, 4: Easy
 
 class VerifySpellingRequest(BaseModel):
     user_input: str = Field(..., min_length=1, max_length=500)
@@ -64,8 +64,11 @@ class StudyCardItem(BaseModel):
     stability: float
     difficulty: float
     due: str
-    recommended_mode: str = "flip"  # "flip" | "spelling"
+    recommended_mode: str = "flip"  # "flip" | "spelling" | "choice" | "listening"
     cloze_sentence: Optional[str] = None
+    choices: Optional[List[str]] = None
+    is_new: bool = False
+    example_translation: Optional[str] = None
 
 class CardResponse(BaseModel):
     id: str

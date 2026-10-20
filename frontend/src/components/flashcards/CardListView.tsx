@@ -1,7 +1,8 @@
 import React, { useState, useMemo } from "react";
 import { Virtuoso } from "react-virtuoso";
-import { Volume2, Pencil, Trash2, Search, RefreshCw, Plus, FileSpreadsheet } from "lucide-react";
+import { BookOpen, FileSpreadsheet, Pencil, Plus, Search, Trash2, Volume2 } from "lucide-react";
 import type { BackendCardItem, BackendDeck } from "../../services/flashcardService";
+import { FcBadge, FcButton, FcCard, FcEmpty, FcLoading, FcSkeleton } from "./ui";
 
 interface CardListViewProps {
   deck: BackendDeck;
@@ -9,10 +10,14 @@ interface CardListViewProps {
   isLoading: boolean;
   onPlayAudio: (audioUrl?: string, text?: string, lang?: string, phonetic?: string) => void;
   onOpenEditCard: (card: BackendCardItem) => void;
-  onDeleteCard: (cardId: string) => Promise<void>;
+  /** Yêu cầu xóa thẻ; việc xác nhận do nơi gọi đảm nhiệm (hộp thoại trong ứng dụng). */
+  onDeleteCard: (cardId: string) => void | Promise<void>;
   onOpenAddCard: () => void;
   onOpenImportExcel?: () => void;
 }
+
+const ICON_BTN =
+  "rounded-full p-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500";
 
 export const CardListView: React.FC<CardListViewProps> = ({
   deck,
@@ -41,68 +46,64 @@ export const CardListView: React.FC<CardListViewProps> = ({
 
   if (isLoading) {
     return (
-      <div className="flex flex-1 items-center justify-center p-12 min-h-[350px]">
-        <RefreshCw size={32} className="animate-spin text-blue-600" />
-      </div>
+      <FcLoading label="Đang tải danh sách thẻ" className="flex flex-col gap-3">
+        {[0, 1, 2, 3].map((n) => (
+          <FcCard key={n} padding="sm" className="space-y-3">
+            <FcSkeleton className="h-4 w-16" />
+            <FcSkeleton className="h-5 w-1/3" />
+            <FcSkeleton className="h-4 w-2/3" />
+          </FcCard>
+        ))}
+      </FcLoading>
     );
   }
 
   if (cards.length === 0) {
     return (
-      <div className="rounded-3xl border border-dashed border-slate-200 p-12 text-center bg-white min-h-[300px] flex flex-col items-center justify-center">
-        <p className="text-sm font-semibold text-slate-700">Chưa có thẻ từ vựng nào trong danh sách</p>
-        <p className="text-xs text-slate-400 mt-1">Bấm nút "Thêm từ" hoặc "Nhập Excel" để tạo danh sách từ vựng cho sổ này.</p>
-        <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
-          <button
-            type="button"
-            onClick={onOpenAddCard}
-            className="flex items-center gap-2 rounded-2xl bg-blue-600 px-4 py-2.5 text-xs font-bold text-white shadow-sm hover:bg-blue-700 transition-colors"
-          >
-            <Plus size={15} />
-            <span>Thêm thẻ mới</span>
-          </button>
-          {onOpenImportExcel && (
-            <button
-              type="button"
-              onClick={onOpenImportExcel}
-              className="flex items-center gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-xs font-bold text-emerald-700 shadow-sm hover:bg-emerald-100 transition-colors"
-            >
-              <FileSpreadsheet size={15} />
-              <span>Nhập từ Excel / CSV</span>
-            </button>
-          )}
-        </div>
-      </div>
+      <FcEmpty
+        icon={<BookOpen size={30} />}
+        title="Chưa có thẻ từ vựng nào trong danh sách"
+        description='Bấm nút "Thêm từ vựng" ở trên hoặc nhập từ Excel để tạo danh sách từ vựng cho sổ này.'
+      >
+        <FcButton variant="primary" onClick={onOpenAddCard} icon={<Plus size={16} />}>
+          Thêm thẻ mới
+        </FcButton>
+        {onOpenImportExcel && (
+          <FcButton variant="success" onClick={onOpenImportExcel} icon={<FileSpreadsheet size={16} />}>
+            Nhập từ Excel / CSV
+          </FcButton>
+        )}
+      </FcEmpty>
     );
   }
 
   return (
     <div className="flex flex-1 flex-col gap-3">
-      {/* Search and Stats Bar */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white p-3 rounded-2xl border border-slate-200/80 shadow-sm">
+      {/* Tìm kiếm và thống kê */}
+      <FcCard padding="sm" className="flex flex-col items-center justify-between gap-3 !rounded-2xl sm:flex-row">
         <div className="relative w-full sm:w-80">
-          <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+          <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400" aria-hidden="true" />
           <input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Tìm kiếm từ vựng, nghĩa tiếng Việt..."
-            className="w-full rounded-xl border border-slate-200 bg-slate-50/50 pl-10 pr-4 py-2 text-xs focus:border-blue-500 focus:bg-white focus:outline-none transition-all"
+            aria-label="Tìm kiếm thẻ trong sổ"
+            className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2 pl-10 pr-4 text-sm text-slate-800 transition-all focus:border-blue-500 focus:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 dark:border-slate-600 dark:bg-slate-900/50 dark:text-slate-100 dark:placeholder-slate-500 dark:focus:bg-slate-900"
           />
         </div>
 
-        <span className="text-xs font-medium text-slate-500 self-end sm:self-center">
-          Hiển thị <strong>{filteredCards.length}</strong> / {cards.length} thẻ từ vựng
+        <span className="self-end text-xs font-medium text-slate-500 dark:text-slate-400 sm:self-center">
+          Hiển thị <strong className="text-slate-700 dark:text-slate-200">{filteredCards.length}</strong> / {cards.length} thẻ từ vựng
         </span>
-      </div>
+      </FcCard>
 
-      {/* Virtualized Cards List */}
       {filteredCards.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-slate-200 p-8 text-center bg-white">
-          <p className="text-xs text-slate-500">Không tìm thấy từ vựng nào khớp với từ khóa "{searchTerm}".</p>
+        <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center dark:border-slate-600 dark:bg-slate-800/60">
+          <p className="text-sm text-slate-500 dark:text-slate-400">Không tìm thấy từ vựng nào khớp với từ khóa "{searchTerm}".</p>
         </div>
       ) : (
-        <div className="rounded-2xl overflow-hidden" style={{ height: "calc(100vh - 280px)", minHeight: "480px" }}>
+        <div className="overflow-hidden rounded-2xl" style={{ height: "calc(100vh - 340px)", minHeight: "480px" }}>
           <Virtuoso
             style={{ height: "100%", width: "100%" }}
             totalCount={filteredCards.length}
@@ -112,52 +113,51 @@ export const CardListView: React.FC<CardListViewProps> = ({
 
               return (
                 <div className="pb-3 pr-1">
-                  <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm hover:shadow-md hover:border-blue-200 transition-all flex flex-col justify-between">
-                    <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-[10px] font-bold text-slate-600 uppercase tracking-wider">
-                          {card.part_of_speech || card.partOfSpeech || "Từ vựng"}
-                        </span>
-                        <div className="flex items-center gap-1">
-                          <button
-                            type="button"
-                            onClick={() => onPlayAudio(card.audio_url, card.term, cardLang, card.phonetic)}
-                            className="rounded-full p-1.5 text-blue-600 hover:bg-blue-50 transition-colors"
-                            title="Nghe phát âm"
-                          >
-                            <Volume2 size={15} />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => onOpenEditCard(card)}
-                            className="rounded-full p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
-                            title="Chỉnh sửa thẻ"
-                          >
-                            <Pencil size={15} />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => onDeleteCard(card.id)}
-                            className="rounded-full p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
-                            title="Xóa thẻ"
-                          >
-                            <Trash2 size={15} />
-                          </button>
-                        </div>
+                  <FcCard padding="sm" className="!rounded-2xl hover:border-blue-200 hover:shadow-md dark:hover:border-slate-600">
+                    <div className="mb-2 flex items-center justify-between">
+                      <FcBadge tone="slate" className="uppercase tracking-wider">
+                        {card.part_of_speech || card.partOfSpeech || "Từ vựng"}
+                      </FcBadge>
+                      <div className="flex items-center gap-0.5">
+                        <button
+                          type="button"
+                          onClick={() => onPlayAudio(card.audio_url, card.term, cardLang, card.phonetic)}
+                          className={`${ICON_BTN} text-blue-600 hover:bg-blue-50 dark:text-blue-300 dark:hover:bg-slate-700`}
+                          title="Nghe phát âm"
+                          aria-label={`Nghe phát âm ${card.term}`}
+                        >
+                          <Volume2 size={16} aria-hidden="true" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => onOpenEditCard(card)}
+                          className={`${ICON_BTN} text-slate-500 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-slate-700 dark:hover:text-blue-300 dark:text-slate-400`}
+                          title="Chỉnh sửa thẻ"
+                          aria-label={`Chỉnh sửa thẻ ${card.term}`}
+                        >
+                          <Pencil size={16} aria-hidden="true" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => void onDeleteCard(card.id)}
+                          className={`${ICON_BTN} text-slate-500 hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-950/40 dark:hover:text-rose-400 dark:text-slate-400`}
+                          title="Xóa thẻ"
+                          aria-label={`Xóa thẻ ${card.term}`}
+                        >
+                          <Trash2 size={16} aria-hidden="true" />
+                        </button>
                       </div>
-
-                      <h4 className="text-base font-bold text-slate-800">{card.term}</h4>
-                      {card.phonetic ? (
-                        <p className="text-xs font-mono text-blue-600 mb-1">{card.phonetic}</p>
-                      ) : null}
-                      <p className="text-xs text-slate-600 mt-1 font-medium">{card.definition}</p>
-                      {card.example_sentence || card.example ? (
-                        <p className="text-[11px] italic text-slate-500 mt-2 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-                          "{card.example_sentence || card.example}"
-                        </p>
-                      ) : null}
                     </div>
-                  </div>
+
+                    <h4 className="text-base font-bold text-slate-800 dark:text-slate-100" lang={cardLang}>{card.term}</h4>
+                    {card.phonetic ? <p className="mb-1 font-mono text-xs text-blue-600 dark:text-blue-300">{card.phonetic}</p> : null}
+                    <p className="mt-1 text-sm font-medium text-slate-600 dark:text-slate-300">{card.definition}</p>
+                    {card.example_sentence || card.example ? (
+                      <p className="mt-2 rounded-xl border border-slate-100 bg-slate-50 p-2.5 text-xs italic text-slate-500 dark:border-slate-700 dark:bg-slate-900/50 dark:text-slate-400" lang={cardLang}>
+                        "{card.example_sentence || card.example}"
+                      </p>
+                    ) : null}
+                  </FcCard>
                 </div>
               );
             }}

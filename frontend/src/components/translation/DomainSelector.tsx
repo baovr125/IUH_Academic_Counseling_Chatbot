@@ -43,10 +43,10 @@ export const DomainSelector: React.FC<DomainSelectorProps> = ({ value, onChange,
   return (
     <div className="relative" ref={dropdownRef}>
       <div 
-        className="flex items-center justify-between w-64 px-4 py-2 bg-white border border-gray-300 rounded-lg cursor-pointer hover:border-blue-500 focus-within:ring-2 focus-within:ring-blue-200 transition-all"
+        className="flex items-center justify-between w-64 px-4 py-2 bg-white border border-gray-300 rounded-lg cursor-pointer hover:border-blue-500 focus-within:ring-2 focus-within:ring-blue-200 transition-all dark:bg-slate-800 dark:border-slate-600"
         onClick={() => setIsOpen(true)}
       >
-        <span className="text-sm font-medium text-gray-700 truncate">
+        <span className="text-sm font-medium text-gray-700 truncate dark:text-slate-200">
           {value === "auto"
             ? `✨ Tự động nhận diện${detectedDomain ? ` (${detectedDomain})` : ""}`
             : (value || "Chọn lĩnh vực dịch thuật...")}
@@ -55,8 +55,8 @@ export const DomainSelector: React.FC<DomainSelectorProps> = ({ value, onChange,
       </div>
 
       {isOpen && (
-        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-xl top-full">
-          <div className="p-2 border-b border-gray-100 flex items-center">
+        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-xl top-full dark:bg-slate-800 dark:border-slate-600">
+          <div className="p-2 border-b border-gray-100 flex items-center dark:border-slate-700">
             <Search size={14} className="text-gray-400 ml-2 mr-2" />
             <input
               type="text"
@@ -70,7 +70,7 @@ export const DomainSelector: React.FC<DomainSelectorProps> = ({ value, onChange,
           
           <div className="max-h-60 overflow-y-auto p-1">
             <div 
-              className={`px-3 py-2 text-sm rounded-md cursor-pointer flex items-center justify-between ${!value ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-700 hover:bg-gray-50"}`}
+              className={`px-3 py-2 text-sm rounded-md cursor-pointer flex items-center justify-between ${!value ? "bg-blue-50 text-blue-700 font-medium dark:bg-blue-950/40 dark:text-blue-300" : "text-gray-700 hover:bg-gray-50 dark:text-slate-200 dark:hover:bg-slate-700"}`}
               onClick={() => {
                 onChange("");
                 setIsOpen(false);
@@ -81,7 +81,7 @@ export const DomainSelector: React.FC<DomainSelectorProps> = ({ value, onChange,
             </div>
 
             <div 
-              className={`px-3 py-2 text-sm rounded-md cursor-pointer flex items-center justify-between ${value === "auto" ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-700 hover:bg-gray-50"}`}
+              className={`px-3 py-2 text-sm rounded-md cursor-pointer flex items-center justify-between ${value === "auto" ? "bg-blue-50 text-blue-700 font-medium dark:bg-blue-950/40 dark:text-blue-300" : "text-gray-700 hover:bg-gray-50 dark:text-slate-200 dark:hover:bg-slate-700"}`}
               onClick={() => {
                 onChange("auto");
                 setIsOpen(false);
@@ -94,7 +94,7 @@ export const DomainSelector: React.FC<DomainSelectorProps> = ({ value, onChange,
             {filteredDomains.map(domain => (
               <div
                 key={domain}
-                className={`px-3 py-2 text-sm rounded-md cursor-pointer flex items-center justify-between ${value === domain ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-700 hover:bg-gray-50"}`}
+                className={`px-3 py-2 text-sm rounded-md cursor-pointer flex items-center justify-between ${value === domain ? "bg-blue-50 text-blue-700 font-medium dark:bg-blue-950/40 dark:text-blue-300" : "text-gray-700 hover:bg-gray-50 dark:text-slate-200 dark:hover:bg-slate-700"}`}
                 onClick={() => {
                   onChange(domain);
                   setIsOpen(false);
@@ -108,7 +108,7 @@ export const DomainSelector: React.FC<DomainSelectorProps> = ({ value, onChange,
             
             {showCustomOption && (
               <div
-                className={`px-3 py-2 text-sm rounded-md cursor-pointer flex items-center justify-between ${value === searchTerm ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-700 hover:bg-gray-50"}`}
+                className={`px-3 py-2 text-sm rounded-md cursor-pointer flex items-center justify-between ${value === searchTerm ? "bg-blue-50 text-blue-700 font-medium dark:bg-blue-950/40 dark:text-blue-300" : "text-gray-700 hover:bg-gray-50 dark:text-slate-200 dark:hover:bg-slate-700"}`}
                 onClick={() => {
                   onChange(searchTerm);
                   setIsOpen(false);
@@ -120,7 +120,7 @@ export const DomainSelector: React.FC<DomainSelectorProps> = ({ value, onChange,
             )}
             
             {filteredDomains.length === 0 && !showCustomOption && (
-              <div className="px-3 py-4 text-sm text-center text-gray-500">
+              <div className="px-3 py-4 text-sm text-center text-gray-500 dark:text-slate-400">
                 Không tìm thấy kết quả
               </div>
             )}

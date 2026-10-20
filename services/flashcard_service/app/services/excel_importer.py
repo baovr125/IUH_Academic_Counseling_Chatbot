@@ -1,4 +1,5 @@
 import io
+import re
 import csv
 import uuid
 import datetime
@@ -14,8 +15,15 @@ from app.services.flashcard_service import (
     get_supabase,
     in_memory_decks,
     in_memory_cards,
-    to_valid_uuid
+    to_valid_uuid,
+    db_write_error,
+    ensure_deck_for_write,
+    resolve_card_language,
+    new_card_record,
+    to_db_card_payload,
+    EXTENDED_CARD_COLUMNS,
 )
+from app.services.normalization import normalize_pos, dedupe_key
 from app.rabbitmq_consumer import publish_flashcard_created_event
 from app.utils.logger import logger
 
@@ -82,13 +90,37 @@ def _clean_str(val: Any) -> str:
         return ""
     return str(val).strip()
 
+_ALIAS_TO_FIELD = {alias: field for field, aliases in HEADER_ALIASES.items() for alias in aliases}
+_HAS_CJK_OR_HANGUL = re.compile(r"[぀-ヿ㐀-鿿가-힯]")
+
+
 def _match_header(header_name: str) -> Optional[str]:
-    cleaned = header_name.strip().lower()
-    for field, aliases in HEADER_ALIASES.items():
-        for alias in aliases:
-            if alias in cleaned or cleaned in alias:
-                return field
-    return None
+    """
+    Nhận diện cột theo tiêu đề. Thứ tự ưu tiên:
+      1. Khớp chính xác phần nhãn trước dấu "(" (vd "Term (Từ vựng ngoại ngữ)*" -> "term") hoặc cả tiêu đề.
+      2. Alias dài nhất xuất hiện như một TỪ nguyên vẹn trong tiêu đề (CJK/Hangul không có khoảng trắng nên khớp chuỗi con).
+    Không dùng khớp chuỗi con hai chiều: alias ngắn như "từ" từng làm cột "Từ loại" bị nhận nhầm là cột từ vựng.
+    """
+    cleaned = re.sub(r"\s+", " ", header_name.strip().lower().replace("*", "")).strip()
+    if not cleaned:
+        return None
+    label = cleaned.split("(")[0].strip().rstrip(":")
+    for candidate in (label, cleaned):
+        if candidate in _ALIAS_TO_FIELD:
+            return _ALIAS_TO_FIELD[candidate]
+
+    best: Optional[str] = None
+    best_len = 0
+    for alias, field in _ALIAS_TO_FIELD.items():
+        if len(alias) <= best_len:
+            continue
+        if _HAS_CJK_OR_HANGUL.search(alias):
+            hit = alias in cleaned
+        else:
+            hit = len(alias) >= 3 and re.search(rf"(?<!\w){re.escape(alias)}(?!\w)", cleaned) is not None
+        if hit:
+            best, best_len = field, len(alias)
+    return best
 
 def parse_excel_or_csv(file_bytes: bytes, filename: str) -> List[Dict[str, Any]]:
     """
@@ -110,7 +142,7 @@ def parse_excel_or_csv(file_bytes: bytes, filename: str) -> List[Dict[str, Any]]
                 break
             except UnicodeDecodeError:
                 continue
-        
+
         if not text_content:
             raise HTTPException(status_code=400, detail="Không thể đọc nội dung file CSV. Vui lòng lưu file ở định dạng UTF-8.")
 
@@ -149,7 +181,7 @@ def parse_excel_or_csv(file_bytes: bytes, filename: str) -> List[Dict[str, Any]]
 
     for idx, cell in enumerate(first_row):
         matched = _match_header(cell)
-        if matched:
+        if matched and matched not in header_mapping.values():  # nhiều cột cùng loại: lấy cột đầu tiên
             header_mapping[idx] = matched
             has_header = True
 
@@ -204,7 +236,10 @@ def parse_excel_or_csv(file_bytes: bytes, filename: str) -> List[Dict[str, Any]]
 
         # Chuẩn hóa từ loại đa ngôn ngữ (Vietnamese, English, German, French, Spanish, Chinese, Japanese, Korean, Russian)
         pos = card_obj.get("part_of_speech", "").lower()
-        if any(k in pos for k in ["danh", "noun", "nomen", "nom", "sustantivo", "名词", "名詞", "명사", "сущ", "n."]):
+        canonical_pos = normalize_pos(pos)
+        if canonical_pos:
+            card_obj["part_of_speech"] = canonical_pos
+        elif any(k in pos for k in ["danh", "noun", "nomen", "nom", "sustantivo", "名词", "名詞", "명사", "сущ", "n."]):
             card_obj["part_of_speech"] = "noun"
         elif any(k in pos for k in ["động", "dong", "verb", "verbe", "verbo", "动词", "動詞", "동사", "глагол", "v."]):
             card_obj["part_of_speech"] = "verb"
@@ -216,7 +251,7 @@ def parse_excel_or_csv(file_bytes: bytes, filename: str) -> List[Dict[str, Any]]
             card_obj["part_of_speech"] = "phrase" if " " in term else "noun"
 
         # Deduplicate trong cùng file
-        term_key = term.lower()
+        term_key = dedupe_key(term)
         if term_key in seen_terms:
             continue
         seen_terms.add(term_key)
@@ -302,67 +337,81 @@ def generate_excel_template() -> bytes:
     wb.save(output)
     return output.getvalue()
 
+async def fetch_existing_terms(supabase, deck_id: str) -> set:
+    """Tập từ (đã chuẩn hóa) hiện có trong deck, đọc phân trang để vượt giới hạn 1000 dòng của PostgREST."""
+    terms = set()
+    valid_deck_uuid = to_valid_uuid(deck_id)
+    if supabase and valid_deck_uuid:
+        page, offset = 1000, 0
+        while True:
+            try:
+                res = await run_in_threadpool(
+                    lambda o=offset: supabase.table("flashcards").select("term")
+                        .eq("deck_id", valid_deck_uuid).range(o, o + page - 1).execute()
+                )
+            except Exception as e:
+                raise db_write_error("đọc danh sách từ hiện có để loại trùng", e)
+            rows = res.data or []
+            for item in rows:
+                if item.get("term"):
+                    terms.add(dedupe_key(item["term"]))
+            if len(rows) < page:
+                break
+            offset += page
+    for c in in_memory_cards.values():
+        if str(c.get("deck_id")) == str(deck_id) and c.get("term"):
+            terms.add(dedupe_key(c["term"]))
+    return terms
+
+
+def _is_missing_column_error(exc: Exception) -> bool:
+    text = str(exc).lower()
+    return "column" in text and ("does not exist" in text or "schema cache" in text or "could not find" in text)
+
+
+async def _insert_chunk(supabase, chunk: List[Dict[str, Any]]) -> bool:
+    """
+    Chèn một lô thẻ. Trả True nếu các cột mở rộng (example_translation, level, source) được lưu.
+    Nếu DB chưa chạy migration 003 (thiếu cột) thì chèn lại không kèm các cột đó và trả False.
+    """
+    payloads = [to_db_card_payload(c, EXTENDED_CARD_COLUMNS) for c in chunk]
+    try:
+        await run_in_threadpool(lambda: supabase.table("flashcards").insert(payloads).execute())
+        return True
+    except Exception as e:
+        if not _is_missing_column_error(e):
+            raise db_write_error("lưu thẻ từ vựng", e)
+        logger.warning(
+            "Bảng flashcards chưa có cột mở rộng (chạy db/migrations/003_flashcard_ai_generation.sql): "
+            f"lưu thẻ mà không kèm example_translation/level/source. Chi tiết: {e}"
+        )
+    basic = [to_db_card_payload(c) for c in chunk]
+    try:
+        await run_in_threadpool(lambda: supabase.table("flashcards").insert(basic).execute())
+    except Exception as e:
+        raise db_write_error("lưu thẻ từ vựng", e)
+    return False
+
+
 async def bulk_insert_cards(
     deck_id: str,
     user_id: str,
     cards_data: List[Dict[str, Any]],
-    lang_code: str = "en"
+    lang_code: Optional[str] = None
 ) -> Dict[str, Any]:
     """
-    Thực hiện Bulk Insert vào Database (Supabase PostgreSQL / In-memory):
-    - Kiểm tra và tự động đồng bộ Deck (IDOR protection & Local Storage Fallback)
-    - Deduplicate với các từ đã có trong bộ thẻ
-    - Batch chunk insert 200 bản ghi/lần
-    - Bắn event RabbitMQ sinh Audio ngầm
+    Thêm hàng loạt thẻ vào deck (Supabase PostgreSQL, hoặc bộ nhớ khi không cấu hình Supabase):
+    - Kiểm tra quyền sở hữu deck (IDOR); deck chỉ có ở client sẽ được tạo trên Supabase.
+    - Loại trùng với các từ đã có trong deck (so khóa đã chuẩn hóa).
+    - Chèn theo lô 200 thẻ; lỗi DB trả 503 (không báo thành công giả). Gọi lại sau lỗi là an toàn
+      vì lần sau sẽ tự bỏ qua các thẻ đã được chèn.
+    - Bắn event RabbitMQ để sinh âm thanh phát âm ở chế độ nền.
     """
     supabase = get_supabase()
-    deck_owner = None
-    deck_lang = lang_code
-    deck_title = "Sổ từ vựng"
+    deck_row = await ensure_deck_for_write(deck_id, user_id, lang_code)
+    deck_lang = resolve_card_language(deck_row, lang_code)  # ngôn ngữ theo deck; lệch -> 409; thiếu -> 422 (không đoán 'en')
+    deck_title = str((deck_row or {}).get("title") or "Sổ từ vựng")
 
-    # 1. Tìm thông tin Deck (In-memory & Supabase)
-    if deck_id in in_memory_decks:
-        mem_deck = in_memory_decks[deck_id]
-        deck_owner = str(mem_deck.get("user_id", ""))
-        deck_lang = str(mem_deck.get("lang_code") or lang_code)
-        deck_title = str(mem_deck.get("title") or deck_title)
-
-    if supabase:
-        try:
-            valid_deck_uuid = to_valid_uuid(deck_id) or deck_id
-            deck_res = await run_in_threadpool(
-                lambda: supabase.table("flashcard_decks").select("id, user_id, lang_code, title").eq("id", valid_deck_uuid).execute()
-            )
-            if deck_res.data and len(deck_res.data) > 0:
-                sb_d = deck_res.data[0]
-                deck_owner = str(sb_d.get("user_id", "") or deck_owner or "")
-                deck_lang = str(sb_d.get("lang_code") or deck_lang or lang_code)
-                deck_title = str(sb_d.get("title") or deck_title)
-            else:
-                # Sổ thẻ chưa có trên Supabase (được tạo ở Client / LocalStorage)
-                # Tự động tạo Deck trên Supabase để thỏa mãn Foreign Key constraint
-                valid_uid = to_valid_uuid(user_id)
-                auto_deck_payload = {
-                    "id": valid_deck_uuid,
-                    "title": deck_title,
-                    "description": f"Sổ từ vựng ({deck_lang.upper()})",
-                    "lang_code": deck_lang,
-                    "icon_flag": "🌐"
-                }
-                if valid_uid:
-                    auto_deck_payload["user_id"] = valid_uid
-
-                try:
-                    await run_in_threadpool(
-                        lambda: supabase.table("flashcard_decks").insert(auto_deck_payload).execute()
-                    )
-                    logger.info(f"Auto-created missing deck {valid_deck_uuid} on Supabase during Excel import")
-                except Exception as ex_deck:
-                    logger.warning(f"Could not auto-insert missing deck on Supabase: {ex_deck}")
-        except Exception as e:
-            logger.warning(f"Error checking deck ownership in Supabase: {e}")
-
-    # Đảm bảo in-memory deck luôn tồn tại
     if deck_id not in in_memory_decks:
         in_memory_decks[deck_id] = {
             "id": deck_id,
@@ -374,138 +423,60 @@ async def bulk_insert_cards(
             "cards_count": 0
         }
 
-    # IDOR Check: Chỉ chặn nếu deck thuộc sở hữu của người dùng khác
-    if deck_owner and deck_owner != "anonymous" and deck_owner != str(user_id):
-        valid_u = to_valid_uuid(user_id)
-        if valid_u and str(valid_u) != deck_owner:
-            raise HTTPException(
-                status_code=403,
-                detail="Bạn không có quyền thêm thẻ vào sổ thẻ này (IDOR Protection)."
-            )
+    existing_terms = await fetch_existing_terms(supabase, deck_id)
 
-    # 2. Lấy danh sách từ đã có để tránh trùng lặp
-    existing_terms = set()
-    if supabase:
-        try:
-            valid_deck_uuid = to_valid_uuid(deck_id) or deck_id
-            existing_res = await run_in_threadpool(
-                lambda: supabase.table("flashcards").select("term").eq("deck_id", valid_deck_uuid).execute()
-            )
-            if existing_res.data:
-                for item in existing_res.data:
-                    if item.get("term"):
-                        existing_terms.add(item["term"].strip().lower())
-        except Exception as e:
-            logger.warning(f"Error fetching existing terms in deck: {e}")
-
-    for c in in_memory_cards.values():
-        if str(c.get("deck_id")) == str(deck_id) and c.get("term"):
-            existing_terms.add(c["term"].strip().lower())
-
-    # 3. Chuẩn bị payloads cho batch insert
     now_iso = datetime.datetime.now(datetime.timezone.utc).isoformat()
-    clean_lang = (deck_lang or "en").strip().lower()[:2]
-
     cards_to_insert: List[Dict[str, Any]] = []
     skipped_duplicates = 0
 
     for item in cards_data:
-        term = item.get("term", "").strip()
-        definition = item.get("definition", "").strip()
+        term = str(item.get("term", "")).strip()
+        definition = str(item.get("definition", "")).strip()
         if not term or not definition:
             continue
 
-        if term.lower() in existing_terms:
+        key = dedupe_key(term)
+        if key in existing_terms:
             skipped_duplicates += 1
             continue
+        existing_terms.add(key)
 
-        existing_terms.add(term.lower())
-        card_id = str(uuid.uuid4())
-
-        # CAS Deduplicated Persistent Audio URL
-        term_hash = hashlib.md5(f"{clean_lang}_{term.lower()}".encode('utf-8')).hexdigest()
-        audio_url = f"/api/v1/translate/audio/terms/{clean_lang}_{term_hash}.mp3"
-
-        card_dict = {
-            "id": card_id,
-            "deck_id": deck_id,
-            "user_id": user_id,
-            "term": term,
-            "definition": definition,
-            "phonetic": item.get("phonetic") or None,
-            "audio_url": audio_url,
-            "example": item.get("example") or None,
-            "example_sentence": item.get("example") or None,
-            "part_of_speech": item.get("part_of_speech") or "noun",
-            "lang_code": deck_lang,
-            # FSRS Default State
-            "state": 0,
-            "reps": 0,
-            "lapses": 0,
-            "stability": 0.0,
-            "difficulty": 0.0,
-            "elapsed_days": 0,
-            "scheduled_days": 0,
-            "last_review": None,
-            "due": now_iso
-        }
-        cards_to_insert.append(card_dict)
+        extra = {k: item.get(k) for k in EXTENDED_CARD_COLUMNS if item.get(k) is not None}
+        cards_to_insert.append(new_card_record(
+            deck_id=deck_id,
+            user_id=user_id,
+            term=term,
+            definition=definition,
+            lang_code=deck_lang,
+            phonetic=item.get("phonetic") or None,
+            example_sentence=item.get("example") or None,
+            part_of_speech=item.get("part_of_speech") or "noun",
+            now_iso=now_iso,
+            extra=extra
+        ))
 
     if not cards_to_insert:
         return {
             "total_in_file": len(cards_data),
             "inserted": 0,
             "skipped_duplicates": skipped_duplicates,
+            "extended_saved": True,
             "cards": []
         }
 
-    # 4. Batch Insert (Chunk 200 bản ghi/lần)
     CHUNK_SIZE = 200
+    extended_saved = True
     if supabase:
-        try:
-            for i in range(0, len(cards_to_insert), CHUNK_SIZE):
-                chunk = cards_to_insert[i:i + CHUNK_SIZE]
-                sb_chunk = []
-                for c in chunk:
-                    valid_uid = to_valid_uuid(c.get("user_id"))
-                    valid_did = to_valid_uuid(c.get("deck_id")) or c.get("deck_id")
-                    sb_card = {
-                        "id": c["id"],
-                        "deck_id": valid_did,
-                        "term": c["term"],
-                        "definition": c["definition"],
-                        "phonetic": c["phonetic"],
-                        "audio_url": c["audio_url"],
-                        "example": c["example"],
-                        "part_of_speech": c["part_of_speech"],
-                        "lang_code": c["lang_code"],
-                        "state": 0,
-                        "reps": 0,
-                        "lapses": 0,
-                        "stability": 0.0,
-                        "difficulty": 0.0,
-                        "elapsed_days": 0,
-                        "scheduled_days": 0,
-                        "due": now_iso
-                    }
-                    if valid_uid:
-                        sb_card["user_id"] = valid_uid
-                    sb_chunk.append(sb_card)
+        for i in range(0, len(cards_to_insert), CHUNK_SIZE):
+            if not await _insert_chunk(supabase, cards_to_insert[i:i + CHUNK_SIZE]):
+                extended_saved = False
 
-                await run_in_threadpool(
-                    lambda: supabase.table("flashcards").insert(sb_chunk).execute()
-                )
-        except Exception as e:
-            logger.error(f"Failed to batch insert cards to Supabase: {e}")
-
-    # Đồng bộ vào in-memory store
     for c in cards_to_insert:
         in_memory_cards[c["id"]] = c
+    in_memory_decks[deck_id]["cards_count"] = len(
+        [c for c in in_memory_cards.values() if str(c.get("deck_id")) == str(deck_id)]
+    )
 
-    if deck_id in in_memory_decks:
-        in_memory_decks[deck_id]["cards_count"] = len([c for c in in_memory_cards.values() if str(c.get("deck_id")) == str(deck_id)])
-
-    # 5. Kích hoạt sự kiện RabbitMQ để sinh âm thanh ngầm
     for c in cards_to_insert:
         try:
             await publish_flashcard_created_event(
@@ -518,11 +489,12 @@ async def bulk_insert_cards(
         except Exception as e:
             logger.warning(f"Could not publish event for imported card {c['id']}: {e}")
 
-    logger.info(f"Bulk imported {len(cards_to_insert)} cards into deck {deck_id} (Skipped {skipped_duplicates} duplicates)")
+    logger.info(f"Bulk inserted {len(cards_to_insert)} cards into deck {deck_id} (skipped {skipped_duplicates} duplicates)")
 
     return {
         "total_in_file": len(cards_data),
         "inserted": len(cards_to_insert),
         "skipped_duplicates": skipped_duplicates,
+        "extended_saved": extended_saved,
         "cards": cards_to_insert
     }

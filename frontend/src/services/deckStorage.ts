@@ -1,30 +1,62 @@
 import { getToken } from "./apiClient";
 import type { Flashcard } from "../types";
 
+/** Thẻ lưu cục bộ: `pendingSync` = lưu tạm khi máy chủ không kết nối được, chưa có trên backend. */
+export type StoredCard = Flashcard & { pendingSync?: boolean };
+
 export interface FlashcardDeck {
   id: string;
   langCode: string;
   title: string;
   description: string;
   iconFlag: string;
-  cards: Flashcard[];
+  cards: StoredCard[];
 }
 
-export const LANG_CONFIG: Record<
-  string,
-  { label: string; flag: string; defaultTitle: string }
-> = {
-  en: { label: "Tiếng Anh (English)", flag: "🇬🇧", defaultTitle: "Sổ từ vựng Tiếng Anh" },
-  de: { label: "Tiếng Đức (German)", flag: "🇩🇪", defaultTitle: "Sổ từ vựng Tiếng Đức" },
-  zh: { label: "Tiếng Trung (Chinese)", flag: "🇨🇳", defaultTitle: "Sổ từ vựng Tiếng Trung" },
-  ja: { label: "Tiếng Nhật (Japanese)", flag: "🇯🇵", defaultTitle: "Sổ từ vựng Tiếng Nhật" },
-  ko: { label: "Tiếng Hàn (Korean)", flag: "🇰🇷", defaultTitle: "Sổ từ vựng Tiếng Hàn" },
-  fr: { label: "Tiếng Pháp (French)", flag: "🇫🇷", defaultTitle: "Sổ từ vựng Tiếng Pháp" },
-  es: { label: "Tiếng Tây Ban Nha (Spanish)", flag: "🇪🇸", defaultTitle: "Sổ từ vựng Tiếng Tây Ban Nha" },
-  ru: { label: "Tiếng Nga (Russian)", flag: "🇷🇺", defaultTitle: "Sổ từ vựng Tiếng Nga" },
-  th: { label: "Tiếng Thái (Thai)", flag: "🇹🇭", defaultTitle: "Sổ từ vựng Tiếng Thái" },
-  vi: { label: "Tiếng Việt (Vietnamese)", flag: "🇻🇳", defaultTitle: "Sổ từ vựng Tiếng Việt" },
+/**
+ * 10 ngôn ngữ hệ thống. Khóa là MÃ NGÔN NGỮ ISO (en, de, zh, ja, ko, fr, es, ru, th, vi) — cùng mã với backend và
+ * Realtime Translation. `flag` chỉ để hiển thị (cờ quốc gia GB/CN/JP/KR/VN không phải mã ngôn ngữ).
+ * `learnable=false` (tiếng Việt) là ngôn ngữ giải nghĩa: chưa có bộ sưu tập để học.
+ */
+export interface LangMeta {
+  label: string;
+  flag: string;
+  defaultTitle: string;
+  /** Tên tiếng Việt, vd "Tiếng Đức". */
+  viName: string;
+  /** Tên bản ngữ, vd "Deutsch". */
+  nativeName: string;
+  learnable: boolean;
+}
+
+export const LANG_CONFIG: Record<string, LangMeta> = {
+  en: { label: "Tiếng Anh (English)", flag: "🇬🇧", defaultTitle: "Sổ từ vựng Tiếng Anh", viName: "Tiếng Anh", nativeName: "English", learnable: true },
+  de: { label: "Tiếng Đức (German)", flag: "🇩🇪", defaultTitle: "Sổ từ vựng Tiếng Đức", viName: "Tiếng Đức", nativeName: "Deutsch", learnable: true },
+  zh: { label: "Tiếng Trung (Chinese)", flag: "🇨🇳", defaultTitle: "Sổ từ vựng Tiếng Trung", viName: "Tiếng Trung", nativeName: "中文", learnable: true },
+  ja: { label: "Tiếng Nhật (Japanese)", flag: "🇯🇵", defaultTitle: "Sổ từ vựng Tiếng Nhật", viName: "Tiếng Nhật", nativeName: "日本語", learnable: true },
+  ko: { label: "Tiếng Hàn (Korean)", flag: "🇰🇷", defaultTitle: "Sổ từ vựng Tiếng Hàn", viName: "Tiếng Hàn", nativeName: "한국어", learnable: true },
+  fr: { label: "Tiếng Pháp (French)", flag: "🇫🇷", defaultTitle: "Sổ từ vựng Tiếng Pháp", viName: "Tiếng Pháp", nativeName: "Français", learnable: true },
+  es: { label: "Tiếng Tây Ban Nha (Spanish)", flag: "🇪🇸", defaultTitle: "Sổ từ vựng Tiếng Tây Ban Nha", viName: "Tiếng Tây Ban Nha", nativeName: "Español", learnable: true },
+  ru: { label: "Tiếng Nga (Russian)", flag: "🇷🇺", defaultTitle: "Sổ từ vựng Tiếng Nga", viName: "Tiếng Nga", nativeName: "Русский", learnable: true },
+  th: { label: "Tiếng Thái (Thai)", flag: "🇹🇭", defaultTitle: "Sổ từ vựng Tiếng Thái", viName: "Tiếng Thái", nativeName: "ไทย", learnable: true },
+  vi: { label: "Tiếng Việt (Vietnamese)", flag: "🇻🇳", defaultTitle: "Sổ từ vựng Tiếng Việt", viName: "Tiếng Việt", nativeName: "Tiếng Việt", learnable: false },
 };
+
+/** Thứ tự hiển thị chuẩn của 10 ngôn ngữ. */
+export const LANG_CODES = Object.keys(LANG_CONFIG);
+/** 9 ngôn ngữ có thể học (không gồm tiếng Việt). */
+export const LEARNABLE_LANGS = LANG_CODES.filter((c) => LANG_CONFIG[c].learnable);
+
+/** Chuẩn hóa "en-US" -> "en"; trả null nếu không thuộc 10 ngôn ngữ (không đoán, "auto" cũng là null). */
+export function normalizeLangCode(code?: string | null): string | null {
+  const base = (code || "").trim().toLowerCase().replace("_", "-").split("-")[0];
+  return base in LANG_CONFIG ? base : null;
+}
+
+export function isLearnableLang(code?: string | null): boolean {
+  const c = normalizeLangCode(code);
+  return !!c && LANG_CONFIG[c].learnable;
+}
 
 function getStorageKey(userId?: string): string {
   if (userId && userId.trim() && userId !== "guest") {
@@ -79,8 +111,9 @@ export function addCardToDeck(
   example?: string,
   partOfSpeech?: string,
   deckId?: string,
-  userId?: string
-): { deck: FlashcardDeck; card: Flashcard } {
+  userId?: string,
+  options: { pendingSync?: boolean } = {}
+): { deck: FlashcardDeck; card: StoredCard } {
   const decks = getDecks(userId);
   const langMeta = LANG_CONFIG[targetLangCode] || {
     label: targetLangCode.toUpperCase(),
@@ -107,12 +140,13 @@ export function addCardToDeck(
     decks.push(deck);
   }
 
-  const newCard: Flashcard = {
+  const newCard: StoredCard = {
     id: `fc_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
     term: term.trim(),
     definition: definition.trim(),
-    example: example || `Dịch sang ${langMeta.label}`,
+    example: example || undefined,
     partOfSpeech: partOfSpeech || "phrase",
+    ...(options.pendingSync ? { pendingSync: true } : {}),
   };
 
   // Avoid exact duplicate terms inside this deck

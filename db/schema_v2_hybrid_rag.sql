@@ -7,6 +7,7 @@
 -- ====================================================================================
 -- 0. XÓA BẢNG VÀ HÀM CŨ TRƯỚC KHI KHỞI TẠO LẠI (CLEANUP & RESET)
 -- ====================================================================================
+DROP TABLE IF EXISTS vocab_generation_usage CASCADE;
 DROP TABLE IF EXISTS review_logs CASCADE;
 DROP TABLE IF EXISTS flashcards CASCADE;
 DROP TABLE IF EXISTS flashcard_decks CASCADE;
@@ -194,6 +195,14 @@ CREATE TABLE flashcard_decks (
     title VARCHAR(255) NOT NULL,
     description TEXT,
     icon_flag VARCHAR(10) DEFAULT '🌐',
+    is_system BOOLEAN NOT NULL DEFAULT FALSE,       -- Bộ từ hệ thống của thư viện bộ từ (user_id NULL), migration 004
+    status VARCHAR(12) NOT NULL DEFAULT 'published' CHECK (status IN ('draft', 'published', 'archived')),
+    category VARCHAR(40),                           -- Nhóm chủ đề của bộ hệ thống
+    level VARCHAR(8),                               -- Mức CEFR 'A1'..'C2'
+    slug VARCHAR(80),                               -- Định danh ổn định để nạp lại bộ hệ thống
+    origin_deck_id UUID REFERENCES flashcard_decks(id) ON DELETE SET NULL,  -- Bản sao của bộ hệ thống nào
+    lang_confirmed BOOLEAN NOT NULL DEFAULT FALSE,   -- Ngôn ngữ của deck đã được xác nhận chắc chắn (migration 005)
+    is_default BOOLEAN NOT NULL DEFAULT FALSE,       -- Sổ mặc định của ngôn ngữ này (mỗi người tối đa 1 sổ/ngôn ngữ)
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -221,6 +230,10 @@ CREATE TABLE flashcards (
     scheduled_days INT DEFAULT 0,                   -- Khoảng cách ngày lên lịch ôn tiếp theo
     last_review TIMESTAMP WITH TIME ZONE,           -- Thời điểm ôn gần nhất (FSRS)
     due TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP, -- Thời hạn cần ôn tập tiếp theo
+    example_translation TEXT,                       -- Dịch câu ví dụ (AI sinh từ vựng, migration 003)
+    level VARCHAR(8),                               -- Mức CEFR mục tiêu 'A1'..'C2' (migration 003)
+    source VARCHAR(16),                             -- 'manual' | 'import' | 'doc' | 'translation' | 'ai_topic' | 'ai_text' | 'ai_image' | 'curated'
+    target_lang VARCHAR(10),                        -- Ngôn ngữ giải nghĩa ('vi'); NULL = chưa xác định (migration 005)
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -237,6 +250,15 @@ CREATE TABLE review_logs (
     scheduled_days INT DEFAULT 0,                   -- Khoảng thời gian đã lên lịch
     duration_ms INT,                                -- Thời gian người dùng suy nghĩ trả lời (ms)
     reviewed_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- BẢNG 13: VOCAB_GENERATION_USAGE (Đếm số lượt sinh từ vựng bằng AI mỗi ngày, migration 003)
+CREATE TABLE vocab_generation_usage (
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    usage_date DATE NOT NULL,                       -- Ngày theo giờ Việt Nam (UTC+7)
+    used INT NOT NULL DEFAULT 0 CHECK (used >= 0),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (user_id, usage_date)
 );
 
 -- ====================================================================================
@@ -257,6 +279,11 @@ CREATE INDEX IF NOT EXISTS idx_document_chunks_doc_id ON document_chunks(documen
 CREATE INDEX IF NOT EXISTS idx_conversations_user_id ON conversations(user_id);
 CREATE INDEX IF NOT EXISTS idx_messages_conv_id ON messages(conversation_id);
 CREATE INDEX IF NOT EXISTS idx_flashcard_decks_user_id ON flashcard_decks(user_id);
+CREATE UNIQUE INDEX IF NOT EXISTS uq_flashcard_decks_user_origin ON flashcard_decks(user_id, origin_deck_id) WHERE origin_deck_id IS NOT NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS uq_flashcard_decks_system_slug ON flashcard_decks(slug) WHERE is_system;
+CREATE INDEX IF NOT EXISTS idx_flashcard_decks_catalog ON flashcard_decks(category, level) WHERE is_system AND status = 'published';
+CREATE UNIQUE INDEX IF NOT EXISTS uq_flashcard_decks_user_lang_default ON flashcard_decks(user_id, lang_code) WHERE is_default;
+CREATE INDEX IF NOT EXISTS idx_flashcard_decks_user_lang ON flashcard_decks(user_id, lang_code);
 CREATE INDEX IF NOT EXISTS idx_flashcards_user_id ON flashcards(user_id);
 CREATE INDEX IF NOT EXISTS idx_flashcards_deck_id ON flashcards(deck_id);
 CREATE INDEX IF NOT EXISTS idx_flashcards_due ON flashcards(due);
@@ -444,6 +471,7 @@ ALTER TABLE doc_vectors ENABLE ROW LEVEL SECURITY;
 ALTER TABLE flashcard_decks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE flashcards ENABLE ROW LEVEL SECURITY;
 ALTER TABLE review_logs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE vocab_generation_usage ENABLE ROW LEVEL SECURITY;
 
 -- ====================================================================================
 -- 6. TỪ ĐIỂN CHUYÊN NGÀNH

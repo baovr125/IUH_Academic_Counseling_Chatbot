@@ -25,12 +25,12 @@ export const MOCK_DASHBOARD_STATS: DashboardStats = {
   currentWeek: 12,
   semesterCompletionPercent: 78,
   lastSyncedAt: "Vừa cập nhật",
-  vocabularyLearnedToday: 18,
   gpaScore: 3.82,
   gpaDelta: 0.14,
   creditsEarned: 112,
   creditsTotal: 145,
   streakDays: 28,
+  streakSource: "sample",
   streak: Array.from({ length: 84 }, (_, i) => ({
     date: new Date(Date.now() - (83 - i) * 86400000).toISOString(),
     intensity: [0, 1, 2, 3, 4][(i % 5) === 0 ? 0 : ((i * 3 + 2) % 5)] as 0 | 1 | 2 | 3 | 4,
@@ -94,15 +94,6 @@ export const MOCK_DASHBOARD_STATS: DashboardStats = {
       messageCount: 3,
     },
   ],
-  flashcardSummary: {
-    dueTodayCount: 16,
-    totalMastered: 184,
-    dailyGoal: 20,
-    dailyLearned: 14,
-    topDeckTitle: "Thuật ngữ Chuyên ngành CNTT (IT Terminology)",
-    topDeckId: "deck_it_core",
-    totalCards: 260,
-  },
   academicDeadlines: [
     {
       id: "dl1",
@@ -133,7 +124,6 @@ export const MOCK_DASHBOARD_STATS: DashboardStats = {
   publicProductivity: {
     totalDocsTranslated: 18,
     totalPagesProcessed: 142,
-    totalWordsMastered: 248,
     timeSavedHours: 16.5,
   },
   admissionNews: [
@@ -177,15 +167,6 @@ export function getMockDashboardStats(user?: User | null): DashboardStats {
       creditsTotal: 0,
       semesterCompletionPercent: 0,
       streakDays: 12,
-      flashcardSummary: {
-        dueTodayCount: 12,
-        totalMastered: 142,
-        dailyGoal: 15,
-        dailyLearned: 9,
-        topDeckTitle: "English for Academic Research & AI",
-        topDeckId: "deck_research_ai",
-        totalCards: 180,
-      },
     };
   }
 

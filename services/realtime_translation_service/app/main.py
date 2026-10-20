@@ -122,6 +122,10 @@ async def readiness_check(response: Response):
         }
     }
     
+    # TTS: chỉ phản ánh lần gọi thật gần nhất (không gọi mạng); không làm service mất trạng thái ready.
+    from app.services.tts_service import health as tts_health
+    status["tts"] = tts_health()
+
     # Check Redis
     from app.services.cache_service import get_redis
     def check_redis():
