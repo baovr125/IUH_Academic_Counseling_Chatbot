@@ -19,7 +19,6 @@ scratch/
 
 # Bỏ qua file môi trường 
 .env
-.env.prod
 
 # skip agent skills
 .agent/
@@ -64,3 +63,6 @@ scripts/e2e_flashcard/_output/
 
 # Dữ liệu Tatoeba tải về cho probes của Realtime Translation (CC BY 2.0 FR, không đưa vào repo)
 services/realtime_translation_service/evaluation/dataset/external/
+
+run_tests.bat
+run_tests.sh

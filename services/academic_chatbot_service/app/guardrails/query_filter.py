@@ -11,18 +11,46 @@ JAILBREAK_PATTERNS = [
     r"(?i)\bpretend\s+(you\s+have\s+no|you\s+are\s+not\s+bound\s+by)\s+(rules|safety|restrictions)\b",
     r"(?i)\b(từ\s+giờ|hãy)\s+(đóng\s+vai|hóa\s+thân|nhập\s+vai)\s+(người\s+dùng\s+root|hacker|AI\s+không\s+giới\s+hạn|admin)\b",
     r"(?i)\bbỏ\s+qua\s+mọi\s+(quy\s+định|giới\s+hạn|luật\s+an\s+toàn)\b",
-    r"(?i)<\|im_start\|>",
-    r"(?i)<\|im_end\|>",
-    r"(?i)\[INST\]",
-    r"(?i)\[/INST\]",
-    r"(?i)</?system>",
     r"(?i)\bsudo\s+mode\b",
     r"(?i)\badmin\s+override\b",
     r"(?i)\blệnh\s+từ\s+phòng\s+đào\s+tạo\b",
-    r"(?i)\bcập\s+nhật\s+hệ\s+thống\b"
+    r"(?i)\bcập\s+nhật\s+hệ\s+thống\b",
 ]
 
-COMPILED_JAILBREAK_REGEX = [re.compile(p) for p in JAILBREAK_PATTERNS]
+STRUCTURAL_TAG_PATTERNS = [
+    # 1. RAG Context & Framing tags
+    r"(?i)</?retrieved_context\b[^>]*>",
+    r"(?i)</?source\b[^>]*>",
+    r"(?i)</?user_query\b[^>]*>",
+    r"(?i)</?query_reminder\b[^>]*>",
+
+    # 2. Self-RAG & Thinking / Reasoning tags
+    r"(?i)</?thinking\b[^>]*>",
+    r"(?i)</?think\b[^>]*>",
+    r"(?i)</?doc_relevance\b[^>]*>",
+    r"(?i)</?conflict_detected\b[^>]*>",
+    r"(?i)</?answer_confidence\b[^>]*>",
+    r"(?i)</?suggested_queries\b[^>]*>",
+    r"(?i)</?query\b[^>]*>",
+
+    # 3. System / Role / Prompt injection tags
+    r"(?i)</?system\b[^>]*>",
+    r"(?i)</?system_instruction\b[^>]*>",
+    r"(?i)</?instruction\b[^>]*>",
+    r"(?i)</?context\b[^>]*>",
+    r"(?i)</?prompt\b[^>]*>",
+    r"(?i)</?rules\b[^>]*>",
+
+    # 4. Chat template delimiters & LLM special tokens
+    r"(?i)<\|(?:im_start|im_end|im_sep|system|user|assistant|start_header_id|end_header_id|eot_id)\|?>",
+    r"(?i)\[/?INST\]",
+    r"(?i)\[/?SYS\]",
+    r"(?i)<<SYS>>",
+    r"(?i)<</SYS>>",
+]
+
+ALL_SAFETY_PATTERNS = JAILBREAK_PATTERNS + STRUCTURAL_TAG_PATTERNS
+COMPILED_JAILBREAK_REGEX = [re.compile(p) for p in ALL_SAFETY_PATTERNS]
 
 REFUSAL_MESSAGE = (
     "⚠️ **Cảnh báo an toàn**: Câu lệnh của bạn chứa từ ngữ hoặc mục đích can thiệp hệ thống không phù hợp. "
@@ -43,20 +71,53 @@ def check_safety_and_jailbreak(query: str) -> Optional[str]:
             return REFUSAL_MESSAGE
     return None
 
-def wrap_context_sandbox(chunks: list) -> str:
+def _sandwich_reorder(chunks: list) -> list:
+    """
+    Sắp xếp chunks theo Sandwich Pattern để giảm thiểu hiện tượng Lost-in-the-Middle.
+    Input: Danh sách chunks đã sắp xếp giảm dần theo điểm liên quan (rerank_score).
+    Output: [#1, #3, #5, ..., #4, #2] — đưa các tài liệu phù hợp nhất về 2 đầu (primacy & recency).
+    """
+    if len(chunks) <= 2:
+        return chunks
+
+    left = []   # rank 1, 3, 5... (chỉ số 0, 2, 4...)
+    right = []  # rank 2, 4, 6... (chỉ số 1, 3, 5...)
+
+    for i, chunk in enumerate(chunks):
+        if i % 2 == 0:
+            left.append(chunk)
+        else:
+            right.append(chunk)
+
+    return left + list(reversed(right))
+
+
+def wrap_context_sandbox(chunks: list, user_query: str = "") -> str:
     if not chunks:
         return ""
+    
+    reordered_chunks = _sandwich_reorder(chunks)
     formatted_parts = []
-    for idx, c in enumerate(chunks, 1):
+    for idx, c in enumerate(reordered_chunks, 1):
         content = c.get("content", "").strip()
         metadata = c.get("metadata", {}) or {}
         
         # Trích xuất các metadata hữu ích cho CF-RAG
         title = metadata.get("title", "")
-        upload_time = metadata.get("created_at") or metadata.get("upload_time", "Không rõ")
+        upload_time = metadata.get("created_at") or metadata.get("upload_time")
         
-        meta_str = f"Nguồn: {title}\nNgày cập nhật lên CSDL: {upload_time}\n" if title else f"Ngày cập nhật lên CSDL: {upload_time}\n"
+        meta_lines = []
+        if title:
+            meta_lines.append(f"Nguồn: {title}")
+        if upload_time:
+            meta_lines.append(f"Ngày cập nhật lên CSDL: {upload_time}")
+        meta_str = "\n".join(meta_lines) + "\n" if meta_lines else ""
         
         formatted_parts.append(f'<source id="{idx}">\n{meta_str}{content}\n</source>')
     body = "\n\n".join(formatted_parts)
-    return f"<retrieved_context>\n{body}\n</retrieved_context>"
+
+    echo_part = ""
+    if user_query and user_query.strip():
+        echo_part = f"\n\n<query_reminder>\nCâu hỏi cần trả lời: {user_query.strip()}\n</query_reminder>"
+
+    return f"<retrieved_context>\n{body}{echo_part}\n</retrieved_context>"
