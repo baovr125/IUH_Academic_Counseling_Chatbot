@@ -155,7 +155,89 @@ sequenceDiagram
 ---
 
 ### 2. Cấu trúc & Biến đổi Dữ liệu Thực tế (Data Transformation Pipeline)
-Dưới đây là hành trình chuyển dịch của dữ liệu dựa trên schema thực tế trong mã nguồn:
+
+Dưới đây là sơ đồ dòng chảy dữ liệu (Flowchart) mô tả chi tiết cách 1 request của người dùng được tiếp nhận, chuyển đổi trạng thái và xử lý tuần tự qua các tầng kiến trúc từ Input thô đến Output trực quan:
+
+```mermaid
+flowchart TD
+    classDef client fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#0369a1;
+    classDef gateway fill:#f3e8ff,stroke:#9333ea,stroke-width:2px,color:#6b21a8;
+    classDef guard fill:#fee2e2,stroke:#ef4444,stroke-width:2px,color:#991b1b;
+    classDef process fill:#fef3c7,stroke:#f59e0b,stroke-width:2px,color:#92400e;
+    classDef db fill:#ecfdf5,stroke:#10b981,stroke-width:2px,color:#065f46;
+    classDef ai fill:#ede9fe,stroke:#6366f1,stroke-width:2px,color:#4338ca;
+    classDef cache fill:#ffedd5,stroke:#f97316,stroke-width:2px,color:#9a3412;
+
+    subgraph Step0["0. Khởi đầu & Tiếp nhận Yêu cầu (Request Ingestion)"]
+        A["<b>1. Client / Sinh viên</b><br/>Gửi SendMessagePayload:<br/><code>{sessionId, content, bypassCache}</code>"]:::client
+        B["<b>2. Kong API Gateway & Chat Router</b><br/>- Kiểm tra JWT Auth & Rate Limiting<br/>- Gán Correlation ID (X-Request-ID)<br/>- save_user_msg_to_db: Lưu câu hỏi thô vào DB"]:::gateway
+    end
+
+    subgraph Step1["1. Phòng vệ An toàn & Phân rã Ý định (Guardrail & Routing)"]
+        C{"<b>3. Safety Guardrail</b><br/>check_safety_and_jailbreak<br/>(18 Regex & Structural Tags)"}:::guard
+        C_Fail["Trả về Cảnh báo An toàn<br/>(REFUSAL_MESSAGE) ➔ Đóng luồng"]:::guard
+        D["<b>4. Adaptive Query Rewriter & Router</b><br/>generate_standalone_query(history, content)<br/><i>Phân tích ngữ cảnh hội thoại quá khứ</i>"]:::process
+        D_Out["<b>Dữ liệu biến đổi sinh ra:</b><br/>- need_retrieval: true / false<br/>- intent: 1 trong 7 nhóm (PROCEDURE, REGULATION...)<br/>- queries: [q1, q2...] (1 đến tối đa 4 sub-queries)"]:::process
+    end
+
+    subgraph Step2["2. Nhánh Xử lý & Bộ nhớ Đệm (Routing & Semantic Cache)"]
+        E{"need_retrieval?"}:::process
+        F["Tạo System Instruction theo Intent<br/>Bỏ qua bước tra cứu Database"]:::ai
+        G{"bypassCache?<br/>(Cờ ép buộc bỏ qua cache)"}:::cache
+        
+        Cache_L1{"L1: Redis Cache<br/>semantic_cache:key<br/>Exact Match O(1)"}:::cache
+        Cache_L2{"L2: Supabase pgvector<br/>Bi-Encoder score &gt;= 0.60 &amp;<br/>Cross-Encoder score &gt;= 0.80 &amp;<br/>Số học nums_q == nums_c"}:::cache
+        Cache_Hit["<b>CACHE HIT!</b><br/>- Lấy câu trả lời chuẩn đã lưu (Latency &lt; 10ms)<br/>- Tăng hit_count<br/>- Stream SSE metadata + delta ➔ Done"]:::cache
+    end
+
+    subgraph Step3["3. Truy xuất Lai ghép & Tái xếp hạng (Hybrid RAG Pipeline)"]
+        H["<b>5. Vector Embedding Sub-queries</b><br/>bkai-foundation-models/vietnamese-bi-encoder<br/>768 chiều (ONNX CUDA)"]:::ai
+        I["<b>6. Parallel RPC match_chunks_hybrid_rrf</b><br/>- Dense Search: pgvector HNSW Cosine<br/>- Sparse Search: BM25 unaccent tsvector<br/>- RRF Fusion: 1/(60 + rank_dense) + 1/(60 + rank_sparse)<br/>➔ Thu về ~50 Candidate Chunks"]:::db
+        J["<b>7. Cross-Encoder Reranking</b><br/>BAAI/bge-reranker-v2-m3 (ONNX CUDA)<br/>- Chấm điểm từng cặp (subquery, text)<br/>- Lọc threshold an toàn &gt;= 0.20 &amp; good &gt;= 0.65<br/>- Phân bổ quota động theo số lượng subquery"]:::ai
+        K["<b>8. SOTA Small-to-Big Collapse</b><br/>Nhóm các child chunks (600 ký tự) cùng parent_id<br/>➔ Phục hồi nguyên vẹn Parent Section (1200 tokens)"]:::process
+    end
+
+    subgraph Step4["4. Đóng gói Ngữ cảnh & Suy luận (Sandboxing & LLM Generation)"]
+        L["<b>9. Context Sandboxing & Reordering</b><br/>- Sandwich Pattern: [#1, #3, ..., #4, #2] (Chống Lost-in-the-Middle)<br/>- Đóng gói thẻ XML: &lt;retrieved_context&gt;, &lt;source id=i&gt;<br/>- Thêm &lt;query_reminder&gt; nhắc lại câu hỏi"]:::process
+        M["<b>10. Dynamic Prompt Assembly</b><br/>Ghép Base Persona + Intent Rules + Ký ức hội thoại + Context"]:::process
+        N["<b>11. Dual LLM Reader Engine</b><br/>- vLLM Qwen3.6-35B-AWQ (Mặc định)<br/>- Fallback: Google Gemini Flash Waterfall"]:::ai
+    end
+
+    subgraph Step5["5. Xử lý Luồng Ra & Tự Phản tư (Streaming & Self-RAG)"]
+        O["<b>12. Real-time Stream Parser (SSE)</b><br/>- Gửi metadata (Citations &amp; Sources) ngay lập tức<br/>- Lọc &amp; tách bỏ thẻ &lt;thinking&gt; thời gian thực<br/>- Bắn SSE delta text gõ máy về Client<br/>- Bắn SSE done kết thúc luồng"]:::client
+        P["<b>13. Self-RAG Assessment &amp; Background Save</b><br/>- Bóc tách &lt;doc_relevance&gt;, &lt;confidence&gt;<br/>- Lưu lịch sử tin nhắn vào Supabase messages<br/>- async_cache_writeback: Ghi cache vào Redis + Supabase<br/>(Chỉ khi confidence=HIGH và score &gt;= 0.25)"]:::db
+    end
+
+    A --> B
+    B --> C
+    C -- "Phát hiện Jailbreak" --> C_Fail
+    C -- "Hợp lệ" --> D
+    D --> D_Out
+    D_Out --> E
+    
+    E -- "False (Xã giao/Chào hỏi)" --> F
+    F --> N
+    
+    E -- "True (Học vụ)" --> G
+    G -- "False (Mặc định: Kiểm tra Cache)" --> Cache_L1
+    G -- "True (Ép buộc bỏ qua Cache)" --> H
+    Cache_L1 -- "Hit" --> Cache_Hit
+    Cache_L1 -- "Miss" --> Cache_L2
+    Cache_L2 -- "Hit" --> Cache_Hit
+    Cache_L2 -- "Miss (Chưa có trong Cache)" --> H
+
+    H --> I
+    I --> J
+    J --> K
+    K --> L
+    L --> M
+    M --> N
+    
+    N --> O
+    O --> P
+```
+
+Dưới đây là hành trình chuyển dịch và biến đổi trạng thái của dữ liệu thực tế dựa trên schema trong mã nguồn:
 
 #### A. Đầu vào Client gửi lên (`SendMessagePayload`)
 *(Căn cứ: `services/academic_chatbot_service/app/schemas/chat.py` | Class: `SendMessagePayload`)*
