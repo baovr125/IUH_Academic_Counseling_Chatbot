@@ -235,7 +235,7 @@ def get_llm_provider() -> BaseLLMProvider:
         return OpenAICompatibleProvider(
             base_url=os.getenv("OPENAI_BASE_URL", "http://host.docker.internal:11434/v1"),
             api_key=os.getenv("OPENAI_API_KEY", "ollama"),
-            model_name=os.getenv("OPENAI_MODEL_NAME", "qwen2.5:7b"),
+            model_name=os.getenv("OPENAI_MODEL_NAME", "QuantTrio/Qwen3.6-35B-A3B-AWQ"),
             fallback_provider=GeminiProvider()
         )
     return GeminiProvider()
@@ -246,7 +246,7 @@ def get_rewriter_provider() -> BaseLLMProvider:
         return OpenAICompatibleProvider(
             base_url=os.getenv("OPENAI_BASE_URL", "http://host.docker.internal:11434/v1"),
             api_key=os.getenv("OPENAI_API_KEY", "ollama"),
-            model_name=os.getenv("OLLAMA_REWRITER_MODEL", "qwen2.5:7b"),
+            model_name=os.getenv("OLLAMA_REWRITER_MODEL", "QuantTrio/Qwen3.6-35B-A3B-AWQ"),
             fallback_provider=GeminiProvider()
         )
     return GeminiProvider()
