@@ -12,30 +12,36 @@ Trong hệ sinh thái này, `academic_chatbot_service` đóng vai trò là **"B�
 
 ```mermaid
 flowchart TD
-    subgraph Clients["Tầng Khách (Client Layer)"]
-        FE["Frontend SPA (React 18 + Vite + TailwindCSS)<br/><i>Cổng 5173 / Nginx Cổng 80</i>"]
+    classDef client fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#0369a1;
+    classDef gateway fill:#f3e8ff,stroke:#9333ea,stroke-width:2px,color:#6b21a8;
+    classDef chatbot fill:#ffd6a1,stroke:#ef4444,stroke-width:2px,color:#005be3;
+    classDef db fill:#fef3c7,stroke:#f59e0b,stroke-width:2px,color:#92400e;
+    classDef cache fill:#f3fbb3,stroke:#10b981,stroke-width:2px,color:#065f46;
+
+    subgraph Clients["Client Layer"]
+        FE["Frontend SPA (React 18 + Vite + TailwindCSS)"]:::client
     end
 
-    subgraph API_Gateway["Tầng Cổng Giao Tiếp Tập Trung (API Gateway Layer)"]
-        Kong["Kong API Gateway 3.9.3 (DB-less mode)<br/><i>Cổng 8000 (HTTP) & 8443 (HTTPS)</i><br/>- Rate Limiting, JWT Auth, CORS, Request Transformer"]
+    subgraph API_Gateway["API Gateway Layer"]
+        Kong["Kong API Gateway \n Rate Limiting, JWT Auth, Request Transformer"]:::gateway
     end
 
-    subgraph Microservices["Tầng Dịch Vụ Nghiệp Vụ (Microservices Layer)"]
+    subgraph Microservices["Microservices Layer"]
         Auth["auth-service (Cổng 8001)<br/>FastAPI, Bcrypt, PyJWT, OTP Email"]
-        Chatbot["academic-chatbot-service (Cổng 8002) 🧠<br/><b>TRÁI TIM HỆ THỐNG: RAG Chatbot Tư vấn Học vụ</b><br/>FastAPI, Hybrid RRF, Bi-Encoder, Cross-Encoder, vLLM / Gemini"]
-        RT_Trans["realtime-translation-service (Cổng 8003)<br/>CTranslate2 (NLLB-200-distilled-600M INT8), Edge-TTS"]
-        Doc_Trans["doc-translation-service & worker (Cổng 8004)<br/>Celery Worker, Babeldoc, BAAI/bge-m3 ONNX"]
-        Flashcard["flashcard-service (Cổng 8005)<br/>Thuật toán FSRS, Quản lý Thẻ, AI Vocab Generation"]
+        Chatbot["academic-chatbot-service (Cổng 8002) <br/><b>RAG Chatbot Tư vấn Học vụ</b><br/>FastAPI, Hybrid RRF, Bi-Encoder, Cross-Encoder, vLLM / Gemini"]:::chatbot
+        RT_Trans["realtime-translation-service"]
+        Doc_Trans["doc-translation-service & worker"]
+        Flashcard["flashcard-service"]
     end
 
-    subgraph Shared_Infrastructure["Tầng Hạ Tầng Hỗ Trợ & Lưu Trữ Đệm (Backing Services)"]
-        Redis["Redis 7 Alpine (Cổng 6379)<br/>- Exact Semantic Cache<br/>- Audio Cache & Limiter"]
-        RabbitMQ["RabbitMQ 3 Management (Cổng 5672/15672)<br/>- Event Broker: flashcard.created, doc.translated"]
-        MinIO["MinIO S3 Object Storage (Cổng 9000/9001)<br/>- Bucket: flashcard-audios, babeldoc-files"]
+    subgraph Shared_Infrastructure["Backing Services"]
+        Redis["Redis 7 Alpine (Cổng 6379)<br/>- Exact Semantic Cache<br/>- Audio Cache & Limiter"]:::cache
+        RabbitMQ["RabbitMQ 3 Management"]
+        MinIO["MinIO S3 Object Storage"]
     end
 
-    subgraph Database_Vector["Tầng Dữ Liệu & Tri Thức Bền Vững (Persistent Storage Layer)"]
-        Supabase["Supabase Cloud / PostgreSQL Database<br/>- Vector Search pgvector (HNSW Index 768d & 1024d)<br/>- Full-Text Search (TSVector unaccent BM25)<br/>- Stored Procedures: match_chunks_hybrid_rrf, match_semantic_cache"]
+    subgraph Database_Vector["Persistent Storage Layer"]
+        Supabase["Supabase - PostgreSQL Database<br/>- Vector Search pgvector (HNSW Index 768d)<br/>- Full-Text Search (BM25)"]:::db
     end
 
     FE -->|HTTP/HTTPS REST & SSE Stream| Kong
@@ -45,7 +51,7 @@ flowchart TD
     Kong -->|/api/v1/documents| Doc_Trans
     Kong -->|/api/v1/flashcards| Flashcard
 
-    Chatbot <-->|L1 Exact Match Cache (O(1))| Redis
+    Chatbot <-->|L1 Exact Match Cache | Redis
     Chatbot <-->|RPC Hybrid Search & History| Supabase
     
     Flashcard -->|Publish Events| RabbitMQ
