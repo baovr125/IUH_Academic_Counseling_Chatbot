@@ -44,6 +44,7 @@ from app.services.chat_service import (
     save_assistant_msg_to_db,
     save_turn_to_db,
     update_message_embedding_in_db,
+    delete_last_turn_from_db,
 )
 from app.services.log_utils import log_cache_hit_to_md, write_full_rag_log_to_md, log_blocked_query_to_md
 from app.services.rag_service import (
@@ -66,6 +67,9 @@ async def process_chat_message(
     """
     session_id = payload.sessionId or f"s_{uuid.uuid4().hex[:8]}"
     
+    if payload.bypassCache:
+        delete_last_turn_from_db(session_id, payload.replaceMessageIds)
+
     clean_session_id, user_msg_id = save_user_msg_to_db(session_id, payload.content, payload.content, user_id=current_user_id)
 
     try:
@@ -271,6 +275,10 @@ async def process_chat_message_stream(
     """
     session_id = payload.sessionId or f"s_{uuid.uuid4().hex[:8]}"
     
+    # If this is a regenerate request (bypassCache is True), remove the previous HIT-cache turn from DB
+    if payload.bypassCache:
+        delete_last_turn_from_db(session_id, payload.replaceMessageIds)
+
     # Pre-save the user message since the generation is streamed and might be interrupted
     clean_session_id, user_msg_id = save_user_msg_to_db(session_id, payload.content, payload.content, user_id=current_user_id)
 

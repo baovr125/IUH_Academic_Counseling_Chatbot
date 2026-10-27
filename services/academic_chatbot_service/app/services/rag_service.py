@@ -151,8 +151,8 @@ def preload_models():
         llm_provider = os.getenv("LLM_PROVIDER", "gemini").lower()
         if llm_provider == "openai":
             ollama_url = os.getenv("OPENAI_BASE_URL", "http://host.docker.internal:11434/v1").replace("/v1", "/api/generate")
-            rewriter_model = os.getenv("OLLAMA_REWRITER_MODEL", "qwen2.5:1.5b")
-            generator_model = os.getenv("OPENAI_MODEL_NAME", "qwen2.5:7b")
+            rewriter_model = os.getenv("OLLAMA_REWRITER_MODEL", "QuantTrio/Qwen3.6-35B-A3B-AWQ")
+            generator_model = os.getenv("OPENAI_MODEL_NAME", "QuantTrio/Qwen3.6-35B-A3B-AWQ")
             
             logger.info(f"Preloading Ollama Models into VRAM: {rewriter_model} and {generator_model}...")
             with httpx.Client(timeout=120.0) as client:

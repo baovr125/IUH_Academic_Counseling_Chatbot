@@ -81,3 +81,18 @@ class TestContextSandboxing:
         assert "</retrieved_context>\n</retrieved_context>" not in instruction
         assert instruction.count("</retrieved_context>") == 1
         assert "<query_reminder>" in instruction
+
+    def test_regulation_prompt_contains_arithmetic_cot_and_affordance_rules(self):
+        from app.services.rag_service import build_dynamic_system_instruction
+        instruction = build_dynamic_system_instruction(
+            intent="REGULATION",
+            memory_str="",
+            context_str="<retrieved_context>context</retrieved_context>",
+            content="Tính GPA"
+        )
+        assert "TÍNH TOÁN HỌC VỤ ĐỊNH LƯỢNG (GPA, TÍN CHỈ, HỌC PHÍ)" in instruction
+        assert "Arithmetic CoT" in instruction
+        assert 'PHÁN ĐOÁN QUYỀN HẠN ("CÓ ĐƯỢC PHÉP KHÔNG")' in instruction
+        assert "Được phép" in instruction and "Không được phép" in instruction
+        assert "VÍ DỤ MINH HỌA" in instruction
+        assert "GPA" in instruction

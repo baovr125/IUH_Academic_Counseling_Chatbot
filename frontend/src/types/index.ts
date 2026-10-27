@@ -191,6 +191,7 @@ export interface SendMessagePayload {
   sessionId: string | null;
   content: string;
   bypassCache?: boolean;
+  replaceMessageIds?: string[];
 }
 
 export interface SendMessageResponse {
