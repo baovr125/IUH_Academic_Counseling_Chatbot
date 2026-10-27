@@ -13,7 +13,7 @@
 [![MinIO](https://img.shields.io/badge/MinIO-S3%20Storage-C72C48.svg?logo=minio&logoColor=white)](https://min.io/)
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED.svg?logo=docker&logoColor=white)](https://www.docker.com/)
 
-> **Đề tài Khóa luận Tốt nghiệp**: Hệ sinh thái Microservices AI phục vụ **Tư vấn Quy chế Học vụ IUH**, **Dịch thuật Tài liệu Chuyên ngành Đa định dạng (OCR/Layout Preservation)** và **Học từ vựng Spaced Repetition (FSRS/SM-2)** dành cho sinh viên Trường Đại học Công nghiệp TP. Hồ Chí Minh (IUH).
+> **Đề tài Khóa luận Tốt nghiệp**: Hệ sinh thái Microservices AI phục vụ **Tư vấn Quy chế Học vụ IUH**, **Dịch thuật Tài liệu Chuyên ngành Đa định dạng (OCR/Layout Preservation)** và **Học từ vựng Spaced Repetition (FSRS)** dành cho sinh viên Trường Đại học Công nghiệp TP. Hồ Chí Minh (IUH).
 
 ---
 
@@ -56,7 +56,7 @@ Dự án **IUH Academic Counseling & Microservices AI Ecosystem** giải quyết
 1. **Tra cứu Quy chế Học vụ Thông minh**: Hệ thống RAG 2 giai đoạn (2-Stage Hybrid RAG) kết hợp **Reciprocal Rank Fusion (RRF)** giữa Vector Search (`pgvector`) và Full-Text Search (FTS), cùng **Cross-Encoder Reranker** (`BAAI/bge-reranker-v2-m3`), bọc ngữ cảnh chống Prompt Injection (`<retrieved_context>`) và truyền trực tiếp kết quả qua **Server-Sent Events (SSE)** kèm trích dẫn điều khoản chính xác.
 2. **Dịch Thuật Thời Gian Thực & Semantic Cache**: Dịch từ/câu tức thì với mô hình lượng tử hóa **CTranslate2 INT8 (NLLB-200)**, tra cứu **Redis Semantic Cache (< 5ms)**, tích hợp phát âm chuẩn Studio Neural Voice (Microsoft Edge-TTS) qua 10 ngôn ngữ.
 3. **Dịch Thuật Tài Liệu Đa Định Dạng & OCR Bất Đồng Bộ**: Xử lý PDF văn bản (`PyMuPDF4LLM`), PDF Scan ảnh chụp (`PaddleOCR`), Microsoft Word (`.docx`) và PowerPoint (`.pptx`). Bảo toàn $100\%$ cấu trúc bảng biểu Markdown, công thức toán LaTeX ($\$..\$$) và bố cục slide. Tự động trích xuất bảng thuật ngữ học thuật (AI Glossary) và tiêm vào System Prompt của LLM.
-4. **Hệ Thống Thẻ Ghi Nhớ (Flashcard SRS) & Khử Trùng Lặp Âm Thanh (CAS)**: Áp dụng thuật toán lặp lại ngắt quãng **Anki SM-2 / FSRS**, lưu trữ bền vững trên **MinIO S3**, khử trùng lặp âm thanh theo băm nội dung **Content-Addressable Storage (CAS MD5)** giúp giảm độ trễ phát âm từ $1500\text{ms}$ xuống **$< 45\text{ms}$** và tiết kiệm $70-85\%$ dung lượng ổ đĩa.
+4. **Hệ Thống Thẻ Ghi Nhớ (Flashcard SRS) & Khử Trùng Lặp Âm Thanh (CAS)**: Áp dụng thuật toán lặp lại ngắt quãng **FSRS**, lưu trữ bền vững trên **MinIO S3**, khử trùng lặp âm thanh theo băm nội dung **Content-Addressable Storage (CAS MD5)** giúp giảm độ trễ phát âm từ $1500\text{ms}$ xuống **$< 45\text{ms}$** và tiết kiệm $70-85\%$ dung lượng ổ đĩa.
 5. **Kiến Trúc Microservices Đạt Chuẩn Doanh Nghiệp**: 5 Microservices độc lập theo **Clean Architecture 4 Lớp**, Database-per-service isolation, điều hướng tập trung qua **Kong API Gateway**, giao tiếp sự kiện qua **RabbitMQ**, giám sát tiến độ thời gian thực $0\% \to 100\%$ qua **Redis Pub/Sub**.
 
 ---
@@ -84,12 +84,12 @@ IUH_Academic_Counseling_Chatbot/
 │
 ├── db/                                  # CƠ SỞ DỮ LIỆU & SQL MIGRATIONS (PostgreSQL / Supabase)
 │   ├── schema_v2_hybrid_rag.sql         # Bảng chunks, FTS index & hàm RPC match_chunks_hybrid_rrf
-│   ├── migration_v3_decks_and_docs.sql  # Bảng decks, flashcards, review_logs, translated_documents
-│   └── migration_v6_doc_vectors.sql     # Bảng doc_vectors lưu embedding tài liệu (1024d)
+│   ├── schema_v3_parent_child_rag.sql   # Bảng document_parents (Parent-Child / Small-to-Big RAG)
+│   └── migrations/                      # 002 (auth) · 003-005 (flashcard AI, catalog, ngôn ngữ) · 006-007 (trò chơi)
 │
 ├── scripts/                             # DATA PIPELINES & BENCHMARK EVALUATIONS
 │   ├── data_pipeline/
-│   │   └── step2_chunk_embed_v2.py      # Script Hierarchical Chunking & Embedding BGE-M3
+│   │   └── Clone_handel_data/           # step1_crawler_sync_v2.py (crawl) → step2_chunk_embed_v2.py (Hierarchical Chunking & Embedding BGE-M3)
 │   └── eval/
 │       └── test_rag_benchmark.py        # Benchmark đánh giá RAG (Hit Rate@K, MRR)
 │
@@ -97,8 +97,8 @@ IUH_Academic_Counseling_Chatbot/
     ├── auth_service/                    # [Port 8001] Đăng ký, Đăng nhập, Xác thực Sinh viên, JWT HS256
     ├── academic_chatbot_service/        # [Port 8002] 2-Stage Hybrid RAG (RRF + BGE Reranker) & Streaming SSE
     ├── realtime_translation_service/    # [Port 8003] Dịch từ/câu NLLB-200 CTranslate2, Edge-TTS, MinIO Audio CAS
-    ├── doc_translation_service/         # [Port 8004] Dịch tài liệu đa định dạng, OCR, Celery Worker, MinIO S3
-    └── flashcard_service/               # [Port 8005] Quản lý Sổ thẻ, Thẻ từ vựng, Thuật toán FSRS / SM-2
+    ├── doc_translation_service/         # [Port 8004] (TẠM TẮT trong docker-compose) Dịch tài liệu đa định dạng, OCR, Celery Worker, MinIO S3
+    └── flashcard_service/               # [Port 8005] Quản lý Sổ thẻ, Thẻ từ vựng, Thuật toán FSRS
 ```
 
 ---
@@ -116,7 +116,7 @@ flowchart TD
         Gateway -->|/api/v1/chat| ChatSvc["🤖 Academic Chatbot Service\n(Port 8002)\n2-Stage Hybrid RAG + SSE"]
         Gateway -->|/api/v1/translate| TransSvc["🌐 Realtime Translation Service\n(Port 8003)\nCTranslate2 + Edge-TTS"]
         Gateway -->|/api/v1/documents| DocSvc["📄 Doc Translation Service\n(Port 8004)\nREST API & Upload Handler"]
-        Gateway -->|/api/v1/flashcards| FlashSvc["🃏 Flashcard Service\n(Port 8005)\nFSRS & SM-2 Scheduler"]
+        Gateway -->|/api/v1/flashcards| FlashSvc["🃏 Flashcard Service\n(Port 8005)\nFSRS Scheduler"]
     end
 
     subgraph Async_Worker_Cluster ["Cụm Xử Lý Bất Đồng Bộ (Background Task Cluster)"]
@@ -285,6 +285,8 @@ flowchart TD
 ---
 
 ### 📄 4.4. Document Translation & OCR Async Service (`services/doc_translation_service` - Port 8004 & Celery Worker)
+> **Trạng thái: tạm tắt.** Hai service `doc-translation-service` và `doc-translation-worker` đang được comment trong [docker-compose.yml](docker-compose.yml), nên `docker compose up` không khởi động chúng. Mã nguồn, route Kong (`/api/v1/documents`) và trang `DocumentTranslationPage` của frontend được giữ nguyên; để bật lại, bỏ comment hai khối đó trong `docker-compose.yml`. Khi service tắt, trang dịch tài liệu của frontend không gọi được API.
+
 - **Chức năng**: Dịch tài liệu học thuật (PDF, Word `.docx`, PowerPoint `.pptx`, PDF Scan ảnh chụp) giữ nguyên $100\%$ bố cục, bảng biểu và công thức toán.
 - **Kỹ thuật Cốt lõi**:
   - **PyMuPDF4LLM Markdown Parser**: Trích xuất tài liệu PDF sang định dạng Markdown có cấu trúc với độ chính xác bảng biểu đạt $100\%$.
@@ -300,7 +302,7 @@ flowchart TD
 ### 🃏 4.5. Flashcard Spaced Repetition Service (`services/flashcard_service` - Port 8005)
 - **Chức năng**: Quản lý sổ thẻ học tập, thẻ từ vựng và lịch ôn tập lặp lại ngắt quãng khoa học.
 - **Kỹ thuật Cốt lõi**:
-  - **Thuật toán Spaced Repetition (FSRS & SM-2)**: Tự động tính toán hệ số dễ nhớ (Ease Factor $EF'$), khoảng cách ngày ôn tập (Interval) và lịch ôn tập dựa trên phản hồi của sinh viên (Again, Hard, Good, Easy).
+  - **Thuật toán Spaced Repetition (FSRS)**: Tự động tính toán độ ổn định trí nhớ (Stability), độ khó (Difficulty), khoảng cách ngày ôn tập (Interval) và lịch ôn tập dựa trên phản hồi của sinh viên (Again, Hard, Good, Easy).
   - **100% Real Database Storage**: Loại bỏ hoàn toàn mock data, đồng bộ trực tiếp với Supabase PostgreSQL (`decks`, `flashcards`, `review_logs`).
   - **Full CRUD Management**: Thêm, sửa, xóa sổ thẻ và từng thẻ từ vựng; cơ chế xác thực quyền sở hữu `user_id` chống lỗ hổng bảo mật IDOR.
   - **Instant Audio Playback**: Phát âm tức thì ($< 45\text{ms}$) từ URL băm CAS lưu trên MinIO S3.
@@ -376,7 +378,7 @@ Frontend được xây dựng bằng **React 18 + TypeScript + Vite + Tailwind C
 | **🤖 Chatbot Tư Vấn Học Vụ** | `/chat` | Chatbot RAG hỗ trợ Streaming SSE, hiển thị nguồn trích dẫn chi tiết (Tên tài liệu, Điều khoản, Trang) và kết xuất công thức Markdown LaTeX. |
 | **🌐 Dịch Nhanh Từ & Cụm Từ** | `/translate` | Dịch 2 chiều đa ngôn ngữ, tra cứu cache $<5\text{ms}$, phát âm Studio Audio, tích hợp `SaveFlashcardModal` lưu trực tiếp từ vựng vào sổ thẻ. |
 | **📄 Dịch Tài Liệu & OCR** | `/documents` | Upload file đa định dạng (PDF, DOCX, PPTX), theo dõi thanh tiến độ thời gian thực $0\% \to 100\%$, xem trước tài liệu dịch song song với tài liệu gốc. |
-| **🃏 Quản Lý Sổ Thẻ Flashcard** | `/flashcards` | Quản lý Sổ thẻ (Thêm/Sửa/Xóa), quản lý từng thẻ từ vựng, ôn tập theo thuật toán FSRS / SM-2, chế độ Gõ chính tả (Dictation Mode) và phát âm tức thì CAS. |
+| **🃏 Quản Lý Sổ Thẻ Flashcard** | `/flashcards` | Quản lý Sổ thẻ (Thêm/Sửa/Xóa), quản lý từng thẻ từ vựng, ôn tập theo thuật toán FSRS, chế độ Gõ chính tả (Dictation Mode) và phát âm tức thì CAS. |
 | **⚙️ Quản Trị Hệ Thống** | `/admin` | Quản lý người dùng, xem log các phiên hội thoại chatbot, giám sát trạng thái sức khỏe các microservices. |
 
 ---
@@ -392,7 +394,7 @@ Hệ thống được định tuyến tập trung qua **Kong API Gateway (Cổng
 | **Auth Service** | `8001` | `http://localhost:8000/api/v1/auth` | *tắt mặc định (bật `ENABLE_API_DOCS=true` + `docker compose exec`)* |
 | **Academic Chatbot Service** | `8002` | `http://localhost:8000/api/v1/chat` | [http://localhost:8002/docs](http://localhost:8002/docs) |
 | **Realtime Translation Service** | `8003` | `http://localhost:8000/api/v1/translate` | [http://localhost:8003/docs](http://localhost:8003/docs) |
-| **Doc Translation Service** | `8004` | `http://localhost:8000/api/v1/documents` | [http://localhost:8004/docs](http://localhost:8004/docs) |
+| **Doc Translation Service** *(tạm tắt)* | `8004` | `http://localhost:8000/api/v1/documents` | [http://localhost:8004/docs](http://localhost:8004/docs) *(chỉ khi bật lại service)* |
 | **Flashcard Service** | `8005` | `http://localhost:8000/api/v1/flashcards` | [http://localhost:8005/docs](http://localhost:8005/docs) |
 | **RabbitMQ Management Dashboard** | `15672` | `http://localhost:15672` *(chỉ localhost; guest/guest cho dev)* | *Message Queue UI* |
 | **MinIO S3 Console Dashboard** | `9001` | `http://localhost:9001` *(minioadmin/minioadmin)* | *Object Storage UI* |
@@ -413,7 +415,7 @@ Hệ thống được định tuyến tập trung qua **Kong API Gateway (Cổng
 | Microservice | System RAM Limit (Docker) | GPU VRAM Ước Tính | Kỹ Thuật Tối Ưu Áp Dụng |
 | :--- | :---: | :---: | :--- |
 | **academic-chatbot-service** | `4.5 GB` | `~1.5 GB` | ONNX Runtime (`vietnamese-bi-encoder` & `bge-reranker-v2-m3`). |
-| **doc-translation-worker** | `2.0 GB` | `~2.0 GB - 2.5 GB` | ONNX Embedding BGE-M3 + vLLM/Gemini API batching. |
+| **doc-translation-worker** *(tạm tắt)* | `2.0 GB` | `~2.0 GB - 2.5 GB` | ONNX Embedding BGE-M3 + vLLM/Gemini API batching. |
 | **realtime-translation-service** | `1.5 GB` | `~600 MB - 1.0 GB` | CTranslate2 INT8 Quantization (`nllb-200-distilled-600M`). |
 | **Cụm Hạ Tầng (Kong, RMQ, Redis, MinIO, Auth, Web)** | `~1.8 GB` | `0 GB (CPU)` | Giới hạn cứng `< 256MB` cho mỗi container hạ tầng. |
 
@@ -455,7 +457,7 @@ MINIO_ROOT_PASSWORD=minioadmin
 
 ### 8.3. Khởi chạy Toàn bộ Hệ thống bằng Docker Compose
 
-Khởi động toàn bộ 5 Microservices, Celery Worker, Kong Gateway, MinIO, Redis, RabbitMQ và Frontend Web App chỉ với một câu lệnh:
+Khởi động 4 Microservices đang bật (auth, chatbot, realtime translation, flashcard; doc-translation đang tạm tắt), Kong Gateway, MinIO, Redis, RabbitMQ và Frontend Web App chỉ với một câu lệnh:
 
 ```bash
 docker-compose up -d --build
@@ -473,7 +475,7 @@ Xem log theo thời gian thực của toàn bộ hệ thống hoặc từng serv
 # Xem log toàn bộ hệ thống
 docker-compose logs -f
 
-# Xem log riêng Document Translation Worker
+# Xem log riêng Document Translation Worker (chỉ khi đã bật lại service)
 docker logs -f iuh_doc_translation_worker
 
 # Xem log riêng Chatbot Service

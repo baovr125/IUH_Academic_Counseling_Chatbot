@@ -25,10 +25,6 @@ scratch/
 .plan/
 
 PROJECT_LOG.md
-# Frontend build outputs
-frontend1/dist/
-frontend1/build/
-
 # OS generated files
 .DS_Store
 .DS_Store?
@@ -36,7 +32,11 @@ frontend1/build/
 .Spotlight-V100
 .Trashes
 ehthumbs.db
-Thumbs.db.agent/
+Thumbs.db
+
+# Vite dep-optimizer cache và log chạy test của frontend
+frontend/.vite/
+frontend/frontend_test_results.txt
 
 # log and data
 data/
@@ -63,9 +63,6 @@ scripts/e2e_flashcard/_output/
 
 # Dữ liệu Tatoeba tải về cho probes của Realtime Translation (CC BY 2.0 FR, không đưa vào repo)
 services/realtime_translation_service/evaluation/dataset/external/
-
-run_tests.bat
-run_tests.sh
 
 video/
 paper/

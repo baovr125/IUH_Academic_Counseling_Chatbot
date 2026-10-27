@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ===============================================================================
 # IUH Microservices AI - Unified Automated Test Suite Runner (Linux / macOS / CI)
-# Supports individual service testing, coverage threshold validation (>= 80%)
+# Supports individual service testing; coverage is reported but no minimum threshold is enforced
 # ===============================================================================
 
 set -eo pipefail
