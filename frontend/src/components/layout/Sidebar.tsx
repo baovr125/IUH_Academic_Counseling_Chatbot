@@ -29,6 +29,9 @@ export function Sidebar() {
     if (targetPath === "/flashcards") {
       window.dispatchEvent(new CustomEvent("reset-flashcard-view"));
     }
+    if (targetPath === "/chat") {
+      window.dispatchEvent(new CustomEvent("reset-chat-view"));
+    }
   };
 
   return (
@@ -37,6 +40,7 @@ export function Sidebar() {
         <NavLink
           to="/chat"
           title="IUH Portal AI - Trợ lý Sinh viên"
+          onClick={() => handleNavClick("/chat")}
           className="mb-4 flex h-9 w-9 items-center justify-center rounded-lg bg-white p-1 hover:bg-white/90 transition-all hover:scale-105 cursor-pointer shadow-sm"
         >
           {/* Nền trắng để logo xanh đậm không chìm vào nền thanh bên. */}

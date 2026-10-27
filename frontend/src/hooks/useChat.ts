@@ -11,7 +11,11 @@ interface UseChatReturn {
   error: string | null;
   selectSession: (sessionId: string) => void;
   startNewSession: () => void;
-  sendMessage: (content: string) => Promise<void>;
+  sendMessage: (
+    content: string, 
+    bypassCache?: boolean, 
+    replaceMessageIds?: { userMsgId?: string; assistantMsgId?: string }
+  ) => Promise<void>;
   renameSession: (sessionId: string, newTitle: string) => Promise<void>;
   deleteSession: (sessionId: string) => Promise<void>;
   abortStream: () => void;
@@ -31,9 +35,7 @@ interface UseChatReturn {
  */
 export function useChat(): UseChatReturn {
   const [sessions, setSessions] = useState<ChatSession[]>([]);
-  const [activeSessionId, setActiveSessionId] = useState<string | null>(() => {
-    return localStorage.getItem("activeChatSessionId");
-  });
+  const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isSending, setIsSending] = useState(false);
   const [isLoadingSessions, setIsLoadingSessions] = useState(true);
@@ -45,7 +47,7 @@ export function useChat(): UseChatReturn {
   const [hasMoreMessages, setHasMoreMessages] = useState(true);
   const [isLoadingMoreMessages, setIsLoadingMoreMessages] = useState(false);
 
-  // Initial load of chat history sidebar.
+  // Initial load of chat history sidebar. Always default to a fresh new chat session.
   useEffect(() => {
     (async () => {
       setIsLoadingSessions(true);
@@ -56,28 +58,29 @@ export function useChat(): UseChatReturn {
         setError(result.error.message);
         return;
       }
-      setSessions(result.data || []);
-      setHasMoreSessions(result.data ? result.data.length === 20 : false);
-      
-      const storedId = localStorage.getItem("activeChatSessionId");
-      const matched = (result.data || []).find(s => s.id === storedId);
-      
-      if (matched) {
-        setActiveSessionId(matched.id);
-        const msgsRes = await chatService.fetchSessionMessages(matched.id);
-        setMessages(msgsRes.ok && msgsRes.data ? msgsRes.data : []);
-        setHasMoreMessages(msgsRes.ok && msgsRes.data ? msgsRes.data.length === 50 : false);
-      } else {
-        const first = result.data ? result.data[0] : undefined;
-        if (first) {
-          setActiveSessionId(first.id);
-          localStorage.setItem("activeChatSessionId", first.id);
-          const msgsRes = await chatService.fetchSessionMessages(first.id);
-          setMessages(msgsRes.ok && msgsRes.data ? msgsRes.data : []);
-          setHasMoreMessages(msgsRes.ok && msgsRes.data ? msgsRes.data.length === 50 : false);
-        }
-      }
+      const rawSessions = result.data || [];
+      const sorted = [...rawSessions].sort(
+        (a, b) => new Date(b.updatedAt || 0).getTime() - new Date(a.updatedAt || 0).getTime()
+      );
+      setSessions(sorted);
+      setHasMoreSessions(rawSessions.length === 20);
+
+      // Default to fresh new chat as requested
+      setActiveSessionId(null);
+      setMessages([]);
+      localStorage.removeItem("activeChatSessionId");
     })();
+  }, []);
+
+  // Listen for global reset-chat-view event to switch to new chat when clicking nav
+  useEffect(() => {
+    const handleReset = () => {
+      setActiveSessionId(null);
+      localStorage.removeItem("activeChatSessionId");
+      setMessages([]);
+    };
+    window.addEventListener("reset-chat-view", handleReset);
+    return () => window.removeEventListener("reset-chat-view", handleReset);
   }, []);
 
   const selectSession = useCallback(
@@ -97,7 +100,16 @@ export function useChat(): UseChatReturn {
     const result = await chatService.fetchSessions(20, sessions.length);
     setIsLoadingMoreSessions(false);
     if (result.ok && result.data) {
-      setSessions((prev) => [...prev, ...result.data]);
+      setSessions((prev) => {
+        const combined = [...prev, ...result.data];
+        const map = new Map<string, ChatSession>();
+        for (const s of combined) {
+          map.set(s.id, s);
+        }
+        return Array.from(map.values()).sort(
+          (a, b) => new Date(b.updatedAt || 0).getTime() - new Date(a.updatedAt || 0).getTime()
+        );
+      });
       setHasMoreSessions(result.data.length === 20);
     }
   }, [isLoadingMoreSessions, hasMoreSessions, sessions.length]);
@@ -171,7 +183,11 @@ export function useChat(): UseChatReturn {
   }, [abortController]);
 
   const sendMessage = useCallback(
-    async (content: string, bypassCache: boolean = false) => {
+    async (
+      content: string, 
+      bypassCache: boolean = false, 
+      replaceMessageIds?: { userMsgId?: string; assistantMsgId?: string }
+    ) => {
       if (!content.trim() || isSending) return;
       setError(null);
 
@@ -193,7 +209,7 @@ export function useChat(): UseChatReturn {
         setActiveSessionId(currentSessionId);
         localStorage.setItem("activeChatSessionId", currentSessionId);
         
-        // Optimistically add the new session to the sidebar
+        // Optimistically add the new session to the top of the sidebar
         const newSession: ChatSession = {
           id: currentSessionId,
           title: content.slice(0, 40) + (content.length > 40 ? "..." : ""),
@@ -202,14 +218,27 @@ export function useChat(): UseChatReturn {
         };
         setSessions(prev => [newSession, ...prev]);
       } else {
-        // Optimistically update the existing session's message list in the sidebar
-        setSessions(prev => 
-          prev.map(s => 
-            s.id === currentSessionId 
-              ? { ...s, updatedAt: new Date().toISOString(), messages: [...s.messages, optimisticUserMessage] } 
-              : s
-          )
-        );
+        // Optimistically update the existing session's message list in the sidebar and move to top
+        setSessions(prev => {
+          const target = prev.find(s => s.id === currentSessionId);
+          if (!target) return prev;
+          let targetMessages = target.messages || [];
+          if (replaceMessageIds?.userMsgId || replaceMessageIds?.assistantMsgId) {
+            targetMessages = targetMessages.filter(
+              (m) =>
+                m.id !== replaceMessageIds.userMsgId &&
+                m.id !== replaceMessageIds.assistantMsgId
+            );
+          } else if (bypassCache) {
+            targetMessages = targetMessages.length >= 2 ? targetMessages.slice(0, targetMessages.length - 2) : [];
+          }
+          const updated: ChatSession = {
+            ...target,
+            updatedAt: new Date().toISOString(),
+            messages: [...targetMessages, optimisticUserMessage],
+          };
+          return [updated, ...prev.filter(s => s.id !== currentSessionId)];
+        });
       }
 
       const pendingAssistantMessage: ChatMessage = {
@@ -220,16 +249,34 @@ export function useChat(): UseChatReturn {
         status: "pending",
       };
 
-      setMessages((prev) => [...prev, optimisticUserMessage, pendingAssistantMessage]);
+      setMessages((prev) => {
+        let base = prev;
+        if (replaceMessageIds?.userMsgId || replaceMessageIds?.assistantMsgId) {
+          base = base.filter(
+            (m) =>
+              m.id !== replaceMessageIds.userMsgId &&
+              m.id !== replaceMessageIds.assistantMsgId
+          );
+        } else if (bypassCache) {
+          base = base.length >= 2 ? base.slice(0, base.length - 2) : [];
+        }
+        return [...base, optimisticUserMessage, pendingAssistantMessage];
+      });
+
       setIsSending(true);
       const newAbortController = new AbortController();
       setAbortController(newAbortController);
+
+      const idsToDelete = [replaceMessageIds?.userMsgId, replaceMessageIds?.assistantMsgId].filter(
+        (id): id is string => Boolean(id)
+      );
 
       await chatService.sendMessageStream(
         {
           sessionId: currentSessionId,
           content,
           bypassCache,
+          replaceMessageIds: idsToDelete.length > 0 ? idsToDelete : undefined,
         },
         {
           onMetadata: async ({ sessionId, citations, cacheStatus }) => {
@@ -237,13 +284,18 @@ export function useChat(): UseChatReturn {
               setActiveSessionId(sessionId);
               localStorage.setItem("activeChatSessionId", sessionId);
               
-              setSessions((prev) =>
-                prev.map((s) =>
-                  s.id === currentSessionId
-                    ? { ...s, id: sessionId, updatedAt: new Date().toISOString() }
-                    : s
-                )
-              );
+              setSessions((prev) => {
+                const target = prev.find((s) => s.id === currentSessionId);
+                const updated: ChatSession = target
+                  ? { ...target, id: sessionId, updatedAt: new Date().toISOString() }
+                  : {
+                      id: sessionId,
+                      title: content.slice(0, 40) + (content.length > 40 ? "..." : ""),
+                      updatedAt: new Date().toISOString(),
+                      messages: [],
+                    };
+                return [updated, ...prev.filter((s) => s.id !== currentSessionId && s.id !== sessionId)];
+              });
               currentSessionId = sessionId;
             }
             setMessages((prev) =>

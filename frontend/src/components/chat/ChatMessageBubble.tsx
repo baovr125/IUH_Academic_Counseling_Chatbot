@@ -27,7 +27,11 @@ export function ChatMessageBubble({
 }: { 
   message: ChatMessage;
   isLatest?: boolean;
-  onSendMessage?: (msg: string, bypassCache?: boolean) => void;
+  onSendMessage?: (
+    msg: string, 
+    bypassCache?: boolean, 
+    replaceMessageIds?: { userMsgId?: string; assistantMsgId?: string }
+  ) => void;
   previousUserMessage?: ChatMessage;
 }) {
   const isUser = message.role === "user";
@@ -150,13 +154,13 @@ export function ChatMessageBubble({
             )}
             {isLatest && followUps.length > 0 && (
               <div className="mt-3 flex flex-col gap-2">
-                <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Gợi ý câu hỏi:</span>
+                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Gợi ý câu hỏi tiếp theo:</span>
                 <div className="flex flex-wrap gap-2">
                   {followUps.map((text, i) => (
                     <button
                       key={i}
                       onClick={() => onSendMessage && onSendMessage(text)}
-                      className="text-left text-xs text-blue-700 bg-blue-100 hover:bg-blue-200 border border-blue-200 rounded-xl px-3 py-1.5 transition-colors dark:text-blue-300 dark:bg-blue-900/40 dark:border-blue-800 dark:hover:bg-blue-800/60"
+                      className="text-left text-xs font-semibold text-orange-800 bg-orange-50 hover:bg-orange-100 border border-orange-200/90 rounded-xl px-3 py-1.5 transition-all shadow-xs hover:border-orange-300 active:scale-95 dark:text-orange-200 dark:bg-orange-950/50 dark:border-orange-800/60 dark:hover:bg-orange-900/60"
                     >
                       {text}
                     </button>
@@ -165,7 +169,7 @@ export function ChatMessageBubble({
               </div>
             )}
             {message.status === "complete" && (
-              <div className="mt-3 flex flex-col gap-2 border-t border-blue-100 pt-2 dark:border-blue-900/50">
+              <div className="mt-3 flex flex-col gap-2 border-t border-slate-100 pt-2 dark:border-slate-800">
                 <div className="flex items-center gap-2">
                   <button
                     onClick={handleCopy}
@@ -176,7 +180,7 @@ export function ChatMessageBubble({
                   </button>
                   <button
                     onClick={() => handleFeedback('like')}
-                    className={`p-1.5 rounded-md transition-colors ${feedback === 'like' ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300' : 'text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-700 dark:hover:text-slate-200'}`}
+                    className={`p-1.5 rounded-md transition-colors ${feedback === 'like' ? 'bg-orange-100 text-orange-600 dark:bg-orange-950/60 dark:text-orange-400' : 'text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-700 dark:hover:text-slate-200'}`}
                     title="Hữu ích"
                   >
                     <ThumbsUp size={14} />
@@ -190,15 +194,20 @@ export function ChatMessageBubble({
                   </button>
                   <button
                     onClick={() => setShowComment(!showComment)}
-                    className={`p-1.5 rounded-md transition-colors ${showComment ? 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200' : 'text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-700 dark:hover:text-slate-200'}`}
+                    className={`p-1.5 rounded-md transition-colors ${showComment ? 'bg-orange-100 text-orange-700 dark:bg-orange-950/60 dark:text-orange-300' : 'text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-700 dark:hover:text-slate-200'}`}
                     title="Thêm bình luận"
                   >
                     <MessageSquare size={14} />
                   </button>
                   {message.cacheStatus === "HIT" && previousUserMessage && onSendMessage && (
                     <button
-                      onClick={() => onSendMessage(previousUserMessage.content, true)}
-                      className="flex items-center gap-1 p-1.5 rounded-md transition-colors text-amber-600 hover:bg-amber-100 ml-auto text-xs font-medium dark:text-amber-400 dark:hover:bg-amber-900/50"
+                      onClick={() =>
+                        onSendMessage(previousUserMessage.content, true, {
+                          userMsgId: previousUserMessage.id,
+                          assistantMsgId: message.id,
+                        })
+                      }
+                      className="flex items-center gap-1 p-1.5 rounded-lg transition-colors text-orange-600 hover:bg-orange-50 ml-auto text-xs font-bold dark:text-orange-400 dark:hover:bg-orange-950/50"
                       title="Bỏ qua cache và tạo lại câu trả lời mới"
                     >
                       <RefreshCw size={12} />
@@ -213,12 +222,12 @@ export function ChatMessageBubble({
                       value={comment}
                       onChange={(e) => setComment(e.target.value)}
                       placeholder="Nhập góp ý của bạn..."
-                      className="flex-1 rounded-md border border-slate-200 px-3 py-1.5 text-xs text-slate-700 outline-none focus:border-blue-500 dark:border-slate-600 dark:text-slate-200"
+                      className="flex-1 rounded-xl border border-slate-200 px-3 py-1.5 text-xs text-slate-700 outline-none focus:border-orange-500 dark:border-slate-600 dark:text-slate-200"
                       onKeyDown={(e) => { if (e.key === 'Enter') handleCommentSubmit(); }}
                     />
                     <button
                       onClick={handleCommentSubmit}
-                      className="rounded-md bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700"
+                      className="rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 px-3 py-1.5 text-xs font-bold text-white shadow-sm hover:from-orange-600 hover:to-amber-600 transition-all active:scale-95"
                     >
                       Gửi
                     </button>
