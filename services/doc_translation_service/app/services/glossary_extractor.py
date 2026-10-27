@@ -4,7 +4,6 @@ import json
 import httpx
 import asyncio
 import hashlib
-import urllib.parse
 from typing import List, Dict, Any
 from app.utils.logger import logger
 from app.services.ollama_translator import call_ollama_generate, check_ollama_health
@@ -64,22 +63,6 @@ async def get_word_audio(word: str) -> Dict[str, str]:
             
     return {"phonetic": "", "audio_url": ""}
 
-
-def get_tts_lang_code(lang: str) -> str:
-    cleaned = (lang or "en").strip().lower()
-    mapping = {
-        "en": "en-US",
-        "vi": "vi-VN",
-        "de": "de-DE",
-        "zh": "zh-CN",
-        "ja": "ja-JP",
-        "ko": "ko-KR",
-        "fr": "fr-FR",
-        "es": "es-ES",
-        "ru": "ru-RU",
-        "th": "th-TH"
-    }
-    return mapping.get(cleaned, mapping.get(cleaned[:2], "en-US"))
 
 
 def parse_glossary_json(raw_text: str) -> List[Dict[str, Any]]:

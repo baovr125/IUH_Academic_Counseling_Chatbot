@@ -33,9 +33,6 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
   setSourceLang,
   setTargetLang,
   setSourceText,
-  swapLanguages,
-  onSaveFullTranslation,
-  targetLangMeta
 }) => {
   const [domain, setDomain] = useState("");
   const [isTranslating, setIsTranslating] = useState(false);

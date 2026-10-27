@@ -1,9 +1,8 @@
 import json
-from typing import Optional, List
+from typing import List
 from app.utils.logger import logger
 from app.services.supabase_client import get_supabase
 
-from app.services.cache_service import get_redis
 import asyncio
 
 # Cố định danh sách các chuyên ngành và emoji
@@ -24,14 +23,6 @@ DOMAIN_EMOJIS = {
     "Luật / Pháp lý": "⚖️",
     "Marketing": "📈"
 }
-
-async def get_all_domains() -> List[str]:
-    """Trả về danh sách tất cả các chuyên ngành thực tế có trong hệ thống."""
-    dicts = await get_all_dictionaries()
-    if dicts:
-        found_domains = list(set(d.get("domain") for d in dicts if d.get("domain")))
-        return found_domains if found_domains else _PREDEFINED_DOMAINS
-    return _PREDEFINED_DOMAINS
 
 async def get_all_dictionaries() -> List[dict]:
     """Fetch toàn bộ từ điển với Redis Cache và asyncio.to_thread để không block event loop."""

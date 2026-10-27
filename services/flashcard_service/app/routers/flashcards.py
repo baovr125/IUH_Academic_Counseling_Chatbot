@@ -1,6 +1,6 @@
-from typing import Optional, List
-from fastapi import APIRouter, Header, Depends, HTTPException, Query, UploadFile, File
-from fastapi.responses import Response, StreamingResponse
+from typing import Optional
+from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File
+from fastapi.responses import Response
 import edge_tts
 from app.schemas.flashcards import (
     CreateDeckRequest,
@@ -9,8 +9,6 @@ from app.schemas.flashcards import (
     UpdateCardRequest,
     ReviewCardRequest,
     VerifySpellingRequest,
-    VerifySpellingResponse,
-    StudyCardItem,
     ApiResult
 )
 from app.services.flashcard_service import (

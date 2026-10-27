@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import {
   FileText,
-  UploadCloud,
   Download,
   Sparkles,
   CheckCircle2,

@@ -137,8 +137,9 @@ class OpenAICompatibleProvider(BaseLLMProvider):
         }
 
         fallback_triggered = False
+        stream_error = None
         buffer_str = ""
-        
+
         try:
             async with httpx.AsyncClient(timeout=120.0) as client:
                 async with client.stream("POST", f"{self.base_url}/chat/completions", headers=headers, json=payload) as response:
@@ -180,13 +181,14 @@ class OpenAICompatibleProvider(BaseLLMProvider):
         except Exception as e:
             logger.warning(f"Local LLM stream failed: {e}. Falling back to Gemini...")
             fallback_triggered = True
-            
+            stream_error = e
+
         if fallback_triggered and self.fallback_provider:
             async for chunk in self.fallback_provider.generate_stream(system_instruction, history_dicts):
                 self.last_used_model = getattr(self.fallback_provider, "last_used_model", "Gemini-Fallback")
                 yield chunk
         elif fallback_triggered:
-            yield {"text": f"⚠️ Lỗi AI Local và không có Fallback: {str(e)}"}
+            yield {"text": f"⚠️ Lỗi AI Local và không có Fallback: {str(stream_error)}"}
 
     async def generate_text(self, prompt: str, system_instruction: str = "", temperature: float = 0.0, max_tokens: int = 2048) -> str:
         messages = []
@@ -230,7 +232,7 @@ class OpenAICompatibleProvider(BaseLLMProvider):
         return prompt
 
 def get_llm_provider() -> BaseLLMProvider:
-    provider = os.getenv("LLM_PROVIDER", "openai").lower() # Default to openai as requested
+    provider = os.getenv("LLM_PROVIDER", "openai").lower()  # "openai" = endpoint tương thích OpenAI (vLLM/Ollama)
     if provider == "openai":
         return OpenAICompatibleProvider(
             base_url=os.getenv("OPENAI_BASE_URL", "http://host.docker.internal:11434/v1"),

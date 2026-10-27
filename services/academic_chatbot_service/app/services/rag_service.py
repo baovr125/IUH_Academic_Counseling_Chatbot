@@ -1,14 +1,11 @@
 import os
 import uuid
 import asyncio
-import logging
-logger = logging.getLogger(__name__)
 import re
 import math
 import threading
-from typing import List, Optional, Tuple, Union, Dict, Any
+from typing import List, Optional, Tuple, Union
 import json
-import httpx
 import redis.asyncio as redis
 from cachetools import TTLCache
 import warnings
@@ -30,7 +27,6 @@ def get_redis():
 
 from sentence_transformers import SentenceTransformer, CrossEncoder
 from google import genai
-from google.genai import types
 
 from app.schemas.chat import Citation
 from app.guardrails.query_filter import wrap_context_sandbox
@@ -479,7 +475,7 @@ async def retrieve_relevant_chunks_multi(
             if scored_chunks:
                 raw_max_score = max(raw_max_score, scored_chunks[0]["rerank_score"])
             
-            # Filter valid chunks above safe threshold (0.40)
+            # Giữ các chunk có điểm rerank >= RERANKER_THRESHOLD
             valid_chunks = [c for c in scored_chunks if c["rerank_score"] >= RERANKER_THRESHOLD]
             if not valid_chunks:
                 continue
@@ -566,8 +562,6 @@ async def retrieve_relevant_chunks(query_text: str, query_embedding: list = None
     chunks, _ = await retrieve_relevant_chunks_multi([query_text], top_k=top_k, candidate_count=candidate_count)
     return chunks
 
-from typing import Tuple, List, Union
-
 async def generate_standalone_query(history: list, current_query: str) -> Tuple[bool, List[str], str, str, str]:
     """
     Module Adaptive Query Rewriter & Router (Slim):
@@ -649,8 +643,7 @@ async def generate_standalone_query(history: list, current_query: str) -> Tuple[
 
                 return True, clean_queries[:4], provider.last_used_model, intent, reason
             except Exception as e:
-                import logging
-                logging.getLogger(__name__).warning(f"Failed to parse extracted JSON: {e}. String: {json_str}")
+                logger.warning(f"Failed to parse extracted JSON: {e}. String: {json_str}")
 
     # Fallback in case of parsing or generation failure
     return True, [current_query], provider.last_used_model, "GENERAL", "Fallback parsing error"

@@ -2,7 +2,7 @@ import uuid
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import documents
-from app.utils.logger import logger, request_id_var
+from app.utils.logger import request_id_var
 from app.utils.security import validate_security_config
 from app.utils.cors import CORS_ALLOW_ORIGINS
 

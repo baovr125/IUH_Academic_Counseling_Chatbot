@@ -5,7 +5,6 @@ import aio_pika
 from app.utils.languages import normalize_lang
 from app.utils.logger import logger
 from app.services.flashcard_service import create_deck, create_card, update_card_audio_url, get_decks, get_deck_cards
-from starlette.concurrency import run_in_threadpool
 
 RABBITMQ_HOST = os.environ.get("RABBITMQ_HOST", "rabbitmq")
 RABBITMQ_PORT = int(os.environ.get("RABBITMQ_PORT", "5672"))

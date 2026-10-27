@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Flame, Calendar, Info } from "lucide-react";
+import { Flame } from "lucide-react";
 import type { DashboardStats, LearningStreakDay } from "../../types";
 import { SampleDataBadge } from "./SampleDataBadge";
 
@@ -34,8 +34,6 @@ export const LearningStreakHeatmap: React.FC<LearningStreakHeatmapProps> = ({ st
         return "bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700";
     }
   };
-
-  const daysOfWeek = ["T2", "T4", "T6", "CN"];
 
   return (
     <div className="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-800 transition-all hover:shadow-md">

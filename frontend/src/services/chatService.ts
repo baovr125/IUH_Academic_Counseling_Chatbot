@@ -7,7 +7,7 @@ import type {
 } from "../types";
 import { MOCK_CHAT_SESSIONS } from "../mock/mockData";
 import { getToken } from "./authService";
-import { delay, generateId } from "./utils";
+import { generateId } from "./utils";
 
 const getApiUrl = (endpoint: string): string => {
   const env = (import.meta as any).env || {};

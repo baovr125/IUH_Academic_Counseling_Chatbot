@@ -7,7 +7,7 @@ from slowapi.errors import RateLimitExceeded
 
 from app.routers import chat, admin_ingest, sessions
 from app.utils.limiter import limiter
-from app.utils.logger import logger, request_id_var
+from app.utils.logger import request_id_var
 from app.utils.security import validate_security_config
 from app.utils.cors import CORS_ALLOW_ORIGINS
 from app.services.rag_service import preload_models

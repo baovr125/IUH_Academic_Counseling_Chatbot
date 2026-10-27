@@ -10,7 +10,7 @@ from __future__ import annotations
 import asyncio
 import os
 import time
-from typing import AsyncGenerator, Dict, List, Optional, Tuple
+from typing import AsyncGenerator, Dict, List, Tuple
 
 from app.utils.logger import logger
 

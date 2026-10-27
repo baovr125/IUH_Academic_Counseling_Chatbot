@@ -3,7 +3,7 @@ setlocal enabledelayedexpansion
 
 REM ===============================================================================
 REM IUH Microservices AI - Unified Automated Test Suite Runner (Windows CMD / PS)
-REM Supports individual service testing, coverage threshold validation (>= 80%)
+REM Supports individual service testing; coverage is reported but no minimum threshold is enforced
 REM ===============================================================================
 
 set "TARGET=%1"
@@ -37,7 +37,7 @@ echo.
 echo [1/1] Running Auth Service Tests...
 pytest services/auth_service/tests -v --cov=services/auth_service/app --cov-fail-under=80
 if %errorlevel% neq 0 (
-    echo [FAIL] Auth Service tests failed or coverage is below 80%%
+    echo [FAIL] Auth Service tests failed
     exit /b 1
 )
 echo [PASS] Auth Service tests completed successfully.

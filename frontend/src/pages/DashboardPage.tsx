@@ -1,4 +1,3 @@
-import React from "react";
 import { useDashboard } from "../hooks/useDashboard";
 import { useAuth } from "../hooks/useAuth";
 import { DashboardHeroBanner } from "../components/dashboard/DashboardHeroBanner";

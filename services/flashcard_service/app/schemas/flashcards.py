@@ -70,25 +70,6 @@ class StudyCardItem(BaseModel):
     is_new: bool = False
     example_translation: Optional[str] = None
 
-class CardResponse(BaseModel):
-    id: str
-    deck_id: str
-    front_text: str
-    back_text: str
-    phonetic: Optional[str] = None
-    audio_url: Optional[str] = None
-    example_sentence: Optional[str] = None
-    part_of_speech: Optional[str] = None
-    lang_code: Optional[str] = "en"
-    # SM-2 / FSRS combined fields
-    repetition: int
-    ease_factor: Optional[float] = 2.5
-    interval_days: int
-    stability: Optional[float] = None
-    difficulty: Optional[float] = None
-    lapses: Optional[int] = 0
-    next_review_date: str
-
 class ApiResult(BaseModel):
     ok: bool
     data: Optional[Any] = None

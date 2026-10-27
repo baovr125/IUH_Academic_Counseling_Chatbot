@@ -1,9 +1,7 @@
-import os
 import spacy
 import nltk
 from app.utils.logger import logger
 import asyncio
-from typing import Optional, List, Dict, Any
 
 def preload_nlp_models():
     """
@@ -47,18 +45,6 @@ import time
 from app.schemas.translation import WordAnalysisRequest, WordAnalysisResponse, MeaningDef
 from app.services.cache_service import get_cached_translation, set_cached_translation
 from app.services.llm_service import get_nllb_translator, LANG_MAP
-
-def get_wordnet_pos(treebank_tag):
-    if treebank_tag.startswith('J'):
-        return 'a'
-    elif treebank_tag.startswith('V'):
-        return 'v'
-    elif treebank_tag.startswith('N'):
-        return 'n'
-    elif treebank_tag.startswith('R'):
-        return 'r'
-    else:
-        return None
 
 def spacy_to_wordnet_pos(spacy_pos):
     mapping = {
@@ -285,6 +271,5 @@ async def _fallback_analysis(request: WordAnalysisRequest, start_time: float, ca
         latency_ms=round((time.perf_counter() - start_time) * 1000, 2)
     )
     
-    import json
     await asyncio.to_thread(set_cached_translation, cache_key, res.model_dump_json())
     return res

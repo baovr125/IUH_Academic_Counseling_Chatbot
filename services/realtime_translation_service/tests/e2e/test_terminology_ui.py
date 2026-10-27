@@ -2,7 +2,11 @@ import os
 import time
 import requests
 import pytest
-from selenium import webdriver
+
+# Test E2E cần selenium và một stack đang chạy; môi trường không có selenium (CI) thì bỏ qua cả file.
+pytest.importorskip("selenium")
+
+from selenium import webdriver  # noqa: E402
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -10,7 +14,8 @@ from selenium.webdriver.support import expected_conditions as EC
 # --- CẤU HÌNH MÔI TRƯỜNG ---
 FRONTEND_URL = os.environ.get("FRONTEND_URL", "http://localhost:5173")
 BACKEND_URL = os.environ.get("BACKEND_URL", "http://localhost:8000")
-SCREENSHOT_DIR = "tests/e2e/screenshots/terminology"
+# Neo theo vị trí file để ảnh luôn vào cùng một thư mục dù chạy pytest từ đâu.
+SCREENSHOT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "screenshots", "terminology")
 
 def ensure_test_user():
     # Tạo user nếu chưa có (kèm try-catch để skip nếu server sập)
@@ -182,20 +187,7 @@ def test_e2e_tc02_short_no_match(driver):
         lambda d: len(d.find_element(By.XPATH, "//div[contains(@class, 'whitespace-pre-wrap')]").text.strip()) > 0
     )
     
-    textarea = driver.find_element(By.TAG_NAME, "textarea")
-    translated_text = driver.find_element(By.XPATH, "//div[contains(@class, 'whitespace-pre-wrap')]").text
     warning = get_warning_text(driver)
-    
-    with open("tc02_debug.txt", "w", encoding="utf-8") as f:
-        f.write(f"Source text: {textarea.get_attribute('value')}\n")
-        f.write(f"Translated text: {translated_text}\n")
-        f.write(f"Warning: {warning}\n")
-        f.write("=== PAGE SOURCE ===\n")
-        try:
-            f.write(driver.page_source)
-        except Exception as e:
-            f.write(f"Failed to get page source: {e}\n")
-        
     take_screenshot(driver, "E2E-TC02_fallback_warning")
     assert warning is not None
     assert "dịch sát nghĩa" in warning.lower()

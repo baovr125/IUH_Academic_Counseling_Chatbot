@@ -1,6 +1,5 @@
 import os
 import io
-from datetime import timedelta
 from typing import Optional
 from minio import Minio
 from minio.error import S3Error
@@ -65,16 +64,3 @@ def audio_exists(object_name: str) -> bool:
         return True
     except S3Error:
         return False
-
-def get_presigned_audio_url(object_name: str, expires_seconds: int = 86400) -> str:
-    try:
-        url = client.get_presigned_url(
-            "GET",
-            AUDIO_BUCKET,
-            object_name,
-            expires=timedelta(seconds=expires_seconds)
-        )
-        return url
-    except S3Error as e:
-        logger.error(f"Error generating presigned audio url: {e}")
-        return ""

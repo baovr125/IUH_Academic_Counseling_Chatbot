@@ -21,7 +21,6 @@ from starlette.concurrency import run_in_threadpool
 from app.schemas.languages import SaveFromTranslationRequest
 from app.services.flashcard_service import (
     MASTERED_STABILITY_DAYS,
-    _is_owner,
     _normalize_card_row,
     _parse_due,
     create_card,
@@ -31,8 +30,6 @@ from app.services.flashcard_service import (
     is_missing_column_error,
     require_lang,
     to_valid_uuid,
-    in_memory_cards,
-    in_memory_decks,
 )
 from app.services.normalization import clean_text, dedupe_key
 from app.utils.errors import ApiError

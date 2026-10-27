@@ -1,5 +1,3 @@
-import json
-from typing import Optional
 from app.services.supabase_client import get_supabase
 from app.services.cache_service import get_redis
 from app.utils.logger import logger

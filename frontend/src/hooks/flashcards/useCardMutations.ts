@@ -17,7 +17,6 @@ import {
   addCardToDeck
 } from "../../services/deckStorage";
 import { DECKS_QUERY_KEY } from "./useDecks";
-import { getCardsQueryKey } from "./useCards";
 
 export function useCardMutations(deckId?: string) {
   const queryClient = useQueryClient();

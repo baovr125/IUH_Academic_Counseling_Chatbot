@@ -1,22 +1,20 @@
 from fastapi import APIRouter, HTTPException, Depends
-from fastapi.responses import StreamingResponse, Response, JSONResponse
+from fastapi.responses import Response, JSONResponse
 from sse_starlette.sse import EventSourceResponse
-import edge_tts
+import edge_tts  # noqa: F401  (test_translation_api patch "app.routers.translation.edge_tts")
 import hashlib
-import asyncio
-from typing import Optional
 from app.schemas.translation import (
     TranslateRequest, LookupRequest, TranslateResponse, ApiResult,
     StreamTranslateRequest, FlashcardExtractRequest,
-    WordAnalysisRequest, WordAnalysisResponse,
-    LanguageDetectRequest, LanguageDetectionDetails
+    WordAnalysisRequest,
+    LanguageDetectRequest
 )
 from app.services.translation_service import translate_text
 from app.services.language_detection import adetect_language_detailed
 from app.services.llm_service import stream_translation, extract_flashcard
 from app.services.dictionary_service import get_word_audio
 from app.services.tts_service import VOICE_MAP, TTSUnavailable, resolve_voice, synthesize
-from app.services.cache_service import get_cached_audio_url, set_cached_audio_url
+from app.services.cache_service import set_cached_audio_url
 from app.utils.minio_client import upload_audio_bytes, get_audio_bytes, audio_exists
 from app.utils.logger import logger
 from app.utils.security import get_current_user_id

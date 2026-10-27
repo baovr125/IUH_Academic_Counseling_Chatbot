@@ -1,8 +1,8 @@
 import os
-from typing import Optional, Tuple
+from typing import Tuple
 import docx
 from pptx import Presentation
-from app.services.ollama_translator import call_ollama_generate, OLLAMA_DEFAULT_MODEL, SYSTEM_TRANSLATION_PROMPT
+from app.services.ollama_translator import call_ollama_generate, get_system_prompt, OLLAMA_DEFAULT_MODEL
 from app.utils.logger import logger
 
 
@@ -36,7 +36,7 @@ def translate_single_text(
         f"Chỉ trả về bản dịch, không giải thích thừa.\n\n"
         f"Text:\n{clean_text}"
     )
-    system_instr = SYSTEM_TRANSLATION_PROMPT
+    system_instr = get_system_prompt(source_lang, target_lang)
     try:
         translated = call_ollama_generate(prompt=prompt, system_instruction=system_instr, model=model)
         return translated if translated else text
