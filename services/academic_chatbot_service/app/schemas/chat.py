@@ -21,6 +21,7 @@ class SendMessagePayload(BaseModel):
     sessionId: Optional[str] = None
     content: str = Field(..., min_length=1, max_length=2000)
     bypassCache: Optional[bool] = False
+    replaceMessageIds: Optional[List[str]] = None
 
     @field_validator('content')
     @classmethod
