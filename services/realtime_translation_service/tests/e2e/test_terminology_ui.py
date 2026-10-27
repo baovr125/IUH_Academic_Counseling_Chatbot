@@ -2,7 +2,11 @@ import os
 import time
 import requests
 import pytest
-from selenium import webdriver
+
+# Test E2E cần selenium và một stack đang chạy; môi trường không có selenium (CI) thì bỏ qua cả file.
+pytest.importorskip("selenium")
+
+from selenium import webdriver  # noqa: E402
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC

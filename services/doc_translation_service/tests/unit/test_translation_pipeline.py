@@ -37,7 +37,7 @@ class TestOllamaPDFTranslator:
             
             # Lần gọi thứ 2 phải có system instruction strict hơn
             second_call_kwargs = mock_generate.call_args_list[1][0]
-            assert "KHÔNG xuất ký tự Hán/Trung Quốc" in second_call_kwargs[1]
+            assert "KHÔNG xuất ký tự ngoại lai" in second_call_kwargs[1]
             
     def test_translate_falls_back_to_groq_when_ollama_fails(self):
         translator = OllamaPDFTranslator()
