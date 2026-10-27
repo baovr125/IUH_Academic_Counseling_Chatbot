@@ -4,9 +4,8 @@ import asyncio
 import ctranslate2
 import transformers
 from typing import AsyncGenerator, Optional
-import httpx
 from google import genai
-from groq import Groq, AsyncGroq
+from groq import AsyncGroq
 from app.utils.logger import logger
 
 # Initialize Clients

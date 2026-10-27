@@ -1,8 +1,7 @@
 import os
-from typing import List, Dict, Any
+from typing import List, Dict
 from google import genai
-from app.services.glossary_service import scan_document_for_glossary, get_glossary_prompt_instructions
-from app.utils.logger import logger
+from app.services.glossary_service import get_glossary_prompt_instructions
 from tenacity import retry, stop_after_attempt, wait_exponential
 
 

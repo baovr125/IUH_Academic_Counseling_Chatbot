@@ -27,10 +27,6 @@ class SendMessagePayload(BaseModel):
     def strip_whitespace(cls, v: str) -> str:
         return v.strip()
 
-class SendMessageResponseData(BaseModel):
-    sessionId: str
-    message: ChatMessage
-
 class RenameSessionPayload(BaseModel):
     title: str = Field(..., min_length=1, max_length=100)
 
@@ -38,7 +34,3 @@ class ApiResult(BaseModel):
     ok: bool
     data: Optional[Any] = None
     error: Optional[dict] = None
-
-class FeedbackPayload(BaseModel):
-    feedback: Literal['like', 'dislike']
-    comment: Optional[str] = Field(None, max_length=500)

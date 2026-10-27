@@ -1,5 +1,5 @@
 import re
-from typing import Optional, Tuple
+from typing import Optional
 
 JAILBREAK_PATTERNS = [
     r"(?i)\b(ignore|skip|forget|bypass|override|disregard|cancel|drop)\s+(all\s+|previous\s+|above\s+)*(instructions|rules|prompts|directives|guidelines|constraints)\b",

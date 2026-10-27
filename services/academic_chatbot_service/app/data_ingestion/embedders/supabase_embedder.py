@@ -1,10 +1,8 @@
 import os
 import json
-import uuid
 import hashlib
 from tqdm.auto import tqdm
 from sentence_transformers import SentenceTransformer
-from dotenv import load_dotenv
 from app.data_ingestion.utils.logger import setup_logger
 from app.services.supabase_client import get_supabase_client, execute_with_retry
 

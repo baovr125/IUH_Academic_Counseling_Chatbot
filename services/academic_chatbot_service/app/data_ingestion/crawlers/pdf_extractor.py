@@ -1,5 +1,4 @@
 import os
-import io
 import requests
 import logging
 import hashlib
@@ -136,5 +135,5 @@ class PDFExtractor:
             return "[CÓ LỖI XẢY RA KHI OCR PDF]"
 
     def extract_image_text(self, img_url: str) -> str:
-        # Tạm thời bỏ qua trích xuất chữ từ ảnh theo yêu cầu
+        # Chủ ý không OCR ảnh nhúng trong trang web; chỉ OCR file PDF (xem _ocr_pdf)
         return ""

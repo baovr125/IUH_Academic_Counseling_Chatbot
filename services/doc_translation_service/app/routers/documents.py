@@ -3,17 +3,16 @@ import uuid
 import json
 import asyncio
 from typing import Optional
-from fastapi import APIRouter, UploadFile, File, Form, Header, HTTPException, status, Request, Depends
-from fastapi.responses import RedirectResponse, StreamingResponse
+from fastapi import APIRouter, UploadFile, File, Form, HTTPException, status, Request, Depends
+from fastapi.responses import StreamingResponse
 from sse_starlette.sse import EventSourceResponse
 from app.schemas.documents import (
-    DocumentStatusResponse,
     DocumentUploadResponse,
     ApiResult
 )
 from app.tasks.pdf_worker import dispatch_pdf_translation_job, redis_client
 from app.utils.logger import logger
-from app.utils.minio_client import upload_file_stream, object_exists, get_object_stream, get_presigned_url
+from app.utils.minio_client import upload_file_stream, object_exists, get_object_stream
 from app.utils.security import get_current_user_id, get_optional_user_id
 
 router = APIRouter(tags=["Document Translation Service"])

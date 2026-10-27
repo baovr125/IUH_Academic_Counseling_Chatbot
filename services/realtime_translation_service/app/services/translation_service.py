@@ -1,7 +1,6 @@
 import os
 import time
 import asyncio
-import re
 from typing import Tuple, Optional, Any
 from fastapi import HTTPException
 from app.services.cache_service import (
@@ -11,9 +10,7 @@ from app.services.cache_service import (
     get_domain_version,
 )
 from app.services.llm_service import get_nllb_translator, LANG_MAP, get_gemini_client
-from app.services.supabase_client import get_supabase
 from app.utils.logger import logger
-from app.utils.text_normalizer import find_domain_terms, build_context_aware_prompt
 from app.services.language_detection import (  # noqa: F401  (re-export cho code/test phụ thuộc)
     LanguageResolutionError,
     SUPPORTED_CODES,
@@ -141,8 +138,6 @@ async def translate_text(text: str, source_lang: str = "en", target_lang: str = 
         return cached, True, round(latency, 2), final_warning, detected_lang, detection_details
         
     # --- FLOW 1 BẮT ĐẦU TỪ ĐÂY (Giữ nguyên) ---
-    clean_lower = text.strip().lower()
-        
     # Try NLLB first (cost optimized)
     translator, tokenizer = get_nllb_translator()
     if translator and tokenizer:

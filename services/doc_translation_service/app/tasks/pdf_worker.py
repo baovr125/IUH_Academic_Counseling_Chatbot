@@ -5,7 +5,7 @@ import asyncio
 import tempfile
 import fitz  # PyMuPDF - để đếm số trang
 import nest_asyncio
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 from app.utils.logger import logger
 from app.celery_app import celery_app, REDIS_URL
 from app.utils.minio_client import download_file, upload_file

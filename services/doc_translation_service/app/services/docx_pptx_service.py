@@ -1,5 +1,5 @@
 import os
-from typing import Optional, Tuple
+from typing import Tuple
 import docx
 from pptx import Presentation
 from app.services.ollama_translator import call_ollama_generate, OLLAMA_DEFAULT_MODEL, SYSTEM_TRANSLATION_PROMPT

@@ -34,7 +34,7 @@ def get_cached_warning(key: str) -> Optional[str]:
     if r:
         try:
             return r.get(f"trans_warn:{key}")
-        except Exception as e:
+        except Exception:
             pass
     return None
 
@@ -94,12 +94,6 @@ def increment_global_dict_version() -> int:
             pass
     return 1
 
-def get_classification_hash(text: str) -> str:
-    """Tạo hash toàn văn bản để tránh trùng cache cho các văn bản dài có cùng 60 ký tự đầu."""
-    import hashlib
-    clean = text.strip()
-    return hashlib.md5(clean.encode('utf-8')).hexdigest()
-
 def get_translation_text_hash(text: str) -> str:
     """Hash normalized translation input without collapsing meaningful letter case."""
     import hashlib
@@ -107,25 +101,6 @@ def get_translation_text_hash(text: str) -> str:
 
     normalized = unicodedata.normalize("NFC", text).strip()
     return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
-
-def get_auto_resolved_domain(text_md5: str, source_lang: str, target_lang: str) -> Optional[str]:
-    r = get_redis()
-    if r:
-        try:
-            v = get_global_dict_version()
-            return r.get(f"auto_resolve:{source_lang}_{target_lang}_{v}_{text_md5}")
-        except Exception:
-            pass
-    return None
-
-def set_auto_resolved_domain(text_md5: str, source_lang: str, target_lang: str, domain: str, ttl: int = 86400):
-    r = get_redis()
-    if r:
-        try:
-            v = get_global_dict_version()
-            r.setex(f"auto_resolve:{source_lang}_{target_lang}_{v}_{text_md5}", ttl, domain)
-        except Exception:
-            pass
 
 def get_cached_audio_url(key: str) -> Optional[str]:
     r = get_redis()

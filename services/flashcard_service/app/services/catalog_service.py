@@ -169,11 +169,6 @@ async def get_catalog_preview(deck_id: str, limit: int = 10) -> Dict[str, Any]:
     return {"deck": deck, "cards": cards}
 
 
-def _is_unique_violation(exc: Exception) -> bool:
-    text = str(exc).lower()
-    return "duplicate key" in text or "23505" in text or "unique" in text
-
-
 async def _existing_clone(supabase, uid: str, origin_id: str) -> Optional[Dict[str, Any]]:
     try:
         res = await run_in_threadpool(

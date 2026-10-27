@@ -2,7 +2,7 @@ import uuid
 from typing import Dict, List, Optional
 from datetime import datetime, timezone
 from app.utils.logger import logger
-from app.services.supabase_client import execute_with_retry, get_supabase_client
+from app.services.supabase_client import execute_with_retry
 
 session_memory: Dict[str, List[dict]] = {}
 

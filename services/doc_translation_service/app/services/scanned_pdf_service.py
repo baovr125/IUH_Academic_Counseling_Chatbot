@@ -1,5 +1,5 @@
 import os
-from typing import List, Tuple
+from typing import List
 import fitz # PyMuPDF
 import docx
 from app.services.ollama_translator import call_ollama_generate, OLLAMA_DEFAULT_MODEL

@@ -1,6 +1,5 @@
 import os
 import logging
-from datetime import datetime
 
 def setup_logger(name, log_file):
     LOG_DIR = os.getenv("LOG_DIR", "./logs/academic_chatbot")

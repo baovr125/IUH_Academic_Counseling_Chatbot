@@ -1,5 +1,5 @@
 import re
-from typing import List, Dict, Any
+from typing import List, Dict
 
 # Từ điển Thuật ngữ Học vụ Chuẩn IUH (IUH Academic Terminology Dictionary)
 IUH_ACADEMIC_GLOSSARY: Dict[str, Dict[str, str]] = {
