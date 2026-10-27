@@ -11,6 +11,9 @@ from app.utils.security import get_current_admin_user
 
 router = APIRouter(tags=["Dictionary Admin"])
 
+# Chi tiết lỗi chỉ ghi vào log; không trả nguyên văn exception (có thể lộ tên bảng/câu truy vấn) cho client.
+INTERNAL_ERROR_DETAIL = "Lỗi hệ thống. Vui lòng thử lại sau."
+
 class DictionaryEntry(BaseModel):
     domain: str
     word: str
@@ -35,7 +38,7 @@ def get_dictionary(user_id: str = Depends(get_current_admin_user)):
         return ApiResult(ok=True, data=res.data)
     except Exception as e:
         logger.error(f"Error fetching dictionary: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=INTERNAL_ERROR_DETAIL)
 
 @router.post("/admin/dictionary", response_model=ApiResult)
 def add_dictionary_entry(background_tasks: BackgroundTasks, entry: DictionaryEntry, user_id: str = Depends(get_current_admin_user)):
@@ -69,7 +72,7 @@ def add_dictionary_entry(background_tasks: BackgroundTasks, entry: DictionaryEnt
         return ApiResult(ok=True, data=res.data[0])
     except Exception as e:
         logger.error(f"Error adding dictionary entry: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=INTERNAL_ERROR_DETAIL)
 
 @router.delete("/admin/dictionary/{entry_id}", response_model=ApiResult)
 def delete_dictionary_entry(entry_id: str, user_id: str = Depends(get_current_admin_user)):
@@ -90,7 +93,7 @@ def delete_dictionary_entry(entry_id: str, user_id: str = Depends(get_current_ad
         return ApiResult(ok=True, data=None)
     except Exception as e:
         logger.error(f"Error deleting dictionary entry: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=INTERNAL_ERROR_DETAIL)
 
 @router.post("/admin/dictionary/bulk-delete", response_model=ApiResult)
 def bulk_delete_dictionary_entries(req: BulkDeleteRequest, user_id: str = Depends(get_current_admin_user)):
@@ -111,7 +114,7 @@ def bulk_delete_dictionary_entries(req: BulkDeleteRequest, user_id: str = Depend
         return ApiResult(ok=True, data=None)
     except Exception as e:
         logger.error(f"Error bulk deleting dictionary entries: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=INTERNAL_ERROR_DETAIL)
 
 @router.put("/admin/dictionary/{entry_id}", response_model=ApiResult)
 def update_dictionary_entry(entry_id: str, background_tasks: BackgroundTasks, entry: DictionaryEntry, user_id: str = Depends(get_current_admin_user)):
@@ -147,7 +150,7 @@ def update_dictionary_entry(entry_id: str, background_tasks: BackgroundTasks, en
         return ApiResult(ok=True, data=res.data[0])
     except Exception as e:
         logger.error(f"Error updating dictionary entry: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=INTERNAL_ERROR_DETAIL)
 
 from fastapi import UploadFile, File
 import csv
@@ -216,4 +219,4 @@ async def import_dictionary(background_tasks: BackgroundTasks, file: UploadFile 
         return ApiResult(ok=True, data={"imported_count": len(entries_to_insert)})
     except Exception as e:
         logger.error(f"Error importing dictionary: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=INTERNAL_ERROR_DETAIL)

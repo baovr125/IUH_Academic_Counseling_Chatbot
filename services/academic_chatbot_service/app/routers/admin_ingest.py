@@ -252,9 +252,9 @@ async def get_ingested_documents(
                 "total_pages": total_pages
             }
         }
-    except Exception as e:
+    except Exception:
         logger.exception("Error fetching documents:")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Lỗi hệ thống. Vui lòng thử lại sau.")
 
 class UpdateDocumentPayload(BaseModel):
     title: str
@@ -271,9 +271,11 @@ async def update_document(
         if not res.data:
             raise HTTPException(status_code=404, detail="Document not found")
         return {"ok": True, "message": "Cập nhật thành công"}
-    except Exception as e:
+    except HTTPException:
+        raise
+    except Exception:
         logger.exception(f"Error updating document {doc_id}:")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Lỗi hệ thống. Vui lòng thử lại sau.")
 
 @router.delete("/documents/{doc_id}")
 async def delete_document(
@@ -289,9 +291,11 @@ async def delete_document(
         if not res.data:
             raise HTTPException(status_code=404, detail="Document not found")
         return {"ok": True, "message": "Xóa thành công"}
-    except Exception as e:
+    except HTTPException:
+        raise
+    except Exception:
         logger.exception(f"Error deleting document {doc_id}:")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Lỗi hệ thống. Vui lòng thử lại sau.")
 
 class ExtractPayload(BaseModel):
     extra_urls: List[str]

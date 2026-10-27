@@ -196,8 +196,7 @@ services:
     build:
       context: ./services/flashcard_service
     container_name: iuh_flashcard_service
-    ports:
-      - "8005:8005"
+    # Không publish cổng: mọi truy cập từ ngoài phải đi qua Kong (cổng 8000), giống auth-service.
     env_file:
       - .env
     depends_on:

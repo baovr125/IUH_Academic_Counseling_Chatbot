@@ -1,10 +1,9 @@
 from typing import Optional
-import os
-from fastapi import APIRouter, Depends, Request, Header, HTTPException, status
+from fastapi import APIRouter, Depends, Request
 from fastapi.responses import StreamingResponse
 
 from app.utils.limiter import limiter
-from app.utils.security import get_optional_current_user_id
+from app.utils.security import get_current_admin_user, get_optional_current_user_id
 from app.schemas.chat import SendMessagePayload
 from app.services.llm_generation_service import process_chat_message, process_chat_message_stream
 
@@ -46,20 +45,10 @@ async def send_message_stream(
     )
 
 @router.delete("/cache")
-async def clear_semantic_cache(
-    x_dev_token: str = Header(None),
-    current_user_id: Optional[str] = Depends(get_optional_current_user_id)
-):
+async def clear_semantic_cache(admin_id: str = Depends(get_current_admin_user)):
     """
-    Manually invalidate all semantic cache entries in Redis and Supabase.
+    Xóa toàn bộ semantic cache trong Redis và Supabase. Chỉ tài khoản admin (JWT, role=admin) được gọi.
     """
-    expected_token = os.getenv("DEV_ADMIN_TOKEN", "iuh-dev-secret-2026")
-    if not x_dev_token or x_dev_token != expected_token:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, 
-            detail="Forbidden: Developer access only."
-        )
-
     from app.services.rag_service import invalidate_semantic_cache
     await invalidate_semantic_cache()
     return {"message": "Cache successfully cleared from Redis and Supabase."}
