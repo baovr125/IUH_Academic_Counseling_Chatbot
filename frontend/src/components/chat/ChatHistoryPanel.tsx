@@ -7,6 +7,7 @@ interface ChatHistoryPanelProps {
   sessions: ChatSession[];
   activeSessionId: string | null;
   isLoading: boolean;
+  streamingSessionIds?: Set<string>;
   onSelectSession: (id: string) => void;
   onNewChat: () => void;
   onRenameSession: (id: string, newTitle: string) => void;
@@ -41,6 +42,8 @@ function formatSessionDateTime(dateString?: string): string {
   }
 }
 
+const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+
 function groupByRecency(sessions: ChatSession[]) {
   const today: ChatSession[] = [];
   const yesterday: ChatSession[] = [];
@@ -48,7 +51,7 @@ function groupByRecency(sessions: ChatSession[]) {
 
   const now = new Date();
   const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-  const startOfYesterday = startOfToday - 86400000;
+  const startOfYesterday = startOfToday - ONE_DAY_MS;
 
   for (const s of sessions) {
     const time = s.updatedAt ? new Date(s.updatedAt).getTime() : 0;
@@ -67,6 +70,7 @@ export function ChatHistoryPanel({
   sessions,
   activeSessionId,
   isLoading,
+  streamingSessionIds,
   onSelectSession,
   onNewChat,
   onRenameSession,
@@ -95,9 +99,23 @@ export function ChatHistoryPanel({
   const [isResizing, setIsResizing] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
 
-  // Sort sessions descending by latest updatedAt timestamp
+  // Deduplicate and sort sessions descending by latest updatedAt timestamp
   const sortedSessions = useMemo(() => {
-    return [...sessions].sort((a, b) => {
+    const map = new Map<string, ChatSession>();
+    for (const s of sessions) {
+      if (!s || !s.id) continue;
+      if (!map.has(s.id)) {
+        map.set(s.id, s);
+      } else {
+        const existing = map.get(s.id)!;
+        const timeExisting = existing.updatedAt ? new Date(existing.updatedAt).getTime() : 0;
+        const timeCurrent = s.updatedAt ? new Date(s.updatedAt).getTime() : 0;
+        if (timeCurrent > timeExisting) {
+          map.set(s.id, s);
+        }
+      }
+    }
+    return Array.from(map.values()).sort((a, b) => {
       const timeA = a.updatedAt ? new Date(a.updatedAt).getTime() : 0;
       const timeB = b.updatedAt ? new Date(b.updatedAt).getTime() : 0;
       return timeB - timeA;
@@ -251,6 +269,12 @@ export function ChatHistoryPanel({
                     <span className="truncate text-xs font-medium" title={session.title}>
                       {session.title}
                     </span>
+                    {streamingSessionIds?.has(session.id) && (
+                      <span
+                        className="inline-block h-2 w-2 rounded-full bg-orange-500 animate-pulse flex-shrink-0"
+                        title={isVi ? "Đang xử lý phản hồi..." : "Generating response..."}
+                      />
+                    )}
                   </div>
 
                   <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">

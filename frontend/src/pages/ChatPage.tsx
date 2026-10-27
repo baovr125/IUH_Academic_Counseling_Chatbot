@@ -18,6 +18,7 @@ export default function ChatPage() {
     isSending,
     isLoadingSessions,
     error,
+    streamingSessionIds,
     selectSession,
     startNewSession,
     sendMessage,
@@ -72,6 +73,7 @@ export default function ChatPage() {
         sessions={sessions}
         activeSessionId={activeSessionId}
         isLoading={isLoadingSessions}
+        streamingSessionIds={streamingSessionIds}
         onSelectSession={selectSession}
         onNewChat={startNewSession}
         onRenameSession={renameSession}

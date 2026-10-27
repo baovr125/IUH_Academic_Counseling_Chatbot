@@ -2,6 +2,7 @@ import { GraduationCap, LayoutDashboard, MessageSquare, Languages, Settings, Hel
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useSettings } from "../../context/SettingsContext";
 import { useAuth } from "../../hooks/useAuth";
+import { RESET_CHAT_EVENT_NAME } from "../../hooks/useChat";
 import logoMark from "../../assets/brand/iuh-mark-256.png";
 
 interface NavItem {
@@ -30,7 +31,7 @@ export function Sidebar() {
       window.dispatchEvent(new CustomEvent("reset-flashcard-view"));
     }
     if (targetPath === "/chat") {
-      window.dispatchEvent(new CustomEvent("reset-chat-view"));
+      window.dispatchEvent(new CustomEvent(RESET_CHAT_EVENT_NAME));
     }
   };
 
