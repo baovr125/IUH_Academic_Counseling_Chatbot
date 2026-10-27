@@ -2,6 +2,7 @@ import { GraduationCap, LayoutDashboard, MessageSquare, Languages, Settings, Hel
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useSettings } from "../../context/SettingsContext";
 import { useAuth } from "../../hooks/useAuth";
+import { RESET_CHAT_EVENT_NAME } from "../../hooks/useChat";
 import logoMark from "../../assets/brand/iuh-mark-256.png";
 
 interface NavItem {
@@ -29,6 +30,9 @@ export function Sidebar() {
     if (targetPath === "/flashcards") {
       window.dispatchEvent(new CustomEvent("reset-flashcard-view"));
     }
+    if (targetPath === "/chat") {
+      window.dispatchEvent(new CustomEvent(RESET_CHAT_EVENT_NAME));
+    }
   };
 
   return (
@@ -37,6 +41,7 @@ export function Sidebar() {
         <NavLink
           to="/chat"
           title="IUH Portal AI - Trợ lý Sinh viên"
+          onClick={() => handleNavClick("/chat")}
           className="mb-4 flex h-9 w-9 items-center justify-center rounded-lg bg-white p-1 hover:bg-white/90 transition-all hover:scale-105 cursor-pointer shadow-sm"
         >
           {/* Nền trắng để logo xanh đậm không chìm vào nền thanh bên. */}
