@@ -7,11 +7,11 @@ import type {
 } from "../types";
 import { MOCK_CHAT_SESSIONS } from "../mock/mockData";
 import { getToken } from "./authService";
+import { getApiBaseUrl } from "../config";
 import { generateId } from "./utils";
 
 const getApiUrl = (endpoint: string): string => {
-  const env = (import.meta as any).env || {};
-  const base = (env.VITE_API_BASE_URL !== undefined ? env.VITE_API_BASE_URL : "").replace(/\/+$/, "");
+  const base = getApiBaseUrl();
   if (!base) return endpoint;
   if (base.endsWith("/api") && endpoint.startsWith("/api/")) {
     return `${base}${endpoint.slice(4)}`;

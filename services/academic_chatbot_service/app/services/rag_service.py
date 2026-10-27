@@ -40,12 +40,9 @@ _reranker_model = None
 _embedder_lock = threading.Lock()
 _reranker_lock = threading.Lock()
 
-GEMINI_MODELS = [
-    "gemini-3.5-flash-lite",
-    "gemini-3.1-flash-lite",
-    # "gemini-2.5-flash",
-    "gemini-3.5-flash"
-]
+DEFAULT_GEMINI_MODELS = "gemini-3.5-flash-lite,gemini-3.1-flash-lite,gemini-3.5-flash"
+# Thứ tự thử lần lượt khi gọi Gemini (model đầu lỗi/hết quota thì sang model sau). Ghi đè: GEMINI_MODELS="a,b,c".
+GEMINI_MODELS = [m.strip() for m in os.getenv("GEMINI_MODELS", DEFAULT_GEMINI_MODELS).split(",") if m.strip()]
 
 def get_gemini():
     global _gemini_client

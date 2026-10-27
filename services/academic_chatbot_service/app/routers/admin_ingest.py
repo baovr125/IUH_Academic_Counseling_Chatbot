@@ -10,6 +10,7 @@ from pydantic import BaseModel
 
 from app.data_ingestion.crawlers.content_crawler import ContentCrawler
 from app.data_ingestion.extractors.url_extractor import URLExtractor
+from app.data_ingestion.sources import collect_iuh_urls
 from app.data_ingestion.crawlers.pdf_extractor import PDFExtractor
 from app.data_ingestion.chunkers.hybrid_chunker import HybridChunker
 from app.data_ingestion.embedders.supabase_embedder import SupabaseEmbedder
@@ -308,33 +309,7 @@ async def process_full_extract_and_crawl(extra_urls: List[str]):
         # Run URLExtractor blocking code in thread
         def _extract():
             extractor = URLExtractor()
-            all_urls = set(extra_urls)
-            
-            camnang_urls = extractor.extract_from_sitemap("https://camnang.iuh.edu.vn/sitemap.xml")
-            all_urls.update(camnang_urls)
-            
-            iuh_thong_bao = extractor.extract_from_category("https://iuh.edu.vn/vi/thong-bao.html", max_pages=10)
-            all_urls.update(iuh_thong_bao)
-            
-            iuh_static = extractor.extract_from_bfs("https://iuh.edu.vn/", max_depth=2)
-            all_urls.update(iuh_static)
-            
-            camnang_bfs = extractor.extract_from_bfs("https://camnang.iuh.edu.vn/", max_depth=5)
-            all_urls.update(camnang_bfs)
-            
-            ctsv_bfs = extractor.extract_from_bfs("https://ctsv.iuh.edu.vn/", max_depth=4)
-            all_urls.update(ctsv_bfs)
-            
-            csm_bfs = extractor.extract_from_bfs("https://csm.iuh.edu.vn/", max_depth=3)
-            all_urls.update(csm_bfs)
-            
-            tuyensinh_urls = [
-                "https://tuyensinh.iuh.edu.vn/quyChe",
-                "https://tuyensinh.iuh.edu.vn/nganhDaoTao",
-                "https://tuyensinh.iuh.edu.vn/diemChuan",
-                "https://tuyensinh.iuh.edu.vn/deAnTS",
-            ]
-            all_urls.update(tuyensinh_urls)
+            all_urls = collect_iuh_urls(extractor, extra_urls)
             return list(all_urls)
             
         final_urls = await asyncio.to_thread(_extract)

@@ -249,7 +249,7 @@ def translate_term_candidates(terms: List[str], target_lang: str = "vi", source_
         from app.services.translator import get_gemini_client
         client = get_gemini_client()
         res = client.models.generate_content(
-            model="gemini-2.5-flash",
+            model=os.getenv("GEMINI_MODEL", "gemini-2.5-flash"),
             contents=prompt,
             config={"response_mime_type": "application/json"}
         )
@@ -348,7 +348,7 @@ async def extract_glossary(text: str, target_lang: str = "vi", source_lang: str 
                 from app.services.translator import get_gemini_client
                 client = get_gemini_client()
                 res = client.models.generate_content(
-                    model="gemini-2.5-flash",
+                    model=os.getenv("GEMINI_MODEL", "gemini-2.5-flash"),
                     contents=prompt,
                     config={"response_mime_type": "application/json"}
                 )

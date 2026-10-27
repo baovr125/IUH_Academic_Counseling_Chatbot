@@ -41,8 +41,9 @@ services:
       - "127.0.0.1:5672:5672"
       - "127.0.0.1:15672:15672"
     environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
+      # Mặc định guest/guest chỉ để phát triển cục bộ (cổng đã bind 127.0.0.1); đặt trong .env khi triển khai.
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:-guest}
     deploy:
       resources:
         limits:
@@ -68,8 +69,9 @@ services:
       - "127.0.0.1:9000:9000"
       - "127.0.0.1:9001:9001"
     environment:
-      MINIO_ROOT_USER: "minioadmin"
-      MINIO_ROOT_PASSWORD: "minioadmin"
+      # Mặc định minioadmin chỉ để phát triển cục bộ; đặt MINIO_ROOT_USER/MINIO_ROOT_PASSWORD trong .env khi triển khai.
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
     command: server /data --console-address ":9001"
     volumes:
       - minio_data:/data
@@ -128,6 +130,9 @@ services:
       NLLB_DEVICE: cuda
       NVIDIA_VISIBLE_DEVICES: all
       NVIDIA_DRIVER_CAPABILITIES: compute,utility
+      # Cùng khóa với container minio để đổi MINIO_ROOT_* trong .env là đủ.
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-minioadmin}
     env_file:
       - .env
     depends_on:

@@ -9,6 +9,7 @@ from app.services.language_detection import LanguageResolutionError
 from app.routers import translation
 from app.utils.logger import logger, request_id_var
 from app.utils.security import validate_security_config
+from app.utils.cors import CORS_ALLOW_ORIGINS
 from app.rabbitmq_consumer import start_rabbitmq_tts_consumer
 from app.services.llm_service import preload_models
 from app.services.domain_dict_service import sync_dictionary_to_redis
@@ -53,18 +54,9 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-_cors_origins = [
-    origin.strip()
-    for origin in os.getenv(
-        "CORS_ALLOW_ORIGINS",
-        "http://localhost,http://127.0.0.1,http://localhost:3000,http://localhost:5173,http://127.0.0.1:5173",
-    ).split(",")
-    if origin.strip()
-]
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=_cors_origins,
+    allow_origins=CORS_ALLOW_ORIGINS,
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],

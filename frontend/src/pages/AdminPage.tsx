@@ -5,8 +5,9 @@ import { useSettings } from "../context/SettingsContext";
 
 import * as authService from "../services/authService";
 import DictionaryAdmin from "../components/admin/DictionaryAdmin";
+import { getApiBaseUrl } from "../config";
 
-const API_BASE_URL = (import.meta as any).env.VITE_API_BASE_URL || "";
+const API_BASE_URL = getApiBaseUrl();
 
 export default function AdminPage() {
   const { user } = useAuth();

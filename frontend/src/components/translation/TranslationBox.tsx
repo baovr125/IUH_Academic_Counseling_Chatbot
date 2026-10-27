@@ -6,6 +6,7 @@ import { DomainStatus } from "./DomainStatus";
 import { debounceDelayMs, isDomainMode, mergeWarnings } from "./domainMode";
 import { BookmarkPlus, ArrowRightLeft, Volume2, X, Loader2, Copy, Check } from "lucide-react";
 import { LANG_CONFIG } from "../../services/deckStorage";
+import { getApiBaseUrl } from "../../config";
 import { resolveSpeechLang, speakWithBrowser, toSpeechLocale } from "../../services/speech";
 import { SaveFlashcardModal, type SavedInfo } from "./SaveFlashcardModal";
 import type { DraftInput } from "../../services/flashcardDraft";
@@ -118,12 +119,6 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
     fresh: lastDetectedRef.current?.text === sourceText,
   });
   const SPEECH_UNKNOWN_HINT = "Chưa xác định được ngôn ngữ của văn bản. Hãy chọn ngôn ngữ nguồn để nghe đọc.";
-
-  const getApiBaseUrl = (): string => {
-    const env = (import.meta as any).env || {};
-    const base = env.VITE_API_BASE_URL !== undefined ? env.VITE_API_BASE_URL : "";
-    return String(base).replace(/\/+$/, "");
-  };
 
   // Prefetch audio and cache as Blob URL
   const prefetchAudio = async (text: string, lang: string) => {
