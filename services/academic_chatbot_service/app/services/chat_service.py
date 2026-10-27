@@ -127,3 +127,51 @@ def update_message_embedding_in_db(message_id: str, embedding: list):
         )
     except Exception as e:
         logger.exception(f"Failed to update embedding for message {message_id}: {e}")
+
+def delete_last_turn_from_db(session_id: str, message_ids: Optional[List[str]] = None) -> None:
+    """
+    When regenerating with bypassCache, delete the previous HIT-cache turn
+    (assistant message and corresponding user question) from DB and in-memory cache
+    so user doesn't see duplicate questions or outdated cache information.
+    """
+    clean_id = ensure_uuid(session_id)
+    
+    # 1. If explicit UUIDs were provided, attempt to delete by ID
+    if message_ids:
+        valid_uuids = []
+        for mid in message_ids:
+            try:
+                uuid.UUID(str(mid))
+                valid_uuids.append(str(mid))
+            except (ValueError, TypeError, AttributeError):
+                pass
+        if valid_uuids:
+            try:
+                execute_with_retry(
+                    lambda sp: sp.table("messages").delete().in_("id", valid_uuids).execute()
+                )
+            except Exception as e:
+                logger.warning(f"Could not delete specific message IDs {valid_uuids} for {clean_id}: {e}")
+
+    # 2. Always ensure the latest 2 messages in this conversation are cleaned if they correspond to the turn
+    try:
+        sp_res = execute_with_retry(
+            lambda sp: sp.table("messages")
+                .select("id, role, created_at")
+                .eq("conversation_id", clean_id)
+                .order("created_at", desc=True)
+                .limit(2)
+                .execute()
+        )
+        if sp_res and sp_res.data:
+            to_delete = [m["id"] for m in sp_res.data]
+            if to_delete:
+                execute_with_retry(
+                    lambda sp: sp.table("messages").delete().in_("id", to_delete).execute()
+                )
+    except Exception as e:
+        logger.warning(f"Failed to delete last turn for session {clean_id}: {e}")
+
+    # 3. Clean in-memory session cache
+    if clean_id in session_memory and len(session_memory[clean_id]) >= 2:
+        session_memory[clean_id] = session_memory[clean_id][:-2]
