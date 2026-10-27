@@ -1,5 +1,5 @@
 import React from "react";
-import { Calendar, AlertCircle, Clock, ExternalLink, ChevronRight } from "lucide-react";
+import { Calendar, Clock, ExternalLink } from "lucide-react";
 import type { DashboardStats, AcademicDeadline } from "../../types";
 import { SampleDataBadge } from "./SampleDataBadge";
 

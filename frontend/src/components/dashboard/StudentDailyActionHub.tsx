@@ -4,7 +4,6 @@ import {
   Sparkles,
   ArrowRight,
   Search,
-  MessageSquare,
   HelpCircle,
   Award,
   CalendarCheck,

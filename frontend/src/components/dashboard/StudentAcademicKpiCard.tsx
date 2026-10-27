@@ -2,10 +2,8 @@ import React from "react";
 import {
   Award,
   TrendingUp,
-  GraduationCap,
   Flame,
   CheckCircle2,
-  BookOpen,
 } from "lucide-react";
 import type { DashboardStats } from "../../types";
 import { SampleDataBadge } from "./SampleDataBadge";

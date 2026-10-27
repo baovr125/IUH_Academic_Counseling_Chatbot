@@ -7,7 +7,6 @@ import {
   Clock,
   Flame,
   Plus,
-  Sparkles,
 } from "lucide-react";
 import type { DashboardStats } from "../../types";
 import { useFlashcardOverview } from "../../hooks/flashcards/useFlashcardOverview";

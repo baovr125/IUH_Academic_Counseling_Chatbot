@@ -8,7 +8,6 @@ import {
   DollarSign,
   Award,
   Globe2,
-  BookOpen,
 } from "lucide-react";
 import type { DashboardStats } from "../../types";
 import { FlashcardDueCard } from "./FlashcardDueCard";
@@ -44,7 +43,7 @@ const ADMISSION_PROMPT_CHIPS = [
   },
 ];
 
-export const PublicDocTranslationHub: React.FC<PublicDocTranslationHubProps> = ({ stats }) => {
+export const PublicDocTranslationHub: React.FC<PublicDocTranslationHubProps> = () => {
   const navigate = useNavigate();
   const [queryInput, setQueryInput] = useState("");
 

@@ -3,15 +3,12 @@ import { useNavigate } from "react-router-dom";
 import {
   FileText,
   MessageSquare,
-  BookOpen,
   ArrowRight,
   Clock,
   Sparkles,
-  ExternalLink,
-  CheckCircle2,
   FileCheck,
 } from "lucide-react";
-import type { DashboardStats, RecentDocument, RecentChatPreview } from "../../types";
+import type { DashboardStats } from "../../types";
 import { SampleDataBadge } from "./SampleDataBadge";
 
 interface RecentWorkspaceTabsProps {
@@ -19,10 +16,7 @@ interface RecentWorkspaceTabsProps {
   isStudent: boolean;
 }
 
-export const RecentWorkspaceTabs: React.FC<RecentWorkspaceTabsProps> = ({
-  stats,
-  isStudent,
-}) => {
+export const RecentWorkspaceTabs: React.FC<RecentWorkspaceTabsProps> = ({ stats }) => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<"docs" | "chats">("docs");
 

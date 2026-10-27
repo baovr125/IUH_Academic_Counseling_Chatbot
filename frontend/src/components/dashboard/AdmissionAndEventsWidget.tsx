@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { School, ArrowRight, ExternalLink, Sparkles, Award } from "lucide-react";
+import { School, ExternalLink, Sparkles } from "lucide-react";
 import type { DashboardStats, AdmissionNews } from "../../types";
 import { SampleDataBadge } from "./SampleDataBadge";
 

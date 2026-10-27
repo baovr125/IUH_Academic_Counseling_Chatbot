@@ -9,7 +9,6 @@ import {
   Copy,
   ExternalLink,
   Loader2,
-  Volume2,
 } from "lucide-react";
 import { translateText } from "../../services/translationService";
 import { LANG_CONFIG, LANG_CODES } from "../../services/deckStorage";
