@@ -1,5 +1,8 @@
 # Triển khai demo công khai (Phương án A)
 
+> **Chỉ muốn chạy được nhanh, làm từng bước?** Đọc **[DEPLOY_QUICKSTART.md](DEPLOY_QUICKSTART.md)** (tự đủ ngữ cảnh, có kết quả mong đợi ở mỗi bước).
+> File này là tài liệu tham khảo: lý do thiết kế, kiến trúc, bảng sự cố đầy đủ.
+
 Tài liệu này giải thích **đã làm gì** để đưa hệ thống ra chạy demo, và hướng dẫn **tự triển khai lại trên máy của bạn**.
 Phương án A: chạy cả stack bằng Docker Compose trên **một máy**, đưa ra internet bằng **Tailscale Funnel**, LLM gọi qua
 **API key (Gemini)**, tính năng **Dịch tài liệu đang khóa**. Toàn bộ thay đổi nằm trong PR

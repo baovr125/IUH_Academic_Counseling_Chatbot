@@ -536,7 +536,8 @@ python scripts/deploy_smoke.py           # kiểm tra nhanh cổng vào (kỳ v�
 ```
 
 Phương án này dùng LLM qua API key (Gemini), khóa tính năng Dịch tài liệu và giữ sẵn chế độ GPU (vLLM/Ollama) để bật khi cần.
-Hướng dẫn đầy đủ, kiến trúc, xử lý sự cố và các hạn chế đã biết nằm trong **[DEPLOY.md](DEPLOY.md)**.
+Làm từng bước (kèm bối cảnh, kết quả mong đợi ở mỗi bước): **[DEPLOY_QUICKSTART.md](DEPLOY_QUICKSTART.md)**.
+Kiến trúc, xử lý sự cố đầy đủ và các hạn chế đã biết nằm trong **[DEPLOY.md](DEPLOY.md)**.
 
 ---
 
