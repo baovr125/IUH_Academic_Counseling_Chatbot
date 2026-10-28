@@ -50,7 +50,7 @@ Người dùng ──HTTPS──> Tailscale Funnel ──> nginx (127.0.0.1:5173
 | Docker Desktop (hoặc Docker Engine) | `docker version` | Chạy được |
 | Docker Compose | `docker compose version` | **>= 2.24** |
 | GPU NVIDIA chạy được trong Docker | `docker run --rm --gpus all ubuntu nvidia-smi` | Thấy tên card |
-| VRAM | `nvidia-smi` | Đã chạy trên **8 GB** (cả stack ~6,9 GB, rất sát). Dưới 8 GB chưa thử |
+| VRAM | `nvidia-smi` | **8 GB:** chạy bình thường (cả stack ~7,0 GB gồm Windows, rất sát). **6 GB:** chỉ chạy được với [chế độ tiết kiệm VRAM](#card-6-gb-chế-độ-tiết-kiệm-vram). Dưới 6 GB: không khuyến nghị |
 | RAM | Task Manager | >= 16 GB |
 | Ổ đĩa trống (ổ chứa dữ liệu Docker) | `Get-PSDrive` | >= 40 GB |
 | Cổng trống | `Get-NetTCPConnection -State Listen -LocalPort 5173,5672,15672,6379,9000,9001 -ErrorAction SilentlyContinue` | Không in ra gì |
@@ -59,6 +59,30 @@ Người dùng ──HTTPS──> Tailscale Funnel ──> nginx (127.0.0.1:5173
 
 **Nếu máy không có GPU NVIDIA: DỪNG.** Hướng triển khai này chưa được kiểm chứng trên CPU (xem mục 8). Bạn vẫn đóng góp được bằng cách
 test trên link demo của chủ máy, chuẩn bị dữ liệu demo và sửa CI.
+
+### Card 6 GB: chế độ tiết kiệm VRAM
+
+Mức VRAM đo trên máy chủ dự án (RTX 4060 Laptop 8 GB), tính xấp xỉ:
+
+| Thành phần | VRAM |
+|---|---|
+| Windows và các ứng dụng đang mở (explorer, trình duyệt, Zalo...) | ~0,9 GB |
+| `realtime-translation-service` (dịch, NLLB float16) | ~1,8 GB |
+| `academic-chatbot-service` (embedder + reranker ONNX) | ~4,3 GB |
+| **Tổng khi cả hai trên GPU** | **~7,0 GB, không vừa card 6 GB** |
+| Tổng khi realtime chuyển sang CPU | ~5,25 GB, còn ~0,75 GB trống (rất sát) |
+
+Nếu card của bạn là 6 GB, ở **Bước 4** (và mọi lệnh `docker compose` sau đó) thêm `-f docker-compose.lowvram.yml` vào **cuối** danh sách file:
+
+```powershell
+docker compose --env-file .env.prod -f docker-compose.yml -f docker-compose.prod.yml -f docker-compose.lowvram.yml up -d --build
+```
+
+Cách này đưa model dịch NLLB sang CPU (int8) để giải phóng ~1,8 GB. Đánh đổi và giới hạn:
+- Dịch realtime **chậm hơn** (chưa đo độ trễ). Chatbot vẫn dùng GPU ~4,3 GB.
+- Vẫn **rất sát**: đóng trình duyệt tăng tốc phần cứng, game và mọi ứng dụng dùng GPU khác. Nếu bị `CUDA out of memory`, thử giảm ứng dụng nền trước khi nghĩ đến lỗi khác.
+- **Đừng thử ẩn GPU khỏi chatbot** bằng `CUDA_VISIBLE_DEVICES`: container chatbot sẽ crash (`free(): double free detected`) và khởi động lại liên tục. Muốn chatbot chạy CPU phải sửa mã, chưa làm.
+- Chưa chạy thật trên máy 6 GB; số liệu ở trên là suy ra từ máy 8 GB.
 
 ## 3. Các bước
 
@@ -184,8 +208,25 @@ Smoke thất bại toàn bộ với `http=0` thì stack chưa lên xong, đợi 
 | Lỗi `429` / hết quota Gemini | Đợi một lúc, hoặc bật billing cho key, hoặc đặt `VOCAB_VERIFY_ENABLED=0` |
 | Micro không hoạt động | Trình duyệt chỉ cho micro trên `localhost` hoặc HTTPS, không dùng được với `http://<IP-LAN>` |
 | Hết ổ đĩa | `docker builder prune` (chỉ xóa cache build) |
+| `CUDA out of memory`, hoặc container chatbot/realtime khởi động lại liên tục (card 6 GB) | Thêm `-f docker-compose.lowvram.yml` (xem phần "Card 6 GB"), rồi đóng ứng dụng dùng GPU khác |
+| Chatbot crash `free(): double free detected` | Bạn đã ẩn GPU bằng `CUDA_VISIBLE_DEVICES`. Xóa biến đó, tạo lại container |
 
 Bảng sự cố đầy đủ hơn nằm ở mục 8 của [DEPLOY.md](DEPLOY.md).
+
+### Hai máy chạy song song (bản đầy đủ và bản tiết kiệm)
+
+Dự án hiện có hai máy cùng chạy bản demo: một máy **8 GB** chạy bản đầy đủ (máy chính) và một máy **6 GB** chạy bản tiết kiệm (dự phòng, hoặc để thử).
+
+| | Máy 8 GB (bản đầy đủ) | Máy 6 GB (bản tiết kiệm) |
+|---|---|---|
+| Lệnh chạy | `... -f docker-compose.yml -f docker-compose.prod.yml up -d` | thêm `-f docker-compose.lowvram.yml` **ở cuối** |
+| Dịch realtime (NLLB) | GPU | CPU (chậm hơn) |
+| Vai trò trong demo | **Máy chính**, và là máy dùng để test tải | Dự phòng; đo VRAM và độ trễ dịch trên CPU |
+
+- **Chung:** dự án Supabase (cùng tài khoản và dữ liệu). **Riêng:** `JWT_SECRET_KEY`, mật khẩu RabbitMQ/MinIO, Redis, key LLM và link Funnel. Token đăng nhập của máy này không dùng được ở máy kia, người dùng chỉ cần đăng nhập lại.
+- **Không** đặt `NLLB_DEVICE=cpu` trong `.env.prod`: Compose gốc đặt `NLLB_DEVICE: cuda` trong `environment` và nó thắng `env_file`. Chỉ có `-f docker-compose.lowvram.yml` mới có tác dụng. Máy 8 GB **không** được thêm file lowvram.
+- Trước demo, cả hai máy chạy **cùng một commit hoặc tag** (`git pull` rồi so `git log --oneline -1`).
+- Đừng để hai link Funnel cùng công khai cho người xem một lúc; chỉ bật link của máy dự phòng khi máy chính gặp sự cố.
 
 ## 6. Những điều KHÔNG được làm
 
@@ -210,7 +251,7 @@ Sau khi làm xong (hoặc kẹt), gửi đúng những thứ này (**không** g�
 
 ## 8. Những điều chưa được kiểm chứng
 
-- Máy **không có GPU NVIDIA**, hoặc VRAM **dưới 8 GB**.
+- Máy **không có GPU NVIDIA**; máy **6 GB VRAM thật** (mới đo mức dùng trên máy 8 GB, chưa chạy trên máy 6 GB, chưa đo độ trễ dịch khi NLLB chạy CPU); chatbot chạy CPU (sẽ crash nếu ẩn GPU).
 - **Streaming (SSE)** và **IP thật của client** qua Funnel với nhiều người dùng cùng lúc.
 - **Tải đồng thời**: cả stack đã dùng ~6,9/8,2 GB VRAM khi rảnh, chưa đo khi nhiều người dùng.
 - Dùng **dự án Supabase riêng** (thứ tự chạy file SQL trong `db/` chưa được kiểm chứng).
@@ -223,6 +264,7 @@ Sau khi làm xong (hoặc kẹt), gửi đúng những thứ này (**không** g�
 |---|---|
 | `docker-compose.yml` | Định nghĩa chung các service (dùng cho dev) |
 | `docker-compose.prod.yml` | Lớp phủ triển khai (dùng `.env.prod`, không mount mã nguồn, chỉ mở `127.0.0.1:5173`) |
+| `docker-compose.lowvram.yml` | Lớp phủ tuỳ chọn cho card ~6 GB: chạy NLLB (dịch) trên CPU để tiết kiệm ~1,8 GB VRAM |
 | `.env.prod.example` | Mẫu cấu hình; chép thành `.env.prod` |
 | `gateway/kong.template.yml` | Cấu hình Kong (route, JWT, CORS, khóa doc-translation bằng 503) |
 | `frontend/nginx.conf` | nginx của frontend: phục vụ giao diện, chuyển `/api` sang Kong, hỗ trợ streaming |

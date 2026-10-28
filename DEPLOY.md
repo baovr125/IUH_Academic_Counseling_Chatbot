@@ -92,7 +92,7 @@ chỉ nghe `127.0.0.1`, người ngoài không truy cập được.
 |---|---|
 | Docker Compose | **>= 2.24** (file prod dùng `!override` / `!reset`). Docker Desktop cũ sẽ báo lỗi cú pháp |
 | GPU | **NVIDIA có driver cài sẵn, Docker chạy GPU được** (kiểm tra: `docker run --rm --gpus all ubuntu nvidia-smi`). Chatbot và realtime đều đặt chỗ GPU |
-| VRAM | Cả stack dùng khoảng **6,9 GB / 8,2 GB** khi rảnh (đã gồm ~1,2 GB của Windows). **Rất sát** trên card 8 GB, tắt các ứng dụng dùng GPU khác |
+| VRAM | Cả stack dùng khoảng **7,0 GB / 8,2 GB** khi rảnh (đã gồm ~0,9 GB của Windows; realtime ~1,8 GB, chatbot ~4,3 GB). **Rất sát** trên card 8 GB, tắt các ứng dụng dùng GPU khác. Card **6 GB**: thêm `-f docker-compose.lowvram.yml` (đưa NLLB sang CPU, tổng còn ~5,25 GB); xem `DEPLOY_QUICKSTART.md`, mục "Card 6 GB" |
 | RAM | >= 16 GB (chatbot ~1,6 GB, realtime ~1,3 GB khi rảnh; giới hạn Docker 4,5 GB và 3,5 GB) |
 | Đĩa trống | >= 40 GB trên ổ chứa dữ liệu Docker (image ~17 GB, cache build ~24 GB, model ~2,7 GB) |
 | Mạng | Cần internet lúc build (tải model NLLB, fastText, thư viện) |

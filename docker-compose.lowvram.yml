@@ -1,0 +1,15 @@
+# Lớp phủ tiết kiệm VRAM cho card ~6 GB. Thêm vào SAU docker-compose.prod.yml:
+#
+#   docker compose --env-file .env.prod -f docker-compose.yml -f docker-compose.prod.yml -f docker-compose.lowvram.yml up -d
+#
+# Đưa model NLLB (dịch realtime) từ GPU (float16) sang CPU (int8): giải phóng khoảng 1,8 GB VRAM.
+# Đo trên RTX 4060 Laptop 8 GB (Windows chiếm ~0,9 GB):
+#   cả hai service trên GPU      : ~7,0 GB  -> KHÔNG vừa card 6 GB
+#   chỉ realtime chuyển sang CPU : ~5,25 GB -> vừa card 6 GB, còn ~0,75 GB trống (rất sát)
+# Đánh đổi: dịch realtime chạy CPU nên chậm hơn (chưa đo độ trễ). Chatbot vẫn dùng GPU (~4,3 GB).
+# Lưu ý: KHÔNG thử ẩn GPU khỏi chatbot bằng CUDA_VISIBLE_DEVICES: container chatbot crash ("double free").
+
+services:
+  realtime-translation-service:
+    environment:
+      NLLB_DEVICE: cpu
