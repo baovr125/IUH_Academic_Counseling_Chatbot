@@ -11,6 +11,7 @@ import { LearningStreakHeatmap } from "../components/dashboard/LearningStreakHea
 import { IuhAcademicCalendarWidget } from "../components/dashboard/IuhAcademicCalendarWidget";
 import { AdmissionAndEventsWidget } from "../components/dashboard/AdmissionAndEventsWidget";
 import { Loader2 } from "lucide-react";
+import { isDocTranslationEnabled } from "../config";
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -58,7 +59,7 @@ export default function DashboardPage() {
             {isStudent ? (
               <StudentDailyActionHub />
             ) : (
-              <PublicDocTranslationHub stats={stats} />
+              isDocTranslationEnabled() && <PublicDocTranslationHub stats={stats} />
             )}
 
             {/* Quick Translation Dock (Shared across all users) */}

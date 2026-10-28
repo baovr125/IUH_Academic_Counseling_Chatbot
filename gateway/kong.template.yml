@@ -208,6 +208,14 @@ services:
               uri_param_names:
                 - jwt
                 - token
+          # TẠM KHÓA: doc-translation-service không được triển khai (đã comment trong docker-compose).
+          # Chặn tại cổng để trả 503 rõ ràng thay vì lỗi kết nối tới host không tồn tại. jwt chạy trước nên
+          # người chưa đăng nhập vẫn nhận 401. Bật lại: xóa plugin này và bỏ comment service trong docker-compose.
+          - name: request-termination
+            config:
+              status_code: 503
+              content_type: application/json; charset=utf-8
+              body: '{"detail": "Tính năng dịch tài liệu đang tạm khóa."}'
 
   - name: flashcard-service
     url: http://flashcard-service:8005

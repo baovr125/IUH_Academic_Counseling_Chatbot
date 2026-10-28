@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import type { DashboardStats } from "../../types";
 import { SampleDataBadge } from "./SampleDataBadge";
+import { isDocTranslationEnabled } from "../../config";
 
 interface RecentWorkspaceTabsProps {
   stats: DashboardStats;
@@ -18,7 +19,9 @@ interface RecentWorkspaceTabsProps {
 
 export const RecentWorkspaceTabs: React.FC<RecentWorkspaceTabsProps> = ({ stats }) => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<"docs" | "chats">("docs");
+  // Khi Dịch tài liệu bị khóa, chỉ còn tab Chat (tab "docs" không bao giờ được chọn).
+  const docsEnabled = isDocTranslationEnabled();
+  const [activeTab, setActiveTab] = useState<"docs" | "chats">(docsEnabled ? "docs" : "chats");
 
   const recentDocs = stats.recentDocuments || [];
   const recentChats = stats.recentChatSessions || [];
@@ -29,18 +32,20 @@ export const RecentWorkspaceTabs: React.FC<RecentWorkspaceTabsProps> = ({ stats 
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4 dark:border-slate-700/60">
         <div className="flex items-center gap-2">
           <div className="flex rounded-2xl bg-slate-100 p-1 dark:bg-slate-900">
-            <button
-              type="button"
-              onClick={() => setActiveTab("docs")}
-              className={`flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-semibold transition-all cursor-pointer ${
-                activeTab === "docs"
-                  ? "bg-white text-blue-600 shadow-sm dark:bg-slate-800 dark:text-blue-400"
-                  : "text-slate-600 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
-              }`}
-            >
-              <FileText size={14} />
-              <span>Tài liệu Dịch gần đây ({recentDocs.length})</span>
-            </button>
+            {docsEnabled && (
+              <button
+                type="button"
+                onClick={() => setActiveTab("docs")}
+                className={`flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-semibold transition-all cursor-pointer ${
+                  activeTab === "docs"
+                    ? "bg-white text-blue-600 shadow-sm dark:bg-slate-800 dark:text-blue-400"
+                    : "text-slate-600 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
+                }`}
+              >
+                <FileText size={14} />
+                <span>Tài liệu Dịch gần đây ({recentDocs.length})</span>
+              </button>
+            )}
 
             <button
               type="button"

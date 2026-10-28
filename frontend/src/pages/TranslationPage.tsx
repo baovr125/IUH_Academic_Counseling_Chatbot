@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "../hooks/useTranslation";
 import { LANG_CONFIG } from "../services/deckStorage";
 import { TranslationBox } from "../components/translation/TranslationBox";
+import { isDocTranslationEnabled } from "../config";
 
 export default function TranslationPage() {
   const navigate = useNavigate();
@@ -38,14 +39,16 @@ export default function TranslationPage() {
           </div>
 
           <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => navigate("/translation-doc")}
-              className="group flex items-center gap-2 rounded-xl border border-blue-200 bg-blue-50/80 px-4 py-2.5 dark:bg-blue-950/40 text-sm font-semibold text-blue-700 backdrop-blur-sm transition-all hover:bg-blue-100 hover:shadow-sm hover:shadow-blue-200/50 dark:border-blue-800 dark:text-blue-300 dark:hover:bg-blue-900/50"
-            >
-              <FileText size={18} className="transition-transform group-hover:scale-110" />
-              <span>Dịch Tài Liệu</span>
-            </button>
+            {isDocTranslationEnabled() && (
+              <button
+                type="button"
+                onClick={() => navigate("/translation-doc")}
+                className="group flex items-center gap-2 rounded-xl border border-blue-200 bg-blue-50/80 px-4 py-2.5 dark:bg-blue-950/40 text-sm font-semibold text-blue-700 backdrop-blur-sm transition-all hover:bg-blue-100 hover:shadow-sm hover:shadow-blue-200/50 dark:border-blue-800 dark:text-blue-300 dark:hover:bg-blue-900/50"
+              >
+                <FileText size={18} className="transition-transform group-hover:scale-110" />
+                <span>Dịch Tài Liệu</span>
+              </button>
+            )}
 
             <button
               type="button"
