@@ -7,6 +7,9 @@ WORKDIR /app
 
 ARG VITE_API_BASE_URL
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+# Để trống = bật Dịch tài liệu; đặt "false" khi doc-translation-service không được triển khai.
+ARG VITE_FEATURE_DOC_TRANSLATION
+ENV VITE_FEATURE_DOC_TRANSLATION=$VITE_FEATURE_DOC_TRANSLATION
 
 COPY package*.json ./
 RUN npm install

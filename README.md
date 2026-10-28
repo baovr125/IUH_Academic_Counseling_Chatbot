@@ -395,7 +395,7 @@ Hệ thống được định tuyến tập trung qua **Kong API Gateway (Cổng
 | **Academic Chatbot Service** | `8002` | `http://localhost:8000/api/v1/chat` | [http://localhost:8002/docs](http://localhost:8002/docs) |
 | **Realtime Translation Service** | `8003` | `http://localhost:8000/api/v1/translate` | [http://localhost:8003/docs](http://localhost:8003/docs) |
 | **Doc Translation Service** *(tạm tắt)* | `8004` | `http://localhost:8000/api/v1/documents` | [http://localhost:8004/docs](http://localhost:8004/docs) *(chỉ khi bật lại service)* |
-| **Flashcard Service** | `8005` | `http://localhost:8000/api/v1/flashcards` | [http://localhost:8005/docs](http://localhost:8005/docs) |
+| **Flashcard Service** | `8005` | `http://localhost:8000/api/v1/flashcards` | *chỉ truy cập qua Kong; không publish cổng 8005 ra máy chủ* |
 | **RabbitMQ Management Dashboard** | `15672` | `http://localhost:15672` *(chỉ localhost; guest/guest cho dev)* | *Message Queue UI* |
 | **MinIO S3 Console Dashboard** | `9001` | `http://localhost:9001` *(minioadmin/minioadmin)* | *Object Storage UI* |
 

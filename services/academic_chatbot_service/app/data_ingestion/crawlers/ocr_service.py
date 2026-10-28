@@ -14,7 +14,9 @@ gemini_client = None
 if os.getenv("GEMINI_API_KEY") and genai:
     gemini_client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
-AVAILABLE_MODELS = ["gemini-3.5-flash-lite", "gemini-3.1-flash-lite", "gemma-4-31b-it", "gemini-1.5-flash"]
+DEFAULT_OCR_MODELS = "gemini-3.5-flash-lite,gemini-3.1-flash-lite,gemma-4-31b-it,gemini-1.5-flash"
+# Model OCR thử lần lượt; model hết quota bị loại khỏi danh sách trong lúc chạy. Ghi đè: OCR_GEMINI_MODELS="a,b,c".
+AVAILABLE_MODELS = [m.strip() for m in os.getenv("OCR_GEMINI_MODELS", DEFAULT_OCR_MODELS).split(",") if m.strip()]
 model_lock = Lock()
 
 def execute_ocr(prompt: str, img) -> str:

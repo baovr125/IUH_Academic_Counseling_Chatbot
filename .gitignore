@@ -17,8 +17,11 @@ htmlcov/
 .vscode/
 scratch/
 
-# Bỏ qua file môi trường 
+# Bỏ qua file môi trường
 .env
+# Bí mật triển khai (chỉ file mẫu *.example được commit)
+.env.prod
+.env.*.local
 
 # skip agent skills
 .agent/

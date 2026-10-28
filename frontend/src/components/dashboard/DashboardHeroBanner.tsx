@@ -10,6 +10,7 @@ import {
   School,
 } from "lucide-react";
 import type { DashboardStats, User } from "../../types";
+import { isDocTranslationEnabled } from "../../config";
 
 interface DashboardHeroBannerProps {
   user: User | null;
@@ -107,14 +108,16 @@ export const DashboardHeroBanner: React.FC<DashboardHeroBannerProps> = ({
                 <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
               </button>
 
-              <button
-                type="button"
-                onClick={() => navigate("/translation-doc")}
-                className="flex items-center justify-center gap-2 rounded-xl bg-white/15 px-4 py-2.5 text-xs font-semibold text-white hover:bg-white/25 transition-all border border-white/20"
-              >
-                <BookOpen size={15} />
-                <span>Dịch tài liệu PDF</span>
-              </button>
+              {isDocTranslationEnabled() && (
+                <button
+                  type="button"
+                  onClick={() => navigate("/translation-doc")}
+                  className="flex items-center justify-center gap-2 rounded-xl bg-white/15 px-4 py-2.5 text-xs font-semibold text-white hover:bg-white/25 transition-all border border-white/20"
+                >
+                  <BookOpen size={15} />
+                  <span>Dịch tài liệu PDF</span>
+                </button>
+              )}
             </div>
           )}
         </div>

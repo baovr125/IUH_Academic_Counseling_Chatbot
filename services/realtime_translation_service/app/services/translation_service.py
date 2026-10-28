@@ -9,7 +9,7 @@ from app.services.cache_service import (
     set_cached_translation,
     get_domain_version,
 )
-from app.services.llm_service import get_nllb_translator, LANG_MAP, get_gemini_client
+from app.services.llm_service import get_nllb_translator, LANG_MAP, get_gemini_client, gemini_translate_model
 from app.utils.logger import logger
 from app.services.language_detection import (  # noqa: F401  (re-export cho code/test phụ thuộc)
     LanguageResolutionError,
@@ -177,7 +177,7 @@ async def translate_text(text: str, source_lang: str = "en", target_lang: str = 
             logger.error(f"NLLB translation failed in translate_text: {e}. Falling back to Gemini.")
 
     # Fallback to LLMs if NLLB fails (Groq -> Gemini)
-    from app.services.llm_service import get_groq_client
+    from app.services.llm_service import get_groq_client, groq_translate_model
     groq_client = get_groq_client()
     
     prompt = f"Translate the following text accurately from {source_lang} to {target_lang}. Only output the direct translation without quotes or extra text. Preserve all HTML tags perfectly if present.\n\n{text}"
@@ -186,7 +186,7 @@ async def translate_text(text: str, source_lang: str = "en", target_lang: str = 
     if groq_client:
         try:
             res = await groq_client.chat.completions.create(
-                model="llama-3.1-8b-instant",
+                model=groq_translate_model(),
                 messages=[
                     {"role": "system", "content": "You are a professional translator. Preserve HTML perfectly."},
                     {"role": "user", "content": prompt}
@@ -210,7 +210,7 @@ async def translate_text(text: str, source_lang: str = "en", target_lang: str = 
             try:
                 res = await asyncio.wait_for(
                     client.aio.models.generate_content(
-                        model="gemini-2.5-flash",
+                        model=gemini_translate_model(),
                         contents=prompt,
                     ),
                     timeout=_gemini_timeout_seconds(),

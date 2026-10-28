@@ -42,7 +42,7 @@ def init_minio():
         logger.error(f"Lỗi khởi tạo MinIO: {e}")
 
 def upload_audio(file_name: str, audio_bytes: bytes) -> str:
-    """Tải file mp3 lên MinIO và trả về URL tĩnh (sử dụng localhost port 9000 cho frontend truy cập)"""
+    """Tải file mp3 lên MinIO và trả về URL tĩnh cho trình duyệt (gốc URL lấy từ MINIO_PUBLIC_URL)."""
     try:
         minio_client.put_object(
             BUCKET_NAME,
@@ -51,8 +51,10 @@ def upload_audio(file_name: str, audio_bytes: bytes) -> str:
             length=len(audio_bytes),
             content_type="audio/mpeg"
         )
-        # URL trả về cho client truy cập (client thường ở localhost:9000 hoặc ip của server)
-        return f"http://localhost:9000/{BUCKET_NAME}/{file_name}"
+        # Trình duyệt không phân giải được tên miền nội bộ "minio", nên cần URL công khai riêng.
+        # Mặc định http://localhost:9000 (chạy local); khi triển khai đặt MINIO_PUBLIC_URL theo địa chỉ máy chủ.
+        public_url = os.getenv("MINIO_PUBLIC_URL", "http://localhost:9000").rstrip("/")
+        return f"{public_url}/{BUCKET_NAME}/{file_name}"
     except Exception as e:
         logger.error(f"Lỗi tải file {file_name} lên MinIO: {e}")
         return ""

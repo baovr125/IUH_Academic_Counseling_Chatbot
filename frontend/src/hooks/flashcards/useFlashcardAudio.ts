@@ -1,13 +1,11 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { toSpeechLocale } from "../../services/speech";
+import { getApiBaseUrl } from "../../config";
 
 export const getTTSLangCode = (langCode?: string): string => toSpeechLocale(langCode) ?? "en-US";
 
-export const getApiBaseUrl = (): string => {
-  const env = (import.meta as any).env || {};
-  const base = env.VITE_API_BASE_URL !== undefined ? env.VITE_API_BASE_URL : "";
-  return String(base).replace(/\/+$/, "");
-};
+// Giữ export tại đây cho nơi đang import từ hook này.
+export { getApiBaseUrl };
 
 export function useFlashcardAudio() {
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);

@@ -1,4 +1,5 @@
 import type { ApiResult } from "../types";
+import { getApiBaseUrl } from "../config";
 
 const TOKEN_KEY = "iuh_portal_ai_token";
 
@@ -54,8 +55,7 @@ export function getTokenExpiry(token: string | null = getToken()): number | null
 
 // ---- URL ------------------------------------------------------------------
 export const getApiUrl = (endpoint: string): string => {
-  const env = (import.meta as any).env || {};
-  const base = (env.VITE_API_BASE_URL !== undefined ? env.VITE_API_BASE_URL : "").replace(/\/+$/, "");
+  const base = getApiBaseUrl();
   if (!base) return endpoint;
   if (base.endsWith("/api") && endpoint.startsWith("/api/")) {
     return `${base}${endpoint.slice(4)}`;

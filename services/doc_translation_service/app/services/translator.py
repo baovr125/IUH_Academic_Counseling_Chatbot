@@ -67,7 +67,7 @@ def translate_chunk_with_gemini(
 
     client = get_gemini_client()
     res = client.models.generate_content(
-        model="gemini-2.5-flash",
+        model=os.getenv("GEMINI_MODEL", "gemini-2.5-flash"),
         contents=prompt,
         config={"system_instruction": system_instruction, "temperature": 0.2}
     )

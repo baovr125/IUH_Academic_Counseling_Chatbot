@@ -5,12 +5,12 @@ import type {
 import { MOCK_TRANSLATION_HISTORY } from "../mock/mockData";
 import { generateId } from "./utils";
 import { getToken } from "./authService";
+import { getApiBaseUrl } from "../config";
 
 let historyStore: TranslationHistoryItem[] = [...MOCK_TRANSLATION_HISTORY];
 
 const getApiUrl = (endpoint: string): string => {
-  const env = (import.meta as any).env || {};
-  const base = (env.VITE_API_BASE_URL !== undefined ? env.VITE_API_BASE_URL : "").replace(/\/+$/, "");
+  const base = getApiBaseUrl();
   if (!base) return endpoint;
   return `${base}${endpoint}`;
 };

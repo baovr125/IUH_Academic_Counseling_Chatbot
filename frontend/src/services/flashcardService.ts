@@ -1,9 +1,9 @@
 import type { ApiResult, Flashcard, FlashcardRating, FlashcardSetProgress } from "../types";
 import { getToken } from "./authService";
+import { getApiBaseUrl } from "../config";
 
 const getApiUrl = (endpoint: string): string => {
-  const env = (import.meta as any).env || {};
-  const base = (env.VITE_API_BASE_URL !== undefined ? env.VITE_API_BASE_URL : "").replace(/\/+$/, "");
+  const base = getApiBaseUrl();
   if (!base) return endpoint;
   return `${base}${endpoint}`;
 };

@@ -160,9 +160,11 @@ def parse_excel_or_csv(file_bytes: bytes, filename: str) -> List[Dict[str, Any]]
                 str_row = [_clean_str(cell) for cell in row]
                 if any(str_row):
                     raw_rows.append(str_row)
+        except HTTPException:
+            raise
         except Exception as e:
             logger.error(f"Error parsing Excel file {filename}: {e}")
-            raise HTTPException(status_code=400, detail=f"Không thể mở file Excel. Lỗi: {str(e)}")
+            raise HTTPException(status_code=400, detail="Không thể mở file Excel. Hãy kiểm tra file không bị hỏng và đúng định dạng .xlsx.")
     else:
         raise HTTPException(
             status_code=400,

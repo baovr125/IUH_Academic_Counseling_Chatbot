@@ -18,6 +18,20 @@ NLLB_MODEL_DIR = os.getenv(
     "/app/models/nllb-200-distilled-600M-ct2-int8",
 )
 NLLB_DEVICE = os.getenv("NLLB_DEVICE", "auto").lower()
+
+# Model LLM dự phòng khi NLLB không dùng được (Groq trước, Gemini sau) và cho trích xuất flashcard.
+DEFAULT_GROQ_TRANSLATE_MODEL = "llama-3.1-8b-instant"
+DEFAULT_GEMINI_TRANSLATE_MODEL = "gemini-2.5-flash"
+
+
+def groq_translate_model() -> str:
+    """Ghi đè bằng GROQ_TRANSLATE_MODEL."""
+    return os.getenv("GROQ_TRANSLATE_MODEL", "").strip() or DEFAULT_GROQ_TRANSLATE_MODEL
+
+
+def gemini_translate_model() -> str:
+    """Ghi đè bằng GEMINI_TRANSLATE_MODEL."""
+    return os.getenv("GEMINI_TRANSLATE_MODEL", "").strip() or DEFAULT_GEMINI_TRANSLATE_MODEL
 NLLB_REQUIRED_FILES = (
     "config.json",
     "model.bin",
@@ -267,7 +281,7 @@ async def stream_translation(text: str, source_lang: str, target_lang: str, doma
     if groq_client:
         try:
             stream = await groq_client.chat.completions.create(
-                model="llama-3.1-8b-instant",
+                model=groq_translate_model(),
                 messages=messages,
                 stream=True,
                 temperature=0.3
@@ -293,7 +307,7 @@ async def stream_translation(text: str, source_lang: str, target_lang: str, doma
         try:
             full_prompt = f"{system_prompt}\n\nText:\n{text}"
             response_stream = await gemini_client.aio.models.generate_content_stream(
-                model="gemini-2.5-flash",
+                model=gemini_translate_model(),
                 contents=full_prompt
             )
             async for chunk in response_stream:
@@ -314,7 +328,7 @@ async def extract_flashcard(word: str, context: str, domain: str = "", source_la
         {"role": "user", "content": user_prompt}
     ]
     # Bài học có ngôn ngữ nguồn cần model mạnh hơn (CJK/Thái); không truyền thì giữ model cũ.
-    groq_model = os.getenv("GROQ_FLASHCARD_MODEL", "llama-3.1-8b-instant").strip() or "llama-3.1-8b-instant"
+    groq_model = os.getenv("GROQ_FLASHCARD_MODEL", DEFAULT_GROQ_TRANSLATE_MODEL).strip() or DEFAULT_GROQ_TRANSLATE_MODEL
     structured = bool(source_lang)
 
     groq_client = get_groq_client()
@@ -338,7 +352,7 @@ async def extract_flashcard(word: str, context: str, domain: str = "", source_la
             from google.genai import types
             full_prompt = f"{system_prompt}\n\n{user_prompt}"
             response = gemini_client.models.generate_content(
-                model="gemini-2.5-flash",
+                model=gemini_translate_model(),
                 contents=full_prompt,
                 config=types.GenerateContentConfig(
                     response_mime_type="application/json"

@@ -299,7 +299,7 @@ async def download_excel_template_endpoint():
         )
     except Exception as e:
         logger.error(f"Failed to generate template: {e}")
-        raise HTTPException(status_code=500, detail=f"Lỗi tạo file mẫu Excel: {str(e)}")
+        raise HTTPException(status_code=500, detail="Lỗi tạo file mẫu Excel. Vui lòng thử lại sau.")
 
 @router.post("/decks/{deck_id}/import-excel", response_model=ApiResult)
 async def import_excel_endpoint(
@@ -330,7 +330,8 @@ async def import_excel_endpoint(
     try:
         content = await file.read()
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Không thể đọc file: {str(e)}")
+        logger.error(f"Failed to read uploaded Excel file: {e}")
+        raise HTTPException(status_code=400, detail="Không thể đọc file tải lên.")
 
     if len(content) > 5 * 1024 * 1024: # 5MB limit
         raise HTTPException(status_code=400, detail="Dung lượng file vượt quá giới hạn 5MB.")

@@ -10,6 +10,7 @@ import ProfilePage from "../pages/ProfilePage";
 import SettingsPage from "../pages/SettingsPage";
 import AdminPage from "../pages/AdminPage";
 import { useAuth } from "../hooks/useAuth";
+import { isDocTranslationEnabled } from "../config";
 
 function RequireAuth({ children }: { children: React.ReactElement }) {
   const { isAuthenticated, isLoading } = useAuth();
@@ -43,7 +44,10 @@ export function AppRouter() {
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/chat" element={<ChatPage />} />
         <Route path="/translation" element={<TranslationPage />} />
-        <Route path="/translation-doc" element={<DocumentTranslationPage />} />
+        <Route
+          path="/translation-doc"
+          element={isDocTranslationEnabled() ? <DocumentTranslationPage /> : <Navigate to="/translation" replace />}
+        />
         {/* /flashcards -> chọn ngôn ngữ; /flashcards/:lang -> bộ sưu tập; /flashcards/:lang/decks/:deckId -> chi tiết sổ */}
         <Route path="/flashcards" element={<FlashcardPage />} />
         <Route path="/flashcards/:lang" element={<FlashcardPage />} />

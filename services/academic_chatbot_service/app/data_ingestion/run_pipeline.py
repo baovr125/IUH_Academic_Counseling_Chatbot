@@ -10,6 +10,7 @@ load_dotenv()
 
 from app.data_ingestion.utils.logger import setup_logger
 from app.data_ingestion.extractors.url_extractor import URLExtractor
+from app.data_ingestion.sources import collect_iuh_urls
 from app.data_ingestion.crawlers.content_crawler import ContentCrawler
 from app.services.supabase_client import get_supabase_client
 REPO_DATA_DIR = os.path.join(PROJECT_ROOT, "data", "ingestion")
@@ -24,34 +25,7 @@ logger = setup_logger("orchestrator", "pipeline.log")
 def run_extraction():
     logger.info("========== BƯỚC 0: TRÍCH XUẤT TOÀN BỘ URL (HYBRID APPROACH) ==========")
     extractor = URLExtractor()
-    all_urls = set()
-    
-    camnang_urls = extractor.extract_from_sitemap("https://camnang.iuh.edu.vn/sitemap.xml")
-    all_urls.update(camnang_urls)
-    
-    iuh_thong_bao = extractor.extract_from_category("https://iuh.edu.vn/vi/thong-bao.html", max_pages=10)
-    all_urls.update(iuh_thong_bao)
-    
-    iuh_static = extractor.extract_from_bfs("https://iuh.edu.vn/", max_depth=2)
-    all_urls.update(iuh_static)
-    
-    camnang_bfs = extractor.extract_from_bfs("https://camnang.iuh.edu.vn/", max_depth=5)
-    all_urls.update(camnang_bfs)
-    
-    ctsv_bfs = extractor.extract_from_bfs("https://ctsv.iuh.edu.vn/", max_depth=4)
-    all_urls.update(ctsv_bfs)
-    
-    csm_bfs = extractor.extract_from_bfs("https://csm.iuh.edu.vn/", max_depth=3)
-    all_urls.update(csm_bfs)
-    
-    tuyensinh_urls = [
-        "https://tuyensinh.iuh.edu.vn/quyChe",
-        "https://tuyensinh.iuh.edu.vn/nganhDaoTao",
-        "https://tuyensinh.iuh.edu.vn/diemChuan",
-        "https://tuyensinh.iuh.edu.vn/deAnTS",
-        # "https://tuyensinh.iuh.edu.vn/Files_thongBao/thongbaotuyensinhlienthongdot12026.pdf"   # skip
-    ]
-    all_urls.update(tuyensinh_urls)
+    all_urls = collect_iuh_urls(extractor)
     
     target_urls = list(all_urls)
     
