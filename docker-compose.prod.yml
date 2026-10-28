@@ -1,0 +1,76 @@
+# Lớp phủ triển khai demo công khai (qua tunnel). Dùng cùng docker-compose.yml:
+#
+#   cp .env.prod.example .env.prod      # rồi điền giá trị thật
+#   docker compose --env-file .env.prod -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+#
+# Khác bản dev:
+#   - Mọi service đọc .env.prod (không đọc .env của máy phát triển).
+#   - Không mount mã nguồn vào chatbot: container chạy đúng mã đã build trong image.
+#   - Kong không publish cổng; chỉ frontend nghe 127.0.0.1:5173 (tunnel trỏ vào đó), nginx chuyển /api sang Kong.
+#   - Tự khởi động lại; tính năng Dịch tài liệu bị khóa ở frontend (cờ build) và ở Kong (503).
+#   - Không có vLLM trong stack: LLM chọn bằng LLM_PROVIDER / OPENAI_BASE_URL trong .env.prod (xem file mẫu).
+# Yêu cầu Docker Compose >= 2.24 (dùng !override / !reset).
+
+services:
+  kong-gateway:
+    restart: unless-stopped
+    ports: !reset []
+
+  rabbitmq:
+    restart: unless-stopped
+    # Realtime chỉ thử nối RabbitMQ đúng một lần lúc khởi động (không có vòng thử lại), nên các service phụ thuộc
+    # phải đợi broker sẵn sàng thật sự (service_healthy), không chỉ "container đã chạy".
+    healthcheck:
+      # `ping` báo OK trước khi cổng AMQP 5672 nhận kết nối nên phải kiểm tra thêm cổng đang lắng nghe.
+      test: ["CMD-SHELL", "rabbitmq-diagnostics -q check_running && rabbitmq-diagnostics -q check_port_listener 5672"]
+      interval: 5s
+      timeout: 10s
+      retries: 20
+      start_period: 15s
+
+  redis:
+    restart: unless-stopped
+
+  minio:
+    restart: unless-stopped
+
+  auth-service:
+    restart: unless-stopped
+    env_file: !override
+      - .env.prod
+
+  academic-chatbot-service:
+    restart: unless-stopped
+    env_file: !override
+      - .env.prod
+    # Bỏ mount ./services/academic_chatbot_service/app (chỉ dùng khi phát triển).
+    volumes: !override
+      - ./logs/academic_chatbot:/app/logs/academic_chatbot
+      - ./hf_models:/app/hf_models
+      - ./data/ingestion:/app/app/data_ingestion/data
+
+  realtime-translation-service:
+    restart: unless-stopped
+    env_file: !override
+      - .env.prod
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  flashcard-service:
+    restart: unless-stopped
+    env_file: !override
+      - .env.prod
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  frontend:
+    restart: unless-stopped
+    build:
+      args:
+        # Rỗng = gọi cùng origin; nginx chuyển /api sang Kong nên chỉ cần một hostname công khai.
+        VITE_API_BASE_URL: ""
+        VITE_FEATURE_DOC_TRANSLATION: "false"
+    ports: !override
+      - "127.0.0.1:5173:80"
