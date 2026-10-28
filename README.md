@@ -45,6 +45,7 @@
   - [8.2. Cấu hình Biến môi trường (.env)](#82-cấu-hình-biến-môi-trường-env)
   - [8.3. Khởi chạy Toàn bộ Hệ thống bằng Docker Compose](#83-khởi-chạy-toàn-bộ-hệ-thống-bằng-docker-compose)
   - [8.4. Khởi chạy Độc lập từng Service dưới Local để Debug](#84-khởi-chạy-độc-lập-từng-service-dưới-local-để-debug)
+  - [8.5. Triển khai Demo Công khai (Docker Compose + Tailscale Funnel)](#85-triển-khai-demo-công-khai-docker-compose--tailscale-funnel)
 - [9. 🧪 Quy Trình Kiểm Thử Tự Động & Quality Gates](#9--quy-trình-kiểm-thử-tự-động--quality-gates)
 - [10. 🛡️ Quy Tắc Phát Triển & Chuẩn Thiết Kế Mã Nguồn](#10-️-quy-tắc-phát-triển--chuẩn-thiết-kế-mã-nguồn)
 
@@ -457,6 +458,8 @@ MINIO_ROOT_PASSWORD=minioadmin
 
 ### 8.3. Khởi chạy Toàn bộ Hệ thống bằng Docker Compose
 
+Trước lần chạy đầu tiên, tải model ONNX cho chatbot (thư mục `hf_models/` không nằm trong git): `python scripts/download_models.py`.
+
 Khởi động 4 Microservices đang bật (auth, chatbot, realtime translation, flashcard; doc-translation đang tạm tắt), Kong Gateway, MinIO, Redis, RabbitMQ và Frontend Web App chỉ với một câu lệnh:
 
 ```bash
@@ -517,6 +520,24 @@ cd frontend
 npm install
 npm run dev
 ```
+
+---
+
+### 8.5. Triển khai Demo Công khai (Docker Compose + Tailscale Funnel)
+
+Để đưa hệ thống ra chạy demo trên một máy và cho người khác truy cập qua một link HTTPS duy nhất, dùng lớp phủ
+[docker-compose.prod.yml](docker-compose.prod.yml) cùng file cấu hình `.env.prod` (mẫu: [.env.prod.example](.env.prod.example)):
+
+```bash
+python scripts/download_models.py        # tải model ONNX vào hf_models/ (không nằm trong git)
+cp .env.prod.example .env.prod           # rồi điền giá trị thật (không commit file này)
+docker compose --env-file .env.prod -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+python scripts/deploy_smoke.py           # kiểm tra nhanh cổng vào (kỳ vọng: 8/8 ca đạt)
+```
+
+Phương án này dùng LLM qua API key (Gemini), khóa tính năng Dịch tài liệu và giữ sẵn chế độ GPU (vLLM/Ollama) để bật khi cần.
+Làm từng bước (kèm bối cảnh, kết quả mong đợi ở mỗi bước): **[DEPLOY_QUICKSTART.md](DEPLOY_QUICKSTART.md)**.
+Kiến trúc, xử lý sự cố đầy đủ và các hạn chế đã biết nằm trong **[DEPLOY.md](DEPLOY.md)**.
 
 ---
 
