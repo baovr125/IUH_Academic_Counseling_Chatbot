@@ -386,7 +386,7 @@ export const GenerateVocabModal: React.FC<GenerateVocabModalProps> = ({
                 type="button"
                 onClick={handleGenerate}
                 disabled={noQuota}
-                className="flex flex-1 items-center justify-center gap-2 rounded-full bg-blue-600 py-3 text-sm font-bold text-white shadow-sm transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none sm:px-10"
+                className="flex flex-1 items-center justify-center gap-2 rounded-full bg-brand-600 py-3 text-sm font-bold text-white shadow-sm transition-colors hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none sm:px-10"
               >
                 <Zap size={16} />
                 <span>{noQuota ? "Đã hết lượt hôm nay" : "Tạo từ vựng với AI"}</span>
@@ -414,7 +414,7 @@ export const GenerateVocabModal: React.FC<GenerateVocabModalProps> = ({
                 type="button"
                 onClick={handleSave}
                 disabled={isSaving || keptItems.length === 0}
-                className="flex items-center justify-center gap-2 rounded-full bg-blue-600 px-8 py-3 text-sm font-bold text-white shadow-sm transition-colors hover:bg-blue-700 disabled:opacity-50"
+                className="flex items-center justify-center gap-2 rounded-full bg-brand-600 px-8 py-3 text-sm font-bold text-white shadow-sm transition-colors hover:bg-brand-700 disabled:opacity-50"
               >
                 {isSaving ? <RefreshCw size={15} className="animate-spin" /> : <CheckCircle2 size={16} />}
                 <span>{isSaving ? "Đang lưu..." : `Lưu ${keptItems.length} từ`}</span>
@@ -432,7 +432,7 @@ export const GenerateVocabModal: React.FC<GenerateVocabModalProps> = ({
                   onStartLearning(saved);
                   onClose();
                 }}
-                className="rounded-full bg-blue-600 px-8 py-3 text-sm font-bold text-white shadow-sm transition-colors hover:bg-blue-700"
+                className="rounded-full bg-brand-600 px-8 py-3 text-sm font-bold text-white shadow-sm transition-colors hover:bg-brand-700"
               >
                 Bắt đầu học ngay
               </button>
@@ -445,15 +445,15 @@ export const GenerateVocabModal: React.FC<GenerateVocabModalProps> = ({
     <FcModal
       title={
         <span className="flex items-center gap-2 text-lg">
-          <Zap size={20} className="text-blue-600 dark:text-blue-400" aria-hidden="true" />
+          <Zap size={20} className="text-brand-600 dark:text-brand-400" aria-hidden="true" />
           <span>Tạo từ vựng với AI</span>
         </span>
       }
       headerExtra={
-          <div className="mt-2.5 flex flex-wrap items-center gap-2 text-[11px] font-extrabold uppercase tracking-wide">
+          <div className="mt-2.5 flex flex-wrap items-center gap-2 text-xs sm:text-[11px] font-extrabold uppercase tracking-wide">
             <span
               data-testid="generate-language"
-              className="inline-flex items-center gap-1.5 rounded-full bg-blue-100 px-3 py-1 text-blue-800 dark:bg-blue-900/50 dark:text-blue-200"
+              className="inline-flex items-center gap-1.5 rounded-full bg-brand-100 px-3 py-1 text-brand-800 dark:bg-brand-900/50 dark:text-brand-200"
             >
               <LangFlag lang={langCode} size="xs" /> {langMeta.viName}
             </span>
@@ -465,7 +465,7 @@ export const GenerateVocabModal: React.FC<GenerateVocabModalProps> = ({
             </span>
             <span className="rounded-full bg-sky-100 px-3 py-1 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300">Đã dùng {quota?.used ?? 0}</span>
             {targetDeck && (
-              <span className="rounded-full bg-blue-50 px-3 py-1 normal-case tracking-normal text-blue-700 dark:bg-blue-950/40 dark:text-blue-300">
+              <span className="rounded-full bg-brand-50 px-3 py-1 normal-case tracking-normal text-brand-700 dark:bg-brand-950/40 dark:text-brand-300">
                 Thêm vào sổ: {targetDeck.title}
               </span>
             )}
@@ -503,7 +503,7 @@ export const GenerateVocabModal: React.FC<GenerateVocabModalProps> = ({
                       setError(null);
                     }}
                     className={`rounded-full px-5 py-2 text-sm font-bold transition-colors ${
-                      tab === key ? "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300" : "text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700"
+                      tab === key ? "bg-brand-100 text-brand-700 dark:bg-brand-900/40 dark:text-brand-300" : "text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700"
                     }`}
                   >
                     {label}
@@ -519,16 +519,16 @@ export const GenerateVocabModal: React.FC<GenerateVocabModalProps> = ({
                       onChange={(e) => setInput(e.target.value.slice(0, MAX_TEXT_CHARS))}
                       rows={5}
                       placeholder={`Nhập chủ đề (VD: ${TOPIC_EXAMPLES[langCode] ?? DEFAULT_TOPIC_EXAMPLE}) hoặc dán một đoạn văn ${viLang} để trích xuất từ vựng...`}
-                      className="w-full resize-y rounded-2xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:border-blue-500 focus:bg-white focus:outline-none dark:border-slate-600 dark:bg-slate-900/40 dark:text-slate-100 dark:placeholder-slate-500 dark:focus:bg-slate-900"
+                      className="w-full resize-y rounded-2xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:border-brand-500 focus:bg-white focus:outline-none dark:border-slate-600 dark:bg-slate-900/40 dark:text-slate-100 dark:placeholder-slate-500 dark:focus:bg-slate-900"
                     />
-                    <span className="pointer-events-none absolute bottom-2 right-3 text-[11px] text-slate-500 dark:text-slate-400">
+                    <span className="pointer-events-none absolute bottom-2 right-3 text-xs sm:text-[11px] text-slate-500 dark:text-slate-400">
                       {inputLength}/{MAX_TEXT_CHARS}
                     </span>
                   </div>
                   <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
                     💡 Nhập tên chủ đề để AI tạo từ vựng về chủ đề đó, hoặc dán một đoạn văn {viLang} để AI trích xuất các từ quan trọng.
                     {input.trim().length >= 2 && (
-                      <strong className="ml-1 text-blue-600 dark:text-blue-400">
+                      <strong className="ml-1 text-brand-600 dark:text-brand-400">
                         Đang nhận diện: {detectedMode === "topic" ? "chủ đề" : "đoạn văn"}.
                       </strong>
                     )}
@@ -546,7 +546,7 @@ export const GenerateVocabModal: React.FC<GenerateVocabModalProps> = ({
                     role="button"
                     tabIndex={0}
                     onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && fileInputRef.current?.click()}
-                    className="flex min-h-[190px] cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed border-blue-300 bg-blue-50/40 p-5 text-center transition-colors hover:bg-blue-50 dark:border-blue-700 dark:bg-blue-950/30 dark:hover:bg-blue-950/50"
+                    className="flex min-h-[190px] cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed border-brand-300 bg-brand-50/40 p-5 text-center transition-colors hover:bg-brand-50 dark:border-brand-700 dark:bg-brand-950/30 dark:hover:bg-brand-950/50"
                   >
                     <input
                       ref={fileInputRef}
@@ -558,7 +558,7 @@ export const GenerateVocabModal: React.FC<GenerateVocabModalProps> = ({
                     {imagePreview ? (
                       <div className="flex flex-col items-center gap-2">
                         <img src={imagePreview} alt="Ảnh đã chọn" className="max-h-40 rounded-xl border border-slate-200 object-contain dark:border-slate-600" />
-                        <span className="text-xs font-semibold text-blue-600 dark:text-blue-400">{imageFile?.name} · bấm để chọn ảnh khác</span>
+                        <span className="text-xs font-semibold text-brand-600 dark:text-brand-400">{imageFile?.name} · bấm để chọn ảnh khác</span>
                       </div>
                     ) : (
                       <>
@@ -585,7 +585,7 @@ export const GenerateVocabModal: React.FC<GenerateVocabModalProps> = ({
                   <select
                     value={level}
                     onChange={(e) => setLevel(e.target.value as CefrLevel)}
-                    className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-normal focus:border-blue-500 focus:outline-none dark:border-slate-600 dark:bg-slate-800"
+                    className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-normal focus:border-brand-500 focus:outline-none dark:border-slate-600 dark:bg-slate-800"
                   >
                     {LEVELS.map((l) => (
                       <option key={l} value={l}>
@@ -595,7 +595,7 @@ export const GenerateVocabModal: React.FC<GenerateVocabModalProps> = ({
                   </select>
                 </label>
                 <label className="flex flex-col gap-1 text-xs font-semibold text-slate-600 dark:text-slate-300">
-                  Số từ: <span className="text-blue-600 dark:text-blue-400">{count}</span>
+                  Số từ: <span className="text-brand-600 dark:text-brand-400">{count}</span>
                   <input
                     type="range"
                     min={5}
@@ -603,7 +603,7 @@ export const GenerateVocabModal: React.FC<GenerateVocabModalProps> = ({
                     step={5}
                     value={count}
                     onChange={(e) => setCount(Number(e.target.value))}
-                    className="accent-blue-600"
+                    className="accent-brand-600"
                   />
                 </label>
                 <button
@@ -621,7 +621,7 @@ export const GenerateVocabModal: React.FC<GenerateVocabModalProps> = ({
                     <select
                       value={purpose}
                       onChange={(e) => setPurpose(e.target.value as VocabPurpose | "")}
-                      className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-normal focus:border-blue-500 focus:outline-none dark:border-slate-600 dark:bg-slate-800"
+                      className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-normal focus:border-brand-500 focus:outline-none dark:border-slate-600 dark:bg-slate-800"
                     >
                       {purposes.map((p) => (
                         <option key={p.value} value={p.value}>
@@ -636,7 +636,7 @@ export const GenerateVocabModal: React.FC<GenerateVocabModalProps> = ({
                       value={instruction}
                       onChange={(e) => setInstruction(e.target.value.slice(0, 300))}
                       placeholder={langCode === "en" ? "VD: Tập trung từ dùng cho IELTS Writing" : "VD: Tập trung từ dùng khi đi du lịch"}
-                      className="rounded-xl border border-slate-200 px-3 py-2 text-sm font-normal focus:border-blue-500 focus:outline-none dark:border-slate-600"
+                      className="rounded-xl border border-slate-200 px-3 py-2 text-sm font-normal focus:border-brand-500 focus:outline-none dark:border-slate-600"
                     />
                   </label>
                 </div>
@@ -647,7 +647,7 @@ export const GenerateVocabModal: React.FC<GenerateVocabModalProps> = ({
           {/* STEP 2: LOADING */}
           {step === "loading" && (
             <div className="flex min-h-[260px] flex-col items-center justify-center gap-3 text-center" aria-live="polite">
-              <RefreshCw size={38} className="animate-spin text-blue-600 dark:text-blue-400" />
+              <RefreshCw size={38} className="animate-spin text-brand-600 dark:text-brand-400" />
               <p className="text-sm font-bold text-slate-700 dark:text-slate-200">{LOADING_STEPS[loadingStep]}</p>
               <p className="text-xs text-slate-500 dark:text-slate-400">Thường mất 15-40 giây. Vui lòng không đóng cửa sổ này.</p>
             </div>
@@ -663,7 +663,7 @@ export const GenerateVocabModal: React.FC<GenerateVocabModalProps> = ({
                     <span className="ml-2 text-xs font-normal text-slate-500 dark:text-slate-400">({meta.dropped} từ bị loại do trùng hoặc không đạt)</span>
                   )}
                 </p>
-                <span className="text-[11px] text-slate-500 dark:text-slate-400">Phiên âm và nghĩa do AI tạo - hãy kiểm tra trước khi lưu</span>
+                <span className="text-xs sm:text-[11px] text-slate-500 dark:text-slate-400">Phiên âm và nghĩa do AI tạo - hãy kiểm tra trước khi lưu</span>
               </div>
 
               <ul className="flex flex-col gap-3">
@@ -680,20 +680,20 @@ export const GenerateVocabModal: React.FC<GenerateVocabModalProps> = ({
                         checked={item.keep}
                         onChange={(e) => updateItem(item.temp_id, { keep: e.target.checked })}
                         aria-label={`Giữ từ ${item.term}`}
-                        className="h-4 w-4 accent-blue-600"
+                        className="h-4 w-4 accent-brand-600"
                       />
                       <input
                         value={item.term}
                         onChange={(e) => updateItem(item.temp_id, { term: e.target.value })}
                         aria-label="Từ vựng"
                         lang={langCode}
-                        className="min-w-[120px] flex-1 rounded-lg border border-slate-200 px-2.5 py-1.5 text-sm font-bold text-slate-800 focus:border-blue-500 focus:outline-none dark:border-slate-600 dark:text-slate-100"
+                        className="min-w-[120px] flex-1 rounded-lg border border-slate-200 px-2.5 py-1.5 text-sm font-bold text-slate-800 focus:border-brand-500 focus:outline-none dark:border-slate-600 dark:text-slate-100"
                       />
                       <select
                         value={item.part_of_speech}
                         onChange={(e) => updateItem(item.temp_id, { part_of_speech: e.target.value })}
                         aria-label="Từ loại"
-                        className="rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs focus:border-blue-500 focus:outline-none dark:border-slate-600 dark:bg-slate-800"
+                        className="rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs focus:border-brand-500 focus:outline-none dark:border-slate-600 dark:bg-slate-800"
                       >
                         {POS_OPTIONS.includes(item.part_of_speech) ? null : <option value={item.part_of_speech}>{item.part_of_speech}</option>}
                         {POS_OPTIONS.map((p) => (
@@ -707,7 +707,7 @@ export const GenerateVocabModal: React.FC<GenerateVocabModalProps> = ({
                         onChange={(e) => updateItem(item.temp_id, { ipa: e.target.value })}
                         placeholder={phoneticHint.placeholder}
                         aria-label={phoneticHint.label}
-                        className="w-32 rounded-lg border border-slate-200 px-2.5 py-1.5 font-mono text-xs text-blue-700 focus:border-blue-500 focus:outline-none dark:border-slate-600 dark:text-blue-300"
+                        className="w-32 rounded-lg border border-slate-200 px-2.5 py-1.5 font-mono text-xs text-brand-700 focus:border-brand-500 focus:outline-none dark:border-slate-600 dark:text-brand-300"
                       />
                       {item.verified && (
                         <span title="Đã được AI kiểm duyệt" className="text-emerald-600 dark:text-emerald-400">
@@ -728,7 +728,7 @@ export const GenerateVocabModal: React.FC<GenerateVocabModalProps> = ({
                       onChange={(e) => updateItem(item.temp_id, { definition: e.target.value })}
                       aria-label="Nghĩa tiếng Việt"
                       placeholder="Nghĩa tiếng Việt"
-                      className="mt-2 w-full rounded-lg border border-slate-200 px-2.5 py-1.5 text-sm focus:border-blue-500 focus:outline-none dark:border-slate-600"
+                      className="mt-2 w-full rounded-lg border border-slate-200 px-2.5 py-1.5 text-sm focus:border-brand-500 focus:outline-none dark:border-slate-600"
                     />
                     <input
                       value={item.example}
@@ -736,14 +736,14 @@ export const GenerateVocabModal: React.FC<GenerateVocabModalProps> = ({
                       aria-label="Câu ví dụ"
                       lang={langCode}
                       placeholder="Câu ví dụ"
-                      className="mt-2 w-full rounded-lg border border-slate-200 px-2.5 py-1.5 text-sm italic text-slate-700 focus:border-blue-500 focus:outline-none dark:border-slate-600 dark:text-slate-200"
+                      className="mt-2 w-full rounded-lg border border-slate-200 px-2.5 py-1.5 text-sm italic text-slate-700 focus:border-brand-500 focus:outline-none dark:border-slate-600 dark:text-slate-200"
                     />
                     <input
                       value={item.example_translation}
                       onChange={(e) => updateItem(item.temp_id, { example_translation: e.target.value })}
                       aria-label="Dịch câu ví dụ"
                       placeholder="Dịch câu ví dụ"
-                      className="mt-2 w-full rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs text-slate-500 focus:border-blue-500 focus:outline-none dark:border-slate-600 dark:text-slate-400"
+                      className="mt-2 w-full rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs text-slate-500 focus:border-brand-500 focus:outline-none dark:border-slate-600 dark:text-slate-400"
                     />
                     {item.warnings.filter((w) => WARNING_LABELS[w]).length > 0 && (
                       <div className="mt-2 flex flex-wrap gap-1.5">
@@ -752,7 +752,7 @@ export const GenerateVocabModal: React.FC<GenerateVocabModalProps> = ({
                           .map((w) => (
                             <span
                               key={w}
-                              className={`rounded-full px-2 py-0.5 text-[10.5px] font-semibold ${
+                              className={`rounded-full px-2 py-0.5 text-xs sm:text-[10.5px] font-semibold ${
                                 WARNING_LABELS[w].tone === "warn" ? "bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300" : "bg-sky-50 text-sky-700 dark:bg-sky-950/40 dark:text-sky-300"
                               }`}
                             >
@@ -770,7 +770,7 @@ export const GenerateVocabModal: React.FC<GenerateVocabModalProps> = ({
                 type="button"
                 onClick={handleGenerateMore}
                 disabled={isLoadingMore || noQuota || items.length >= 100}
-                className="flex items-center justify-center gap-2 rounded-2xl border border-blue-200 bg-blue-50 px-4 py-2.5 text-xs font-bold text-blue-700 transition-colors hover:bg-blue-100 disabled:opacity-50 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-300 dark:hover:bg-blue-900/50"
+                className="flex items-center justify-center gap-2 rounded-2xl border border-brand-200 bg-brand-50 px-4 py-2.5 text-xs font-bold text-brand-700 transition-colors hover:bg-brand-100 disabled:opacity-50 dark:border-brand-800 dark:bg-brand-950/40 dark:text-brand-300 dark:hover:bg-brand-900/50"
               >
                 {isLoadingMore ? <RefreshCw size={14} className="animate-spin" /> : <Plus size={14} />}
                 <span>{isLoadingMore ? LOADING_STEPS[loadingStep] : "Thêm 10 từ nữa (tốn 1 lượt)"}</span>
@@ -783,7 +783,7 @@ export const GenerateVocabModal: React.FC<GenerateVocabModalProps> = ({
                   <input
                     value={deckTitle}
                     onChange={(e) => setDeckTitle(e.target.value.slice(0, 100))}
-                    className="rounded-xl border border-slate-200 px-3 py-2 text-sm font-normal focus:border-blue-500 focus:outline-none dark:border-slate-600"
+                    className="rounded-xl border border-slate-200 px-3 py-2 text-sm font-normal focus:border-brand-500 focus:outline-none dark:border-slate-600"
                   />
                 </label>
               )}

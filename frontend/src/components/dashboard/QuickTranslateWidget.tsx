@@ -110,21 +110,21 @@ export const QuickTranslateWidget: React.FC = () => {
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4 dark:border-slate-700/60">
         <div className="flex items-center gap-2.5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-100 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-400">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-100 text-brand-600 dark:bg-brand-950/60 dark:text-brand-400">
             <Languages size={18} />
           </div>
           <div>
             <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">
               Dịch thuật Đa Ngôn ngữ Nhanh (Redis Cache &lt;5ms)
             </h3>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400">Tra cứu nhanh từ vựng chuyên ngành & lưu thẻ học</p>
+            <p className="text-xs sm:text-[11px] text-slate-500 dark:text-slate-400">Tra cứu nhanh từ vựng chuyên ngành & lưu thẻ học</p>
           </div>
         </div>
 
         <button
           type="button"
           onClick={() => navigate("/translation")}
-          className="flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+          className="flex items-center gap-1 text-xs font-semibold text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300"
         >
           <span>Mở Studio Dịch</span>
           <ExternalLink size={13} />
@@ -133,11 +133,11 @@ export const QuickTranslateWidget: React.FC = () => {
 
       {/* Language Selectors & Swap */}
       <div className="mt-4 flex items-center justify-between gap-3">
-        <div className="flex-1">
+        <div className="min-w-0 flex-1">
           <select
             value={sourceLang}
             onChange={(e) => setSourceLang(e.target.value)}
-            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 focus:outline-none focus:border-blue-500"
+            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 [@media(pointer:coarse)]:py-2.5 text-xs font-medium text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 focus:outline-none focus:border-brand-500"
           >
             {LANGUAGES.map((lang) => (
               <option key={`src_${lang.code}`} value={lang.code}>
@@ -150,17 +150,17 @@ export const QuickTranslateWidget: React.FC = () => {
         <button
           type="button"
           onClick={handleSwap}
-          className="flex h-8 w-8 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-200 transition-transform active:scale-95 shadow-sm cursor-pointer"
+          className="flex h-8 w-8 flex-shrink-0 items-center justify-center [@media(pointer:coarse)]:h-11 [@media(pointer:coarse)]:w-11 rounded-xl border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-200 transition-transform active:scale-95 shadow-sm cursor-pointer"
           title="Đảo chiều ngôn ngữ"
         >
           <ArrowRightLeft size={14} />
         </button>
 
-        <div className="flex-1">
+        <div className="min-w-0 flex-1">
           <select
             value={targetLang}
             onChange={(e) => setTargetLang(e.target.value)}
-            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 focus:outline-none focus:border-blue-500"
+            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 [@media(pointer:coarse)]:py-2.5 text-xs font-medium text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 focus:outline-none focus:border-brand-500"
           >
             {LANGUAGES.map((lang) => (
               <option key={`tgt_${lang.code}`} value={lang.code}>
@@ -189,12 +189,12 @@ export const QuickTranslateWidget: React.FC = () => {
             className="w-full resize-none bg-transparent text-xs text-slate-800 placeholder-slate-400 focus:outline-none dark:text-slate-100 dark:placeholder-slate-500"
           />
           <div className="mt-2 flex items-center justify-between pt-2 border-t border-slate-200/60 dark:border-slate-800">
-            <span className="text-[11px] text-slate-500 dark:text-slate-400">{inputText.length} ký tự</span>
+            <span className="text-xs sm:text-[11px] text-slate-500 dark:text-slate-400">{inputText.length} ký tự</span>
             <button
               type="button"
               onClick={() => handleTranslate()}
               disabled={isTranslating || !inputText.trim()}
-              className="flex items-center gap-1.5 rounded-xl bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-blue-700 disabled:opacity-50 transition-all cursor-pointer"
+              className="flex items-center gap-1.5 rounded-xl bg-brand-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-brand-700 disabled:opacity-50 transition-all cursor-pointer"
             >
               {isTranslating ? (
                 <>
@@ -212,7 +212,7 @@ export const QuickTranslateWidget: React.FC = () => {
         </div>
 
         {/* Target Box */}
-        <div className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-blue-50/30 p-3.5 dark:border-slate-700 dark:bg-slate-900/80">
+        <div className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-brand-50/30 p-3.5 dark:border-slate-700 dark:bg-slate-900/80">
           <div className="min-h-[60px]">
             {translatedResult ? (
               <p className="text-xs font-medium text-slate-800 dark:text-slate-100 leading-relaxed select-text">
@@ -230,7 +230,7 @@ export const QuickTranslateWidget: React.FC = () => {
               <button
                 type="button"
                 onClick={handleCopy}
-                className="flex items-center gap-1 rounded-lg px-2 py-1 text-[11px] text-slate-500 hover:bg-slate-200/60 dark:text-slate-400 dark:hover:bg-slate-800 transition-colors"
+                className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs sm:text-[11px] text-slate-500 hover:bg-slate-200/60 dark:text-slate-400 dark:hover:bg-slate-800 transition-colors"
                 title="Sao chép"
               >
                 {copied ? <Check size={12} className="text-emerald-500" /> : <Copy size={12} />}
@@ -243,7 +243,7 @@ export const QuickTranslateWidget: React.FC = () => {
                 className={`flex items-center gap-1.5 rounded-xl px-2.5 py-1 text-xs font-semibold shadow-sm transition-all cursor-pointer ${
                   isSavedFlashcard
                     ? "bg-emerald-600 text-white"
-                    : "bg-orange-500 text-white hover:bg-orange-600"
+                    : "bg-brand-600 text-white hover:bg-brand-700"
                 }`}
               >
                 {isSavedFlashcard ? (

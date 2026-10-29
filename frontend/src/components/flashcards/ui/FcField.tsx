@@ -2,8 +2,8 @@ import React, { useId } from "react";
 
 const CONTROL =
   "w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-800 placeholder-slate-400 transition-colors " +
-  "focus:border-blue-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 disabled:opacity-60 " +
-  "dark:border-slate-600 dark:bg-slate-900/50 dark:text-slate-100 dark:placeholder-slate-500 dark:focus:border-blue-400";
+  "focus:border-brand-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40 disabled:opacity-60 " +
+  "dark:border-slate-600 dark:bg-slate-900/50 dark:text-slate-100 dark:placeholder-slate-500 dark:focus:border-brand-400";
 
 interface BaseProps {
   label: string;

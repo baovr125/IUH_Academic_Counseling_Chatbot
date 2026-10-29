@@ -1,9 +1,16 @@
+import colors from "tailwindcss/colors";
+
 /** @type {import('tailwindcss').Config} */
 export default {
   darkMode: "class",
   content: ["./index.html", "./src/**/*.{ts,tsx}"],
   theme: {
     extend: {
+      colors: {
+        // Màu chủ đạo duy nhất của giao diện (xanh dương nhẹ). Muốn đổi sắc xanh cả hệ thống: sửa ở đây.
+        // Chỉ dùng cam cho "tín hiệu đặc biệt" (streak, cần ôn); cảnh báo dùng amber; lỗi dùng rose/red.
+        brand: colors.blue,
+      },
       keyframes: {
         // Rung nhẹ khi trả lời sai (thẻ trắc nghiệm/nghe)
         shake: {

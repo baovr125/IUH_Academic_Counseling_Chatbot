@@ -28,7 +28,7 @@ export const categoryLabel = (code?: string | null): string => (code ? CATEGORY_
 const LEVELS = ["A1", "A2", "B1", "B2", "C1", "C2"];
 
 const FIELD =
-  "rounded-xl border border-slate-200 bg-white text-sm text-slate-800 focus:border-blue-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 " +
+  "rounded-xl border border-slate-200 bg-white text-sm text-slate-800 focus:border-brand-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40 " +
   "dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:placeholder-slate-500";
 
 const ERROR_BOX =
@@ -104,7 +104,7 @@ export const CatalogView: React.FC<CatalogViewProps> = ({ onBack, onOpenDeck }) 
     <FcPage width="lg">
       <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-start gap-3">
-          <span className="mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white shadow-lg shadow-blue-600/30" aria-hidden="true">
+          <span className="mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-600 text-white shadow-lg shadow-brand-600/30" aria-hidden="true">
             <Library size={22} />
           </span>
           <div>
@@ -128,9 +128,9 @@ export const CatalogView: React.FC<CatalogViewProps> = ({ onBack, onOpenDeck }) 
               type="button"
               aria-pressed={category === c}
               onClick={() => setCategory(c)}
-              className={`rounded-full px-4 py-1.5 text-xs font-bold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
+              className={`rounded-full px-4 py-1.5 [@media(pointer:coarse)]:min-h-[44px] text-xs font-bold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${
                 category === c
-                  ? "bg-blue-600 text-white"
+                  ? "bg-brand-600 text-white"
                   : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600"
               }`}
             >
@@ -272,7 +272,7 @@ const PreviewDialog: React.FC<{ deckId: string; onClose: () => void }> = ({ deck
             <li key={c.term} className="rounded-2xl border border-slate-100 bg-slate-50/60 p-3 dark:border-slate-700 dark:bg-slate-900/40">
               <div className="flex flex-wrap items-baseline gap-2">
                 <span className="text-sm font-extrabold text-slate-800 dark:text-slate-100">{c.term}</span>
-                {c.phonetic && <span className="font-mono text-xs text-blue-600 dark:text-blue-300">{c.phonetic}</span>}
+                {c.phonetic && <span className="font-mono text-xs text-brand-600 dark:text-brand-300">{c.phonetic}</span>}
                 {c.part_of_speech && <span className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">{c.part_of_speech}</span>}
               </div>
               <p className="text-sm text-slate-700 dark:text-slate-300">{c.definition}</p>

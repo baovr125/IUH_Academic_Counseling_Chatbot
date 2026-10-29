@@ -54,15 +54,15 @@ export const SessionSummary: React.FC<SessionSummaryProps> = ({
   return (
     <FcCard padding="none" className="mx-auto w-full max-w-2xl overflow-hidden">
       {/* Banner kết quả: cùng ngôn ngữ thiết kế với banner Dashboard */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-[#152a6e] via-[#1e3a8a] to-[#2563eb] px-6 py-7 text-center text-white">
-        <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-blue-400/20 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-12 left-1/4 h-32 w-32 rounded-full bg-orange-500/20 blur-2xl" />
+      <div className="relative overflow-hidden border-b border-brand-100 bg-gradient-to-r from-brand-50 via-white to-sky-50 px-6 py-7 text-center text-slate-800 dark:border-slate-700 dark:from-slate-800 dark:via-slate-800 dark:to-brand-950/60 dark:text-white">
+        <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-brand-200/40 blur-3xl dark:bg-brand-400/20" />
+        <div className="pointer-events-none absolute -bottom-12 left-1/4 h-32 w-32 rounded-full bg-sky-200/40 blur-2xl dark:bg-sky-500/10" />
         <div className="relative z-10 flex flex-col items-center gap-2">
-          <span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-orange-500 text-white shadow-lg shadow-orange-500/30" aria-hidden="true">
+          <span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-600 text-white shadow-lg shadow-brand-600/25" aria-hidden="true">
             <Trophy size={32} />
           </span>
-          <h3 className="text-2xl font-extrabold tracking-tight">{headline}</h3>
-          <p className="text-sm text-blue-100/90">Bạn đã hoàn thành phiên ôn tập.</p>
+          <h3 className="text-2xl font-extrabold tracking-tight text-brand-900 dark:text-white">{headline}</h3>
+          <p className="text-sm text-slate-600 dark:text-brand-100/90">Bạn đã hoàn thành phiên ôn tập.</p>
         </div>
       </div>
 
@@ -70,7 +70,7 @@ export const SessionSummary: React.FC<SessionSummaryProps> = ({
         <div className="grid grid-cols-3 gap-3">
           <FcStat label="thẻ đã ôn" value={total} tone="blue" icon={<Sparkles size={18} />} />
           <FcStat label="chính xác" value={`${accuracy}%`} tone="emerald" icon={<Target size={18} />} />
-          <FcStat label="thời gian" value={formatClock(durationMs)} tone="violet" icon={<Clock size={18} />} />
+          <FcStat label="thời gian" value={formatClock(durationMs)} tone="sky" icon={<Clock size={18} />} />
         </div>
 
         {stats && stats.total > 0 && (
@@ -83,7 +83,7 @@ export const SessionSummary: React.FC<SessionSummaryProps> = ({
             </div>
             <div className="flex h-2 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-700">
               <div className="bg-emerald-500" style={{ width: `${(stats.mastered / stats.total) * 100}%` }} />
-              <div className="bg-blue-400" style={{ width: `${(stats.learning / stats.total) * 100}%` }} />
+              <div className="bg-brand-400" style={{ width: `${(stats.learning / stats.total) * 100}%` }} />
             </div>
           </div>
         )}
@@ -101,7 +101,7 @@ export const SessionSummary: React.FC<SessionSummaryProps> = ({
                     type="button"
                     onClick={() => onPlayAudio(w.audioUrl, w.term, w.lang, w.phonetic)}
                     aria-label={`Nghe từ ${w.term}`}
-                    className="rounded-full bg-white p-1.5 text-blue-600 shadow-sm transition-colors hover:bg-blue-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:bg-slate-700 dark:text-blue-300 dark:hover:bg-slate-600"
+                    className="rounded-full bg-white p-1.5 text-brand-600 shadow-sm transition-colors hover:bg-brand-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 dark:bg-slate-700 dark:text-brand-300 dark:hover:bg-slate-600"
                   >
                     <Volume2 size={14} aria-hidden="true" />
                   </button>

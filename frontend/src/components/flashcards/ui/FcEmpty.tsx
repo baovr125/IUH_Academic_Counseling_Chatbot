@@ -16,7 +16,7 @@ export const FcEmpty: React.FC<FcEmptyProps> = ({ icon, title, description, chil
     {...rest}
   >
     {icon && (
-      <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-300" aria-hidden="true">
+      <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-50 text-brand-600 dark:bg-brand-950/50 dark:text-brand-300" aria-hidden="true">
         {icon}
       </div>
     )}

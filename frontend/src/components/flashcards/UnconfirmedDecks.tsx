@@ -48,7 +48,7 @@ export const UnconfirmedDecks: React.FC<UnconfirmedDecksProps> = ({ decks, onOpe
         {decks.map((deck) => (
           <li key={deck.id} className="flex flex-wrap items-center gap-3 rounded-2xl border border-amber-200 bg-white p-3 dark:border-amber-900/60 dark:bg-slate-800">
             <button type="button" onClick={() => onOpenDeck(deck)} className="min-w-0 flex-1 text-left">
-              <span className="block truncate text-sm font-bold text-slate-800 hover:text-blue-600 dark:text-slate-100 dark:hover:text-blue-300">{deck.title}</span>
+              <span className="block truncate text-sm font-bold text-slate-800 hover:text-brand-600 dark:text-slate-100 dark:hover:text-brand-300">{deck.title}</span>
               <span className="text-xs text-slate-500 dark:text-slate-400">{deck.cards_count} thẻ</span>
             </button>
             <label className="sr-only" htmlFor={`unconfirmed-${deck.id}`}>Ngôn ngữ của sổ {deck.title}</label>
@@ -56,7 +56,7 @@ export const UnconfirmedDecks: React.FC<UnconfirmedDecksProps> = ({ decks, onOpe
               id={`unconfirmed-${deck.id}`}
               value={choice[deck.id] ?? ""}
               onChange={(e) => setChoice((c) => ({ ...c, [deck.id]: e.target.value }))}
-              className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100"
+              className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 [@media(pointer:coarse)]:min-h-[44px] text-xs font-semibold text-slate-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100"
             >
               <option value="">Chọn ngôn ngữ…</option>
               {LEARNABLE_LANGS.map((code) => (
@@ -69,7 +69,7 @@ export const UnconfirmedDecks: React.FC<UnconfirmedDecksProps> = ({ decks, onOpe
               type="button"
               onClick={() => void confirm(deck)}
               disabled={!choice[deck.id] || busy === deck.id}
-              className="flex items-center gap-1.5 rounded-xl bg-amber-600 px-3.5 py-2 text-xs font-bold text-white hover:bg-amber-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 disabled:opacity-50 dark:focus-visible:ring-offset-slate-900"
+              className="flex items-center gap-1.5 rounded-xl bg-amber-600 px-3.5 py-2 [@media(pointer:coarse)]:min-h-[44px] text-xs font-bold text-white hover:bg-amber-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 disabled:opacity-50 dark:focus-visible:ring-offset-slate-900"
             >
               {busy === deck.id && <Loader2 size={13} className="animate-spin" />}
               Xác nhận

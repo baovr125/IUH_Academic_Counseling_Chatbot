@@ -110,17 +110,17 @@ export const SpeedRoundGame: React.FC<SpeedRoundGameProps> = ({ cards, mode, onP
         </span>
       </div>
       <div className="mb-4 h-1.5 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-700" role="progressbar" aria-valuenow={Math.round(pct)} aria-valuemin={0} aria-valuemax={100}>
-        <div className="h-full rounded-full bg-blue-500 transition-all motion-reduce:transition-none" style={{ width: `${pct}%` }} />
+        <div className="h-full rounded-full bg-brand-500 transition-all motion-reduce:transition-none" style={{ width: `${pct}%` }} />
       </div>
 
       <div className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-sm sm:p-7 dark:border-slate-700 dark:bg-slate-800">
         <div className="mb-4 text-center">
           <h2 lang={card.lang_code} className="text-3xl font-extrabold tracking-tight text-slate-800 dark:text-slate-100" data-testid="speed-term">{card.term}</h2>
-          {card.phonetic && <p className="mt-1 font-mono text-sm text-blue-600 dark:text-blue-400">{card.phonetic}</p>}
+          {card.phonetic && <p className="mt-1 font-mono text-sm text-brand-600 dark:text-brand-400">{card.phonetic}</p>}
           <button
             type="button"
             onClick={() => onPlayAudio(card.audio_url ?? undefined, card.term, card.lang_code, card.phonetic ?? undefined)}
-            className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 hover:bg-blue-100 dark:bg-blue-950/40 dark:text-blue-300 dark:hover:bg-blue-900/50"
+            className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-brand-50 px-3 py-1 text-xs font-semibold text-brand-700 hover:bg-brand-100 dark:bg-brand-950/40 dark:text-brand-300 dark:hover:bg-brand-900/50"
           >
             <Volume2 size={14} /> Nghe
           </button>
@@ -130,7 +130,7 @@ export const SpeedRoundGame: React.FC<SpeedRoundGameProps> = ({ cards, mode, onP
           {state.choices.map((choice, index) => {
             const isAnswer = choice.trim().toLowerCase() === card.definition.trim().toLowerCase();
             const picked = state.answered?.choice === choice;
-            let style = "border-slate-200 bg-white text-slate-700 hover:border-blue-300 hover:bg-blue-50/50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:border-blue-600 dark:hover:bg-slate-700";
+            let style = "border-slate-200 bg-white text-slate-700 hover:border-brand-300 hover:bg-brand-50/50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:border-brand-600 dark:hover:bg-slate-700";
             if (state.answered) {
               if (isAnswer) style = "border-emerald-400 bg-emerald-50 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300";
               else if (picked) style = "border-rose-400 bg-rose-50 text-rose-800 motion-safe:animate-[shake_0.3s_ease-in-out] dark:bg-rose-950/40 dark:text-rose-300";
@@ -154,7 +154,7 @@ export const SpeedRoundGame: React.FC<SpeedRoundGameProps> = ({ cards, mode, onP
         </div>
 
         {state.answered && !state.answered.correct && mode === "relax" && (
-          <button type="button" autoFocus onClick={next} className="mt-4 w-full rounded-2xl bg-blue-600 py-3 text-sm font-bold text-white hover:bg-blue-700">
+          <button type="button" autoFocus onClick={next} className="mt-4 w-full rounded-2xl bg-brand-600 py-3 text-sm font-bold text-white hover:bg-brand-700">
             Tiếp tục (Enter)
           </button>
         )}

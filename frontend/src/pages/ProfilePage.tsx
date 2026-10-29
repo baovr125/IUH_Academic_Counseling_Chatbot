@@ -172,11 +172,11 @@ export default function ProfilePage() {
 
   const card = "rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800";
   const primaryBtn =
-    "flex items-center gap-2 rounded-xl bg-blue-700 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:opacity-60";
+    "flex items-center gap-2 rounded-xl bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 disabled:opacity-60";
   const tabBtn = (active: boolean) =>
-    `flex items-center gap-2 border-b-2 px-4 py-2.5 text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
+    `flex items-center gap-2 border-b-2 px-4 py-2.5 text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${
       active
-        ? "border-blue-600 text-blue-700 dark:border-blue-400 dark:text-blue-300"
+        ? "border-brand-600 text-brand-700 dark:border-brand-400 dark:text-brand-300"
         : "border-transparent text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white"
     }`;
 
@@ -184,7 +184,7 @@ export default function ProfilePage() {
     <div className="mx-auto max-w-4xl p-4 sm:p-6">
       {/* Đầu trang: ảnh đại diện + thông tin chính */}
       <div className={`${card} mb-6 overflow-hidden !p-0`}>
-        <div className="h-28 bg-gradient-to-r from-blue-700 via-indigo-700 to-blue-800" />
+        <div className="h-28 bg-gradient-to-r from-brand-100 via-brand-50 to-sky-100 dark:from-brand-900 dark:via-brand-950 dark:to-slate-900" />
         <div className="relative px-4 pb-6 sm:px-6">
           <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between">
             <div className="-mt-12 flex items-end gap-4">
@@ -192,7 +192,7 @@ export default function ProfilePage() {
                 type="button"
                 onClick={openAvatarModal}
                 aria-label={t("profile.avatar.change")}
-                className="group relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-2xl border-4 border-white bg-blue-600 text-3xl font-bold text-white shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 dark:border-slate-800"
+                className="group relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-2xl border-4 border-white bg-brand-600 text-3xl font-bold text-white shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 dark:border-slate-800"
               >
                 {user?.avatarUrl ? (
                   <img src={user.avatarUrl} alt="" className="h-full w-full object-cover" />
@@ -210,7 +210,7 @@ export default function ProfilePage() {
               </div>
             </div>
             <div className="mt-4 flex flex-wrap gap-2 sm:mt-0">
-              <span className="rounded-full border border-blue-200 bg-blue-50 px-3.5 py-1 text-xs font-semibold text-blue-800 dark:border-blue-800 dark:bg-blue-950/50 dark:text-blue-200">
+              <span className="rounded-full border border-brand-200 bg-brand-50 px-3.5 py-1 text-xs font-semibold text-brand-800 dark:border-brand-800 dark:bg-brand-950/50 dark:text-brand-200">
                 {roleLabel}
               </span>
               {isStudent && user?.studentCode && (
@@ -296,7 +296,7 @@ export default function ProfilePage() {
           <div className="mb-6 flex flex-col gap-3 border-b border-slate-100 pb-5 dark:border-slate-700 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 className="flex items-center gap-2 text-base font-bold text-slate-800 dark:text-slate-100">
-                <KeyRound className="text-blue-600" size={20} aria-hidden="true" />
+                <KeyRound className="text-brand-600" size={20} aria-hidden="true" />
                 {t("profile.securityTitle")}
               </h2>
               <p className="mt-0.5 text-sm text-slate-600 dark:text-slate-300">{t("profile.securityDesc")}</p>
@@ -354,9 +354,9 @@ export default function ProfilePage() {
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="group flex w-full flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-blue-300 bg-blue-50 p-6 text-center hover:border-blue-400 hover:bg-blue-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-blue-700 dark:bg-blue-950/30 dark:hover:bg-blue-950/50"
+              className="group flex w-full flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-brand-300 bg-brand-50 p-6 text-center hover:border-brand-400 hover:bg-brand-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 dark:border-brand-700 dark:bg-brand-950/30 dark:hover:bg-brand-950/50"
             >
-              <span className="rounded-full bg-blue-100 p-3 text-blue-700 dark:bg-blue-900 dark:text-blue-200">
+              <span className="rounded-full bg-brand-100 p-3 text-brand-700 dark:bg-brand-900 dark:text-brand-200">
                 <Upload size={24} aria-hidden="true" />
               </span>
               <span className="text-sm font-bold text-slate-800 dark:text-slate-100">{t("profile.avatar.choose")}</span>
@@ -381,10 +381,10 @@ export default function ProfilePage() {
             )}
 
             <div className="flex justify-end gap-2 pt-2">
-              <button type="button" onClick={() => setShowAvatarModal(false)} className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-700">
+              <button type="button" onClick={() => setShowAvatarModal(false)} className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-700">
                 {t("common.cancel")}
               </button>
-              <button type="button" onClick={saveAvatar} disabled={savingAvatar || avatarPreview === (user?.avatarUrl || "")} className="rounded-xl bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:opacity-60">
+              <button type="button" onClick={saveAvatar} disabled={savingAvatar || avatarPreview === (user?.avatarUrl || "")} className="rounded-xl bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 disabled:opacity-60">
                 {savingAvatar ? t("profile.saving") : t("profile.avatar.save")}
               </button>
             </div>

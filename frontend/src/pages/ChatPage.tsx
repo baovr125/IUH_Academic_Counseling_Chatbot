@@ -6,6 +6,7 @@ import { ChatComposer } from "../components/chat/ChatComposer";
 import { ChatWelcomeScreen } from "../components/chat/ChatWelcomeScreen";
 import { PanelLeftOpen } from "lucide-react";
 import { useSettings } from "../context/SettingsContext";
+import { useMediaQuery } from "../hooks/useMediaQuery";
 
 export default function ChatPage() {
   const { language } = useSettings();
@@ -38,6 +39,11 @@ export default function ChatPage() {
     return saved !== null ? saved === "true" : true;
   });
 
+  // Từ lg (1024px) lịch sử là cột bên cạnh (trạng thái đóng/mở được nhớ); dưới lg là ngăn kéo, luôn mở lại ở trạng thái đóng.
+  const isDesktop = useMediaQuery("(min-width: 1024px)");
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const closeDrawer = () => setIsDrawerOpen(false);
+
   const toggleSidebar = () => {
     setIsSidebarOpen((prev) => {
       const next = !prev;
@@ -45,6 +51,24 @@ export default function ChatPage() {
       return next;
     });
   };
+
+  // Phím tắt kiểu ChatGPT: Ctrl+Shift+O = cuộc trò chuyện mới, Ctrl+\ = mở/thu gọn lịch sử.
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (!(e.ctrlKey || e.metaKey)) return;
+      if (e.shiftKey && e.key.toLowerCase() === "o") {
+        e.preventDefault();
+        startNewSession();
+        if (!isDesktop) closeDrawer();
+      } else if (!e.shiftKey && e.key === "\\") {
+        e.preventDefault();
+        if (isDesktop) toggleSidebar();
+        else setIsDrawerOpen((open) => !open);
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  });
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const prevScrollHeightRef = useRef<number>(0);
@@ -74,34 +98,41 @@ export default function ChatPage() {
         activeSessionId={activeSessionId}
         isLoading={isLoadingSessions}
         streamingSessionIds={streamingSessionIds}
-        onSelectSession={selectSession}
-        onNewChat={startNewSession}
+        onSelectSession={(id) => {
+          selectSession(id);
+          if (!isDesktop) closeDrawer();
+        }}
+        onNewChat={() => {
+          startNewSession();
+          if (!isDesktop) closeDrawer();
+        }}
         onRenameSession={renameSession}
         onDeleteSession={deleteSession}
         hasMoreSessions={hasMoreSessions}
         isLoadingMoreSessions={isLoadingMoreSessions}
         onLoadMoreSessions={loadMoreSessions}
-        isOpen={isSidebarOpen}
-        onClose={toggleSidebar}
+        isOpen={isDesktop ? isSidebarOpen : isDrawerOpen}
+        onClose={isDesktop ? toggleSidebar : closeDrawer}
+        onOpen={toggleSidebar}
+        variant={isDesktop ? "inline" : "drawer"}
       />
 
-      <div className="relative flex min-w-0 flex-1 flex-col bg-slate-50 dark:bg-slate-900/50">
-        {/* Floating toggle button when history panel is hidden */}
-        {!isSidebarOpen && (
-          <div className="absolute top-3.5 left-3.5 z-20">
-            <button
-              onClick={toggleSidebar}
-              title={isVi ? "Hiện lịch sử trò chuyện" : "Show chat history"}
-              className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 px-3 py-1.5 text-xs font-bold text-white shadow-md shadow-orange-500/25 hover:from-orange-600 hover:to-amber-600 active:scale-95 transition-all"
-            >
-              <PanelLeftOpen size={15} />
-              <span>{isVi ? "Lịch sử" : "History"}</span>
-            </button>
-          </div>
+      <div className="relative flex min-w-0 flex-1 flex-col">
+        {/* Điện thoại/máy tính bảng: chỉ một icon nhỏ nổi ở góc trái để mở lịch sử (không chiếm hàng riêng). */}
+        {!isDesktop && (
+          <button
+            type="button"
+            onClick={() => setIsDrawerOpen(true)}
+            aria-label={isVi ? "Mở lịch sử trò chuyện" : "Open chat history"}
+            title={isVi ? "Lịch sử trò chuyện" : "Chat history"}
+            className="absolute left-2 top-2 z-20 flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-white/90 text-slate-600 shadow-sm backdrop-blur hover:bg-white hover:text-brand-700 active:scale-95 dark:border-slate-700 dark:bg-slate-800/90 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-brand-300"
+          >
+            <PanelLeftOpen size={20} aria-hidden="true" />
+          </button>
         )}
 
         {/* Message / Welcome Area */}
-        <div ref={scrollRef} onScroll={handleScroll} className="flex-1 space-y-4 overflow-y-auto px-4 py-5 sm:px-6">
+        <div ref={scrollRef} onScroll={handleScroll} className={`flex-1 space-y-4 overflow-y-auto px-4 pb-5 sm:px-6 ${isDesktop ? "pt-5" : "pt-14"}`}>
           {isLoadingMoreMessages && (
             <div className="py-2 text-center text-xs text-slate-500 flex justify-center items-center gap-2 dark:text-slate-400">
               <div className="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-slate-600 dark:border-slate-600"></div>

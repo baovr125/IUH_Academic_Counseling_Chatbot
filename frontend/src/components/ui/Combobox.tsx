@@ -162,7 +162,7 @@ export function Combobox({
                 setQuery(null);
                 inputRef.current?.focus();
               }}
-              className="rounded p-1 text-slate-600 hover:text-slate-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-slate-300 dark:hover:text-white"
+              className="rounded p-1 text-slate-600 hover:text-slate-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 dark:text-slate-300 dark:hover:text-white"
             >
               <X size={14} aria-hidden="true" />
             </button>
@@ -199,7 +199,7 @@ export function Combobox({
                     item.key === OTHER ? "border-t border-slate-200 italic dark:border-slate-700" : ""
                   } ${
                     isActive
-                      ? "bg-blue-100 text-blue-900 dark:bg-blue-900/50 dark:text-blue-100"
+                      ? "bg-brand-100 text-brand-900 dark:bg-brand-900/50 dark:text-brand-100"
                       : "text-slate-800 dark:text-slate-100"
                   } ${selected ? "font-semibold" : ""}`}
                 >

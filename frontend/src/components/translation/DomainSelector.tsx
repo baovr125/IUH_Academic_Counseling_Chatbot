@@ -43,7 +43,7 @@ export const DomainSelector: React.FC<DomainSelectorProps> = ({ value, onChange,
   return (
     <div className="relative" ref={dropdownRef}>
       <div 
-        className="flex items-center justify-between w-64 px-4 py-2 bg-white border border-gray-300 rounded-lg cursor-pointer hover:border-blue-500 focus-within:ring-2 focus-within:ring-blue-200 transition-all dark:bg-slate-800 dark:border-slate-600"
+        className="flex items-center justify-between w-64 px-4 py-2 bg-white border border-gray-300 rounded-lg cursor-pointer hover:border-brand-500 focus-within:ring-2 focus-within:ring-brand-200 transition-all dark:bg-slate-800 dark:border-slate-600"
         onClick={() => setIsOpen(true)}
       >
         <span className="text-sm font-medium text-gray-700 truncate dark:text-slate-200">
@@ -70,7 +70,7 @@ export const DomainSelector: React.FC<DomainSelectorProps> = ({ value, onChange,
           
           <div className="max-h-60 overflow-y-auto p-1">
             <div 
-              className={`px-3 py-2 text-sm rounded-md cursor-pointer flex items-center justify-between ${!value ? "bg-blue-50 text-blue-700 font-medium dark:bg-blue-950/40 dark:text-blue-300" : "text-gray-700 hover:bg-gray-50 dark:text-slate-200 dark:hover:bg-slate-700"}`}
+              className={`px-3 py-2 text-sm rounded-md cursor-pointer flex items-center justify-between ${!value ? "bg-brand-50 text-brand-700 font-medium dark:bg-brand-950/40 dark:text-brand-300" : "text-gray-700 hover:bg-gray-50 dark:text-slate-200 dark:hover:bg-slate-700"}`}
               onClick={() => {
                 onChange("");
                 setIsOpen(false);
@@ -81,7 +81,7 @@ export const DomainSelector: React.FC<DomainSelectorProps> = ({ value, onChange,
             </div>
 
             <div 
-              className={`px-3 py-2 text-sm rounded-md cursor-pointer flex items-center justify-between ${value === "auto" ? "bg-blue-50 text-blue-700 font-medium dark:bg-blue-950/40 dark:text-blue-300" : "text-gray-700 hover:bg-gray-50 dark:text-slate-200 dark:hover:bg-slate-700"}`}
+              className={`px-3 py-2 text-sm rounded-md cursor-pointer flex items-center justify-between ${value === "auto" ? "bg-brand-50 text-brand-700 font-medium dark:bg-brand-950/40 dark:text-brand-300" : "text-gray-700 hover:bg-gray-50 dark:text-slate-200 dark:hover:bg-slate-700"}`}
               onClick={() => {
                 onChange("auto");
                 setIsOpen(false);
@@ -94,7 +94,7 @@ export const DomainSelector: React.FC<DomainSelectorProps> = ({ value, onChange,
             {filteredDomains.map(domain => (
               <div
                 key={domain}
-                className={`px-3 py-2 text-sm rounded-md cursor-pointer flex items-center justify-between ${value === domain ? "bg-blue-50 text-blue-700 font-medium dark:bg-blue-950/40 dark:text-blue-300" : "text-gray-700 hover:bg-gray-50 dark:text-slate-200 dark:hover:bg-slate-700"}`}
+                className={`px-3 py-2 text-sm rounded-md cursor-pointer flex items-center justify-between ${value === domain ? "bg-brand-50 text-brand-700 font-medium dark:bg-brand-950/40 dark:text-brand-300" : "text-gray-700 hover:bg-gray-50 dark:text-slate-200 dark:hover:bg-slate-700"}`}
                 onClick={() => {
                   onChange(domain);
                   setIsOpen(false);
@@ -108,7 +108,7 @@ export const DomainSelector: React.FC<DomainSelectorProps> = ({ value, onChange,
             
             {showCustomOption && (
               <div
-                className={`px-3 py-2 text-sm rounded-md cursor-pointer flex items-center justify-between ${value === searchTerm ? "bg-blue-50 text-blue-700 font-medium dark:bg-blue-950/40 dark:text-blue-300" : "text-gray-700 hover:bg-gray-50 dark:text-slate-200 dark:hover:bg-slate-700"}`}
+                className={`px-3 py-2 text-sm rounded-md cursor-pointer flex items-center justify-between ${value === searchTerm ? "bg-brand-50 text-brand-700 font-medium dark:bg-brand-950/40 dark:text-brand-300" : "text-gray-700 hover:bg-gray-50 dark:text-slate-200 dark:hover:bg-slate-700"}`}
                 onClick={() => {
                   onChange(searchTerm);
                   setIsOpen(false);

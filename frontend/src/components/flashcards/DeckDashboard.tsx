@@ -133,7 +133,7 @@ export const DeckDashboard: React.FC<DeckDashboardProps> = ({
                 </div>
 
                 <div className="flex-1 px-5 pt-4">
-                  <h3 className="line-clamp-1 text-base font-bold text-slate-800 transition-colors group-hover:text-blue-600 dark:text-slate-100 dark:group-hover:text-blue-300">
+                  <h3 className="line-clamp-1 text-base font-bold text-slate-800 transition-colors group-hover:text-brand-600 dark:text-slate-100 dark:group-hover:text-brand-300">
                     {deck.title}
                   </h3>
                   <p className="mt-1.5 line-clamp-2 text-sm text-slate-500 dark:text-slate-400">
@@ -150,7 +150,7 @@ export const DeckDashboard: React.FC<DeckDashboardProps> = ({
                   <button
                     type="button"
                     aria-label={`Mở sổ ${deck.title}`}
-                    className="flex items-center gap-1.5 rounded-lg text-sm font-semibold text-blue-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-blue-300"
+                    className="flex items-center gap-1.5 rounded-lg text-sm font-semibold text-brand-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 dark:text-brand-300"
                   >
                     {count === 0 ? "Mở sổ để thêm từ" : "Bắt đầu học FSRS"}
                     <ArrowRight size={15} className="transition-transform group-hover:translate-x-1" aria-hidden="true" />

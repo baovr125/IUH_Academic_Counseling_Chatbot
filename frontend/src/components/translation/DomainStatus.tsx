@@ -15,7 +15,7 @@ export interface DomainStatusProps {
  * trường hợp từ thuộc nhiều lĩnh vực hiện thành khung chọn trong vùng bản dịch.
  */
 const SEVERITY_STYLE: Record<WarningSeverity, { box: string; icon: string }> = {
-  info: { box: "bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-900/50", icon: "text-blue-500 dark:text-blue-400" },
+  info: { box: "bg-brand-50 text-brand-700 border-brand-100 dark:bg-brand-950/40 dark:text-brand-300 dark:border-brand-900/50", icon: "text-brand-500 dark:text-brand-400" },
   warning: { box: "bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800", icon: "text-amber-500 dark:text-amber-400" },
   error: { box: "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/40 dark:text-red-300 dark:border-red-800", icon: "text-red-500 dark:text-red-400" },
 };

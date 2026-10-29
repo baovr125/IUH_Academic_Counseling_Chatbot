@@ -23,8 +23,8 @@ export default function DashboardPage() {
 
   if (isLoading || !stats) {
     return (
-      <div className="flex min-h-full flex-col items-center justify-center p-12 bg-slate-50 dark:bg-slate-950">
-        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-lg shadow-blue-600/30 animate-bounce">
+      <div className="flex min-h-full flex-col items-center justify-center p-12">
+        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-600 text-white shadow-lg shadow-brand-600/30 animate-bounce">
           <Loader2 size={28} className="animate-spin" />
         </div>
         <p className="mt-4 text-sm font-semibold text-slate-600 dark:text-slate-300">
@@ -46,7 +46,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-full w-full bg-slate-50/60 p-4 sm:p-6 lg:p-8 dark:bg-slate-950 transition-colors">
+    <div className="min-h-full w-full p-4 sm:p-6 lg:p-8 transition-colors">
       <div className="mx-auto max-w-7xl space-y-6">
         {/* 1. Header Hero Banner (Role-Adaptive) */}
         <DashboardHeroBanner user={user} stats={stats} isStudent={isStudent} />

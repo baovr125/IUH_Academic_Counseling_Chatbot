@@ -88,8 +88,8 @@ const RATINGS = [
   {
     grade: 3,
     label: "Tốt",
-    cls: "border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 dark:border-blue-900/60 dark:bg-blue-950/40 dark:text-blue-300 dark:hover:bg-blue-950/70",
-    key: "bg-blue-100 text-blue-700 dark:bg-blue-900/60 dark:text-blue-200"
+    cls: "border-brand-200 bg-brand-50 text-brand-700 hover:bg-brand-100 dark:border-brand-900/60 dark:bg-brand-950/40 dark:text-brand-300 dark:hover:bg-brand-950/70",
+    key: "bg-brand-100 text-brand-700 dark:bg-brand-900/60 dark:text-brand-200"
   },
   {
     grade: 4,
@@ -434,9 +434,9 @@ export const StudyMode: React.FC<StudyModeProps> = ({
                 setStudyModePreference(m.key);
                 resetCardState();
               }}
-              className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
+              className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 [@media(pointer:coarse)]:min-h-[44px] text-xs font-semibold transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${
                 active
-                  ? "bg-white text-blue-600 shadow-sm dark:bg-slate-700 dark:text-blue-300"
+                  ? "bg-white text-brand-600 shadow-sm dark:bg-slate-700 dark:text-brand-300"
                   : "text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
               }`}
             >
@@ -453,7 +453,7 @@ export const StudyMode: React.FC<StudyModeProps> = ({
         <div className="w-full">
           <div className="mb-1.5 flex justify-between text-xs font-medium text-slate-500 dark:text-slate-400">
             <span className="flex items-center gap-1.5">
-              <span className="inline-block h-2 w-2 rounded-full bg-blue-600" aria-hidden="true"></span>
+              <span className="inline-block h-2 w-2 rounded-full bg-brand-600" aria-hidden="true"></span>
               Đang ôn tập: {MODE_LABELS[effectiveMode]}
             </span>
             <span>
@@ -468,7 +468,7 @@ export const StudyMode: React.FC<StudyModeProps> = ({
             aria-valuenow={currentIndex + 1}
             className="h-1.5 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700"
           >
-            <div className="h-full rounded-full bg-blue-600 transition-all duration-300" style={{ width: `${progressPct}%` }}></div>
+            <div className="h-full rounded-full bg-brand-600 transition-all duration-300" style={{ width: `${progressPct}%` }}></div>
           </div>
         </div>
 
@@ -522,7 +522,7 @@ export const StudyMode: React.FC<StudyModeProps> = ({
                 disabled={spellingResult !== null}
                 autoFocus
                 lang={cardLang}
-                className="w-full rounded-2xl border-2 border-slate-200 bg-slate-50/50 px-5 py-4 text-center text-lg font-bold text-slate-800 placeholder-slate-400 transition-all focus:border-blue-500 focus:bg-white focus:outline-none dark:border-slate-600 dark:bg-slate-900/50 dark:text-slate-100 dark:placeholder-slate-500 dark:focus:border-blue-400 dark:focus:bg-slate-900"
+                className="w-full rounded-2xl border-2 border-slate-200 bg-slate-50/50 px-5 py-4 text-center text-lg font-bold text-slate-800 placeholder-slate-400 transition-all focus:border-brand-500 focus:bg-white focus:outline-none dark:border-slate-600 dark:bg-slate-900/50 dark:text-slate-100 dark:placeholder-slate-500 dark:focus:border-brand-400 dark:focus:bg-slate-900"
               />
 
               {!spellingResult ? (
@@ -605,7 +605,7 @@ export const StudyMode: React.FC<StudyModeProps> = ({
                         e.stopPropagation();
                         handleReplayCurrentAudio();
                       }}
-                      className="rounded-full bg-blue-50 p-2.5 text-blue-600 transition-colors hover:bg-blue-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:bg-slate-700 dark:text-blue-300 dark:hover:bg-slate-600"
+                      className="rounded-full bg-brand-50 p-2.5 [@media(pointer:coarse)]:p-3 text-brand-600 transition-colors hover:bg-brand-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 dark:bg-slate-700 dark:text-brand-300 dark:hover:bg-slate-600"
                       title="Nghe phát âm (Phím R)"
                       aria-label="Nghe phát âm"
                     >
@@ -623,7 +623,7 @@ export const StudyMode: React.FC<StudyModeProps> = ({
                         {currentCard.term}
                       </h2>
                       {currentCard.phonetic ? (
-                        <p className="mt-2 font-mono text-sm text-blue-600 dark:text-blue-300">{currentCard.phonetic}</p>
+                        <p className="mt-2 font-mono text-sm text-brand-600 dark:text-brand-300">{currentCard.phonetic}</p>
                       ) : null}
                       <p className="mt-8 flex items-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400">
                         <Lightbulb size={14} aria-hidden="true" />
@@ -651,7 +651,7 @@ export const StudyMode: React.FC<StudyModeProps> = ({
 
               {/* Nút chấm điểm FSRS */}
               {isFlipped ? (
-                <div className="sticky bottom-3 z-10 flex w-full flex-col items-center gap-2 rounded-2xl bg-slate-50/90 p-2 backdrop-blur dark:bg-slate-950/90">
+                <div className="sticky bottom-3 z-10 flex w-full flex-col items-center gap-2 rounded-2xl bg-brand-50/90 p-2 backdrop-blur dark:bg-slate-950/90">
                   <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
                     Đánh giá mức độ ghi nhớ FSRS (Phím tắt: 1, 2, 3, 4):
                   </span>
@@ -662,7 +662,7 @@ export const StudyMode: React.FC<StudyModeProps> = ({
                         type="button"
                         disabled={isSubmitting}
                         onClick={() => void handleRate(b.grade)}
-                        className={`flex items-center justify-center gap-2 rounded-2xl border py-3 text-sm font-bold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:opacity-50 ${b.cls}`}
+                        className={`flex items-center justify-center gap-2 rounded-2xl border py-3 text-sm font-bold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 disabled:opacity-50 ${b.cls}`}
                         title={`Phím tắt: ${b.grade}`}
                       >
                         <kbd aria-hidden="true" className={`flex h-6 w-6 items-center justify-center rounded-md font-sans text-xs font-extrabold ${b.key}`}>

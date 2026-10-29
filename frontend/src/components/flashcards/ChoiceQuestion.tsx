@@ -63,7 +63,7 @@ export const ChoiceQuestion: React.FC<ChoiceQuestionProps> = ({
   return (
     <FcCard padding="lg" className="w-full">
       <div className="mb-4 flex items-center justify-between gap-2">
-        <FcBadge tone="violet" icon={variant === "choice" ? <ListChecks size={13} aria-hidden="true" /> : <Headphones size={13} aria-hidden="true" />}>
+        <FcBadge tone="blue" icon={variant === "choice" ? <ListChecks size={13} aria-hidden="true" /> : <Headphones size={13} aria-hidden="true" />}>
           {variant === "choice" ? "Trắc nghiệm: chọn nghĩa đúng" : "Thử thách nghe: chọn nghĩa đúng"}
         </FcBadge>
         <FcButton variant="soft" size="sm" onClick={onPlay} title="Nghe phát âm (R)" icon={<Volume2 size={14} className={isPlayingAudio ? "animate-pulse" : ""} />}>
@@ -75,7 +75,7 @@ export const ChoiceQuestion: React.FC<ChoiceQuestionProps> = ({
         {revealTerm ? (
           <>
             <h2 className="text-3xl font-extrabold tracking-tight text-slate-800 dark:text-slate-100">{card.term}</h2>
-            {card.phonetic && <p className="mt-1.5 font-mono text-sm text-blue-600 dark:text-blue-300">{card.phonetic}</p>}
+            {card.phonetic && <p className="mt-1.5 font-mono text-sm text-brand-600 dark:text-brand-300">{card.phonetic}</p>}
             {card.part_of_speech && (
               <FcBadge tone="slate" className="mt-2 uppercase tracking-wider">
                 {card.part_of_speech}
@@ -87,7 +87,7 @@ export const ChoiceQuestion: React.FC<ChoiceQuestionProps> = ({
             type="button"
             onClick={onPlay}
             aria-label="Phát lại âm thanh"
-            className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-blue-600 text-white shadow-md transition-transform hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-800"
+            className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-brand-600 text-white shadow-md transition-transform hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-800"
           >
             <Volume2 size={34} className={isPlayingAudio ? "animate-pulse" : ""} />
           </button>
@@ -98,7 +98,7 @@ export const ChoiceQuestion: React.FC<ChoiceQuestionProps> = ({
         {choices.map((choice, index) => {
           const isAnswer = normalize(choice) === normalize(card.definition);
           const isPicked = selected === choice;
-          let style = "border-slate-200 bg-white text-slate-700 hover:border-blue-300 hover:bg-blue-50/50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:border-blue-500 dark:hover:bg-slate-700";
+          let style = "border-slate-200 bg-white text-slate-700 hover:border-brand-300 hover:bg-brand-50/50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:border-brand-500 dark:hover:bg-slate-700";
           if (answered) {
             if (isAnswer) style = "border-emerald-400 bg-emerald-50 text-emerald-800 dark:border-emerald-500 dark:bg-emerald-950/40 dark:text-emerald-200";
             else if (isPicked) style = "border-rose-400 bg-rose-50 text-rose-800 animate-[shake_0.3s_ease-in-out] dark:border-rose-500 dark:bg-rose-950/40 dark:text-rose-200";
@@ -110,7 +110,7 @@ export const ChoiceQuestion: React.FC<ChoiceQuestionProps> = ({
               type="button"
               disabled={answered}
               onClick={() => setSelected(choice)}
-              className={`flex items-center gap-3 rounded-2xl border-2 px-4 py-3 text-left text-sm font-semibold transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${style}`}
+              className={`flex items-center gap-3 rounded-2xl border-2 px-4 py-3 text-left text-sm font-semibold transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${style}`}
             >
               <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md bg-slate-100 text-xs font-bold text-slate-600 dark:bg-slate-700 dark:text-slate-300">
                 {index + 1}

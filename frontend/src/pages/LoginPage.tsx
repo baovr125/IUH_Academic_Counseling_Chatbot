@@ -7,7 +7,7 @@ import { FormField } from "../components/auth/FormField";
 import { Combobox } from "../components/ui/Combobox";
 import { IUH_UNITS, OTHER } from "../data/iuhCatalog";
 import { useCatalogSelection } from "../hooks/useCatalogSelection";
-import logoMark from "../assets/brand/iuh-mark-256.png";
+import { BrandLogo } from "../components/ui/BrandLogo";
 import { Alert } from "../components/ui/Alert";
 import { validatePassword } from "../services/passwordPolicy";
 
@@ -184,47 +184,45 @@ export default function LoginPage() {
   const bannerError = formError || (!isRegistering ? error : null);
 
   const tabClass = (active: boolean) =>
-    `flex-1 rounded-lg py-2 text-sm font-semibold transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
+    `flex-1 rounded-lg py-2 [@media(pointer:coarse)]:min-h-[44px] text-sm font-semibold transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${
       active
-        ? "bg-white text-blue-700 shadow-sm dark:bg-slate-700 dark:text-blue-300"
+        ? "bg-white text-brand-700 shadow-sm dark:bg-slate-700 dark:text-brand-300"
         : "text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white"
     }`;
 
   const typeClass = (active: boolean) =>
-    `flex items-center justify-center gap-2 rounded-xl border p-2.5 text-sm font-semibold transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
+    `flex items-center justify-center gap-2 rounded-xl border p-2.5 [@media(pointer:coarse)]:min-h-[44px] text-sm font-semibold transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${
       active
-        ? "border-blue-600 bg-blue-50 text-blue-700 dark:border-blue-400 dark:bg-blue-950/40 dark:text-blue-200"
+        ? "border-brand-600 bg-brand-50 text-brand-700 dark:border-brand-400 dark:bg-brand-950/40 dark:text-brand-200"
         : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
     }`;
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen min-h-dvh">
       {/* Banner bên trái (ẩn trên màn hình nhỏ) */}
-      <div className="relative hidden flex-col justify-between overflow-hidden bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-950 p-12 text-white lg:flex lg:w-1/2">
-        <div className="pointer-events-none absolute -left-24 -top-24 h-96 w-96 rounded-full bg-blue-500/20 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-24 -right-24 h-96 w-96 rounded-full bg-indigo-500/20 blur-3xl" />
+      <div className="relative hidden flex-col justify-between overflow-hidden border-r border-brand-100 bg-gradient-to-br from-brand-50 via-white to-sky-50 p-12 text-slate-800 dark:border-slate-800 dark:from-slate-900 dark:via-slate-900 dark:to-brand-950 dark:text-white lg:flex lg:w-1/2">
+        <div className="pointer-events-none absolute -left-24 -top-24 h-96 w-96 rounded-full bg-brand-200/50 blur-3xl dark:bg-brand-500/20" />
+        <div className="pointer-events-none absolute -bottom-24 -right-24 h-96 w-96 rounded-full bg-sky-200/50 blur-3xl dark:bg-brand-500/20" />
 
         <div className="relative z-10 flex items-center gap-4">
           {/* relative z-10: các vệt sáng trang trí (absolute) nếu không sẽ phủ lên và làm ngả màu thẻ logo */}
-          {/* Logo nền xanh đậm nên đặt trên thẻ trắng để giữ đúng màu nhận diện của trường */}
-          <div className="rounded-2xl bg-white p-2.5 shadow-lg shadow-blue-950/30">
-            <img src={logoMark} alt={t("auth.logoAlt")} className="h-12 w-auto" />
-          </div>
-          <span className="text-3xl font-extrabold tracking-tight text-white">IUH Portal AI</span>
+          {/* Logo trơn (nền trong suốt): bản xanh navy ở nền sáng, bản xanh nhạt ở nền tối. */}
+          <BrandLogo className="h-14" alt={t("auth.logoAlt")} />
+          <span className="text-3xl font-extrabold tracking-tight text-brand-900 dark:text-white">IUH Portal AI</span>
         </div>
 
         <div className="relative z-10 my-auto space-y-4 py-12">
-          <div className="inline-flex items-center gap-2 rounded-full border border-blue-300/30 bg-blue-500/20 px-3 py-1 text-xs font-medium text-blue-100">
+          <div className="inline-flex items-center gap-2 rounded-full border border-brand-200 bg-white/80 px-3 py-1 text-xs font-medium text-brand-700 dark:border-brand-300/30 dark:bg-brand-500/20 dark:text-brand-100">
             <GraduationCap size={14} aria-hidden="true" />
             <span>{t("auth.tagline")}</span>
           </div>
-          <h1 className="text-3xl font-extrabold leading-tight text-white lg:text-4xl">
+          <h1 className="text-3xl font-extrabold leading-tight text-brand-900 dark:text-white lg:text-4xl">
             {t("auth.heroLine1")} <br />
-            <span className="bg-gradient-to-r from-blue-200 via-indigo-100 to-white bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-brand-600 to-sky-600 bg-clip-text text-transparent dark:from-brand-200 dark:via-brand-100 dark:to-white">
               {t("auth.heroLine2")}
             </span>
           </h1>
-          <p className="max-w-md text-sm leading-relaxed text-blue-100">{t("auth.heroDesc")}</p>
+          <p className="max-w-md text-sm leading-relaxed text-slate-600 dark:text-brand-100">{t("auth.heroDesc")}</p>
         </div>
       </div>
 
@@ -234,9 +232,7 @@ export default function LoginPage() {
           {/* Màn hình nhỏ không có banner: hiển thị logo trường phía trên form */}
           <div className="mb-3 flex items-center justify-between">
             <div className="flex items-center gap-3 lg:invisible">
-              <div className="rounded-xl bg-white p-1.5 shadow-sm ring-1 ring-slate-200 dark:ring-slate-700">
-                <img src={logoMark} alt={t("auth.logoAlt")} className="h-10 w-10 object-contain" />
-              </div>
+              <BrandLogo className="h-10" alt={t("auth.logoAlt")} />
               <span className="text-xl font-extrabold tracking-tight text-slate-800 dark:text-slate-100">IUH Portal AI</span>
             </div>
             <div role="group" aria-label={t("auth.languageLabel")} className="flex gap-1 text-xs">
@@ -246,9 +242,9 @@ export default function LoginPage() {
                   type="button"
                   onClick={() => setLanguage(code)}
                   aria-pressed={language === code}
-                  className={`rounded-md px-2 py-1 font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
+                  className={`rounded-md px-2 py-1 [@media(pointer:coarse)]:min-h-[44px] [@media(pointer:coarse)]:px-3 font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${
                     language === code
-                      ? "bg-blue-700 text-white"
+                      ? "bg-brand-700 text-white"
                       : "text-slate-700 hover:bg-slate-200 dark:text-slate-300 dark:hover:bg-slate-700"
                   }`}
                 >
@@ -430,13 +426,13 @@ export default function LoginPage() {
               )}
 
               {!isRegistering && (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 [@media(pointer:coarse)]:min-h-[44px]">
                   <input
                     id={rememberId}
                     type="checkbox"
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
-                    className="h-4 w-4 rounded border-slate-400 text-blue-700 focus:ring-2 focus:ring-blue-500"
+                    className="h-4 w-4 rounded border-slate-400 text-brand-700 focus:ring-2 focus:ring-brand-500"
                   />
                   <label htmlFor={rememberId} className="text-sm text-slate-700 dark:text-slate-200">
                     {t("auth.rememberMe")}
@@ -449,7 +445,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full rounded-lg bg-blue-700 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:opacity-60"
+                className="w-full rounded-lg bg-brand-600 py-2.5 [@media(pointer:coarse)]:py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 disabled:opacity-60"
               >
                 {isLoading
                   ? isRegistering
@@ -468,7 +464,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => switchMode(!isRegistering)}
-                className="font-semibold text-blue-700 underline-offset-2 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-blue-300"
+                className="font-semibold text-brand-700 underline-offset-2 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 dark:text-brand-300"
               >
                 {isRegistering ? t("auth.tabLogin") : t("auth.tabRegister")}
               </button>

@@ -26,7 +26,7 @@ export const GameResult: React.FC<GameResultProps> = ({ game, submitting, error,
   if (submitting) {
     return (
       <div className="flex min-h-[260px] flex-col items-center justify-center gap-3 text-sm font-semibold text-slate-500 dark:text-slate-400" role="status">
-        <Loader2 className="animate-spin text-blue-600 dark:text-blue-400" size={30} />
+        <Loader2 className="animate-spin text-brand-600 dark:text-brand-400" size={30} />
         Đang chấm điểm…
       </div>
     );
@@ -39,8 +39,8 @@ export const GameResult: React.FC<GameResultProps> = ({ game, submitting, error,
         <h3 className="text-base font-bold text-amber-900 dark:text-amber-200">Chưa lưu được kết quả</h3>
         <p className="mt-1 text-xs text-amber-800 dark:text-amber-300">{error || "Không có phản hồi từ máy chủ."} Điểm và lịch ôn chưa được cập nhật.</p>
         <div className="mt-4 flex justify-center gap-2">
-          <button type="button" onClick={onRetrySubmit} className="rounded-xl bg-amber-700 px-4 py-2 text-xs font-bold text-white hover:bg-amber-800">Thử gửi lại</button>
-          <button type="button" onClick={onBack} className="rounded-xl border border-amber-300 bg-white px-4 py-2 text-xs font-bold text-amber-800 hover:bg-amber-100 dark:border-amber-700 dark:bg-slate-800 dark:text-amber-300 dark:hover:bg-amber-900/50">Bỏ qua</button>
+          <button type="button" onClick={onRetrySubmit} className="rounded-xl bg-amber-700 px-4 py-2 [@media(pointer:coarse)]:min-h-[44px] text-xs font-bold text-white hover:bg-amber-800">Thử gửi lại</button>
+          <button type="button" onClick={onBack} className="rounded-xl border border-amber-300 bg-white px-4 py-2 [@media(pointer:coarse)]:min-h-[44px] text-xs font-bold text-amber-800 hover:bg-amber-100 dark:border-amber-700 dark:bg-slate-800 dark:text-amber-300 dark:hover:bg-amber-900/50">Bỏ qua</button>
         </div>
       </div>
     );
@@ -65,7 +65,7 @@ export const GameResult: React.FC<GameResultProps> = ({ game, submitting, error,
         </p>
       )}
       {leveledUp && (
-        <p className="mx-auto mt-2 flex w-fit items-center gap-1.5 rounded-full bg-violet-100 px-3 py-1 text-xs font-bold text-violet-800 dark:bg-violet-900/40 dark:text-violet-300" data-testid="game-levelup">
+        <p className="mx-auto mt-2 flex w-fit items-center gap-1.5 rounded-full bg-brand-100 px-3 py-1 text-xs font-bold text-brand-800 dark:bg-brand-900/40 dark:text-brand-300" data-testid="game-levelup">
           <Sparkles size={14} /> Lên cấp {response.level!.level}!
         </p>
       )}
@@ -73,12 +73,12 @@ export const GameResult: React.FC<GameResultProps> = ({ game, submitting, error,
       <dl className="mt-4 grid grid-cols-3 gap-2 text-xs">
         <div className="rounded-2xl bg-slate-50 p-2.5 dark:bg-slate-900/50"><dt className="text-slate-500 dark:text-slate-400">Đúng</dt><dd className="text-base font-bold text-slate-800 dark:text-slate-100">{s.correct}/{s.total}</dd></div>
         <div className="rounded-2xl bg-slate-50 p-2.5 dark:bg-slate-900/50"><dt className="text-slate-500 dark:text-slate-400">Lỗi</dt><dd className="text-base font-bold text-slate-800 dark:text-slate-100">{s.mistakes}</dd></div>
-        <div className="rounded-2xl bg-slate-50 p-2.5 dark:bg-slate-900/50"><dt className="text-slate-500 dark:text-slate-400">XP</dt><dd className="text-base font-bold text-violet-700 dark:text-violet-300">+{s.xp}</dd></div>
+        <div className="rounded-2xl bg-slate-50 p-2.5 dark:bg-slate-900/50"><dt className="text-slate-500 dark:text-slate-400">XP</dt><dd className="text-base font-bold text-brand-700 dark:text-brand-300">+{s.xp}</dd></div>
       </dl>
       {(game === "speed" || game === "shooter") && <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">Combo cao nhất: {s.best_combo}</p>}
       {game === "builder" && s.hints > 0 && <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">Gợi ý đã dùng: {s.hints}</p>}
 
-      <p className="mt-3 text-[11px] text-slate-500 dark:text-slate-400" data-testid="game-review-note">
+      <p className="mt-3 text-xs sm:text-[11px] text-slate-500 dark:text-slate-400" data-testid="game-review-note">
         {s.applied_review
           ? s.reviewed_count > 0
             ? `Đã cập nhật lịch ôn cho ${s.reviewed_count} thẻ đến hạn.`
@@ -87,7 +87,7 @@ export const GameResult: React.FC<GameResultProps> = ({ game, submitting, error,
       </p>
 
       <div className="mt-5 flex justify-center gap-2">
-        <button type="button" onClick={onPlayAgain} className="flex items-center gap-1.5 rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-bold text-white hover:bg-blue-700">
+        <button type="button" onClick={onPlayAgain} className="flex items-center gap-1.5 rounded-xl bg-brand-600 px-4 py-2.5 text-xs font-bold text-white hover:bg-brand-700">
           <RotateCcw size={14} /> Chơi lại
         </button>
         <button type="button" onClick={onBack} className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700">

@@ -38,7 +38,7 @@ export const PublicLearningProductivityCard: React.FC<PublicLearningProductivity
           </div>
           <div>
             <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">Năng Suất Học Thuật Cá Nhân</h3>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400">Thống kê dịch thuật & từ vựng AI</p>
+            <p className="text-xs sm:text-[11px] text-slate-500 dark:text-slate-400">Thống kê dịch thuật & từ vựng AI</p>
           </div>
         </div>
 
@@ -52,8 +52,8 @@ export const PublicLearningProductivityCard: React.FC<PublicLearningProductivity
         {/* Metric Grid 2x2 */}
         <div className="grid grid-cols-2 gap-3">
           {/* Docs Translated */}
-          <div className="rounded-2xl bg-blue-50/60 p-3.5 dark:bg-slate-900/60 border border-blue-100/50 dark:border-slate-700/50">
-            <div className="flex items-center gap-1.5 text-blue-600 dark:text-blue-400 text-xs font-semibold">
+          <div className="rounded-2xl bg-brand-50/60 p-3.5 dark:bg-slate-900/60 border border-brand-100/50 dark:border-slate-700/50">
+            <div className="flex items-center gap-1.5 text-brand-600 dark:text-brand-400 text-xs font-semibold">
               <FileCheck2 size={15} />
               <span>Tài liệu đã dịch</span>
             </div>
@@ -61,31 +61,31 @@ export const PublicLearningProductivityCard: React.FC<PublicLearningProductivity
             <p className="mt-1.5 text-2xl font-extrabold text-slate-900 dark:text-white">
               {totalDocs}
             </p>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400">{totalPages} trang PDF</p>
+            <p className="text-xs sm:text-[11px] text-slate-500 dark:text-slate-400">{totalPages} trang PDF</p>
           </div>
 
           {/* Flashcards */}
-          <div className="rounded-2xl bg-purple-50/60 p-3.5 dark:bg-slate-900/60 border border-purple-100/50 dark:border-slate-700/50">
-            <div className="flex items-center gap-1.5 text-purple-600 dark:text-purple-400 text-xs font-semibold">
+          <div className="rounded-2xl bg-sky-50/60 p-3.5 dark:bg-slate-900/60 border border-sky-100/50 dark:border-slate-700/50">
+            <div className="flex items-center gap-1.5 text-sky-600 dark:text-sky-400 text-xs font-semibold">
               <BookMarked size={15} />
               <span>Từ vựng đã học</span>
             </div>
             <div className="mt-1.5 text-2xl font-extrabold text-slate-900 dark:text-white" data-testid="mastered-value">
               {masteredLoading ? <FcSkeleton className="h-7 w-12" /> : flashcards.mastered === null ? "—" : flashcards.mastered.toLocaleString("vi-VN")}
             </div>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400">Thẻ đã thuộc (FSRS)</p>
+            <p className="text-xs sm:text-[11px] text-slate-500 dark:text-slate-400">Thẻ đã thuộc (FSRS)</p>
           </div>
         </div>
 
         {/* Time Saved Callout */}
-        <div className="flex items-center justify-between rounded-2xl bg-gradient-to-r from-emerald-50 to-teal-50 p-3.5 text-xs border border-emerald-100 dark:from-emerald-950/40 dark:to-teal-950/20 dark:border-emerald-900/40">
+        <div className="flex items-center justify-between rounded-2xl bg-emerald-50 p-3.5 text-xs border border-emerald-100 dark:bg-emerald-950/40 dark:border-emerald-900/40">
           <div className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-sm">
               <Clock size={16} />
             </div>
             <div>
               <p className="text-slate-800 dark:text-slate-200 font-bold">Thời gian tiết kiệm nhờ AI</p>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400">Dịch nhanh & trích xuất ngữ cảnh</p>
+              <p className="text-xs sm:text-[11px] text-slate-500 dark:text-slate-400">Dịch nhanh & trích xuất ngữ cảnh</p>
               <SampleDataBadge className="mt-1" />
             </div>
           </div>

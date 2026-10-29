@@ -10,6 +10,29 @@
   color-scheme: dark;
 }
 
+/* Màu bôi chọn chữ theo màu chủ đạo (xanh nhẹ). */
+::selection {
+  background: rgb(191 219 254 / 0.7); /* brand-200 */
+}
+:root.dark ::selection {
+  background: rgb(30 64 175 / 0.6); /* brand-800 */
+}
+
+/* Chặn cuộn ngang ngoài ý muốn ở cấp trang (từng khối có bảng/code tự cuộn ngang bên trong). */
+html,
+body {
+  overflow-x: clip;
+}
+
+/* iOS Safari tự phóng to trang khi focus vào ô nhập có cỡ chữ < 16px: ép 16px trên thiết bị cảm ứng. */
+@media (pointer: coarse) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
+
 @keyframes floatSlow {
   0%, 100% {
     transform: translateY(0px);

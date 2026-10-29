@@ -16,14 +16,14 @@ export type FcButtonSize = "sm" | "md";
 
 const BASE =
   "inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition-all select-none " +
-  "focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 " +
+  "focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 " +
   "disabled:cursor-not-allowed disabled:opacity-50 active:scale-[0.98] disabled:active:scale-100";
 
 export const FC_BUTTON_VARIANTS: Record<FcButtonVariant, string> = {
-  primary: "bg-blue-600 text-white shadow-sm hover:bg-blue-700",
+  primary: "bg-brand-600 text-white shadow-sm hover:bg-brand-700",
   soft:
-    "border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 " +
-    "dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-300 dark:hover:bg-blue-900/50",
+    "border border-brand-200 bg-brand-50 text-brand-700 hover:bg-brand-100 " +
+    "dark:border-brand-800 dark:bg-brand-950/40 dark:text-brand-300 dark:hover:bg-brand-900/50",
   success:
     "border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 " +
     "dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 dark:hover:bg-emerald-900/50",
@@ -38,8 +38,9 @@ export const FC_BUTTON_VARIANTS: Record<FcButtonVariant, string> = {
 };
 
 const SIZES: Record<FcButtonSize, string> = {
-  sm: "px-3 py-1.5 text-xs",
-  md: "px-4 py-2.5 text-sm"
+  // Thiết bị cảm ứng: vùng bấm tối thiểu 44px.
+  sm: "px-3 py-1.5 [@media(pointer:coarse)]:min-h-[44px] text-xs",
+  md: "px-4 py-2.5 [@media(pointer:coarse)]:min-h-[44px] text-sm"
 };
 
 export interface FcButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
