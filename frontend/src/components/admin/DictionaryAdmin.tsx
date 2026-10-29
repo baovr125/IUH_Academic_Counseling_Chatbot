@@ -217,18 +217,18 @@ export default function DictionaryAdmin() {
         <p className="text-slate-600 dark:text-slate-400">
           Quản lý danh sách từ điển chuyên ngành cho hệ thống dịch thuật Real-time.
         </p>
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex flex-wrap items-center gap-2">
           {selectedIds.length > 0 && (
-            <button onClick={handleBulkDelete} className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm flex items-center gap-2 h-[38px]">
+            <button onClick={handleBulkDelete} className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-xl font-medium transition-colors text-sm flex items-center gap-2 h-[38px]">
               <Trash2 size={16} /> Xóa {selectedIds.length} mục
             </button>
           )}
-          <label className="cursor-pointer bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 px-4 py-2 rounded-lg font-medium transition-colors text-sm flex items-center gap-2 h-[38px]">
+          <label className="cursor-pointer bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 px-4 py-2 rounded-xl font-medium transition-colors text-sm flex items-center gap-2 h-[38px]">
             Import CSV/JSON
             <input type="file" accept=".csv,.json" className="hidden" onChange={handleImport} />
           </label>
-          <button onClick={fetchDictionary} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-500 transition-colors h-[38px]">
-            <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin text-blue-500' : ''}`} />
+          <button onClick={fetchDictionary} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl text-slate-500 transition-colors h-[38px]">
+            <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin text-brand-500' : ''}`} />
           </button>
         </div>
       </div>
@@ -241,7 +241,7 @@ export default function DictionaryAdmin() {
             required
             value={domain}
             onChange={(e) => setDomain(e.target.value)}
-            className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+            className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-brand-500 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
             placeholder="VD: CNTT"
           />
         </div>
@@ -252,7 +252,7 @@ export default function DictionaryAdmin() {
             required
             value={word}
             onChange={(e) => setWord(e.target.value)}
-            className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+            className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-brand-500 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
             placeholder="VD: array"
           />
         </div>
@@ -263,7 +263,7 @@ export default function DictionaryAdmin() {
             required
             value={translation}
             onChange={(e) => setTranslation(e.target.value)}
-            className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+            className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-brand-500 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
             placeholder="VD: mảng"
           />
         </div>
@@ -273,7 +273,7 @@ export default function DictionaryAdmin() {
             type="text" 
             value={pos}
             onChange={(e) => setPos(e.target.value)}
-            className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+            className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-brand-500 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
             placeholder="VD: noun"
           />
         </div>
@@ -283,14 +283,14 @@ export default function DictionaryAdmin() {
             type="text" 
             value={phonetic}
             onChange={(e) => setPhonetic(e.target.value)}
-            className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+            className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-brand-500 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
             placeholder="VD: /əˈreɪ/"
           />
         </div>
         <button 
           type="submit" 
           disabled={adding}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg font-medium transition-colors flex items-center gap-2 h-[42px]"
+          className="bg-brand-600 hover:bg-brand-700 text-white px-5 py-2.5 rounded-xl font-medium transition-colors flex items-center gap-2 h-[42px]"
         >
           {adding ? <Loader2 size={18} className="animate-spin" /> : <Plus size={18} />}
           Thêm
@@ -299,8 +299,8 @@ export default function DictionaryAdmin() {
       
       {errorMsg && <p className="text-red-500 text-sm mt-2">{errorMsg}</p>}
 
-      <div className="overflow-x-auto border border-slate-200 dark:border-slate-700 rounded-lg">
-        <table className="w-full text-left text-sm">
+      <div className="overflow-x-auto border border-slate-200 dark:border-slate-700 rounded-xl">
+        <table className="w-full min-w-[800px] text-left text-sm">
           <thead className="bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 font-medium border-b border-slate-200 dark:border-slate-700">
             <tr>
               <th className="px-4 py-4 w-10 text-center">
@@ -337,7 +337,7 @@ export default function DictionaryAdmin() {
               </tr>
             ) : (
               entries.map((entry) => (
-                <tr key={entry.id} className={`hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors ${selectedIds.includes(entry.id) ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''}`}>
+                <tr key={entry.id} className={`hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors ${selectedIds.includes(entry.id) ? 'bg-brand-50/50 dark:bg-brand-900/10' : ''}`}>
                   <td className="px-4 py-4 text-center">
                     <input 
                       type="checkbox" 
@@ -349,19 +349,19 @@ export default function DictionaryAdmin() {
                   {editingId === entry.id ? (
                     <>
                       <td className="px-4 py-4">
-                        <input className="w-full border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-sm bg-white dark:bg-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none" value={editForm.domain} onChange={e => setEditForm({...editForm, domain: e.target.value})} />
+                        <input className="w-full border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-sm bg-white dark:bg-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none" value={editForm.domain} onChange={e => setEditForm({...editForm, domain: e.target.value})} />
                       </td>
                       <td className="px-4 py-4">
-                        <input className="w-full border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-sm font-mono bg-white dark:bg-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none" value={editForm.word} onChange={e => setEditForm({...editForm, word: e.target.value})} />
+                        <input className="w-full border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-sm font-mono bg-white dark:bg-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none" value={editForm.word} onChange={e => setEditForm({...editForm, word: e.target.value})} />
                       </td>
                       <td className="px-4 py-4">
-                        <input className="w-full border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-sm italic bg-white dark:bg-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none" value={editForm.pos} onChange={e => setEditForm({...editForm, pos: e.target.value})} />
+                        <input className="w-full border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-sm italic bg-white dark:bg-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none" value={editForm.pos} onChange={e => setEditForm({...editForm, pos: e.target.value})} />
                       </td>
                       <td className="px-4 py-4">
-                        <input className="w-full border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-sm bg-white dark:bg-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none" value={editForm.phonetic} onChange={e => setEditForm({...editForm, phonetic: e.target.value})} />
+                        <input className="w-full border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-sm bg-white dark:bg-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none" value={editForm.phonetic} onChange={e => setEditForm({...editForm, phonetic: e.target.value})} />
                       </td>
                       <td className="px-4 py-4">
-                        <input className="w-full border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-sm bg-white dark:bg-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none" value={editForm.translation} onChange={e => setEditForm({...editForm, translation: e.target.value})} />
+                        <input className="w-full border border-slate-300 dark:border-slate-600 rounded px-2 py-1.5 text-sm bg-white dark:bg-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none" value={editForm.translation} onChange={e => setEditForm({...editForm, translation: e.target.value})} />
                       </td>
                       <td className="px-4 py-4 text-slate-500 whitespace-nowrap text-xs">
                         {new Date(entry.created_at).toLocaleString('vi-VN')}
@@ -377,7 +377,7 @@ export default function DictionaryAdmin() {
                     </>
                   ) : (
                     <>
-                      <td className="px-4 py-4 font-medium text-blue-600 dark:text-blue-400">
+                      <td className="px-4 py-4 font-medium text-brand-600 dark:text-brand-400">
                         {entry.domain}
                       </td>
                       <td className="px-4 py-4 font-mono font-medium text-slate-900 dark:text-slate-100">
@@ -399,7 +399,7 @@ export default function DictionaryAdmin() {
                         <button 
                           onClick={() => handlePlayAudio(entry.audio_url)}
                           disabled={!entry.audio_url}
-                          className={`p-2 rounded-full transition-colors ${entry.audio_url ? 'text-blue-500 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20' : 'text-slate-300 dark:text-slate-600 cursor-not-allowed'}`}
+                          className={`p-2 rounded-full transition-colors ${entry.audio_url ? 'text-brand-500 hover:text-brand-700 hover:bg-brand-50 dark:hover:bg-brand-900/20' : 'text-slate-300 dark:text-slate-600 cursor-not-allowed'}`}
                           title={entry.audio_url ? "Nghe phát âm" : "Đang tạo âm thanh ngầm..."}
                         >
                           <Volume2 size={18} />

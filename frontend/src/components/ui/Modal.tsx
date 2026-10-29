@@ -56,7 +56,7 @@ export function Modal({ title, onClose, children }: ModalProps) {
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className="w-full max-w-md rounded-2xl border border-slate-100 bg-white p-6 shadow-2xl dark:border-slate-700 dark:bg-slate-800"
+        className="max-h-[calc(100vh-2rem)] [@supports(height:100dvh)]:max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-2xl border border-slate-100 bg-white p-4 shadow-2xl sm:p-6 dark:border-slate-700 dark:bg-slate-800"
       >
         <div className="mb-4 flex items-center justify-between">
           <h3 id={titleId} className="text-base font-bold text-slate-800 dark:text-slate-100">
@@ -66,7 +66,7 @@ export function Modal({ title, onClose, children }: ModalProps) {
             type="button"
             onClick={onClose}
             aria-label={t("common.close")}
-            className="rounded p-1 text-slate-600 hover:text-slate-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-slate-300 dark:hover:text-white"
+            className="rounded p-1 [@media(pointer:coarse)]:p-3 text-slate-600 hover:text-slate-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 dark:text-slate-300 dark:hover:text-white"
           >
             <X size={18} aria-hidden="true" />
           </button>

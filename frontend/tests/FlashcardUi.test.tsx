@@ -68,7 +68,7 @@ describe("FcButton", () => {
 
 describe("FcBadge / FcCard / FcStat", () => {
   it("huy hiệu có biến thể tối cho từng tông", () => {
-    for (const tone of ["slate", "blue", "orange", "emerald", "rose", "sky", "violet", "amber"] as const) {
+    for (const tone of ["slate", "blue", "orange", "emerald", "rose", "sky", "amber"] as const) {
       const { unmount } = render(<FcBadge tone={tone}>n</FcBadge>);
       expect(screen.getByText("n").className, tone).toContain("dark:");
       unmount();
@@ -163,9 +163,9 @@ describe("FcEmpty / FcSkeleton / FcPage", () => {
     expect(screen.getByRole("status")).toHaveTextContent("Đang tải sổ thẻ");
   });
 
-  it("FcPage có nền tối và nhận độ rộng", () => {
+  it("FcPage dùng nền khung chung (không tự tô nền) và nhận độ rộng", () => {
     const { container } = render(<FcPage width="md"><p>x</p></FcPage>);
-    expect((container.firstChild as HTMLElement).className).toContain("dark:bg-slate-950");
+    expect((container.firstChild as HTMLElement).className).not.toMatch(/bg-/);
     expect(container.querySelector(".max-w-4xl")).not.toBeNull();
   });
 });

@@ -102,7 +102,7 @@ export const FcModal: React.FC<FcModalProps> = ({
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className={`flex max-h-[94vh] w-full flex-col rounded-3xl border border-slate-100 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-800 ${SIZE[size]}`}
+        className={`flex max-h-[94vh] [@supports(height:100dvh)]:max-h-[94dvh] w-full flex-col rounded-3xl border border-slate-100 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-800 ${SIZE[size]}`}
       >
         <div className="border-b border-slate-100 px-5 pb-3 pt-5 dark:border-slate-700 sm:px-6">
           <div className="flex items-start justify-between gap-3">
@@ -110,7 +110,7 @@ export const FcModal: React.FC<FcModalProps> = ({
               {icon && (
                 <span
                   aria-hidden="true"
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-300"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-600 dark:bg-brand-950/50 dark:text-brand-300"
                 >
                   {icon}
                 </span>
@@ -127,7 +127,7 @@ export const FcModal: React.FC<FcModalProps> = ({
               onClick={onClose}
               disabled={!dismissible}
               aria-label="Đóng"
-              className="shrink-0 rounded-full p-1.5 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:opacity-40 dark:hover:bg-slate-700 dark:hover:text-slate-200 dark:text-slate-400"
+              className="shrink-0 rounded-full p-1.5 [@media(pointer:coarse)]:p-3 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 disabled:opacity-40 dark:hover:bg-slate-700 dark:hover:text-slate-200 dark:text-slate-400"
             >
               <X size={18} aria-hidden="true" />
             </button>

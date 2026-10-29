@@ -87,19 +87,19 @@ export const WordBuilderGame: React.FC<WordBuilderGameProps> = ({ cards, onPlayA
         <span>Gợi ý đã dùng: {state.hints}</span>
       </div>
       <div className="mb-4 h-1.5 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-700" role="progressbar" aria-valuenow={Math.round((state.index / state.words.length) * 100)} aria-valuemin={0} aria-valuemax={100}>
-        <div className="h-full rounded-full bg-blue-500 transition-all motion-reduce:transition-none" style={{ width: `${(state.index / state.words.length) * 100}%` }} />
+        <div className="h-full rounded-full bg-brand-500 transition-all motion-reduce:transition-none" style={{ width: `${(state.index / state.words.length) * 100}%` }} />
       </div>
 
       <div className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-sm sm:p-7 dark:border-slate-700 dark:bg-slate-800">
         <div className="mb-5 text-center">
           <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Xếp chữ cái thành từ có nghĩa</p>
           <h2 className="mt-1 text-2xl font-extrabold text-slate-800 dark:text-slate-100" data-testid="builder-meaning">{card.definition}</h2>
-          {card.part_of_speech && <span className="mt-1 inline-block rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-bold uppercase text-slate-600 dark:bg-slate-700 dark:text-slate-300">{card.part_of_speech}</span>}
+          {card.part_of_speech && <span className="mt-1 inline-block rounded-full bg-slate-100 px-2.5 py-0.5 text-xs sm:text-[11px] font-bold uppercase text-slate-600 dark:bg-slate-700 dark:text-slate-300">{card.part_of_speech}</span>}
           <div>
             <button
               type="button"
               onClick={() => onPlayAudio(card.audio_url ?? undefined, card.term, card.lang_code, card.phonetic ?? undefined)}
-              className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 hover:bg-blue-100 dark:bg-blue-950/40 dark:text-blue-300 dark:hover:bg-blue-900/50"
+              className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-brand-50 px-3 py-1 text-xs font-semibold text-brand-700 hover:bg-brand-100 dark:bg-brand-950/40 dark:text-brand-300 dark:hover:bg-brand-900/50"
             >
               <Volume2 size={14} /> Nghe từ
             </button>
@@ -118,7 +118,7 @@ export const WordBuilderGame: React.FC<WordBuilderGameProps> = ({ cards, onPlayA
               : state.wrong
               ? "border-rose-400 bg-rose-50 text-rose-800 dark:bg-rose-950/40 dark:text-rose-300"
               : ch
-              ? "border-blue-400 bg-blue-50 text-blue-800 dark:bg-blue-950/40 dark:text-blue-300"
+              ? "border-brand-400 bg-brand-50 text-brand-800 dark:bg-brand-950/40 dark:text-brand-300"
               : "border-dashed border-slate-300 bg-slate-50 text-transparent dark:border-slate-600 dark:bg-slate-900/50";
             return (
               <span key={i} lang={card.lang_code} className={`flex h-12 w-10 items-center justify-center rounded-xl border-2 text-xl font-extrabold sm:h-14 sm:w-12 ${style}`}>
@@ -131,7 +131,7 @@ export const WordBuilderGame: React.FC<WordBuilderGameProps> = ({ cards, onPlayA
         {state.solved ? (
           <div className="flex flex-col items-center gap-3">
             <p className="flex items-center gap-1.5 text-sm font-bold text-emerald-700 dark:text-emerald-300" role="status"><CheckCircle2 size={18} /> Chính xác!</p>
-            <button type="button" autoFocus onClick={() => update((s) => builderNext(s))} className="w-full rounded-2xl bg-blue-600 py-3 text-sm font-bold text-white hover:bg-blue-700">
+            <button type="button" autoFocus onClick={() => update((s) => builderNext(s))} className="w-full rounded-2xl bg-brand-600 py-3 text-sm font-bold text-white hover:bg-brand-700">
               {state.index + 1 >= state.words.length ? "Xem kết quả (Enter)" : "Từ kế tiếp (Enter)"}
             </button>
           </div>
@@ -148,7 +148,7 @@ export const WordBuilderGame: React.FC<WordBuilderGameProps> = ({ cards, onPlayA
                     onClick={() => update((s) => builderPlace(s, t.id))}
                     lang={card.lang_code}
                     className={`flex h-12 w-10 items-center justify-center rounded-xl border-2 text-xl font-extrabold shadow-sm transition-all motion-reduce:transition-none sm:h-14 sm:w-12 ${
-                      used ? "border-slate-100 bg-slate-50 text-slate-200 dark:border-slate-700 dark:bg-slate-900/50 dark:text-slate-600" : "border-slate-300 bg-white text-slate-800 hover:-translate-y-0.5 hover:border-blue-400 hover:shadow dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
+                      used ? "border-slate-100 bg-slate-50 text-slate-200 dark:border-slate-700 dark:bg-slate-900/50 dark:text-slate-600" : "border-slate-300 bg-white text-slate-800 hover:-translate-y-0.5 hover:border-brand-400 hover:shadow dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                     }`}
                   >
                     {t.ch}
@@ -157,13 +157,13 @@ export const WordBuilderGame: React.FC<WordBuilderGameProps> = ({ cards, onPlayA
               })}
             </div>
             <div className="flex flex-wrap items-center justify-center gap-2">
-              <button type="button" onClick={() => update(builderUndo)} disabled={state.placed.length === 0 || state.wrong} className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-600 hover:bg-slate-50 disabled:opacity-40 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700">
+              <button type="button" onClick={() => update(builderUndo)} disabled={state.placed.length === 0 || state.wrong} className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 [@media(pointer:coarse)]:min-h-[44px] text-xs font-bold text-slate-600 hover:bg-slate-50 disabled:opacity-40 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700">
                 <Delete size={14} /> Xóa chữ cuối
               </button>
-              <button type="button" onClick={() => update(builderHint)} disabled={hintsLeft <= 0 || state.wrong} className="flex items-center gap-1.5 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-bold text-amber-700 hover:bg-amber-100 disabled:opacity-40 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300 dark:hover:bg-amber-900/50">
+              <button type="button" onClick={() => update(builderHint)} disabled={hintsLeft <= 0 || state.wrong} className="flex items-center gap-1.5 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 [@media(pointer:coarse)]:min-h-[44px] text-xs font-bold text-amber-700 hover:bg-amber-100 disabled:opacity-40 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300 dark:hover:bg-amber-900/50">
                 <Lightbulb size={14} /> Gợi ý ({hintsLeft})
               </button>
-              <button type="button" onClick={() => update((s) => builderSkip(s))} className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-500 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700">
+              <button type="button" onClick={() => update((s) => builderSkip(s))} className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 [@media(pointer:coarse)]:min-h-[44px] text-xs font-bold text-slate-500 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700">
                 <SkipForward size={14} /> Bỏ qua
               </button>
             </div>

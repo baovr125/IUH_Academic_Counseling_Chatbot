@@ -690,7 +690,7 @@ export default function DocumentTranslationPage() {
       <div className="mb-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
           <div className="flex items-center gap-2">
-            <Languages className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+            <Languages className="h-6 w-6 text-brand-600 dark:text-brand-400" />
             <h1 className="text-xl font-bold text-slate-800 dark:text-slate-100">
               Dịch Thuật Tài Liệu PDF & Trích Xuất Từ Điển Học Thuật IUH
             </h1>
@@ -712,7 +712,7 @@ export default function DocumentTranslationPage() {
           <button
             type="button"
             onClick={() => navigate("/flashcards")}
-            className="flex items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 px-3.5 py-2 text-xs font-semibold text-blue-700 hover:bg-blue-100 transition-colors dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-300 dark:hover:bg-blue-900/50"
+            className="flex items-center gap-1.5 rounded-xl border border-brand-200 bg-brand-50 px-3.5 py-2 text-xs font-semibold text-brand-700 hover:bg-brand-100 transition-colors dark:border-brand-800 dark:bg-brand-950/40 dark:text-brand-300 dark:hover:bg-brand-900/50"
           >
             <BookOpen size={16} />
             <span>Sổ Thẻ Flashcard</span>
@@ -728,7 +728,7 @@ export default function DocumentTranslationPage() {
             <select
               value={sourceLang}
               onChange={(e) => setSourceLang(e.target.value)}
-              className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-800 focus:border-blue-500 focus:outline-none dark:border-slate-600 dark:bg-slate-900/50 dark:text-slate-100"
+              className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-800 focus:border-brand-500 focus:outline-none dark:border-slate-600 dark:bg-slate-900/50 dark:text-slate-100"
             >
               {Object.entries(LANG_CONFIG).map(([code, meta]) => (
                 <option key={code} value={code}>
@@ -742,7 +742,7 @@ export default function DocumentTranslationPage() {
             type="button"
             onClick={swapLanguages}
             title="Đổi chiều ngôn ngữ"
-            className="rounded-full border border-slate-200 p-2 text-slate-500 hover:bg-slate-100 hover:text-blue-600 transition-colors dark:border-slate-600 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-blue-400"
+            className="rounded-full border border-slate-200 p-2 text-slate-500 hover:bg-slate-100 hover:text-brand-600 transition-colors dark:border-slate-600 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-brand-400"
           >
             <ArrowRightLeft size={16} />
           </button>
@@ -752,7 +752,7 @@ export default function DocumentTranslationPage() {
             <select
               value={targetLang}
               onChange={(e) => setTargetLang(e.target.value)}
-              className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-800 focus:border-blue-500 focus:outline-none dark:border-slate-600 dark:bg-slate-900/50 dark:text-slate-100"
+              className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-800 focus:border-brand-500 focus:outline-none dark:border-slate-600 dark:bg-slate-900/50 dark:text-slate-100"
             >
               {Object.entries(LANG_CONFIG).map(([code, meta]) => (
                 <option key={code} value={code}>
@@ -767,7 +767,7 @@ export default function DocumentTranslationPage() {
           type="button"
           onClick={handleStartTranslate}
           disabled={isTranslating || !selectedFile}
-          className="flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-blue-700 disabled:opacity-50 transition-all hover:scale-[1.02] active:scale-[0.98]"
+          className="flex items-center gap-2 rounded-xl bg-brand-600 px-6 py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-brand-700 disabled:opacity-50 transition-all hover:scale-[1.02] active:scale-[0.98]"
         >
           {isTranslating ? (
             <>
@@ -802,7 +802,7 @@ export default function DocumentTranslationPage() {
             <div className="text-xs font-bold text-slate-800 dark:text-slate-100">
               Nhấp hoặc kéo thả tài liệu PDF học thuật
             </div>
-            <div className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
+            <div className="mt-1 text-xs sm:text-[11px] text-slate-500 dark:text-slate-400">
               Hỗ trợ file PDF tối đa 10MB, giữ nguyên cấu trúc trang & bảng biểu
             </div>
           </div>
@@ -819,7 +819,7 @@ export default function DocumentTranslationPage() {
                     <div className="text-xs font-bold text-slate-800 break-all dark:text-slate-100">
                       {selectedFile.name}
                     </div>
-                    <div className="mt-0.5 flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400">
+                    <div className="mt-0.5 flex items-center gap-2 text-xs sm:text-[11px] text-slate-500 dark:text-slate-400">
                       <span>{selectedFile.size}</span>
                       <span>•</span>
                       <span>{selectedFile.pagesOrSlides}</span>
@@ -827,7 +827,7 @@ export default function DocumentTranslationPage() {
                   </div>
                 </div>
 
-                <span className="rounded-full bg-red-600 px-2.5 py-0.5 text-[10px] font-bold text-white uppercase tracking-wider">
+                <span className="rounded-full bg-red-600 px-2.5 py-0.5 text-xs sm:text-[10px] font-bold text-white uppercase tracking-wider">
                   PDF
                 </span>
               </div>
@@ -837,11 +837,11 @@ export default function DocumentTranslationPage() {
                 <div className="mt-4 border-t border-slate-100 pt-3 dark:border-slate-700">
                   <div className="mb-1.5 flex items-center justify-between text-xs font-semibold">
                     <span className="text-slate-600 dark:text-slate-300">{statusMessage}</span>
-                    <span className="text-blue-600 font-bold dark:text-blue-400">{progressPercent}%</span>
+                    <span className="text-brand-600 font-bold dark:text-brand-400">{progressPercent}%</span>
                   </div>
                   <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-700">
                     <div
-                      className="h-full rounded-full bg-blue-600 transition-all duration-500"
+                      className="h-full rounded-full bg-brand-600 transition-all duration-500"
                       style={{ width: `${progressPercent}%` }}
                     />
                   </div>
@@ -854,12 +854,12 @@ export default function DocumentTranslationPage() {
           <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm flex-1 flex flex-col dark:border-slate-600 dark:bg-slate-800">
             <div className="mb-3 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <BookMarked size={18} className="text-indigo-600 dark:text-indigo-400" />
+                <BookMarked size={18} className="text-brand-600 dark:text-brand-400" />
                 <span className="text-xs font-bold text-slate-800 dark:text-slate-100">
                   Glossary ({glossary.length})
                 </span>
                 {isExtractingGlossary && (
-                  <span className="flex items-center gap-1 rounded-full bg-indigo-50 border border-indigo-200 px-2 py-0.5 text-[10px] font-bold text-indigo-700 animate-pulse dark:bg-indigo-950/40 dark:border-indigo-800 dark:text-indigo-300">
+                  <span className="flex items-center gap-1 rounded-full bg-brand-50 border border-brand-200 px-2 py-0.5 text-xs sm:text-[10px] font-bold text-brand-700 animate-pulse dark:bg-brand-950/40 dark:border-brand-800 dark:text-brand-300">
                     <Loader2 size={11} className="animate-spin" />
                     <span>Đang trích xuất...</span>
                   </span>
@@ -868,7 +868,7 @@ export default function DocumentTranslationPage() {
 
               {glossary.length > 0 && (
                 <div className="flex items-center gap-3">
-                  <button onClick={toggleAllGlossary} className="text-[11px] text-slate-500 hover:text-blue-600 font-medium transition-colors dark:text-slate-400 dark:hover:text-blue-400">
+                  <button onClick={toggleAllGlossary} className="text-xs sm:text-[11px] text-slate-500 hover:text-brand-600 font-medium transition-colors dark:text-slate-400 dark:hover:text-brand-400">
                     {selectedGlossaryIndices.size === glossary.length ? "Bỏ chọn tất cả" : "Chọn tất cả"}
                   </button>
                   <button
@@ -880,7 +880,7 @@ export default function DocumentTranslationPage() {
                         ? `Lưu vào bộ sưu tập ${LANG_CONFIG[savableLang].viName}`
                         : "Chỉ lưu được thuật ngữ khi dịch từ một ngoại ngữ sang tiếng Việt"
                     }
-                    className="flex items-center gap-1 rounded-lg bg-indigo-50 px-2.5 py-1.5 text-[11px] font-bold text-indigo-700 hover:bg-indigo-100 disabled:opacity-50 transition-all active:scale-95 dark:bg-indigo-950/40 dark:text-indigo-300 dark:hover:bg-indigo-900/50"
+                    className="flex items-center gap-1 rounded-lg bg-brand-50 px-2.5 py-1.5 text-xs sm:text-[11px] font-bold text-brand-700 hover:bg-brand-100 disabled:opacity-50 transition-all active:scale-95 dark:bg-brand-950/40 dark:text-brand-300 dark:hover:bg-brand-900/50"
                   >
                     <BookmarkPlus size={14} />
                     <span>Lưu thẻ ({selectedGlossaryIndices.size})</span>
@@ -890,7 +890,7 @@ export default function DocumentTranslationPage() {
             </div>
 
             {glossary.length > 0 && !savableLang && (
-              <div role="note" className="mb-3 rounded-xl border border-amber-200 bg-amber-50 p-2.5 text-[11px] font-medium text-amber-800 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300">
+              <div role="note" className="mb-3 rounded-xl border border-amber-200 bg-amber-50 p-2.5 text-xs sm:text-[11px] font-medium text-amber-800 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300">
                 Tài liệu này được dịch giữa{" "}
                 {docLangs ? `${LANG_CONFIG[docLangs.source]?.viName ?? docLangs.source} → ${LANG_CONFIG[docLangs.target]?.viName ?? docLangs.target}` : "các ngôn ngữ chưa rõ"}
                 . Flashcard chỉ lưu thuật ngữ ngoại ngữ kèm nghĩa tiếng Việt — hãy dịch tài liệu từ một ngoại ngữ sang tiếng Việt để lưu thẻ.
@@ -902,7 +902,7 @@ export default function DocumentTranslationPage() {
                 role="status"
                 className={`mb-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 rounded-xl border p-3 text-xs font-medium shadow-sm animate-in fade-in slide-in-from-top-2 duration-300 ${
                   saveSuccessDetail.count > 0 || saveSuccessDetail.pending > 0
-                    ? "bg-gradient-to-r from-emerald-50 to-teal-50 border-emerald-200 text-emerald-900 dark:from-emerald-950/40 dark:border-emerald-800 dark:text-emerald-200"
+                    ? "bg-emerald-50 border-emerald-200 text-emerald-900 dark:bg-emerald-950/40 dark:border-emerald-800 dark:text-emerald-200"
                     : "bg-red-50 border-red-200 text-red-800 dark:bg-red-950/40 dark:border-red-800 dark:text-red-300"
                 }`}
               >
@@ -914,7 +914,7 @@ export default function DocumentTranslationPage() {
                     <span className="font-bold">
                       {saveSuccessDetail.count > 0 || saveSuccessDetail.pending > 0 ? "Kết quả lưu Flashcard" : "Không lưu được Flashcard"}
                     </span>
-                    <p className="text-[11px] mt-0.5">
+                    <p className="text-xs sm:text-[11px] mt-0.5">
                       Đã lưu <strong>{saveSuccessDetail.count}</strong> thuật ngữ vào sổ <strong>"{saveSuccessDetail.deckTitle}"</strong> (
                       {LANG_CONFIG[saveSuccessDetail.langCode]?.viName})
                       {saveSuccessDetail.duplicates > 0 && <>; bỏ qua <strong>{saveSuccessDetail.duplicates}</strong> thuật ngữ đã có</>}
@@ -927,7 +927,7 @@ export default function DocumentTranslationPage() {
                 <button
                   type="button"
                   onClick={() => navigate(`/flashcards/${saveSuccessDetail.langCode}`)}
-                  className="flex items-center gap-1 text-[11px] font-bold text-emerald-800 bg-emerald-100/80 hover:bg-emerald-200/80 px-2.5 py-1.5 rounded-lg transition-all shrink-0 hover:shadow-xs active:scale-95 cursor-pointer dark:text-emerald-300"
+                  className="flex items-center gap-1 text-xs sm:text-[11px] font-bold text-emerald-800 bg-emerald-100/80 hover:bg-emerald-200/80 px-2.5 py-1.5 rounded-lg transition-all shrink-0 hover:shadow-xs active:scale-95 cursor-pointer dark:text-emerald-300"
                 >
                   <span>Mở bộ sưu tập {LANG_CONFIG[saveSuccessDetail.langCode]?.viName}</span>
                   <ExternalLink size={12} />
@@ -936,27 +936,27 @@ export default function DocumentTranslationPage() {
             )}
 
             {isExtractingGlossary && glossary.length === 0 ? (
-              <div className="flex flex-1 flex-col items-center justify-center py-8 text-center bg-indigo-50/50 rounded-xl border border-dashed border-indigo-200 p-4 animate-pulse dark:bg-indigo-950/30 dark:border-indigo-800">
-                <Loader2 size={24} className="mb-2 animate-spin text-indigo-600 dark:text-indigo-400" />
-                <span className="text-xs font-bold text-indigo-900 dark:text-indigo-200">Đang phân tích & trích xuất thuật ngữ AI...</span>
-                <span className="text-[11px] text-indigo-500 mt-1 dark:text-indigo-400">Đang tạo phiên âm IPA và giọng phát âm chuẩn</span>
+              <div className="flex flex-1 flex-col items-center justify-center py-8 text-center bg-brand-50/50 rounded-xl border border-dashed border-brand-200 p-4 animate-pulse dark:bg-brand-950/30 dark:border-brand-800">
+                <Loader2 size={24} className="mb-2 animate-spin text-brand-600 dark:text-brand-400" />
+                <span className="text-xs font-bold text-brand-900 dark:text-brand-200">Đang phân tích & trích xuất thuật ngữ AI...</span>
+                <span className="text-xs sm:text-[11px] text-brand-500 mt-1 dark:text-brand-400">Đang tạo phiên âm IPA và giọng phát âm chuẩn</span>
               </div>
             ) : glossary.length === 0 ? (
               <div className="flex flex-1 flex-col items-center justify-center py-8 text-center text-slate-500 dark:text-slate-400">
                 <AlertCircle size={24} className="mb-1 text-slate-300 dark:text-slate-600" />
                 <span className="text-xs">Chưa có thuật ngữ trích xuất</span>
-                <span className="text-[11px] text-slate-500 mt-0.5 dark:text-slate-400">Thuật ngữ sẽ tự động xuất hiện khi dịch tài liệu</span>
+                <span className="text-xs sm:text-[11px] text-slate-500 mt-0.5 dark:text-slate-400">Thuật ngữ sẽ tự động xuất hiện khi dịch tài liệu</span>
               </div>
             ) : (
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 overflow-y-auto max-h-[220px] pr-1">
                 {glossary.map((g, i) => (
-                  <div key={i} className={`relative rounded-xl border ${selectedGlossaryIndices.has(i) ? 'border-blue-400 bg-blue-50/50 dark:border-blue-600 dark:bg-blue-950/30' : 'border-slate-200 bg-slate-50/70 dark:border-slate-600 dark:bg-slate-900/40'} p-2.5 text-xs transition-all cursor-pointer group hover:border-blue-300 shadow-sm dark:hover:border-blue-600`} onClick={() => toggleGlossaryItem(i)}>
+                  <div key={i} className={`relative rounded-xl border ${selectedGlossaryIndices.has(i) ? 'border-brand-400 bg-brand-50/50 dark:border-brand-600 dark:bg-brand-950/30' : 'border-slate-200 bg-slate-50/70 dark:border-slate-600 dark:bg-slate-900/40'} p-2.5 text-xs transition-all cursor-pointer group hover:border-brand-300 shadow-sm dark:hover:border-brand-600`} onClick={() => toggleGlossaryItem(i)}>
                     <div className="flex items-start justify-between mb-1.5">
                       <div className="flex items-start gap-2 max-w-[80%]">
-                        <input type="checkbox" checked={selectedGlossaryIndices.has(i)} readOnly className="mt-0.5 rounded text-blue-600 border-slate-300 focus:ring-0 shrink-0 dark:text-blue-400 dark:border-slate-600" />
+                        <input type="checkbox" checked={selectedGlossaryIndices.has(i)} readOnly className="mt-0.5 rounded text-brand-600 border-slate-300 focus:ring-0 shrink-0 dark:text-brand-400 dark:border-slate-600" />
                         <div>
                            <div className="font-bold text-slate-800 break-words dark:text-slate-100">{g.term}</div>
-                           {g.phonetic && <div className="text-[10.5px] text-slate-500 font-mono mt-0.5 dark:text-slate-400">{g.phonetic}</div>}
+                           {g.phonetic && <div className="text-xs sm:text-[10.5px] text-slate-500 font-mono mt-0.5 dark:text-slate-400">{g.phonetic}</div>}
                         </div>
                       </div>
                       
@@ -965,17 +965,17 @@ export default function DocumentTranslationPage() {
                         onClick={(e) => { e.stopPropagation(); playAudio(g.term, sourceLang); }}
                         className={`p-1.5 rounded-full transition-colors shrink-0 flex items-center justify-center cursor-pointer ${
                           playingGlossaryTerm === g.term
-                            ? "text-blue-700 bg-blue-100 shadow-inner dark:text-blue-300 dark:bg-blue-900/40"
-                            : "text-blue-600 hover:text-blue-800 hover:bg-blue-100/80 bg-blue-50/50 dark:text-blue-400 dark:bg-blue-950/30 dark:hover:bg-blue-900/50"
+                            ? "text-brand-700 bg-brand-100 shadow-inner dark:text-brand-300 dark:bg-brand-900/40"
+                            : "text-brand-600 hover:text-brand-800 hover:bg-brand-100/80 bg-brand-50/50 dark:text-brand-400 dark:bg-brand-950/30 dark:hover:bg-brand-900/50"
                         }`}
                         title={playingGlossaryTerm === g.term ? "Dừng phát âm" : "Phát âm"}
                       >
-                        <Volume2 size={15} className={playingGlossaryTerm === g.term ? "animate-pulse text-blue-700 dark:text-blue-300" : ""} />
+                        <Volume2 size={15} className={playingGlossaryTerm === g.term ? "animate-pulse text-brand-700 dark:text-brand-300" : ""} />
                       </button>
                     </div>
                     
-                    <div className="text-blue-700 font-medium ml-[22px] dark:text-blue-300">{g.translation || g.vi}</div>
-                    {g.context && <div className="text-[10px] text-slate-400 ml-[22px] mt-1">{g.context}</div>}
+                    <div className="text-brand-700 font-medium ml-[22px] dark:text-brand-300">{g.translation || g.vi}</div>
+                    {g.context && <div className="text-xs sm:text-[10px] text-slate-400 ml-[22px] mt-1">{g.context}</div>}
                   </div>
                 ))}
               </div>
@@ -990,22 +990,22 @@ export default function DocumentTranslationPage() {
             {/* Header of Result Frame */}
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 bg-slate-50/80 px-4 py-3 dark:border-slate-700 dark:bg-slate-900/50">
               <div className="flex items-center gap-2.5">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-100 text-brand-700 dark:bg-brand-900/40 dark:text-brand-300">
                   <FileCheck size={18} />
                 </div>
                 <div>
                   <h3 className="text-xs font-bold text-slate-800 dark:text-slate-100">
                     Khung Hiển Thị Bản Dịch PDF
                   </h3>
-                  <div className="flex items-center gap-2 text-[10px] text-slate-500 dark:text-slate-400">
+                  <div className="flex items-center gap-2 text-xs sm:text-[10px] text-slate-500 dark:text-slate-400">
                     <span className="font-medium">{selectedFile?.title || "Chưa chọn tài liệu"}</span>
                     {selectedFile && (
-                      <span className="rounded bg-blue-50 px-1.5 py-0.5 text-[9px] font-bold text-blue-600 uppercase dark:bg-blue-950/40 dark:text-blue-400">
+                      <span className="rounded bg-brand-50 px-1.5 py-0.5 text-[9px] font-bold text-brand-600 uppercase dark:bg-brand-950/40 dark:text-brand-400">
                         {sourceLang} ➔ {targetLang}
                       </span>
                     )}
                     {modelUsed && (
-                      <span className="rounded bg-purple-50 px-1.5 py-0.5 text-[9px] font-bold text-purple-700 dark:bg-purple-950/40 dark:text-purple-300">
+                      <span className="rounded bg-sky-50 px-1.5 py-0.5 text-[9px] font-bold text-sky-700 dark:bg-sky-950/40 dark:text-sky-300">
                         🤖 {modelUsed}
                       </span>
                     )}
@@ -1078,7 +1078,7 @@ export default function DocumentTranslationPage() {
                 onClick={() => setActiveTab("pdf")}
                 className={`flex items-center gap-1.5 border-b-2 px-3 py-2 text-xs font-bold transition-colors ${
                   activeTab === "pdf"
-                    ? "border-blue-600 text-blue-600 dark:text-blue-400"
+                    ? "border-brand-600 text-brand-600 dark:text-brand-400"
                     : "border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
                 }`}
               >
@@ -1091,7 +1091,7 @@ export default function DocumentTranslationPage() {
                 onClick={() => setActiveTab("markdown")}
                 className={`flex items-center gap-1.5 border-b-2 px-3 py-2 text-xs font-bold transition-colors ${
                   activeTab === "markdown"
-                    ? "border-blue-600 text-blue-600 dark:text-blue-400"
+                    ? "border-brand-600 text-brand-600 dark:text-brand-400"
                     : "border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
                 }`}
               >
@@ -1104,7 +1104,7 @@ export default function DocumentTranslationPage() {
                 onClick={() => setActiveTab("summary")}
                 className={`flex items-center gap-1.5 border-b-2 px-3 py-2 text-xs font-bold transition-colors ${
                   activeTab === "summary"
-                    ? "border-blue-600 text-blue-600 dark:text-blue-400"
+                    ? "border-brand-600 text-brand-600 dark:text-brand-400"
                     : "border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
                 }`}
               >
@@ -1119,7 +1119,7 @@ export default function DocumentTranslationPage() {
               {/* LOADING STATE */}
               {isTranslating && !isCompleted && (
                 <div className="flex h-full flex-col items-center justify-center py-20 text-center">
-                  <Loader2 size={38} className="animate-spin text-blue-600 mb-3 dark:text-blue-400" />
+                  <Loader2 size={38} className="animate-spin text-brand-600 mb-3 dark:text-brand-400" />
                   <div className="text-sm font-bold text-slate-800 dark:text-slate-100">
                     Đang dịch & render file PDF bản dịch...
                   </div>
@@ -1161,7 +1161,7 @@ export default function DocumentTranslationPage() {
                             <button
                               type="button"
                               onClick={handleOpenPdfNewTab}
-                              className="rounded-lg bg-blue-600 px-3.5 py-2 text-xs font-bold text-white shadow hover:bg-blue-700 transition-all"
+                              className="rounded-lg bg-brand-600 px-3.5 py-2 text-xs font-bold text-white shadow hover:bg-brand-700 transition-all"
                             >
                               Xem PDF ở Tab Mới
                             </button>
@@ -1183,12 +1183,12 @@ export default function DocumentTranslationPage() {
                   {/* TAB 3: SUMMARY */}
                   {activeTab === "summary" && (
                     <div className="flex-1 p-2 space-y-4 overflow-y-auto max-h-[520px]">
-                      <div className="rounded-xl border border-blue-100 bg-blue-50/60 p-4 dark:border-blue-900/50 dark:bg-blue-950/30">
-                        <div className="flex items-center gap-2 font-bold text-blue-900 text-xs mb-1 dark:text-blue-200">
-                          <Sparkles size={16} className="text-blue-600 dark:text-blue-400" />
+                      <div className="rounded-xl border border-brand-100 bg-brand-50/60 p-4 dark:border-brand-900/50 dark:bg-brand-950/30">
+                        <div className="flex items-center gap-2 font-bold text-brand-900 text-xs mb-1 dark:text-brand-200">
+                          <Sparkles size={16} className="text-brand-600 dark:text-brand-400" />
                           <span>Tóm Tắt Tổng Quan Tài Liệu</span>
                         </div>
-                        <p className="text-xs text-blue-800 leading-relaxed dark:text-blue-300">
+                        <p className="text-xs text-brand-800 leading-relaxed dark:text-brand-300">
                           Nội dung tài liệu đã được dịch thành công và render thành định dạng file PDF chuẩn giữ nguyên cấu trúc trình bày.
                         </p>
                       </div>
@@ -1211,7 +1211,7 @@ export default function DocumentTranslationPage() {
             </div>
 
             {/* Footer Bar of Result Frame */}
-            <div className="flex items-center justify-between border-t border-slate-100 bg-slate-50/80 px-4 py-2.5 text-[11px] text-slate-500 dark:border-slate-700 dark:text-slate-400 dark:bg-slate-900/50">
+            <div className="flex items-center justify-between border-t border-slate-100 bg-slate-50/80 px-4 py-2.5 text-xs sm:text-[11px] text-slate-500 dark:border-slate-700 dark:text-slate-400 dark:bg-slate-900/50">
               <div className="flex items-center gap-3">
                 <span>Trình xem PDF Trực Tiếp</span>
                 <span>•</span>
@@ -1235,7 +1235,7 @@ export default function DocumentTranslationPage() {
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="w-full max-w-sm rounded-2xl bg-white p-5 shadow-2xl border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
             <h3 className="mb-1 text-lg font-bold text-slate-800 flex items-center gap-2 dark:text-slate-100">
-              <BookmarkPlus size={20} className="text-blue-600 dark:text-blue-400"/>
+              <BookmarkPlus size={20} className="text-brand-600 dark:text-brand-400"/>
               Lưu Thẻ Flashcard
             </h3>
             <p className="mb-4 text-xs text-slate-500 leading-relaxed dark:text-slate-400">
@@ -1245,21 +1245,21 @@ export default function DocumentTranslationPage() {
 
             {isLoadingDecks ? (
               <div className="flex items-center justify-center py-6 gap-2 text-xs text-slate-500 dark:text-slate-400">
-                <Loader2 size={18} className="animate-spin text-blue-600 dark:text-blue-400" />
+                <Loader2 size={18} className="animate-spin text-brand-600 dark:text-brand-400" />
                 <span>Đang tải danh sách sổ thẻ...</span>
               </div>
             ) : (
               <div className="space-y-4">
                 <label className="flex flex-col gap-2 cursor-pointer group">
-                  <div className="flex items-center gap-2 text-sm font-semibold text-slate-700 group-hover:text-blue-600 transition-colors dark:text-slate-200">
-                    <input type="radio" name="deckOption" value="existing" checked={deckOption === "existing"} onChange={() => setDeckOption("existing")} className="text-blue-600 focus:ring-0 border-slate-300 w-4 h-4 dark:text-blue-400 dark:border-slate-600" />
+                  <div className="flex items-center gap-2 text-sm font-semibold text-slate-700 group-hover:text-brand-600 transition-colors dark:text-slate-200">
+                    <input type="radio" name="deckOption" value="existing" checked={deckOption === "existing"} onChange={() => setDeckOption("existing")} className="text-brand-600 focus:ring-0 border-slate-300 w-4 h-4 dark:text-brand-400 dark:border-slate-600" />
                     Lưu vào sổ thẻ hiện có
                   </div>
                   {deckOption === "existing" && (
                     <select
                       value={selectedDeckId}
                       onChange={(e) => setSelectedDeckId(e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs font-medium text-slate-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none ml-6 max-w-[90%] shadow-sm transition-all dark:border-slate-600 dark:bg-slate-900/50 dark:text-slate-100 dark:focus:ring-blue-900/40"
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs font-medium text-slate-800 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none ml-6 max-w-[90%] shadow-sm transition-all dark:border-slate-600 dark:bg-slate-900/50 dark:text-slate-100 dark:focus:ring-brand-900/40"
                     >
                       <option value="">
                         {savableLang ? LANG_CONFIG[savableLang].flag : "🌐"} {availableDecks.find((d) => d.is_default)?.title ?? (savableLang ? LANG_CONFIG[savableLang].defaultTitle : "Sổ mặc định")} (sổ mặc định)
@@ -1272,8 +1272,8 @@ export default function DocumentTranslationPage() {
                 </label>
 
                 <label className="flex flex-col gap-2 cursor-pointer group mt-2">
-                  <div className="flex items-center gap-2 text-sm font-semibold text-slate-700 group-hover:text-blue-600 transition-colors dark:text-slate-200">
-                    <input type="radio" name="deckOption" value="new" checked={deckOption === "new"} onChange={() => setDeckOption("new")} className="text-blue-600 focus:ring-0 border-slate-300 w-4 h-4 dark:text-blue-400 dark:border-slate-600" />
+                  <div className="flex items-center gap-2 text-sm font-semibold text-slate-700 group-hover:text-brand-600 transition-colors dark:text-slate-200">
+                    <input type="radio" name="deckOption" value="new" checked={deckOption === "new"} onChange={() => setDeckOption("new")} className="text-brand-600 focus:ring-0 border-slate-300 w-4 h-4 dark:text-brand-400 dark:border-slate-600" />
                     Tạo sổ thẻ mới
                   </div>
                   {deckOption === "new" && (
@@ -1282,7 +1282,7 @@ export default function DocumentTranslationPage() {
                       placeholder={savableLang ? LANG_CONFIG[savableLang].defaultTitle : "Tên sổ thẻ mới"}
                       value={newDeckTitle}
                       onChange={(e) => setNewDeckTitle(e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs font-medium text-slate-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none ml-6 max-w-[90%] shadow-sm transition-all placeholder:text-slate-400 dark:border-slate-600 dark:bg-slate-900/50 dark:text-slate-100 dark:focus:ring-blue-900/40 dark:placeholder:text-slate-500"
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs font-medium text-slate-800 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none ml-6 max-w-[90%] shadow-sm transition-all placeholder:text-slate-400 dark:border-slate-600 dark:bg-slate-900/50 dark:text-slate-100 dark:focus:ring-brand-900/40 dark:placeholder:text-slate-500"
                     />
                   )}
                 </label>
@@ -1302,7 +1302,7 @@ export default function DocumentTranslationPage() {
                 type="button"
                 onClick={handleSaveKeywordsToDeck}
                 disabled={isSavingCards || isLoadingDecks || (deckOption === "new" && !newDeckTitle.trim())}
-                className="flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-xs font-bold text-white hover:bg-blue-700 disabled:opacity-50 disabled:hover:bg-blue-600 transition-colors shadow-sm cursor-pointer"
+                className="flex items-center gap-2 rounded-xl bg-brand-600 px-5 py-2.5 text-xs font-bold text-white hover:bg-brand-700 disabled:opacity-50 disabled:hover:bg-brand-600 transition-colors shadow-sm cursor-pointer"
               >
                 {isSavingCards ? (
                   <>
@@ -1322,8 +1322,8 @@ export default function DocumentTranslationPage() {
       )}
 
       {/* Privacy Policy Note */}
-      <div className="mt-4 flex items-center gap-2.5 rounded-xl bg-slate-50 border border-slate-200 px-4 py-2.5 text-[11px] text-slate-500 shadow-sm dark:bg-slate-900/50 dark:border-slate-600 dark:text-slate-400">
-        <ShieldCheck size={16} className="text-blue-600 shrink-0 dark:text-blue-400" />
+      <div className="mt-4 flex items-center gap-2.5 rounded-xl bg-slate-50 border border-slate-200 px-4 py-2.5 text-xs sm:text-[11px] text-slate-500 shadow-sm dark:bg-slate-900/50 dark:border-slate-600 dark:text-slate-400">
+        <ShieldCheck size={16} className="text-brand-600 shrink-0 dark:text-brand-400" />
         <span>
           <strong>Lưu ý bảo mật:</strong> Nội dung tài liệu và kết quả dịch chỉ được lưu tạm thời trong phiên làm việc hiện tại. Nếu bạn tải lại trang (F5 / Reload), dữ liệu vẫn được giữ nguyên. Tuy nhiên, khi bạn chuyển sang trang khác, quay lại trang trước hoặc đăng xuất, toàn bộ dữ liệu sẽ tự động được xóa để bảo mật.
         </span>

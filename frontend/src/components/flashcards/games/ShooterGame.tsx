@@ -215,7 +215,7 @@ export const ShooterGame: React.FC<ShooterGameProps> = ({ cards, mode, onPlayAud
             aria-pressed={assist}
             onClick={() => setAssist((v) => !v)}
             title="Ngắm hỗ trợ: chạm vào bóng nào thì bắn thẳng vào bóng đó"
-            className={`flex items-center gap-1 rounded-full border px-2.5 py-1 ${assist ? "border-violet-300 bg-violet-50 text-violet-700 dark:border-violet-700 dark:bg-violet-950/40 dark:text-violet-300" : "border-slate-200 bg-white text-slate-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-400"}`}
+            className={`flex items-center gap-1 rounded-full border px-2.5 py-1 ${assist ? "border-brand-300 bg-brand-50 text-brand-700 dark:border-brand-700 dark:bg-brand-950/40 dark:text-brand-300" : "border-slate-200 bg-white text-slate-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-400"}`}
           >
             <Crosshair size={12} /> Ngắm hỗ trợ
           </button>
@@ -231,7 +231,7 @@ export const ShooterGame: React.FC<ShooterGameProps> = ({ cards, mode, onPlayAud
         data-theme-lock="dark"
         onPointerMove={onPointerMove}
         onClick={onArenaClick}
-        className="relative aspect-[5/4] w-full cursor-crosshair touch-none overflow-hidden rounded-3xl border border-indigo-900/40 bg-gradient-to-b from-indigo-950 via-slate-900 to-slate-950 shadow-inner"
+        className="relative aspect-[5/4] w-full cursor-crosshair touch-none overflow-hidden rounded-3xl border border-brand-900/40 bg-gradient-to-b from-brand-950 via-slate-900 to-slate-950 shadow-inner"
         style={{ containerType: "inline-size" }}
       >
         {/* vạch báo nguy hiểm */}
@@ -242,7 +242,7 @@ export const ShooterGame: React.FC<ShooterGameProps> = ({ cards, mode, onPlayAud
           const shaking = b.shakeUntil > view.t;
           const isSelected = selected === b.id;
           const size = b.radius * 2;
-          let tone = "from-sky-600 to-blue-700 text-white";
+          let tone = "from-sky-600 to-brand-700 text-white";
           if (b.popped) tone = "from-emerald-300 to-emerald-500 text-white scale-150 opacity-0";
           else if (b.revealed) tone = "from-emerald-600 to-emerald-800 text-white ring-4 ring-emerald-200";
           else if (shaking) tone = "from-rose-600 to-rose-700 text-white";
@@ -283,12 +283,12 @@ export const ShooterGame: React.FC<ShooterGameProps> = ({ cards, mode, onPlayAud
             (data-theme-lock được tests/themeLock.test.tsx kiểm tra; công cụ sửa hàng loạt cũng phải bỏ qua khối này). */}
         <div data-theme-lock="light" className="absolute bottom-1 left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-2xl bg-white/95 px-3 py-1.5 shadow-lg">
           <span lang={word.lang_code} className="text-base font-extrabold text-slate-800 sm:text-lg" data-testid="shooter-word">{word.term}</span>
-          {word.phonetic && <span className="hidden font-mono text-xs text-blue-600 sm:inline">{word.phonetic}</span>}
+          {word.phonetic && <span className="hidden font-mono text-xs text-brand-600 sm:inline">{word.phonetic}</span>}
           <button
             type="button"
             aria-label="Nghe phát âm"
             onClick={(e) => { e.stopPropagation(); onPlayAudio(word.audio_url ?? undefined, word.term, word.lang_code, word.phonetic ?? undefined); }}
-            className="pointer-events-auto rounded-full bg-blue-50 p-1 text-blue-700 hover:bg-blue-100"
+            className="pointer-events-auto rounded-full bg-brand-50 p-1 text-brand-700 hover:bg-brand-100"
           >
             <Volume2 size={14} />
           </button>
@@ -307,7 +307,7 @@ export const ShooterGame: React.FC<ShooterGameProps> = ({ cards, mode, onPlayAud
         )}
       </div>
 
-      <p className="mt-2 text-center text-[11px] text-slate-500 dark:text-slate-400">
+      <p className="mt-2 text-center text-xs sm:text-[11px] text-slate-500 dark:text-slate-400">
         {reduced ? "Chế độ giảm chuyển động: bóng đứng yên. " : ""}
         Bắn vào bóng có <strong>nghĩa đúng</strong> của từ trên súng; mỗi lần bắn đúng sẽ thêm một bóng mới. Bắn sai chỉ mất combo. Phím: ←/→ chọn · Enter/Space bắn · 1–5 bắn nhanh · P tạm dừng
       </p>

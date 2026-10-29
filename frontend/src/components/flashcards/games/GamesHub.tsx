@@ -145,7 +145,7 @@ export const GamesHub: React.FC<GamesHubProps> = ({ deck, onPlayAudio }) => {
     return (
       <div className={`mx-auto w-full ${game === "shooter" ? "max-w-3xl" : "max-w-2xl"}`} data-testid="game-stage">
         <div className="mb-4 flex items-center justify-between">
-          <button type="button" onClick={() => setView("menu")} className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700">
+          <button type="button" onClick={() => setView("menu")} className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-1.5 [@media(pointer:coarse)]:min-h-[44px] text-xs font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700">
             <ArrowLeft size={14} /> {view === "playing" ? "Thoát ván" : "Danh sách trò chơi"}
           </button>
           <div className="flex items-center gap-2 text-xs font-bold text-slate-500 dark:text-slate-400">
@@ -193,9 +193,9 @@ export const GamesHub: React.FC<GamesHubProps> = ({ deck, onPlayAudio }) => {
 
   return (
     <div className="mx-auto w-full max-w-5xl">
-      <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-3xl border border-violet-100 bg-gradient-to-r from-violet-50 to-blue-50 p-4 dark:border-violet-900/50 dark:from-violet-950/40 dark:to-blue-950/40">
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-3xl border border-brand-100 bg-brand-50 p-4 dark:border-brand-900/50 dark:bg-brand-950/40">
         <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-violet-600 text-white"><Gamepad2 size={22} /></div>
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-brand-600 text-white"><Gamepad2 size={22} /></div>
           <div>
             <p className="text-sm font-extrabold text-slate-800 dark:text-slate-100" data-testid="game-level">
               {level ? `Cấp ${level.level}` : statsQuery.isLoading ? "Đang tải…" : "Trò chơi ôn từ"}
@@ -203,9 +203,9 @@ export const GamesHub: React.FC<GamesHubProps> = ({ deck, onPlayAudio }) => {
             {level && (
               <div className="mt-1 flex items-center gap-2">
                 <div className="h-1.5 w-32 overflow-hidden rounded-full bg-white dark:bg-slate-800" role="progressbar" aria-valuenow={Math.round(levelPct)} aria-valuemin={0} aria-valuemax={100}>
-                  <div className="h-full rounded-full bg-violet-500" style={{ width: `${levelPct}%` }} />
+                  <div className="h-full rounded-full bg-brand-500" style={{ width: `${levelPct}%` }} />
                 </div>
-                <span className="text-[11px] font-semibold text-slate-600 dark:text-slate-400">{level.xp}/{level.next_level_xp} XP</span>
+                <span className="text-xs sm:text-[11px] font-semibold text-slate-600 dark:text-slate-400">{level.xp}/{level.next_level_xp} XP</span>
               </div>
             )}
           </div>
@@ -228,10 +228,10 @@ export const GamesHub: React.FC<GamesHubProps> = ({ deck, onPlayAudio }) => {
               role="radio"
               aria-checked={prefs.mode === value}
               onClick={() => setPrefs({ ...prefs, mode: value })}
-              className={`rounded-xl border px-3 py-1.5 text-left text-xs font-bold transition-colors ${prefs.mode === value ? "border-violet-500 bg-violet-600 text-white" : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"}`}
+              className={`rounded-xl border px-3 py-1.5 text-left text-xs font-bold transition-colors ${prefs.mode === value ? "border-brand-500 bg-brand-600 text-white" : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"}`}
             >
               {label}
-              <span className={`block text-[10px] font-medium ${prefs.mode === value ? "text-violet-100" : "text-slate-500 dark:text-slate-400"}`}>{sub}</span>
+              <span className={`block text-xs sm:text-[10px] font-medium ${prefs.mode === value ? "text-brand-100" : "text-slate-500 dark:text-slate-400"}`}>{sub}</span>
             </button>
           ))}
         </div>
@@ -240,10 +240,10 @@ export const GamesHub: React.FC<GamesHubProps> = ({ deck, onPlayAudio }) => {
             type="checkbox"
             checked={prefs.applyReview}
             onChange={(e) => setPrefs({ ...prefs, applyReview: e.target.checked })}
-            className="h-4 w-4 rounded border-slate-300 text-violet-600 dark:border-slate-600 dark:text-violet-400"
+            className="h-4 w-4 rounded border-slate-300 text-brand-600 dark:border-slate-600 dark:text-brand-400"
           />
           Tính vào lịch ôn
-          <span className="text-[10px] font-normal text-slate-500 dark:text-slate-400">(chỉ thẻ đã đến hạn)</span>
+          <span className="text-xs sm:text-[10px] font-normal text-slate-500 dark:text-slate-400">(chỉ thẻ đã đến hạn)</span>
         </label>
         <button
           type="button"
@@ -273,12 +273,12 @@ export const GamesHub: React.FC<GamesHubProps> = ({ deck, onPlayAudio }) => {
                 data-testid={`game-card-${kind}`}
                 disabled={blocked || view === "loading"}
                 onClick={() => void start(kind)}
-                className="group flex w-full flex-col rounded-3xl border border-slate-200/80 bg-white p-5 text-left shadow-sm transition-all hover:-translate-y-1 hover:border-violet-300 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-violet-600"
+                className="group flex w-full flex-col rounded-3xl border border-slate-200/80 bg-white p-5 text-left shadow-sm transition-all hover:-translate-y-1 hover:border-brand-300 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-brand-600"
               >
-                <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-50 text-violet-600 group-hover:bg-violet-100 dark:bg-violet-950/40 dark:text-violet-400">{GAME_INFO[kind].icon}</span>
+                <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-50 text-brand-600 group-hover:bg-brand-100 dark:bg-brand-950/40 dark:text-brand-400">{GAME_INFO[kind].icon}</span>
                 <span className="mt-3 text-base font-extrabold text-slate-800 dark:text-slate-100">{GAME_TITLES[kind]}</span>
                 <span className="mt-1 text-xs text-slate-500 dark:text-slate-400">{GAME_INFO[kind].blurb}</span>
-                <span className="mt-2 text-[11px] font-medium text-slate-500 dark:text-slate-400">{GAME_INFO[kind].hint}</span>
+                <span className="mt-2 text-xs sm:text-[11px] font-medium text-slate-500 dark:text-slate-400">{GAME_INFO[kind].hint}</span>
                 <span className="mt-auto pt-3 text-xs font-bold text-slate-600 dark:text-slate-300">
                   {blocked ? (
                     <span className="text-amber-700 dark:text-amber-300">Không hỗ trợ ngôn ngữ này</span>

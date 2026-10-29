@@ -46,7 +46,7 @@ const LanguageCard: React.FC<{
         aria-label={`${meta.viName}${locked ? " (đã khóa)" : ""}`}
         aria-disabled={locked}
         onClick={() => !locked && onSelect(item.code)}
-        className={`group flex h-full w-full flex-col rounded-3xl p-4 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 sm:p-5 ${
+        className={`group flex h-full w-full flex-col rounded-3xl p-4 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 sm:p-5 ${
           locked ? "cursor-not-allowed" : ""
         }`}
       >
@@ -55,7 +55,7 @@ const LanguageCard: React.FC<{
           {!locked && item.due > 0 && <FcBadge tone="orange">{item.due} cần ôn</FcBadge>}
         </span>
 
-        <span className="mt-4 text-base font-bold text-slate-800 transition-colors group-hover:text-blue-600 dark:text-slate-100 dark:group-hover:text-blue-300">
+        <span className="mt-4 text-base font-bold text-slate-800 transition-colors group-hover:text-brand-600 dark:text-slate-100 dark:group-hover:text-brand-300">
           {meta.viName}
         </span>
         {meta.nativeName !== meta.viName && (
@@ -90,7 +90,7 @@ const LanguageCard: React.FC<{
             >
               <span className="block h-full rounded-full bg-emerald-500 transition-all" style={{ width: `${learnedPct}%` }} />
             </span>
-            <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">Đã học {learnedPct}%</span>
+            <span className="text-xs sm:text-[11px] font-medium text-slate-500 dark:text-slate-400">Đã học {learnedPct}%</span>
           </span>
         )}
       </button>

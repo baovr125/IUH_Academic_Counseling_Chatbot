@@ -24,8 +24,8 @@ export const IuhAcademicCalendarWidget: React.FC<IuhAcademicCalendarWidgetProps>
         };
       default:
         return {
-          dot: "bg-blue-500 ring-blue-100 dark:ring-blue-950",
-          badge: "bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-400",
+          dot: "bg-brand-500 ring-brand-100 dark:ring-brand-950",
+          badge: "bg-brand-50 text-brand-700 dark:bg-brand-950/60 dark:text-brand-400",
         };
     }
   };
@@ -35,14 +35,14 @@ export const IuhAcademicCalendarWidget: React.FC<IuhAcademicCalendarWidgetProps>
       {/* Header */}
       <div className="flex items-center justify-between border-b border-slate-100 pb-3 dark:border-slate-700/60">
         <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-100 text-blue-600 dark:bg-blue-950/60 dark:text-blue-400">
+          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-brand-100 text-brand-600 dark:bg-brand-950/60 dark:text-brand-400">
             <Calendar size={16} />
           </div>
           <div>
             <h3 className="text-xs font-bold text-slate-800 dark:text-slate-100">
               Lịch Học Vụ & Sự Kiện IUH
             </h3>
-            <p className="text-[10px] text-slate-500 dark:text-slate-400">Cổng thông tin đào tạo & khảo thí</p>
+            <p className="text-xs sm:text-[10px] text-slate-500 dark:text-slate-400">Cổng thông tin đào tạo & khảo thí</p>
             <SampleDataBadge className="mt-1" />
           </div>
         </div>
@@ -51,7 +51,7 @@ export const IuhAcademicCalendarWidget: React.FC<IuhAcademicCalendarWidgetProps>
           href="https://sv.iuh.edu.vn"
           target="_blank"
           rel="noreferrer"
-          className="flex items-center gap-1 text-[11px] font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400"
+          className="flex items-center gap-1 text-xs sm:text-[11px] font-semibold text-brand-600 hover:text-brand-700 dark:text-brand-400"
         >
           <span>Cổng SV</span>
           <ExternalLink size={11} />
@@ -70,11 +70,11 @@ export const IuhAcademicCalendarWidget: React.FC<IuhAcademicCalendarWidgetProps>
               <div className={`mt-1.5 h-2.5 w-2.5 flex-shrink-0 rounded-full ${styles.dot} ring-4`} />
               <div className="min-w-0 flex-1">
                 <div className="flex items-center justify-between gap-1">
-                  <span className={`rounded-md px-1.5 py-0.5 text-[10px] font-bold ${styles.badge}`}>
+                  <span className={`rounded-md px-1.5 py-0.5 text-xs sm:text-[10px] font-bold ${styles.badge}`}>
                     {dl.tag}
                   </span>
                   {dl.daysRemaining !== undefined && (
-                    <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400">
+                    <span className="text-xs sm:text-[10px] font-semibold text-slate-500 dark:text-slate-400">
                       Còn {dl.daysRemaining} ngày
                     </span>
                   )}
@@ -82,7 +82,7 @@ export const IuhAcademicCalendarWidget: React.FC<IuhAcademicCalendarWidgetProps>
                 <h4 className="mt-1 text-xs font-bold text-slate-800 dark:text-slate-200 leading-snug">
                   {dl.title}
                 </h4>
-                <div className="mt-1 flex items-center gap-1 text-[11px] text-slate-500 dark:text-slate-400">
+                <div className="mt-1 flex items-center gap-1 text-xs sm:text-[11px] text-slate-500 dark:text-slate-400">
                   <Clock size={11} />
                   <span>{dl.date}</span>
                 </div>

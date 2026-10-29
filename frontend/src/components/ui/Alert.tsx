@@ -6,7 +6,7 @@ type Variant = "error" | "success" | "info";
 const styles: Record<Variant, string> = {
   error: "border-red-200 bg-red-50 text-red-900 dark:border-red-900 dark:bg-red-950/50 dark:text-red-100",
   success: "border-green-200 bg-green-50 text-green-900 dark:border-green-900 dark:bg-green-950/50 dark:text-green-100",
-  info: "border-blue-200 bg-blue-50 text-blue-900 dark:border-blue-900 dark:bg-blue-950/50 dark:text-blue-100",
+  info: "border-brand-200 bg-brand-50 text-brand-900 dark:border-brand-900 dark:bg-brand-950/50 dark:text-brand-100",
 };
 
 /** Thông báo trạng thái: lỗi dùng role="alert" (đọc ngay), còn lại dùng role="status". */

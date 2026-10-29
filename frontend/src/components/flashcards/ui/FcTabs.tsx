@@ -49,12 +49,12 @@ export function FcTabs<T extends string>({ tabs, value, onChange, ariaLabel, var
         const style = underline
           ? `-mb-px border-b-2 px-2.5 py-2.5 text-sm sm:px-4 ${
               active
-                ? "border-blue-600 text-blue-700 dark:border-blue-400 dark:text-blue-300"
+                ? "border-brand-600 text-brand-700 dark:border-brand-400 dark:text-brand-300"
                 : "border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
             }`
           : `rounded-lg px-4 py-1.5 text-xs ${
               active
-                ? "bg-white text-blue-600 shadow-sm dark:bg-slate-700 dark:text-blue-300"
+                ? "bg-white text-brand-600 shadow-sm dark:bg-slate-700 dark:text-brand-300"
                 : "text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
             }`;
         return (
@@ -69,14 +69,14 @@ export function FcTabs<T extends string>({ tabs, value, onChange, ariaLabel, var
             tabIndex={active ? 0 : -1}
             onClick={() => onChange(tab.value)}
             onKeyDown={(e) => onKeyDown(e, i)}
-            className={`flex items-center gap-1.5 whitespace-nowrap font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${style}`}
+            className={`flex items-center gap-1.5 whitespace-nowrap [@media(pointer:coarse)]:min-h-[44px] font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${style}`}
           >
             {tab.icon && <span className="hidden sm:inline-flex">{tab.icon}</span>}
             <span>{tab.label}</span>
             {tab.count !== undefined && (
               <span
                 className={`rounded-full px-1.5 text-xs font-bold ${
-                  active ? "bg-blue-100 text-blue-700 dark:bg-blue-900/60 dark:text-blue-200" : "bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300"
+                  active ? "bg-brand-100 text-brand-700 dark:bg-brand-900/60 dark:text-brand-200" : "bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300"
                 }`}
               >
                 {tab.count}

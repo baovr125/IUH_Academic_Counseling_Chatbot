@@ -26,6 +26,7 @@ export function FormattedMarkdown({ content }: FormattedMarkdownProps) {
               language={match[1]}
               style={vscDarkPlus}
               className="rounded-md my-2"
+              customStyle={{ overflowX: "auto", maxWidth: "100%" }}
             />
           ) : (
             <code {...rest} className="bg-black/10 rounded px-1 py-0.5 text-xs font-mono text-inherit dark:bg-white/15">

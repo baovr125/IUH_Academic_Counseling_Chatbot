@@ -62,10 +62,10 @@ export const MatchPairsGame: React.FC<MatchPairsGameProps> = ({ cards, mode, onP
     const matched = state.matched.includes(id);
     const selected = side === "term" ? state.selectedTerm === id : state.selectedDef === id;
     const wrong = !!state.lastWrong && (side === "term" ? state.lastWrong.term === id : state.lastWrong.def === id);
-    let style = "border-slate-200 bg-white text-slate-700 hover:border-blue-300 hover:bg-blue-50/60 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:border-blue-600 dark:hover:bg-slate-700";
+    let style = "border-slate-200 bg-white text-slate-700 hover:border-brand-300 hover:bg-brand-50/60 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:border-brand-600 dark:hover:bg-slate-700";
     if (matched) style = "border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300";
     else if (wrong) style = "border-rose-400 bg-rose-50 text-rose-800 motion-safe:animate-[shake_0.3s_ease-in-out] dark:bg-rose-950/40 dark:text-rose-300";
-    else if (selected) style = "border-blue-500 bg-blue-50 text-blue-800 ring-2 ring-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:ring-blue-800";
+    else if (selected) style = "border-brand-500 bg-brand-50 text-brand-800 ring-2 ring-brand-200 dark:bg-brand-950/40 dark:text-brand-300 dark:ring-brand-800";
     return (
       <button
         key={`${side}-${id}`}

@@ -29,7 +29,7 @@ const GoalSelect: React.FC<{ goal: number; onChange: (n: number) => void }> = ({
         aria-label={`Mục tiêu số từ ôn mỗi ngày (${DAILY_GOAL_MIN}–${DAILY_GOAL_MAX})`}
         value={goal}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-bold text-slate-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
+        className="rounded-lg border border-slate-200 bg-white px-2 py-1 [@media(pointer:coarse)]:py-2.5 text-xs font-bold text-slate-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
       >
         {options.map((n) => (
           <option key={n} value={n}>
@@ -61,7 +61,7 @@ const GoalProgress: React.FC<{ reviewed: number | null; goal: number; onGoalChan
         className="h-2.5 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-700"
       >
         <div
-          className={`h-full rounded-full transition-all duration-500 motion-reduce:transition-none ${reached ? "bg-emerald-500" : "bg-orange-500"}`}
+          className={`h-full rounded-full transition-all duration-500 motion-reduce:transition-none ${reached ? "bg-emerald-500" : "bg-brand-500"}`}
           style={{ width: `${percent}%` }}
         />
       </div>
@@ -113,7 +113,7 @@ const CardBody: React.FC<BodyProps> = ({ overview, goal, setGoal }) => {
         <div className="grid grid-cols-3 gap-2" data-testid="flashcard-stats">
           <MiniStat label="Cần ôn" value={null} icon={<Target size={15} />} tone="bg-orange-50 text-orange-600 dark:bg-orange-950/50 dark:text-orange-300" />
           <MiniStat label="Đã thuộc" value={null} icon={<Trophy size={15} />} tone="bg-emerald-50 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-300" />
-          <MiniStat label="Tổng số từ" value={null} icon={<BookOpen size={15} />} tone="bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-300" />
+          <MiniStat label="Tổng số từ" value={null} icon={<BookOpen size={15} />} tone="bg-brand-50 text-brand-600 dark:bg-brand-950/50 dark:text-brand-300" />
         </div>
         <p role="alert" className="text-xs text-rose-700 dark:text-rose-300">
           Không tải được số liệu Flashcard. Các phần khác của Dashboard vẫn hoạt động bình thường.
@@ -140,7 +140,7 @@ const CardBody: React.FC<BodyProps> = ({ overview, goal, setGoal }) => {
         <div className="grid grid-cols-3 gap-2" data-testid="flashcard-stats">
           <MiniStat label="Cần ôn" value={overview.due} icon={<Target size={15} />} tone="bg-orange-50 text-orange-600 dark:bg-orange-950/50 dark:text-orange-300" />
           <MiniStat label="Đã thuộc" value={overview.mastered} icon={<Trophy size={15} />} tone="bg-emerald-50 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-300" />
-          <MiniStat label="Tổng số từ" value={overview.totalCards} icon={<BookOpen size={15} />} tone="bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-300" />
+          <MiniStat label="Tổng số từ" value={overview.totalCards} icon={<BookOpen size={15} />} tone="bg-brand-50 text-brand-600 dark:bg-brand-950/50 dark:text-brand-300" />
         </div>
         {status === "ready" && overview.topDueLang && (
           <p className="flex min-w-0 items-center gap-2 text-xs text-slate-500 dark:text-slate-400" data-testid="top-language">
@@ -180,7 +180,7 @@ export const FlashcardDueCard: React.FC = () => {
       <button
         type="button"
         onClick={() => navigate(`/flashcards/${topDueLang.code}`)}
-        className={`group flex w-full items-center justify-center gap-2.5 rounded-2xl bg-orange-700 px-4 py-3 text-sm font-bold text-white shadow-md shadow-orange-700/20 transition-all hover:bg-orange-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-800`}
+        className={`group flex w-full items-center justify-center gap-2.5 rounded-2xl bg-brand-600 px-4 py-3 text-sm font-bold text-white shadow-md shadow-brand-600/20 transition-all hover:bg-brand-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-800`}
       >
         <LangFlag lang={topDueLang.code} size="sm" />
         <span>
@@ -229,7 +229,7 @@ export const FlashcardDueCard: React.FC = () => {
       <div>
         <div className="flex items-center justify-between gap-3">
           <div className="flex min-w-0 items-center gap-2.5">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-orange-100 text-orange-700 dark:bg-orange-950/60 dark:text-orange-300">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-brand-100 text-brand-700 dark:bg-brand-950/60 dark:text-brand-300">
               <BookMarked size={20} aria-hidden="true" />
             </div>
             <div className="min-w-0">

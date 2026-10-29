@@ -35,7 +35,7 @@ const STATUSES: { value: LanguageCardStatus; label: string }[] = [
 ];
 
 const FIELD =
-  "rounded-xl border border-slate-200 bg-white text-sm text-slate-800 focus:border-blue-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 " +
+  "rounded-xl border border-slate-200 bg-white text-sm text-slate-800 focus:border-brand-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40 " +
   "dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:placeholder-slate-500";
 
 function useDebounced<T>(value: T, ms: number): T {
@@ -52,7 +52,7 @@ const WordRow: React.FC<{ card: LanguageCardItem; lang: string; onPlayAudio: Lan
     <div className="flex items-start justify-between gap-3">
       <div className="min-w-0">
         <h4 className="text-base font-bold text-slate-800 dark:text-slate-100" lang={lang}>{card.term}</h4>
-        {card.phonetic && <p className="font-mono text-xs text-blue-600 dark:text-blue-300">{card.phonetic}</p>}
+        {card.phonetic && <p className="font-mono text-xs text-brand-600 dark:text-brand-300">{card.phonetic}</p>}
         <p className="mt-1 text-sm font-medium text-slate-600 dark:text-slate-300">{card.definition}</p>
         {(card.example_sentence || card.example) && (
           <p className="mt-2 rounded-xl border border-slate-100 bg-slate-50 p-2.5 text-xs italic text-slate-500 dark:border-slate-700 dark:bg-slate-900/50 dark:text-slate-400" lang={lang}>
@@ -63,7 +63,7 @@ const WordRow: React.FC<{ card: LanguageCardItem; lang: string; onPlayAudio: Lan
       <button
         type="button"
         onClick={() => onPlayAudio(card.audio_url, card.term, lang, card.phonetic)}
-        className="shrink-0 rounded-full p-2 text-blue-600 transition-colors hover:bg-blue-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-blue-300 dark:hover:bg-slate-700"
+        className="shrink-0 rounded-full p-2 text-brand-600 transition-colors hover:bg-brand-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 dark:text-brand-300 dark:hover:bg-slate-700"
         aria-label={`Nghe phát âm ${card.term}`}
       >
         <Volume2 size={16} aria-hidden="true" />
@@ -133,9 +133,9 @@ const WordsTab: React.FC<Pick<LanguageLibraryProps, "lang" | "onPlayAudio" | "on
             type="button"
             aria-pressed={status === s.value}
             onClick={() => setStatus(s.value)}
-            className={`rounded-full px-3.5 py-1.5 text-xs font-bold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
+            className={`rounded-full px-3.5 py-1.5 [@media(pointer:coarse)]:min-h-[44px] text-xs font-bold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${
               status === s.value
-                ? "bg-blue-600 text-white"
+                ? "bg-brand-600 text-white"
                 : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600"
             }`}
           >
@@ -204,7 +204,7 @@ export const LanguageLibrary: React.FC<LanguageLibraryProps> = ({ lang, tab, onT
         <button
           type="button"
           onClick={onBack}
-          className="flex items-center gap-1 rounded-lg px-1.5 py-1 font-semibold text-slate-500 transition-colors hover:bg-slate-100 hover:text-blue-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-blue-300"
+          className="flex items-center gap-1 rounded-lg px-1.5 py-1 font-semibold text-slate-500 transition-colors hover:bg-slate-100 hover:text-brand-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-brand-300"
         >
           <ChevronLeft size={16} aria-hidden="true" />
           Tất cả ngôn ngữ

@@ -1,5 +1,5 @@
 import { Award, BookOpen, Bot, FileCheck2, GraduationCap, Sparkles, ArrowRight } from "lucide-react";
-import logoMark from "../../assets/brand/iuh-mark-256.png";
+import { BrandLogo } from "../ui/BrandLogo";
 import { useSettings } from "../../context/SettingsContext";
 
 interface ChatWelcomeScreenProps {
@@ -46,42 +46,44 @@ export function ChatWelcomeScreen({ onSelectPrompt }: ChatWelcomeScreenProps) {
   const isVi = language === "vi";
 
   return (
-    <div className="relative flex flex-col items-center justify-center min-h-full px-4 py-8 max-w-4xl mx-auto select-none overflow-hidden">
-      {/* Background Animated Ambient Glows */}
-      <div className="pointer-events-none absolute -top-16 left-1/2 -translate-x-1/2 w-80 h-80 rounded-full bg-blue-500/15 dark:bg-blue-600/10 blur-3xl animate-pulse-glow" />
-      <div className="pointer-events-none absolute top-32 left-1/4 w-72 h-72 rounded-full bg-indigo-500/10 dark:bg-indigo-600/10 blur-3xl animate-pulse-glow" />
-      <div className="pointer-events-none absolute top-28 right-1/4 w-72 h-72 rounded-full bg-amber-500/10 dark:bg-amber-600/10 blur-3xl animate-pulse-glow" />
+    <div className="relative flex flex-col items-center justify-center min-h-full px-4 py-8 max-w-4xl mx-auto select-none">
+      {/*
+        Ánh sáng nền: MỘT lớp radial-gradient tắt hoàn toàn (trong suốt) TRƯỚC khi chạm mép khung (tâm 30% cao, bán kính dọc 28%). Không dùng các quầng blur đặt
+        trong khung có overflow-hidden (chúng bị cắt thành hình chữ nhật, lệch màu với nền khung chung của MainLayout).
+      */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_50%_28%_at_50%_30%,rgb(147_197_253/0.32),transparent_96%)] dark:bg-[radial-gradient(ellipse_50%_28%_at_50%_30%,rgb(37_99_235/0.18),transparent_96%)]"
+      />
 
       {/* Central Catchy Animation: Layered floating badge with IUH Logo */}
       <div className="relative mb-6 animate-float-slow">
         {/* Glow halo */}
-        <div className="absolute inset-0 rounded-3xl bg-gradient-to-tr from-blue-600 via-indigo-500 to-amber-500 blur-md opacity-40 animate-pulse" />
+        <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-brand-500 via-brand-400 to-sky-300 blur-2xl opacity-30 animate-pulse" />
         
-        {/* Main Logo Card */}
-        <div className="relative flex h-24 w-24 items-center justify-center rounded-3xl bg-white p-3 shadow-xl ring-1 ring-slate-100 dark:bg-slate-800 dark:ring-slate-700">
-          <img
-            src={logoMark}
-            alt="IUH Logo"
-            className="h-full w-full object-contain filter drop-shadow-sm transition-transform hover:scale-105"
-          />
+        {/* Logo trơn (không đặt trong thẻ) */}
+        <div className="relative flex h-24 w-24 items-center justify-center">
+          <span className="drop-shadow-sm transition-transform hover:scale-105">
+            <BrandLogo className="h-20" alt="IUH Logo" />
+          </span>
 
           {/* Orbiting Bot badge */}
-          <div className="absolute -bottom-2 -right-2 flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white shadow-lg ring-3 ring-white dark:ring-slate-800">
+          <div className="absolute -bottom-2 -right-2 flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-tr from-brand-500 to-sky-500 text-white shadow-lg ring-3 ring-white dark:ring-slate-800">
             <Bot size={16} />
           </div>
 
           {/* Orbiting Sparkles badge */}
-          <div className="absolute -top-2 -left-2 flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-tr from-amber-400 to-orange-400 text-white shadow-md ring-3 ring-white dark:ring-slate-800">
+          <div className="absolute -top-2 -left-2 flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-tr from-sky-400 to-brand-400 text-white shadow-md ring-3 ring-white dark:ring-slate-800">
             <Sparkles size={14} />
           </div>
         </div>
       </div>
 
       {/* Modern Status Badge */}
-      <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-orange-200/80 bg-orange-50/80 px-3.5 py-1 text-xs font-semibold text-orange-800 backdrop-blur-sm dark:border-orange-900/50 dark:bg-orange-950/40 dark:text-orange-300">
+      <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-brand-200/80 bg-brand-50/80 px-3.5 py-1 text-xs font-semibold text-brand-800 backdrop-blur-sm dark:border-brand-900/50 dark:bg-brand-950/40 dark:text-brand-300">
         <span className="relative flex h-2 w-2">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
-          <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75"></span>
+          <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-500"></span>
         </span>
         <span>{isVi ? "IUH Portal AI • Trợ lý Học vụ Trực tuyến" : "IUH Portal AI • Online Academic Assistant"}</span>
       </div>
@@ -91,14 +93,14 @@ export function ChatWelcomeScreen({ onSelectPrompt }: ChatWelcomeScreenProps) {
         {isVi ? (
           <>
             Chào bạn! Tôi có thể giúp gì cho{" "}
-            <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-orange-500 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-brand-600 to-sky-600 bg-clip-text text-transparent">
               kỳ học của bạn?
             </span>
           </>
         ) : (
           <>
             Hello! How can I assist with your{" "}
-            <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-orange-500 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-brand-600 to-sky-600 bg-clip-text text-transparent">
               academic journey?
             </span>
           </>
@@ -112,9 +114,9 @@ export function ChatWelcomeScreen({ onSelectPrompt }: ChatWelcomeScreenProps) {
       </p>
 
       {/* Key Feature Highlights */}
-      <div className="mt-5 flex flex-wrap items-center justify-center gap-2 text-[11.5px] text-slate-600 dark:text-slate-300">
+      <div className="mt-5 flex flex-wrap items-center justify-center gap-2 text-xs sm:text-[11.5px] text-slate-600 dark:text-slate-300">
         <div className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white/70 px-2.5 py-1 backdrop-blur-sm dark:border-slate-700 dark:bg-slate-800/70">
-          <GraduationCap size={14} className="text-blue-500" />
+          <GraduationCap size={14} className="text-brand-500" />
           <span>{isVi ? "Quy chế đào tạo tín chỉ" : "Credit Regulations"}</span>
         </div>
         <div className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white/70 px-2.5 py-1 backdrop-blur-sm dark:border-slate-700 dark:bg-slate-800/70">
@@ -122,7 +124,7 @@ export function ChatWelcomeScreen({ onSelectPrompt }: ChatWelcomeScreenProps) {
           <span>{isVi ? "Sổ tay & Biểu mẫu sinh viên" : "Forms & Handbook"}</span>
         </div>
         <div className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white/70 px-2.5 py-1 backdrop-blur-sm dark:border-slate-700 dark:bg-slate-800/70">
-          <Award size={14} className="text-amber-500" />
+          <Award size={14} className="text-sky-500" />
           <span>{isVi ? "Học bổng & Điểm rèn luyện" : "Scholarships & Scores"}</span>
         </div>
       </div>
@@ -133,7 +135,7 @@ export function ChatWelcomeScreen({ onSelectPrompt }: ChatWelcomeScreenProps) {
           <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
             {isVi ? "Gợi ý câu hỏi phổ biến" : "Suggested questions"}
           </span>
-          <span className="text-[11px] text-orange-600 font-semibold dark:text-orange-400">
+          <span className="text-xs sm:text-[11px] text-brand-600 font-semibold dark:text-brand-400">
             {isVi ? "Nhấp vào câu hỏi để gửi ngay" : "Click to ask directly"}
           </span>
         </div>
@@ -145,19 +147,19 @@ export function ChatWelcomeScreen({ onSelectPrompt }: ChatWelcomeScreenProps) {
               <button
                 key={idx}
                 onClick={() => onSelectPrompt(item.prompt)}
-                className="group flex items-start gap-3 rounded-2xl border border-slate-200 bg-white p-3.5 text-left shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-orange-400 hover:shadow-md hover:shadow-orange-500/10 active:scale-[0.99] dark:border-slate-700 dark:bg-slate-800/90 dark:hover:border-orange-500/60 cursor-pointer"
+                className="group flex items-start gap-3 rounded-2xl border border-slate-200 bg-white p-3.5 text-left shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-400 hover:shadow-md hover:shadow-brand-500/10 active:scale-[0.99] dark:border-slate-700 dark:bg-slate-800/90 dark:hover:border-brand-500/60 cursor-pointer"
               >
-                <div className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl bg-orange-100 text-orange-700 group-hover:bg-gradient-to-tr group-hover:from-orange-500 group-hover:to-amber-500 group-hover:text-white group-hover:shadow-sm group-hover:shadow-orange-500/30 transition-all dark:bg-orange-950/60 dark:text-orange-300">
+                <div className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl bg-brand-100 text-brand-700 group-hover:bg-gradient-to-tr group-hover:from-brand-500 group-hover:to-sky-500 group-hover:text-white group-hover:shadow-sm group-hover:shadow-brand-500/30 transition-all dark:bg-brand-950/60 dark:text-brand-300">
                   <IconComponent size={16} />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-1">
-                    <span className="text-xs font-bold text-slate-800 dark:text-slate-100 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">
+                    <span className="text-xs font-bold text-slate-800 dark:text-slate-100 group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">
                       {isVi ? item.categoryVi : item.categoryEn}
                     </span>
-                    <ArrowRight size={14} className="text-orange-400 group-hover:text-orange-600 group-hover:translate-x-1 transition-all flex-shrink-0" />
+                    <ArrowRight size={14} className="text-brand-400 group-hover:text-brand-600 group-hover:translate-x-1 transition-all flex-shrink-0" />
                   </div>
-                  <p className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2">
+                  <p className="mt-0.5 text-xs sm:text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2">
                     {isVi ? item.descVi : item.descEn}
                   </p>
                 </div>

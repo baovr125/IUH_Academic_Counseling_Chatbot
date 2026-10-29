@@ -540,12 +540,12 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
   return (
     <div className="w-full relative">
       {/* Translation Main Card */}
-      <div className="relative flex flex-col md:flex-row bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden min-h-[450px] dark:bg-slate-800 dark:border-slate-600">
+      <div className="relative flex flex-col md:flex-row bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden md:min-h-[450px] dark:bg-slate-800 dark:border-slate-600">
 
         {/* Source Text Area */}
         <div className="flex-1 flex flex-col border-b md:border-b-0 md:border-r border-slate-200 focus-within:bg-slate-50/50 transition-colors dark:border-slate-600">
           {/* Header */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-white gap-2 dark:border-slate-700 dark:bg-slate-800">
+          <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-slate-100 bg-white gap-2 dark:border-slate-700 dark:bg-slate-800">
             <select
               value={sourceLang}
               onChange={(e) => {
@@ -557,7 +557,7 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
                   setDetectionDetails(null);
                 }
               }}
-              className="bg-transparent text-sm font-semibold text-slate-700 focus:outline-none cursor-pointer dark:text-slate-200"
+              className="min-w-0 bg-transparent text-sm font-semibold text-slate-700 focus:outline-none cursor-pointer [@media(pointer:coarse)]:py-2.5 dark:text-slate-200"
             >
               <option value="auto">
                 ✨ Tự phát hiện ngôn ngữ {detectedLangCode ? `(${LANG_CONFIG[detectedLangCode]?.label || detectedLangCode})` : ""}
@@ -605,11 +605,12 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
 
           <textarea
             ref={sourceTextareaRef}
-            className="flex-1 w-full px-6 py-5 bg-transparent resize-none outline-none text-slate-800 text-lg leading-relaxed placeholder:text-slate-400 dark:text-slate-100 dark:placeholder:text-slate-500"
+            className="flex-1 w-full px-4 sm:px-6 py-5 bg-transparent resize-none outline-none text-slate-800 text-lg leading-relaxed placeholder:text-slate-400 dark:text-slate-100 dark:placeholder:text-slate-500"
             placeholder="Nhập văn bản cần dịch tại đây..."
             value={sourceText}
             onChange={(e) => setSourceText(e.target.value.slice(0, 3000))}
             onMouseUp={handleSelection}
+            onTouchEnd={() => setTimeout(() => handleSelection(), 50)}
             onKeyUp={() => handleSelection()}
             onKeyDown={(e) => {
               // Ctrl/Cmd+Enter: dịch ngay, không chờ debounce (hữu ích khi chế độ chuyên ngành chờ lâu).
@@ -621,10 +622,10 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
               }
             }}
           />
-          <div className="px-6 py-3 flex items-center justify-between text-xs font-medium text-slate-500 bg-white dark:bg-slate-800 dark:text-slate-400">
+          <div className="px-4 sm:px-6 py-3 flex items-center justify-between text-xs font-medium text-slate-500 bg-white dark:bg-slate-800 dark:text-slate-400">
             <div className="flex items-center gap-1">
               {sourceText && (
-                <button onClick={() => setSourceText("")} className="hover:text-red-500 transition-colors p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/50" title="Xóa văn bản">
+                <button onClick={() => setSourceText("")} className="hover:text-red-500 transition-colors p-2 [@media(pointer:coarse)]:p-3 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/50" title="Xóa văn bản">
                   <X size={18} />
                 </button>
               )}
@@ -633,14 +634,14 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
                   onClick={() => sourceSpeechLang && speakText(sourceText, sourceSpeechLang, "source")}
                   disabled={!sourceSpeechLang}
                   aria-label="Đọc văn bản"
-                  className="hover:text-blue-500 transition-colors p-2 rounded-lg hover:bg-blue-50 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:text-slate-400 disabled:hover:bg-transparent dark:hover:bg-blue-950/50"
+                  className="hover:text-brand-500 transition-colors p-2 [@media(pointer:coarse)]:p-3 rounded-lg hover:bg-brand-50 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:text-slate-400 disabled:hover:bg-transparent dark:hover:bg-brand-950/50"
                   title={sourceSpeechLang ? "Đọc văn bản" : SPEECH_UNKNOWN_HINT}
                 >
                   {speakingId === "source" ? <Loader2 size={18} className="animate-spin" /> : <Volume2 size={18} />}
                 </button>
               )}
               {sourceText && (
-                <button onClick={() => handleCopy(sourceText, 'source')} className="hover:text-emerald-500 transition-colors p-2 rounded-lg hover:bg-emerald-50 dark:hover:bg-emerald-950/50" title="Sao chép văn bản">
+                <button onClick={() => handleCopy(sourceText, 'source')} className="hover:text-emerald-500 transition-colors p-2 [@media(pointer:coarse)]:p-3 rounded-lg hover:bg-emerald-50 dark:hover:bg-emerald-950/50" title="Sao chép văn bản">
                   {isSourceCopied ? <Check size={18} className="text-emerald-500 dark:text-emerald-400" /> : <Copy size={18} />}
                 </button>
               )}
@@ -651,11 +652,23 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
           </div>
         </div>
 
+        {/* Màn hình nhỏ (< md): nút đổi chiều nằm giữa hai khung xếp dọc, đè lên đường viền ngăn cách. */}
+        <div className="relative z-10 -my-[22px] flex justify-center md:hidden">
+          <button
+            type="button"
+            onClick={handleSwap}
+            aria-label="Đổi ngôn ngữ"
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 shadow-sm active:scale-95 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-300"
+          >
+            <ArrowRightLeft size={16} className="rotate-90" aria-hidden="true" />
+          </button>
+        </div>
+
         {/* Desktop Swap Button */}
         <div className="hidden md:flex absolute left-1/2 top-[30px] -translate-x-1/2 -translate-y-1/2 z-10">
           <button
             onClick={handleSwap}
-            className="flex items-center justify-center w-10 h-10 bg-white border border-slate-200 rounded-full shadow-sm text-slate-500 hover:text-blue-600 hover:border-blue-200 transition-transform hover:scale-105 active:scale-95 dark:bg-slate-800 dark:border-slate-600 dark:text-slate-400 dark:hover:text-blue-400 dark:hover:border-blue-700"
+            className="flex items-center justify-center w-10 h-10 bg-white border border-slate-200 rounded-full shadow-sm text-slate-500 hover:text-brand-600 hover:border-brand-200 transition-transform hover:scale-105 active:scale-95 dark:bg-slate-800 dark:border-slate-600 dark:text-slate-400 dark:hover:text-brand-400 dark:hover:border-brand-700"
             title="Đổi ngôn ngữ"
           >
             <ArrowRightLeft size={16} />
@@ -667,13 +680,14 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
           className="flex-1 flex flex-col bg-slate-50 dark:bg-slate-900/50"
           ref={containerRef}
           onMouseUp={handleSelection}
+          onTouchEnd={() => setTimeout(() => handleSelection(), 50)}
         >
           {/* Header */}
-          <div className="flex flex-wrap items-center justify-between gap-3 px-6 py-3 border-b border-slate-100 bg-white dark:border-slate-700 dark:bg-slate-800">
+          <div className="flex flex-wrap items-center justify-between gap-3 px-4 sm:px-6 py-3 border-b border-slate-100 bg-white dark:border-slate-700 dark:bg-slate-800">
             <select
               value={targetLang}
               onChange={(e) => setTargetLang(e.target.value)}
-              className="bg-transparent text-sm font-semibold text-blue-700 focus:outline-none cursor-pointer dark:text-blue-300"
+              className="min-w-0 bg-transparent text-sm font-semibold text-brand-700 focus:outline-none cursor-pointer [@media(pointer:coarse)]:py-2.5 dark:text-brand-300"
             >
               {Object.entries(LANG_CONFIG).map(([code, meta]) => (
                 <option key={code} value={code}>
@@ -696,7 +710,7 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
 
           <DomainStatus warnings={warnings} waiting={waitingForDomain} />
 
-          <div className="flex-1 px-6 py-5 overflow-y-auto leading-relaxed text-slate-800 text-lg selection:bg-blue-200 selection:text-blue-900 dark:text-slate-100">
+          <div className="flex-1 px-4 sm:px-6 py-5 overflow-y-auto leading-relaxed text-slate-800 text-lg selection:bg-brand-200 selection:text-brand-900 dark:text-slate-100">
             {translatedTokens.length === 0 && !isTranslating && !error && !languageStop && !ambiguousCandidates.length && (
               <span className="text-slate-500 font-light italic dark:text-slate-400">
                 Bản dịch sẽ xuất hiện tại đây...
@@ -780,12 +794,12 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
 
             <div className="whitespace-pre-wrap relative">
               {translatedTokens.map((token, i) => (
-                <span key={i} className="hover:bg-blue-100/50 dark:hover:bg-blue-900/40 rounded-sm transition-colors cursor-text">
+                <span key={i} className="hover:bg-brand-100/50 dark:hover:bg-brand-900/40 rounded-sm transition-colors cursor-text">
                   {token}
                 </span>
               ))}
               {isTranslating && (
-                <span className="inline-block w-2 h-5 ml-1 bg-blue-500/80 rounded-sm animate-pulse align-middle"></span>
+                <span className="inline-block w-2 h-5 ml-1 bg-brand-500/80 rounded-sm animate-pulse align-middle"></span>
               )}
             </div>
           </div>
@@ -793,12 +807,12 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
           <div className="px-6 py-4 flex items-center justify-between border-t border-slate-200/50 bg-slate-50 dark:bg-slate-900/50 dark:border-slate-700">
             <div className="flex items-center gap-2">
               {translatedTokens.length > 0 && (
-                <button onClick={() => speakText(translatedTokens.join(''), getTTSLangCode(targetLang), "target")} className="text-slate-500 hover:text-blue-600 transition-colors p-2 rounded-lg hover:bg-white border border-transparent hover:border-slate-200 shadow-sm dark:text-slate-400 dark:hover:text-blue-400 dark:hover:bg-slate-700 dark:hover:border-slate-500" title="Đọc bản dịch">
+                <button onClick={() => speakText(translatedTokens.join(''), getTTSLangCode(targetLang), "target")} className="text-slate-500 hover:text-brand-600 transition-colors p-2 [@media(pointer:coarse)]:p-3 rounded-lg hover:bg-white border border-transparent hover:border-slate-200 shadow-sm dark:text-slate-400 dark:hover:text-brand-400 dark:hover:bg-slate-700 dark:hover:border-slate-500" title="Đọc bản dịch">
                   {speakingId === "target" ? <Loader2 size={18} className="animate-spin" /> : <Volume2 size={18} />}
                 </button>
               )}
               {translatedTokens.length > 0 && (
-                <button onClick={() => handleCopy(translatedTokens.join(''), 'target')} className="text-slate-500 hover:text-emerald-600 transition-colors p-2 rounded-lg hover:bg-white border border-transparent hover:border-slate-200 shadow-sm dark:text-slate-400 dark:hover:text-emerald-400 dark:hover:bg-slate-700 dark:hover:border-slate-500" title="Sao chép bản dịch">
+                <button onClick={() => handleCopy(translatedTokens.join(''), 'target')} className="text-slate-500 hover:text-emerald-600 transition-colors p-2 [@media(pointer:coarse)]:p-3 rounded-lg hover:bg-white border border-transparent hover:border-slate-200 shadow-sm dark:text-slate-400 dark:hover:text-emerald-400 dark:hover:bg-slate-700 dark:hover:border-slate-500" title="Sao chép bản dịch">
                   {isTargetCopied ? <Check size={18} className="text-emerald-500 dark:text-emerald-400" /> : <Copy size={18} />}
                 </button>
               )}
@@ -807,7 +821,7 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
               type="button"
               onClick={handleOpenFullSaveModal}
               disabled={translatedTokens.length === 0 || isTranslating}
-              className="group flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:scale-[1.02] active:scale-[0.98]"
+              className="group flex items-center gap-2 rounded-xl bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:scale-[1.02] active:scale-[0.98]"
             >
               <BookmarkPlus size={18} className="transition-transform group-hover:scale-110" />
               <span>Lưu Flashcard</span>
@@ -858,11 +872,11 @@ export const TranslationBox: React.FC<TranslationBoxProps> = ({
 
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 animate-in fade-in slide-in-from-bottom-4">
+        <div className="fixed inset-x-4 bottom-4 z-50 animate-in fade-in slide-in-from-bottom-4 sm:inset-x-auto sm:bottom-6 sm:right-6">
           <div className="bg-slate-800 text-white px-5 py-3.5 rounded-xl shadow-xl shadow-slate-900/20 text-sm font-medium flex items-center gap-3 border border-slate-700/50 backdrop-blur-md">
             <span className="relative flex h-3 w-3">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-blue-500"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-brand-500"></span>
             </span>
             {toastMessage}
           </div>

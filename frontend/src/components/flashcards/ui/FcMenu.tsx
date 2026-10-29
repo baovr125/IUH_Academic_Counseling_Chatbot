@@ -100,7 +100,7 @@ export const FcMenu: React.FC<FcMenuProps> = ({ items, label, className = "", bu
           aria-controls={open ? menuId : undefined}
           onClick={() => setOpen((v) => !v)}
           onKeyDown={onTriggerKeyDown}
-          className="flex h-9 w-9 items-center justify-center rounded-xl text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-100"
+          className="flex h-9 w-9 [@media(pointer:coarse)]:h-11 [@media(pointer:coarse)]:w-11 items-center justify-center rounded-xl text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-100"
         >
           <MoreHorizontal size={18} aria-hidden="true" />
         </button>
@@ -112,7 +112,7 @@ export const FcMenu: React.FC<FcMenuProps> = ({ items, label, className = "", bu
           role="menu"
           aria-label={label}
           onKeyDown={onMenuKeyDown}
-          className="absolute right-0 top-full z-30 mt-1 min-w-[220px] rounded-2xl border border-slate-200 bg-white p-1.5 shadow-xl dark:border-slate-700 dark:bg-slate-800"
+          className="absolute right-0 top-full z-30 mt-1 min-w-[220px] max-w-[calc(100vw-2rem)] rounded-2xl border border-slate-200 bg-white p-1.5 shadow-xl dark:border-slate-700 dark:bg-slate-800"
         >
           {visible.map((item, i) => (
             <button
@@ -126,7 +126,7 @@ export const FcMenu: React.FC<FcMenuProps> = ({ items, label, className = "", bu
                 setOpen(false);
                 item.onClick();
               }}
-              className={`flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm font-medium transition-colors focus:outline-none ${
+              className={`flex w-full items-center gap-2.5 rounded-xl px-3 py-2 [@media(pointer:coarse)]:py-3 text-left text-sm font-medium transition-colors focus:outline-none ${
                 item.tone === "danger"
                   ? "text-rose-600 hover:bg-rose-50 focus-visible:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-950/40 dark:focus-visible:bg-rose-950/40"
                   : "text-slate-700 hover:bg-slate-100 focus-visible:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-700 dark:focus-visible:bg-slate-700"

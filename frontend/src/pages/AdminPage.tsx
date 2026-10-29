@@ -306,17 +306,17 @@ export default function AdminPage() {
   };
 
   return (
-    <div className="flex-1 overflow-auto bg-slate-50 p-8 dark:bg-slate-900">
-      <div className="mx-auto max-w-7xl space-y-8">
+    <div className="flex-1 overflow-auto p-4 sm:p-8">
+      <div className="mx-auto max-w-7xl space-y-6 sm:space-y-8">
         <h1 className="text-3xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-          <Database className="text-blue-600" /> Admin Data Ingestion
+          <Database className="text-brand-600" /> Admin Data Ingestion
         </h1>
 
         {/* Status Dashboard */}
         {status !== "idle" && (
           <div className={`p-6 rounded-2xl shadow-sm border ${status === 'error' ? 'bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800' : 'bg-white border-slate-200 dark:bg-slate-800 dark:border-slate-700'}`}>
             <div className="flex items-center gap-4">
-              {status === "processing" && <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />}
+              {status === "processing" && <Loader2 className="w-8 h-8 text-brand-500 animate-spin" />}
               {status === "completed" && <CheckCircle className="w-8 h-8 text-green-500" />}
               {status === "error" && <AlertCircle className="w-8 h-8 text-red-500" />}
               <div className="flex-1">
@@ -328,7 +328,7 @@ export default function AdminPage() {
                 {status === "processing" && progressPercent > 0 && (
                   <div className="mt-3 h-2 w-full bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
                     <div 
-                      className="h-full bg-blue-500 rounded-full transition-all duration-500" 
+                      className="h-full bg-brand-500 rounded-full transition-all duration-500" 
                       style={{ width: `${progressPercent}%` }}
                     />
                   </div>
@@ -337,7 +337,7 @@ export default function AdminPage() {
               {(status === "completed" || status === "error") && (
                 <button 
                   onClick={() => setStatus("idle")}
-                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 rounded-lg font-medium"
+                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 rounded-xl font-medium"
                 >
                   Đóng
                 </button>
@@ -349,12 +349,12 @@ export default function AdminPage() {
         {/* Main Interface */}
         <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
           {/* Tabs */}
-          <div className="flex border-b border-slate-200 dark:border-slate-700">
+          <div className="flex overflow-x-auto border-b border-slate-200 dark:border-slate-700">
             <button
               onClick={() => setActiveTab("stats")}
-              className={`flex-1 py-4 text-center font-medium flex items-center justify-center gap-2 ${
+              className={`flex-1 shrink-0 whitespace-nowrap px-4 py-4 [@media(pointer:coarse)]:min-h-[44px] text-center font-medium flex items-center justify-center gap-2 ${
                 activeTab === "stats" 
-                  ? "border-b-2 border-blue-600 text-blue-600 bg-blue-50/50 dark:bg-blue-900/10" 
+                  ? "border-b-2 border-brand-600 text-brand-600 bg-brand-50/50 dark:bg-brand-900/10" 
                   : "text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-700/50"
               }`}
             >
@@ -362,9 +362,9 @@ export default function AdminPage() {
             </button>
             <button
               onClick={() => setActiveTab("files")}
-              className={`flex-1 py-4 text-center font-medium flex items-center justify-center gap-2 ${
+              className={`flex-1 shrink-0 whitespace-nowrap px-4 py-4 [@media(pointer:coarse)]:min-h-[44px] text-center font-medium flex items-center justify-center gap-2 ${
                 activeTab === "files" 
-                  ? "border-b-2 border-blue-600 text-blue-600 bg-blue-50/50 dark:bg-blue-900/10" 
+                  ? "border-b-2 border-brand-600 text-brand-600 bg-brand-50/50 dark:bg-brand-900/10" 
                   : "text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-700/50"
               }`}
             >
@@ -372,9 +372,9 @@ export default function AdminPage() {
             </button>
             <button
               onClick={() => setActiveTab("urls")}
-              className={`flex-1 py-4 text-center font-medium flex items-center justify-center gap-2 ${
+              className={`flex-1 shrink-0 whitespace-nowrap px-4 py-4 [@media(pointer:coarse)]:min-h-[44px] text-center font-medium flex items-center justify-center gap-2 ${
                 activeTab === "urls" 
-                  ? "border-b-2 border-blue-600 text-blue-600 bg-blue-50/50 dark:bg-blue-900/10" 
+                  ? "border-b-2 border-brand-600 text-brand-600 bg-brand-50/50 dark:bg-brand-900/10" 
                   : "text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-700/50"
               }`}
             >
@@ -382,9 +382,9 @@ export default function AdminPage() {
             </button>
             <button
               onClick={() => setActiveTab("dict")}
-              className={`flex-1 py-4 text-center font-medium flex items-center justify-center gap-2 ${
+              className={`flex-1 shrink-0 whitespace-nowrap px-4 py-4 [@media(pointer:coarse)]:min-h-[44px] text-center font-medium flex items-center justify-center gap-2 ${
                 activeTab === "dict" 
-                  ? "border-b-2 border-blue-600 text-blue-600 bg-blue-50/50 dark:bg-blue-900/10" 
+                  ? "border-b-2 border-brand-600 text-brand-600 bg-brand-50/50 dark:bg-brand-900/10" 
                   : "text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-700/50"
               }`}
             >
@@ -392,7 +392,7 @@ export default function AdminPage() {
             </button>
           </div>
 
-          <div className="p-6 md:p-8">
+          <div className="p-4 sm:p-6 md:p-8">
             {activeTab === "dict" && <DictionaryAdmin />}
             
             {activeTab === "stats" && (
@@ -406,29 +406,29 @@ export default function AdminPage() {
                         placeholder="Tìm kiếm theo Tên hoặc URL..."
                         value={searchTerm}
                         onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
-                        className="w-full pl-3 pr-10 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                        className="w-full pl-3 pr-10 py-2 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm"
                       />
                     </div>
-                    <button onClick={() => fetchDocuments(currentPage, sortOrder, sortBy, debouncedSearch)} className="p-2 hover:bg-slate-100 rounded-lg text-slate-500 transition-colors shrink-0">
-                      <RefreshCw className={`w-5 h-5 ${loadingDocs ? 'animate-spin text-blue-500' : ''}`} />
+                    <button onClick={() => fetchDocuments(currentPage, sortOrder, sortBy, debouncedSearch)} className="p-2 hover:bg-slate-100 rounded-xl text-slate-500 transition-colors shrink-0">
+                      <RefreshCw className={`w-5 h-5 ${loadingDocs ? 'animate-spin text-brand-500' : ''}`} />
                     </button>
                   </div>
                 </div>
                 
-                <div className="overflow-x-auto border border-slate-200 rounded-lg">
-                  <table className="w-full text-left text-sm">
+                <div className="overflow-x-auto border border-slate-200 rounded-xl">
+                  <table className="w-full min-w-[640px] text-left text-sm">
                     <thead className="bg-slate-50 text-slate-600 font-medium border-b border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700">
                       <tr>
                         <th className="px-4 py-4 w-16 text-center">STT</th>
-                        <th className="px-6 py-4">Tên tài liệu / Tiêu đề</th>
-                        <th className="px-6 py-4">Nguồn (URL)</th>
-                        <th className="px-6 py-4 cursor-pointer hover:bg-slate-200 transition-colors" onClick={() => { if(sortBy === "updated_at") { setSortOrder(sortOrder === "desc" ? "asc" : "desc"); } else { setSortBy("updated_at"); setSortOrder("desc"); } }}>
+                        <th className="px-3 sm:px-6 py-4">Tên tài liệu / Tiêu đề</th>
+                        <th className="px-3 sm:px-6 py-4">Nguồn (URL)</th>
+                        <th className="px-3 sm:px-6 py-4 cursor-pointer hover:bg-slate-200 transition-colors" onClick={() => { if(sortBy === "updated_at") { setSortOrder(sortOrder === "desc" ? "asc" : "desc"); } else { setSortBy("updated_at"); setSortOrder("desc"); } }}>
                           <div className="flex items-center gap-2">
                             Cập nhật lần cuối
                             <span className="text-xs">{sortBy === "updated_at" ? (sortOrder === "desc" ? "▼" : "▲") : ""}</span>
                           </div>
                         </th>
-                        <th className="px-6 py-4 text-center cursor-pointer hover:bg-slate-200 transition-colors" onClick={() => { if(sortBy === "chunk_count") { setSortOrder(sortOrder === "desc" ? "asc" : "desc"); } else { setSortBy("chunk_count"); setSortOrder("desc"); } }}>
+                        <th className="px-3 sm:px-6 py-4 text-center cursor-pointer hover:bg-slate-200 transition-colors" onClick={() => { if(sortBy === "chunk_count") { setSortOrder(sortOrder === "desc" ? "asc" : "desc"); } else { setSortBy("chunk_count"); setSortOrder("desc"); } }}>
                           <div className="flex items-center justify-center gap-2">
                             Số Chunks
                             <span className="text-xs">{sortBy === "chunk_count" ? (sortOrder === "desc" ? "▼" : "▲") : ""}</span>
@@ -440,7 +440,7 @@ export default function AdminPage() {
                     <tbody className="divide-y divide-slate-100">
                       {loadingDocs ? (
                         <tr>
-                          <td colSpan={6} className="px-6 py-8 text-center text-slate-500">
+                          <td colSpan={6} className="px-3 sm:px-6 py-8 text-center text-slate-500">
                             <div className="flex justify-center items-center gap-2">
                               <Loader2 className="w-5 h-5 animate-spin" /> Đang tải dữ liệu...
                             </div>
@@ -448,7 +448,7 @@ export default function AdminPage() {
                         </tr>
                       ) : documents.length === 0 ? (
                         <tr>
-                          <td colSpan={6} className="px-6 py-8 text-center text-slate-500">
+                          <td colSpan={6} className="px-3 sm:px-6 py-8 text-center text-slate-500">
                             Chưa có tài liệu nào trong cơ sở dữ liệu.
                           </td>
                         </tr>
@@ -458,11 +458,11 @@ export default function AdminPage() {
                             <td className="px-4 py-4 text-center text-slate-500">
                               {(currentPage - 1) * 50 + index + 1}
                             </td>
-                            <td className="px-6 py-4 font-medium text-slate-900 max-w-md" title={doc.title}>
+                            <td className="px-3 sm:px-6 py-4 font-medium text-slate-900 max-w-md" title={doc.title}>
                               {editingDocId === doc.id ? (
                                 <input
                                   type="text"
-                                  className="w-full border border-blue-500 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white text-slate-800 dark:bg-slate-900 dark:text-slate-100"
+                                  className="w-full border border-brand-500 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-brand-500 bg-white text-slate-800 dark:bg-slate-900 dark:text-slate-100"
                                   value={editTitle}
                                   onChange={(e) => setEditTitle(e.target.value)}
                                   onBlur={() => handleUpdateTitle(doc.id)}
@@ -474,23 +474,23 @@ export default function AdminPage() {
                                 />
                               ) : (
                                 <div 
-                                  className="cursor-pointer hover:text-blue-600 line-clamp-2 flex items-center justify-between group"
+                                  className="cursor-pointer hover:text-brand-600 line-clamp-2 flex items-center justify-between group"
                                   onClick={() => { setEditingDocId(doc.id); setEditTitle(doc.title || ""); }}
                                 >
                                   <span>{doc.title || "Không có tiêu đề"}</span>
-                                  <Edit2 size={14} className="ml-2 opacity-0 group-hover:opacity-100 text-slate-400 flex-shrink-0" />
+                                  <Edit2 size={14} className="ml-2 opacity-0 group-hover:opacity-100 [@media(hover:none)]:opacity-100 text-slate-400 flex-shrink-0" />
                                 </div>
                               )}
                             </td>
-                            <td className="px-6 py-4">
-                              <a href={doc.source_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline max-w-xs truncate inline-block" title={doc.source_url}>
+                            <td className="px-3 sm:px-6 py-4">
+                              <a href={doc.source_url} target="_blank" rel="noopener noreferrer" className="text-brand-600 hover:underline max-w-xs truncate inline-block" title={doc.source_url}>
                                 {doc.source_url}
                               </a>
                             </td>
-                            <td className="px-6 py-4 text-slate-500 whitespace-nowrap">
+                            <td className="px-3 sm:px-6 py-4 text-slate-500 whitespace-nowrap">
                               {new Date(doc.updated_at).toLocaleString('vi-VN')}
                             </td>
-                            <td className="px-6 py-4 text-center font-medium text-slate-700">
+                            <td className="px-3 sm:px-6 py-4 text-center font-medium text-slate-700">
                               {doc.chunk_count || 0}
                             </td>
                             <td className="px-4 py-4 text-center">
@@ -546,7 +546,7 @@ export default function AdminPage() {
                   onDrop={handleDrop}
                   className={`border-2 border-dashed rounded-xl p-10 text-center transition-colors ${
                     isDragging 
-                      ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20" 
+                      ? "border-brand-500 bg-brand-50 dark:bg-brand-900/20" 
                       : "border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/50"
                   }`}
                 >
@@ -567,14 +567,14 @@ export default function AdminPage() {
                   />
                   <label 
                     htmlFor="file-upload"
-                    className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 cursor-pointer"
+                    className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-brand-600 hover:bg-brand-700 cursor-pointer"
                   >
                     Chọn File
                   </label>
                 </div>
 
                 {selectedFiles.length > 0 && (
-                  <div className="bg-slate-50 dark:bg-slate-900 rounded-lg p-4">
+                  <div className="bg-slate-50 dark:bg-slate-900 rounded-xl p-4">
                     <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
                       Đã chọn {selectedFiles.length} file:
                     </h4>
@@ -594,7 +594,7 @@ export default function AdminPage() {
                       <button
                         onClick={submitFiles}
                         disabled={status === "processing"}
-                        className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-6 py-2.5 rounded-lg font-medium transition-colors"
+                        className="flex items-center gap-2 bg-brand-600 hover:bg-brand-700 disabled:opacity-50 text-white px-6 py-2.5 rounded-xl font-medium transition-colors"
                       >
                         <Play size={18} /> Bắt đầu Xử lý File
                       </button>
@@ -614,21 +614,21 @@ export default function AdminPage() {
                     value={urlsText}
                     onChange={(e) => setUrlsText(e.target.value)}
                     placeholder="https://iuh.edu.vn/tin-tuc-1&#10;https://iuh.edu.vn/tin-tuc-2"
-                    className="w-full h-64 p-4 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none resize-none font-mono text-sm"
+                    className="w-full h-64 p-4 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none resize-none font-mono text-sm"
                   ></textarea>
                 </div>
                 <div className="flex justify-between items-center">
                   <button
                     onClick={() => setShowExtractModal(true)}
                     disabled={status === "processing"}
-                    className="flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-4 py-2.5 rounded-lg font-medium transition-colors"
+                    className="flex items-center gap-2 bg-brand-50 hover:bg-brand-100 text-brand-700 border border-brand-200 px-4 py-2.5 rounded-xl font-medium transition-colors"
                   >
                     <RefreshCw size={18} /> Quét Toàn Hệ Thống (Auto Crawl)
                   </button>
                   <button
                     onClick={submitUrls}
                     disabled={status === "processing" || !urlsText.trim()}
-                    className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-6 py-2.5 rounded-lg font-medium transition-colors"
+                    className="flex items-center gap-2 bg-brand-600 hover:bg-brand-700 disabled:opacity-50 text-white px-6 py-2.5 rounded-xl font-medium transition-colors"
                   >
                     <Globe size={18} /> Bắt đầu Cào dữ liệu
                   </button>
@@ -645,7 +645,7 @@ export default function AdminPage() {
           <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden animate-fade-in">
             <div className="flex justify-between items-center p-6 border-b border-slate-200 dark:border-slate-700">
               <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                <RefreshCw className="text-indigo-500" /> Quét Toàn Hệ Thống
+                <RefreshCw className="text-brand-500" /> Quét Toàn Hệ Thống
               </h3>
               <button onClick={() => setShowExtractModal(false)} className="text-slate-400 hover:text-slate-600">
                 <X size={24} />
@@ -653,7 +653,7 @@ export default function AdminPage() {
             </div>
             
             <div className="p-6 space-y-4">
-              <div className="bg-blue-50 text-blue-800 p-4 rounded-lg border border-blue-100 text-sm">
+              <div className="bg-brand-50 text-brand-800 p-4 rounded-xl border border-brand-100 text-sm">
                 <p className="font-semibold mb-2">Chức năng này sẽ làm gì?</p>
                 <ul className="list-disc pl-5 space-y-1">
                   <li>Tự động đọc Sitemap từ <strong>camnang.iuh.edu.vn</strong></li>
@@ -672,7 +672,7 @@ export default function AdminPage() {
                   value={extraUrlsText}
                   onChange={(e) => setExtraUrlsText(e.target.value)}
                   placeholder="https://tuyensinh.iuh.edu.vn/mot-trang-moi"
-                  className="w-full h-32 p-3 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none resize-none font-mono text-sm"
+                  className="w-full h-32 p-3 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none resize-none font-mono text-sm"
                 ></textarea>
                 <p className="text-xs text-slate-500 mt-1">Các URL nhập ở đây sẽ được cào cùng với danh sách mặc định của hệ thống.</p>
               </div>
@@ -681,13 +681,13 @@ export default function AdminPage() {
             <div className="p-6 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 flex justify-end gap-3">
               <button
                 onClick={() => setShowExtractModal(false)}
-                className="px-5 py-2.5 rounded-lg font-medium text-slate-600 hover:bg-slate-200 transition-colors"
+                className="px-5 py-2.5 rounded-xl font-medium text-slate-600 hover:bg-slate-200 transition-colors"
               >
                 Hủy bỏ
               </button>
               <button
                 onClick={submitExtractAndCrawl}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium text-white bg-indigo-600 hover:bg-indigo-700 shadow-sm transition-colors"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-white bg-brand-600 hover:bg-brand-700 shadow-sm transition-colors"
               >
                 <Play size={18} /> Bắt đầu Quét Toàn Bộ
               </button>

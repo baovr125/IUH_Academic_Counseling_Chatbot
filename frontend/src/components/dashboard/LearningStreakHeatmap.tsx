@@ -23,13 +23,13 @@ export const LearningStreakHeatmap: React.FC<LearningStreakHeatmapProps> = ({ st
   const getIntensityClass = (intensity: number) => {
     switch (intensity) {
       case 4:
-        return "bg-orange-500 hover:bg-orange-600";
+        return "bg-brand-600 hover:bg-brand-700";
       case 3:
-        return "bg-orange-400 hover:bg-orange-500";
+        return "bg-brand-500 hover:bg-brand-600";
       case 2:
-        return "bg-amber-300 hover:bg-amber-400";
+        return "bg-brand-300 hover:bg-brand-400";
       case 1:
-        return "bg-orange-100 dark:bg-orange-950/70 hover:bg-orange-200 dark:hover:bg-orange-900/70";
+        return "bg-brand-100 dark:bg-brand-950/70 hover:bg-brand-200 dark:hover:bg-brand-900/70";
       default:
         return "bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700";
     }
@@ -47,13 +47,13 @@ export const LearningStreakHeatmap: React.FC<LearningStreakHeatmapProps> = ({ st
             <h3 className="text-xs font-bold text-slate-800 dark:text-slate-100">
               Chuỗi Hoạt Động Học Tập{isLive ? ` (${stats.streakDays} ngày)` : ""}
             </h3>
-            <p className="text-[10px] text-slate-500 dark:text-slate-400">Tần suất học tập & tương tác AI trong 12 tuần</p>
+            <p className="text-xs sm:text-[10px] text-slate-500 dark:text-slate-400">Tần suất học tập & tương tác AI trong 12 tuần</p>
           </div>
         </div>
 
         {isLive ? (
           stats.streakDays > 0 && (
-            <span className="shrink-0 whitespace-nowrap text-[11px] font-bold text-orange-700 dark:text-orange-400">🔥 Đang duy trì</span>
+            <span className="shrink-0 whitespace-nowrap text-xs sm:text-[11px] font-bold text-orange-700 dark:text-orange-400">🔥 Đang duy trì</span>
           )
         ) : (
           <SampleDataBadge />
@@ -84,6 +84,7 @@ export const LearningStreakHeatmap: React.FC<LearningStreakHeatmapProps> = ({ st
                 <div
                   key={idx}
                   onMouseEnter={() => setHoveredDay({ date: formattedDate, count })}
+                  onClick={() => setHoveredDay({ date: formattedDate, count })}
                   onMouseLeave={() => setHoveredDay(null)}
                   className={`h-2.5 w-2.5 rounded-sm transition-all cursor-pointer ${getIntensityClass(
                     day.intensity
@@ -97,11 +98,11 @@ export const LearningStreakHeatmap: React.FC<LearningStreakHeatmapProps> = ({ st
       </div>
 
       {/* Footer Info & Legend */}
-      <div className="mt-3 flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-700/60 text-[10px] text-slate-500 dark:text-slate-400">
+      <div className="mt-3 flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-700/60 text-xs sm:text-[10px] text-slate-500 dark:text-slate-400">
         <div>
           {hoveredDay ? (
             <span className="font-semibold text-slate-700 dark:text-slate-300">
-              {hoveredDay.date}: <span className="text-orange-600">{hoveredDay.count} hoạt động</span>
+              {hoveredDay.date}: <span className="text-brand-600 dark:text-brand-400">{hoveredDay.count} hoạt động</span>
             </span>
           ) : (
             <span>Di chuột vào ô để xem chi tiết</span>
@@ -112,10 +113,10 @@ export const LearningStreakHeatmap: React.FC<LearningStreakHeatmapProps> = ({ st
         <div className="flex items-center gap-1">
           <span>Ít</span>
           <div className="h-2 w-2 rounded-xs bg-slate-100 dark:bg-slate-800" />
-          <div className="h-2 w-2 rounded-xs bg-orange-100 dark:bg-orange-950/70" />
-          <div className="h-2 w-2 rounded-xs bg-amber-300" />
-          <div className="h-2 w-2 rounded-xs bg-orange-400" />
-          <div className="h-2 w-2 rounded-xs bg-orange-500" />
+          <div className="h-2 w-2 rounded-xs bg-brand-100 dark:bg-brand-950/70" />
+          <div className="h-2 w-2 rounded-xs bg-brand-300" />
+          <div className="h-2 w-2 rounded-xs bg-brand-500" />
+          <div className="h-2 w-2 rounded-xs bg-brand-600" />
           <span>Nhiều</span>
         </div>
       </div>

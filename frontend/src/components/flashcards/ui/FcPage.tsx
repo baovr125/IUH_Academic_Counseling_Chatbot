@@ -14,11 +14,11 @@ interface FcPageProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 /**
- * Khung trang chung của Flashcard: nền và khoảng đệm giống DashboardPage
- * (slate-50/60, tối là slate-950), nội dung căn giữa trong một độ rộng cố định.
+ * Khung trang chung của Flashcard: khoảng đệm giống DashboardPage, dùng nền khung chung của MainLayout (không tự tô nền),
+ * nội dung căn giữa trong một độ rộng cố định.
  */
 export const FcPage: React.FC<FcPageProps> = ({ width = "lg", className = "", children, ...rest }) => (
-  <div className="min-h-full w-full bg-slate-50/60 transition-colors dark:bg-slate-950" {...rest}>
+  <div className="min-h-full w-full transition-colors" {...rest}>
     <div className={`mx-auto flex w-full flex-col p-4 sm:p-6 lg:p-8 ${WIDTH[width]} ${className}`}>{children}</div>
   </div>
 );

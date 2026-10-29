@@ -3,16 +3,16 @@ import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useSettings } from "../../context/SettingsContext";
 import { useAuth } from "../../hooks/useAuth";
 import { RESET_CHAT_EVENT_NAME } from "../../hooks/useChat";
-import logoMark from "../../assets/brand/iuh-mark-256.png";
+import { BrandLogo } from "../ui/BrandLogo";
 
-interface NavItem {
+export interface NavItem {
   to: string;
   icon: React.ElementType;
   key: string;
   label: string;
 }
 
-const NAV_ITEMS: NavItem[] = [
+export const NAV_ITEMS: NavItem[] = [
   { to: "/dashboard", icon: LayoutDashboard, key: "sidebar.personalHub", label: "Tổng quan Dashboard" },
   { to: "/chat", icon: MessageSquare, key: "sidebar.knowledgeHub", label: "Trợ lý Tư vấn IUH" },
   { to: "/translation", icon: Languages, key: "sidebar.translationStudio", label: "Dịch thuật Đa ngôn ngữ" },
@@ -20,35 +20,45 @@ const NAV_ITEMS: NavItem[] = [
   { to: "/admin", icon: Database, key: "sidebar.admin", label: "Quản trị Dữ liệu (Admin)" },
 ];
 
+/** Dùng chung cho thanh icon (Sidebar) và ngăn kéo di động (MobileNavDrawer). */
+export function handleNavClick(targetPath: string) {
+  if (targetPath === "/flashcards") {
+    window.dispatchEvent(new CustomEvent("reset-flashcard-view"));
+  }
+  if (targetPath === "/chat") {
+    window.dispatchEvent(new CustomEvent(RESET_CHAT_EVENT_NAME));
+  }
+}
+
+const itemBase = "flex h-12 w-12 cursor-pointer items-center justify-center rounded-2xl transition-all";
+const itemActive = "bg-brand-600 text-white shadow-md shadow-brand-600/25";
+const itemIdle =
+  "text-slate-500 hover:bg-white hover:text-brand-700 hover:shadow-sm dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100";
+
+/**
+ * Thanh icon cố định từ `md` trở lên; dưới `md` được thay bằng MobileNavDrawer (mở từ TopBar).
+ * Không có nền riêng: dùng chung nền khung với TopBar và trang (xem MainLayout); chỉ có một đường dọc mảnh ở mép phải để ngăn "vùng điều hướng" với "vùng làm việc". Hàng đầu cao 64px (bằng TopBar)
+ * chứa logo trơn để logo và tên thương hiệu ở TopBar đọc thành một cụm; bấm logo về trang tổng quan (Dashboard).
+ */
 export function Sidebar() {
   const { t } = useSettings();
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
-  const handleNavClick = (targetPath: string) => {
-    if (targetPath === "/flashcards") {
-      window.dispatchEvent(new CustomEvent("reset-flashcard-view"));
-    }
-    if (targetPath === "/chat") {
-      window.dispatchEvent(new CustomEvent(RESET_CHAT_EVENT_NAME));
-    }
-  };
-
   return (
-    <aside className="relative z-30 flex h-full w-16 flex-col items-center justify-between bg-[#152a6e] dark:bg-slate-950 py-4 transition-colors select-none shadow-md flex-shrink-0">
-      <div className="flex flex-col items-center gap-2">
+    <aside className="hidden h-full w-[72px] flex-shrink-0 select-none flex-col items-center justify-between border-r border-brand-200 pb-4 dark:border-slate-700 md:flex">
+      <div className="flex w-full flex-col items-center">
         <NavLink
-          to="/chat"
-          title="IUH Portal AI - Trợ lý Sinh viên"
-          onClick={() => handleNavClick("/chat")}
-          className="mb-4 flex h-9 w-9 items-center justify-center rounded-lg bg-white p-1 hover:bg-white/90 transition-all hover:scale-105 cursor-pointer shadow-sm"
+          to="/dashboard"
+          title="IUH Portal AI - Trang tổng quan"
+          aria-label="IUH Portal AI"
+          className="mb-2 flex h-16 w-full flex-shrink-0 items-center justify-center transition-transform hover:scale-105"
         >
-          {/* Nền trắng để logo xanh đậm không chìm vào nền thanh bên. */}
-          <img src={logoMark} alt="IUH" className="h-full w-full object-contain" />
+          <BrandLogo className="h-11" alt="IUH" />
         </NavLink>
         <nav className="flex flex-col gap-1.5">
-          {NAV_ITEMS.filter(item => item.to !== "/admin" || user?.role === "admin").map(({ to, icon: Icon, key, label }) => {
+          {NAV_ITEMS.filter((item) => item.to !== "/admin" || user?.role === "admin").map(({ to, icon: Icon, key, label }) => {
             const isCurrentActive = location.pathname.startsWith(to);
             return (
               <NavLink
@@ -56,13 +66,9 @@ export function Sidebar() {
                 to={to}
                 title={t(key) || label}
                 onClick={() => handleNavClick(to)}
-                className={`flex h-11 w-11 items-center justify-center rounded-xl transition-all cursor-pointer ${
-                  isCurrentActive
-                    ? "bg-orange-500 text-white shadow-md shadow-orange-500/30 scale-105"
-                    : "text-blue-200/70 hover:bg-white/10 hover:text-white dark:text-slate-400 dark:hover:text-slate-100"
-                }`}
+                className={`${itemBase} ${isCurrentActive ? itemActive : itemIdle}`}
               >
-                <Icon size={20} strokeWidth={2} />
+                <Icon size={22} strokeWidth={2} />
               </NavLink>
             );
           })}
@@ -73,27 +79,19 @@ export function Sidebar() {
         <NavLink
           to="/settings"
           title={t("sidebar.systemSettings") || "Cài đặt hệ thống"}
-          className={({ isActive }) =>
-            `flex h-11 w-11 items-center justify-center rounded-xl transition-all cursor-pointer ${
-              isActive
-                ? "bg-orange-500 text-white shadow-md shadow-orange-500/30 scale-105"
-                : "text-blue-200/70 hover:bg-white/10 hover:text-white dark:text-slate-400 dark:hover:text-slate-100"
-            }`
-          }
+          className={({ isActive }) => `${itemBase} ${isActive ? itemActive : itemIdle}`}
         >
-          <Settings size={20} />
+          <Settings size={22} />
         </NavLink>
         <button
           type="button"
           onClick={() => navigate("/chat")}
           title={t("sidebar.help") || "Trung tâm trợ giúp"}
-          className="flex h-11 w-11 items-center justify-center rounded-xl text-blue-200/70 transition-all hover:bg-white/10 hover:text-white dark:text-slate-400 dark:hover:text-slate-100 cursor-pointer"
+          className={`${itemBase} ${itemIdle}`}
         >
-          <HelpCircle size={20} />
+          <HelpCircle size={22} />
         </button>
       </div>
     </aside>
   );
 }
-
-

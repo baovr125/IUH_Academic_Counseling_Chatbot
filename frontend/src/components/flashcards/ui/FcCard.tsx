@@ -29,7 +29,7 @@ export const FcCard = React.forwardRef<HTMLElement, FcCardProps>(function FcCard
       className={
         "rounded-3xl border border-slate-200/80 bg-white shadow-sm transition-all duration-200 dark:border-slate-800 dark:bg-slate-800 " +
         (interactive
-          ? "hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-md dark:hover:border-blue-500/60 "
+          ? "hover:-translate-y-0.5 hover:border-brand-300 hover:shadow-md dark:hover:border-brand-500/60 "
           : "") +
         `${PADDING[padding]} ${className}`
       }

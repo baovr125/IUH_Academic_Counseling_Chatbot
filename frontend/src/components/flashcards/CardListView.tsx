@@ -17,7 +17,7 @@ interface CardListViewProps {
 }
 
 const ICON_BTN =
-  "rounded-full p-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500";
+  "rounded-full p-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500";
 
 export const CardListView: React.FC<CardListViewProps> = ({
   deck,
@@ -89,7 +89,7 @@ export const CardListView: React.FC<CardListViewProps> = ({
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Tìm kiếm từ vựng, nghĩa tiếng Việt..."
             aria-label="Tìm kiếm thẻ trong sổ"
-            className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2 pl-10 pr-4 text-sm text-slate-800 transition-all focus:border-blue-500 focus:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 dark:border-slate-600 dark:bg-slate-900/50 dark:text-slate-100 dark:placeholder-slate-500 dark:focus:bg-slate-900"
+            className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2 pl-10 pr-4 text-sm text-slate-800 transition-all focus:border-brand-500 focus:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40 dark:border-slate-600 dark:bg-slate-900/50 dark:text-slate-100 dark:placeholder-slate-500 dark:focus:bg-slate-900"
           />
         </div>
 
@@ -103,7 +103,7 @@ export const CardListView: React.FC<CardListViewProps> = ({
           <p className="text-sm text-slate-500 dark:text-slate-400">Không tìm thấy từ vựng nào khớp với từ khóa "{searchTerm}".</p>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-2xl" style={{ height: "calc(100vh - 340px)", minHeight: "480px" }}>
+        <div className="h-[calc(100vh-340px)] [@supports(height:100dvh)]:h-[calc(100dvh-340px)] min-h-[320px] overflow-hidden rounded-2xl sm:min-h-[480px]">
           <Virtuoso
             style={{ height: "100%", width: "100%" }}
             totalCount={filteredCards.length}
@@ -113,7 +113,7 @@ export const CardListView: React.FC<CardListViewProps> = ({
 
               return (
                 <div className="pb-3 pr-1">
-                  <FcCard padding="sm" className="!rounded-2xl hover:border-blue-200 hover:shadow-md dark:hover:border-slate-600">
+                  <FcCard padding="sm" className="!rounded-2xl hover:border-brand-200 hover:shadow-md dark:hover:border-slate-600">
                     <div className="mb-2 flex items-center justify-between">
                       <FcBadge tone="slate" className="uppercase tracking-wider">
                         {card.part_of_speech || card.partOfSpeech || "Từ vựng"}
@@ -122,7 +122,7 @@ export const CardListView: React.FC<CardListViewProps> = ({
                         <button
                           type="button"
                           onClick={() => onPlayAudio(card.audio_url, card.term, cardLang, card.phonetic)}
-                          className={`${ICON_BTN} text-blue-600 hover:bg-blue-50 dark:text-blue-300 dark:hover:bg-slate-700`}
+                          className={`${ICON_BTN} text-brand-600 hover:bg-brand-50 dark:text-brand-300 dark:hover:bg-slate-700`}
                           title="Nghe phát âm"
                           aria-label={`Nghe phát âm ${card.term}`}
                         >
@@ -131,7 +131,7 @@ export const CardListView: React.FC<CardListViewProps> = ({
                         <button
                           type="button"
                           onClick={() => onOpenEditCard(card)}
-                          className={`${ICON_BTN} text-slate-500 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-slate-700 dark:hover:text-blue-300 dark:text-slate-400`}
+                          className={`${ICON_BTN} text-slate-500 hover:bg-brand-50 hover:text-brand-600 dark:hover:bg-slate-700 dark:hover:text-brand-300 dark:text-slate-400`}
                           title="Chỉnh sửa thẻ"
                           aria-label={`Chỉnh sửa thẻ ${card.term}`}
                         >
@@ -150,7 +150,7 @@ export const CardListView: React.FC<CardListViewProps> = ({
                     </div>
 
                     <h4 className="text-base font-bold text-slate-800 dark:text-slate-100" lang={cardLang}>{card.term}</h4>
-                    {card.phonetic ? <p className="mb-1 font-mono text-xs text-blue-600 dark:text-blue-300">{card.phonetic}</p> : null}
+                    {card.phonetic ? <p className="mb-1 font-mono text-xs text-brand-600 dark:text-brand-300">{card.phonetic}</p> : null}
                     <p className="mt-1 text-sm font-medium text-slate-600 dark:text-slate-300">{card.definition}</p>
                     {card.example_sentence || card.example ? (
                       <p className="mt-2 rounded-xl border border-slate-100 bg-slate-50 p-2.5 text-xs italic text-slate-500 dark:border-slate-700 dark:bg-slate-900/50 dark:text-slate-400" lang={cardLang}>

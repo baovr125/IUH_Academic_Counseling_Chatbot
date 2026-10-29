@@ -105,7 +105,7 @@ export function ChatMessageBubble({
   if (isUser) {
     return (
       <div className="flex justify-end gap-2">
-        <div className="max-w-[70%] rounded-2xl rounded-tr-sm bg-blue-600 px-4 py-2.5 text-sm text-white">
+        <div className="max-w-[88%] sm:max-w-[70%] break-words rounded-2xl rounded-tr-sm bg-brand-600 px-4 py-2.5 text-sm text-white">
           <FormattedMarkdown content={cleanContent || message.content} />
         </div>
       </div>
@@ -114,20 +114,20 @@ export function ChatMessageBubble({
 
   return (
     <div className="flex items-start gap-2">
-      <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-blue-600 text-white">
+      <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-brand-600 text-white">
         <Bot size={15} />
       </div>
-      <div className="max-w-[75%] rounded-2xl rounded-tl-sm bg-blue-50 px-4 py-3 text-sm text-slate-700 dark:bg-blue-950/40 dark:text-slate-200">
+      <div className="min-w-0 max-w-[calc(100%-2.25rem)] sm:max-w-[75%] rounded-2xl rounded-tl-sm bg-brand-50 px-4 py-3 text-sm text-slate-700 dark:bg-brand-950/40 dark:text-slate-200">
         {message.status === "pending" && !message.content ? (
           <TypingIndicator />
         ) : (
           <>
             <FormattedMarkdown content={cleanContent} />
             {message.status === "pending" && (
-              <span className="inline-block h-3 w-1.5 animate-pulse rounded-sm bg-blue-400 ml-0.5 align-baseline" />
+              <span className="inline-block h-3 w-1.5 animate-pulse rounded-sm bg-brand-400 ml-0.5 align-baseline" />
             )}
             {uniqueCitations && uniqueCitations.length > 0 && (
-              <div className="mt-2 flex flex-col gap-1.5 border-t border-blue-100 pt-2 dark:border-blue-900/50">
+              <div className="mt-2 flex flex-col gap-1.5 border-t border-brand-100 pt-2 dark:border-brand-900/50">
                 <div className="flex flex-wrap items-center gap-1.5">
                   <span className="text-xs text-slate-400">Nguồn:</span>
                   {(sourcesExpanded ? uniqueCitations : uniqueCitations.slice(0, 2)).map((c) => (
@@ -136,7 +136,7 @@ export function ChatMessageBubble({
                   {!sourcesExpanded && uniqueCitations.length > 2 && (
                     <button
                       onClick={() => setSourcesExpanded(true)}
-                      className="text-xs text-blue-500 hover:text-blue-700 underline px-1 dark:text-blue-400 dark:hover:text-blue-300"
+                      className="text-xs text-brand-500 hover:text-brand-700 underline px-1 [@media(pointer:coarse)]:py-3 dark:text-brand-400 dark:hover:text-brand-300"
                     >
                       +{uniqueCitations.length - 2} xem thêm
                     </button>
@@ -144,7 +144,7 @@ export function ChatMessageBubble({
                   {sourcesExpanded && uniqueCitations.length > 2 && (
                     <button
                       onClick={() => setSourcesExpanded(false)}
-                      className="text-xs text-slate-400 hover:text-slate-600 underline px-1 dark:hover:text-slate-200"
+                      className="text-xs text-slate-400 hover:text-slate-600 underline px-1 [@media(pointer:coarse)]:py-3 dark:hover:text-slate-200"
                     >
                       Thu gọn
                     </button>
@@ -160,7 +160,7 @@ export function ChatMessageBubble({
                     <button
                       key={i}
                       onClick={() => onSendMessage && onSendMessage(text)}
-                      className="text-left text-xs font-semibold text-orange-800 bg-orange-50 hover:bg-orange-100 border border-orange-200/90 rounded-xl px-3 py-1.5 transition-all shadow-xs hover:border-orange-300 active:scale-95 dark:text-orange-200 dark:bg-orange-950/50 dark:border-orange-800/60 dark:hover:bg-orange-900/60"
+                      className="text-left text-xs font-semibold text-brand-800 bg-brand-50 hover:bg-brand-100 border border-brand-200/90 rounded-xl px-3 py-1.5 [@media(pointer:coarse)]:py-2.5 transition-all shadow-xs hover:border-brand-300 active:scale-95 dark:text-brand-200 dark:bg-brand-950/50 dark:border-brand-800/60 dark:hover:bg-brand-900/60"
                     >
                       {text}
                     </button>
@@ -173,28 +173,28 @@ export function ChatMessageBubble({
                 <div className="flex items-center gap-2">
                   <button
                     onClick={handleCopy}
-                    className="p-1.5 rounded-md transition-colors text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-700 dark:hover:text-slate-200"
+                    className="p-1.5 [@media(pointer:coarse)]:p-3 rounded-md transition-colors text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-700 dark:hover:text-slate-200"
                     title="Sao chép"
                   >
                     {copied ? <Check size={14} className="text-green-500 dark:text-green-400" /> : <Copy size={14} />}
                   </button>
                   <button
                     onClick={() => handleFeedback('like')}
-                    className={`p-1.5 rounded-md transition-colors ${feedback === 'like' ? 'bg-orange-100 text-orange-600 dark:bg-orange-950/60 dark:text-orange-400' : 'text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-700 dark:hover:text-slate-200'}`}
+                    className={`p-1.5 [@media(pointer:coarse)]:p-3 rounded-md transition-colors ${feedback === 'like' ? 'bg-brand-100 text-brand-600 dark:bg-brand-950/60 dark:text-brand-400' : 'text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-700 dark:hover:text-slate-200'}`}
                     title="Hữu ích"
                   >
                     <ThumbsUp size={14} />
                   </button>
                   <button
                     onClick={() => handleFeedback('dislike')}
-                    className={`p-1.5 rounded-md transition-colors ${feedback === 'dislike' ? 'bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-300' : 'text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-700 dark:hover:text-slate-200'}`}
+                    className={`p-1.5 [@media(pointer:coarse)]:p-3 rounded-md transition-colors ${feedback === 'dislike' ? 'bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-300' : 'text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-700 dark:hover:text-slate-200'}`}
                     title="Không hữu ích"
                   >
                     <ThumbsDown size={14} />
                   </button>
                   <button
                     onClick={() => setShowComment(!showComment)}
-                    className={`p-1.5 rounded-md transition-colors ${showComment ? 'bg-orange-100 text-orange-700 dark:bg-orange-950/60 dark:text-orange-300' : 'text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-700 dark:hover:text-slate-200'}`}
+                    className={`p-1.5 [@media(pointer:coarse)]:p-3 rounded-md transition-colors ${showComment ? 'bg-brand-100 text-brand-700 dark:bg-brand-950/60 dark:text-brand-300' : 'text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-700 dark:hover:text-slate-200'}`}
                     title="Thêm bình luận"
                   >
                     <MessageSquare size={14} />
@@ -207,7 +207,7 @@ export function ChatMessageBubble({
                           assistantMsgId: message.id,
                         })
                       }
-                      className="flex items-center gap-1 p-1.5 rounded-lg transition-colors text-orange-600 hover:bg-orange-50 ml-auto text-xs font-bold dark:text-orange-400 dark:hover:bg-orange-950/50"
+                      className="flex items-center gap-1 p-1.5 rounded-lg transition-colors text-brand-600 hover:bg-brand-50 ml-auto text-xs font-bold dark:text-brand-400 dark:hover:bg-brand-950/50"
                       title="Bỏ qua cache và tạo lại câu trả lời mới"
                     >
                       <RefreshCw size={12} />
@@ -222,12 +222,12 @@ export function ChatMessageBubble({
                       value={comment}
                       onChange={(e) => setComment(e.target.value)}
                       placeholder="Nhập góp ý của bạn..."
-                      className="flex-1 rounded-xl border border-slate-200 px-3 py-1.5 text-xs text-slate-700 outline-none focus:border-orange-500 dark:border-slate-600 dark:text-slate-200"
+                      className="flex-1 rounded-xl border border-slate-200 px-3 py-1.5 text-xs text-slate-700 outline-none focus:border-brand-500 dark:border-slate-600 dark:text-slate-200"
                       onKeyDown={(e) => { if (e.key === 'Enter') handleCommentSubmit(); }}
                     />
                     <button
                       onClick={handleCommentSubmit}
-                      className="rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 px-3 py-1.5 text-xs font-bold text-white shadow-sm hover:from-orange-600 hover:to-amber-600 transition-all active:scale-95"
+                      className="rounded-xl bg-brand-600 px-3 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-brand-700 transition-all active:scale-95"
                     >
                       Gửi
                     </button>

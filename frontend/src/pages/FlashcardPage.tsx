@@ -268,7 +268,7 @@ export default function FlashcardPage() {
           <button
             type="button"
             onClick={handleBackFromDeck}
-            className="flex shrink-0 items-center gap-1 rounded-lg px-1.5 py-1 font-semibold text-slate-500 transition-colors hover:bg-slate-100 hover:text-blue-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-blue-300"
+            className="flex shrink-0 items-center gap-1 rounded-lg px-1.5 py-1 font-semibold text-slate-500 transition-colors hover:bg-slate-100 hover:text-brand-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-brand-300"
           >
             <ChevronLeft size={16} aria-hidden="true" />
             {backLabel}

@@ -20,18 +20,18 @@ export const FloatingMenu: React.FC<FloatingMenuProps> = ({ x, y, onSave, onSpea
       <div className="absolute w-3 h-3 bg-gray-900 rotate-45" style={{ bottom: "-6px", left: "50%", transform: "translateX(-50%) rotate(45deg)" }}></div>
       
       <button 
-        className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-white hover:bg-gray-800 rounded-l-lg transition-colors group"
+        className="flex items-center gap-1.5 px-3 py-2 [@media(pointer:coarse)]:py-3 text-sm font-medium text-white hover:bg-gray-800 rounded-l-lg transition-colors group"
         onClick={onSave}
         disabled={isSaving}
       >
-        <PlusCircle size={16} className={`text-blue-400 group-hover:text-blue-300 ${isSaving ? 'animate-spin' : ''}`} />
+        <PlusCircle size={16} className={`text-brand-400 group-hover:text-brand-300 ${isSaving ? 'animate-spin' : ''}`} />
         <span>{isSaving ? "Đang lưu..." : "Lưu thẻ"}</span>
       </button>
       
       <div className="w-px h-5 bg-gray-700"></div>
       
       <button 
-        className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-white hover:bg-gray-800 transition-colors group"
+        className="flex items-center gap-1.5 px-3 py-2 [@media(pointer:coarse)]:py-3 text-sm font-medium text-white hover:bg-gray-800 transition-colors group"
         onClick={onSpeak}
       >
         <Volume2 size={16} className="text-green-400 group-hover:text-green-300" />
@@ -41,7 +41,7 @@ export const FloatingMenu: React.FC<FloatingMenuProps> = ({ x, y, onSave, onSpea
       <div className="w-px h-5 bg-gray-700"></div>
 
       <button 
-        className="flex items-center justify-center px-2 py-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-r-lg transition-colors"
+        className="flex items-center justify-center px-2 py-2 [@media(pointer:coarse)]:px-3 [@media(pointer:coarse)]:py-3 text-gray-400 hover:text-white hover:bg-gray-800 rounded-r-lg transition-colors"
         onClick={onClose}
       >
         <X size={16} />

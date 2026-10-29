@@ -38,7 +38,7 @@ export const RecentWorkspaceTabs: React.FC<RecentWorkspaceTabsProps> = ({ stats 
                 onClick={() => setActiveTab("docs")}
                 className={`flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-semibold transition-all cursor-pointer ${
                   activeTab === "docs"
-                    ? "bg-white text-blue-600 shadow-sm dark:bg-slate-800 dark:text-blue-400"
+                    ? "bg-white text-brand-600 shadow-sm dark:bg-slate-800 dark:text-brand-400"
                     : "text-slate-600 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
                 }`}
               >
@@ -52,7 +52,7 @@ export const RecentWorkspaceTabs: React.FC<RecentWorkspaceTabsProps> = ({ stats 
               onClick={() => setActiveTab("chats")}
               className={`flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-semibold transition-all cursor-pointer ${
                 activeTab === "chats"
-                  ? "bg-white text-blue-600 shadow-sm dark:bg-slate-800 dark:text-blue-400"
+                  ? "bg-white text-brand-600 shadow-sm dark:bg-slate-800 dark:text-brand-400"
                   : "text-slate-600 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
               }`}
             >
@@ -67,7 +67,7 @@ export const RecentWorkspaceTabs: React.FC<RecentWorkspaceTabsProps> = ({ stats 
           <button
             type="button"
             onClick={() => navigate(activeTab === "docs" ? "/translation-doc" : "/chat")}
-            className="flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+            className="flex items-center gap-1 text-xs font-semibold text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300"
           >
             <span>{activeTab === "docs" ? "Xem tất cả tài liệu" : "Lịch sử cuộc trò chuyện"}</span>
             <ArrowRight size={13} />
@@ -85,7 +85,7 @@ export const RecentWorkspaceTabs: React.FC<RecentWorkspaceTabsProps> = ({ stats 
               <button
                 type="button"
                 onClick={() => navigate("/translation-doc")}
-                className="mt-2 text-xs font-semibold text-blue-600 hover:underline"
+                className="mt-2 text-xs font-semibold text-brand-600 hover:underline"
               >
                 + Tải lên tài liệu đầu tiên
               </button>
@@ -94,27 +94,27 @@ export const RecentWorkspaceTabs: React.FC<RecentWorkspaceTabsProps> = ({ stats 
             recentDocs.map((doc) => (
               <div
                 key={doc.id}
-                className="group flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 rounded-2xl border border-slate-100 bg-slate-50/50 p-3.5 transition-all hover:border-blue-200 hover:bg-blue-50/30 dark:border-slate-700/60 dark:bg-slate-900/40 dark:hover:border-blue-800 dark:hover:bg-slate-900/80"
+                className="group flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 rounded-2xl border border-slate-100 bg-slate-50/50 p-3.5 transition-all hover:border-brand-200 hover:bg-brand-50/30 dark:border-slate-700/60 dark:bg-slate-900/40 dark:hover:border-brand-800 dark:hover:bg-slate-900/80"
               >
                 <div className="flex items-start gap-3 min-w-0">
-                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-600 dark:bg-blue-950 dark:text-blue-400">
+                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-brand-100 text-brand-600 dark:bg-brand-950 dark:text-brand-400">
                     <FileCheck size={20} />
                   </div>
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <h4 className="truncate text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400">
+                      <h4 className="truncate text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-brand-600 dark:group-hover:text-brand-400">
                         {doc.name}
                       </h4>
-                      <span className="flex-shrink-0 rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400">
+                      <span className="flex-shrink-0 rounded-md bg-emerald-50 px-1.5 py-0.5 text-xs sm:text-[10px] font-bold text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400">
                         Hoàn tất
                       </span>
                     </div>
                     {doc.translatedTitle && (
-                      <p className="truncate text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                      <p className="truncate text-xs sm:text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                         {doc.translatedTitle}
                       </p>
                     )}
-                    <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[11px] text-slate-500 dark:text-slate-400">
+                    <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs sm:text-[11px] text-slate-500 dark:text-slate-400">
                       {doc.pageCount && <span>{doc.pageCount} trang</span>}
                       {doc.fileSize && <span>• {doc.fileSize}</span>}
                       <span className="flex items-center gap-1">
@@ -128,14 +128,14 @@ export const RecentWorkspaceTabs: React.FC<RecentWorkspaceTabsProps> = ({ stats 
                   <button
                     type="button"
                     onClick={() => navigate("/translation-doc")}
-                    className="flex items-center gap-1 rounded-xl bg-white border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-700 transition-colors"
+                    className="flex items-center gap-1 rounded-xl bg-white border border-slate-200 px-3 py-1.5 [@media(pointer:coarse)]:min-h-[44px] text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-700 transition-colors"
                   >
                     <span>Mở đọc song ngữ</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => navigate("/translation-doc")}
-                    className="flex items-center gap-1 rounded-xl bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-blue-700 transition-colors"
+                    className="flex items-center gap-1 rounded-xl bg-brand-600 px-3 py-1.5 [@media(pointer:coarse)]:min-h-[44px] text-xs font-semibold text-white shadow-sm hover:bg-brand-700 transition-colors"
                   >
                     <Sparkles size={12} />
                     <span>Hỏi đáp RAG</span>
@@ -157,7 +157,7 @@ export const RecentWorkspaceTabs: React.FC<RecentWorkspaceTabsProps> = ({ stats 
               <button
                 type="button"
                 onClick={() => navigate("/chat")}
-                className="mt-2 text-xs font-semibold text-blue-600 hover:underline"
+                className="mt-2 text-xs font-semibold text-brand-600 hover:underline"
               >
                 + Bắt đầu hỏi đáp với Trợ lý AI
               </button>
@@ -167,20 +167,20 @@ export const RecentWorkspaceTabs: React.FC<RecentWorkspaceTabsProps> = ({ stats 
               <div
                 key={chat.id}
                 onClick={() => navigate("/chat")}
-                className="group flex items-center justify-between gap-3 rounded-2xl border border-slate-100 bg-slate-50/50 p-3.5 transition-all hover:border-blue-200 hover:bg-blue-50/30 dark:border-slate-700/60 dark:bg-slate-900/40 dark:hover:border-blue-800 dark:hover:bg-slate-900/80 cursor-pointer"
+                className="group flex items-center justify-between gap-3 rounded-2xl border border-slate-100 bg-slate-50/50 p-3.5 transition-all hover:border-brand-200 hover:bg-brand-50/30 dark:border-slate-700/60 dark:bg-slate-900/40 dark:hover:border-brand-800 dark:hover:bg-slate-900/80 cursor-pointer"
               >
                 <div className="flex items-start gap-3 min-w-0">
-                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-purple-100 text-purple-600 dark:bg-purple-950 dark:text-purple-400">
+                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-sky-100 text-sky-600 dark:bg-sky-950 dark:text-sky-400">
                     <MessageSquare size={18} />
                   </div>
                   <div className="min-w-0">
-                    <h4 className="truncate text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400">
+                    <h4 className="truncate text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-brand-600 dark:group-hover:text-brand-400">
                       {chat.title}
                     </h4>
-                    <p className="truncate text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 max-w-xl">
+                    <p className="truncate text-xs sm:text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 max-w-xl">
                       {chat.lastMessage}
                     </p>
-                    <div className="mt-1 flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400">
+                    <div className="mt-1 flex items-center gap-2 text-xs sm:text-[11px] text-slate-500 dark:text-slate-400">
                       <span>{chat.messageCount} tin nhắn</span>
                       <span>• Cập nhật {chat.updatedAt}</span>
                     </div>
@@ -188,7 +188,7 @@ export const RecentWorkspaceTabs: React.FC<RecentWorkspaceTabsProps> = ({ stats 
                 </div>
 
                 <div className="flex flex-shrink-0 items-center">
-                  <span className="text-xs font-semibold text-blue-600 group-hover:underline flex items-center gap-1">
+                  <span className="text-xs font-semibold text-brand-600 group-hover:underline flex items-center gap-1">
                     Tiếp tục <ArrowRight size={12} />
                   </span>
                 </div>
