@@ -1,0 +1,12 @@
+# Thư viện Python để dựng báo cáo (build/) và vẽ hình (figures/src/).
+# Phiên bản là bản đã dùng trên máy viết báo cáo (Python 3.11.8, Windows 11).
+# Chưa gồm các thư viện của eval/: script đo cần thư viện của dự án (xem README.md, mục 4.1).
+
+python-docx==1.2.0
+pypandoc_binary==1.17     # kèm sẵn pandoc, không cần cài pandoc riêng
+pillow==11.3.0
+pymupdf==1.28.2           # đếm trang để in ngân sách trang
+matplotlib==3.10.1
+numpy==1.26.4
+playwright==1.49.1        # sau đó: python -m playwright install chromium
+fsrs==6.3.2               # chỉ cho 3 hình H2-31, H2-33, H2-34
