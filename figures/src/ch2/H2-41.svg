@@ -1,0 +1,42 @@
+<!-- H2-41 Cấu trúc JWT của hệ thống. Claim theo auth_service/app/services/auth_service.py
+     (create_access_token dòng 126–135, issue_token_for_user 160–169); config.py: HS256, iuh-auth-service, 60 phút.
+     Giá trị thời gian là minh họa (exp = iat + 3600). -->
+<svg xmlns="http://www.w3.org/2000/svg" width="586" height="268" viewBox="0 0 586 268">
+  <defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#334155"/></marker></defs>
+  <rect class="panel" x="8" y="8" width="570" height="30"/>
+  <text class="t-mono" x="18" y="23"><tspan style="fill:#DC2626">eyJhbGciOiJIUzI1NiIs…</tspan><tspan>.</tspan><tspan style="fill:#7C3AED">eyJzdWIiOiI3YjQ…</tspan><tspan>.</tspan><tspan style="fill:#0D9488">Qm9yZ3Vu…</tspan></text>
+  <text class="t-sm t-muted t-r" x="570" y="23">header.payload.signature</text>
+
+  <rect class="box" x="8" y="52" width="170" height="90" style="fill:#FEF2F2;stroke:#DC2626"/>
+  <text class="t-sm t-b" x="18" y="68">HEADER</text>
+  <text class="t-mono" x="18" y="90">{"alg": "HS256",</text>
+  <text class="t-mono" x="18" y="108"> "typ": "JWT"}</text>
+  <text class="t-sm t-muted" x="18" y="130">thuật toán cố định</text>
+
+  <rect class="box auth" x="190" y="52" width="388" height="150"/>
+  <text class="t-sm t-b" x="200" y="68">PAYLOAD (các claim)</text>
+  <g class="t-mono">
+    <text x="200" y="88">"sub":  "&lt;id người dùng&gt;"</text>
+    <text x="200" y="104">"role": "student"</text>
+    <text x="200" y="120">"tv":   0</text>
+    <text x="200" y="136">"iat":  1793336400</text>
+    <text x="200" y="152">"exp":  1793340000</text>
+    <text x="200" y="168">"iss":  "iuh-auth-service"</text>
+    <text x="200" y="184">"oiat": 1793336400</text>
+  </g>
+  <g class="t-sm t-muted">
+    <text x="420" y="88">định danh</text>
+    <text x="420" y="104">vai trò (student/admin)</text>
+    <text x="420" y="120">phiên bản token</text>
+    <text x="420" y="136">thời điểm phát hành</text>
+    <text x="420" y="152">hết hạn sau 60 phút</text>
+    <text x="420" y="168">bên phát hành</text>
+    <text x="420" y="184">lần đăng nhập gốc (≤ 7 ngày)</text>
+  </g>
+
+  <rect class="box chat" x="8" y="214" width="570" height="46"/>
+  <text class="t-sm t-b" x="18" y="230">SIGNATURE</text>
+  <text class="t-sm t-mono" x="18" y="248">HMAC-SHA256(JWT_SECRET_KEY, b64url(header) + "." + b64url(payload))</text>
+  <text class="t-sm t-muted" x="18" y="160">Không chứa email,</text>
+  <text class="t-sm t-muted" x="18" y="176">họ tên, MSSV</text>
+</svg>

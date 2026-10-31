@@ -1,0 +1,60 @@
+<!-- H1-02 Ba nhu cầu của sinh viên và hướng hợp nhất (sơ đồ khái niệm, không chứa số liệu). -->
+<svg xmlns="http://www.w3.org/2000/svg" width="586" height="350" viewBox="0 0 586 350">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#334155"/>
+    </marker>
+  </defs>
+
+  <!-- Ba nhu cầu -->
+  <rect class="box chat" x="8" y="8" width="180" height="34"/>
+  <text class="t-b t-c" x="98" y="25">Tra cứu học vụ</text>
+  <rect class="box trans" x="203" y="8" width="180" height="34"/>
+  <text class="t-b t-c" x="293" y="25">Đọc tài liệu ngoại ngữ</text>
+  <rect class="box flash" x="398" y="8" width="180" height="34"/>
+  <text class="t-b t-c" x="488" y="25">Học từ vựng</text>
+
+  <!-- Khó khăn -->
+  <rect class="panel" x="8" y="50" width="180" height="70"/>
+  <text class="t-sm t-c" x="98" y="68">Thông tin rải rác trên</text>
+  <text class="t-sm t-c" x="98" y="85">nhiều trang web và</text>
+  <text class="t-sm t-c" x="98" y="102">văn bản PDF</text>
+  <rect class="panel" x="203" y="50" width="180" height="70"/>
+  <text class="t-sm t-c" x="293" y="68">Thuật ngữ chuyên ngành</text>
+  <text class="t-sm t-c" x="293" y="85">dễ bị dịch theo nghĩa</text>
+  <text class="t-sm t-c" x="293" y="102">thông dụng</text>
+  <rect class="panel" x="398" y="50" width="180" height="70"/>
+  <text class="t-sm t-c" x="488" y="68">Từ mới phải chép tay</text>
+  <text class="t-sm t-c" x="488" y="85">sang ứng dụng học,</text>
+  <text class="t-sm t-c" x="488" y="102">dễ bỏ sót</text>
+
+  <!-- Công cụ hiện có -->
+  <text class="t-sm t-c t-muted" x="98" y="136">Hiện dùng: website, cẩm nang</text>
+  <text class="t-sm t-c t-muted" x="293" y="136">Hiện dùng: công cụ dịch</text>
+  <text class="t-sm t-c t-muted" x="488" y="136">Hiện dùng: Anki, Quizlet…</text>
+
+  <path class="ln" d="M98,150 L98,196"/>
+  <path class="ln" d="M293,150 L293,196"/>
+  <path class="ln" d="M488,150 L488,196"/>
+
+  <!-- Hệ thống hợp nhất -->
+  <rect class="box fe" x="8" y="198" width="570" height="144"/>
+  <text class="t-b t-c" x="293" y="216">IUH_Academic_Counseling_Chatbot · một nền tảng, một tài khoản</text>
+
+  <rect class="box chat" x="24" y="234" width="160" height="50"/>
+  <text class="t-sm t-b t-c" x="104" y="251">Chatbot tư vấn học vụ</text>
+  <text class="t-sm t-c" x="104" y="270">RAG, có dẫn nguồn</text>
+
+  <rect class="box trans" x="213" y="234" width="160" height="50"/>
+  <text class="t-sm t-b t-c" x="293" y="251">Dịch thời gian thực</text>
+  <text class="t-sm t-c" x="293" y="270">theo chuyên ngành</text>
+
+  <rect class="box flash" x="402" y="234" width="160" height="50"/>
+  <text class="t-sm t-b t-c" x="482" y="251">Flashcard</text>
+  <text class="t-sm t-c" x="482" y="270">lập lịch ôn bằng FSRS</text>
+
+  <path class="ln" d="M373,259 L400,259"/>
+  <text class="t-sm t-c t-b" x="388" y="310">lưu từ đang dịch</text>
+  <text class="t-sm t-c t-b" x="388" y="325">thành thẻ học</text>
+  <path d="M388,298 L388,264" stroke="#94A3B8" stroke-width="1" stroke-dasharray="2 2"/>
+</svg>

@@ -1,0 +1,55 @@
+' H4-01 Pipeline thu thập và xử lý tri thức. Đối chiếu 31/10/2026: data_ingestion/sources.py, extractors/url_extractor.py,
+' crawlers/content_crawler.py (5 luồng, MD5 so với lần trước), crawlers/pdf_extractor.py (< 50 ký tự → OCR, 150 DPI, ≤ 30 trang),
+' crawlers/ocr_service.py (Gemini xoay vòng model, Tesseract), utils/text_cleaner.py, chunkers/hybrid_chunker.py,
+' embedders/supabase_embedder.py (inject_meta, upsert source_url, lô 25), routers/admin_ingest.py.
+@startuml
+!include ../_theme/plantuml.iuml
+skinparam defaultFontSize 12
+skinparam activity {
+  BackgroundColor #F0FDFA
+  BorderColor #0D9488
+}
+start
+split
+  :Sitemap
+  camnang.iuh.edu.vn;
+split again
+  :Danh mục
+  thông báo;
+split again
+  :BFS theo độ sâu
+  trên 4 tên miền;
+split again
+  :4 URL
+  tuyển sinh;
+end split
+:**Bước 0. Trích xuất URL** (URLExtractor)
+chỉ giữ 5 tên miền của IUH, bỏ mạng xã hội;
+note right
+  Tệp và URL do quản trị viên
+  nhập đi thẳng vào bước 1
+end note
+:**Bước 1. Thu thập nội dung** (ContentCrawler, 5 luồng)
+HTML → BeautifulSoup + trafilatura → Markdown;
+note right: nội dung trùng MD5 với lần trước thì bỏ qua
+if (Có tệp PDF?) then (có)
+  :PyMuPDF trích văn bản;
+  if (Ít hơn 50 ký tự (bản scan)?) then (có)
+    :OCR từng trang (150 DPI, tối đa 30 trang)
+    Gemini, lỗi thì Tesseract;
+  else (không)
+  endif
+else (không)
+endif
+:Lưu Markdown kèm frontmatter
+(source_url, title, published_date, breadcrumbs);
+:**Bước 2. Phân đoạn** (HybridChunker)
+làm sạch → đoạn cha theo tiêu đề (≤ 1 200 token)
+→ đoạn con ≤ 600 ký tự, chồng lấn 100;
+:Loại đoạn con trùng nội dung (MD5);
+:**Bước 3. Sinh vector và ghi CSDL** (SupabaseEmbedder)
+thêm tiền tố đường dẫn, mục → Bi-Encoder 768 chiều;
+:documents · document_parents · document_chunks
+upsert theo source_url, ghi theo lô 25;
+stop
+@enduml

@@ -1,0 +1,31 @@
+' H3-07 Use case phân hệ Quản trị. Đối chiếu 30/10/2026: academic_chatbot_service/app/routers/admin_ingest.py,
+' realtime_translation_service/app/routers/admin_dictionary.py, chat.py (DELETE cache); get_current_admin_user.
+@startuml
+!include ../_theme/plantuml.iuml
+skinparam defaultFontSize 12
+left to right direction
+
+actor "Quản trị viên" as Admin
+actor "Gemini (OCR)" as OCR
+
+rectangle "Phân hệ Quản trị" {
+  usecase "UC18 Quản lý từ điển\nchuyên ngành" as UC18 <<admin>>
+  usecase "Nhập CSV/JSON" as D1 <<admin>>
+  usecase "UC17 Quản lý\ntài liệu tri thức" as UC17 <<admin>>
+  usecase "UC16 Nạp tri thức" as UC16 <<admin>>
+  usecase "Tải tệp\nPDF, MD, TXT" as I1 <<admin>>
+  usecase "Nạp từ URL" as I2 <<admin>>
+  usecase "Quét website\ncủa trường" as I3 <<admin>>
+  usecase "Theo dõi tiến độ" as I4 <<admin>>
+}
+
+Admin --> UC18
+Admin --> UC17
+Admin --> UC16
+D1 .up.> UC18 : <<extend>>
+I1 .up.> UC16 : <<extend>>
+I2 .up.> UC16 : <<extend>>
+I3 .up.> UC16 : <<extend>>
+UC16 ..> I4 : <<include>>
+OCR <-- UC16
+@enduml

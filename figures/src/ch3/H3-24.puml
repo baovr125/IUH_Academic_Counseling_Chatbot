@@ -1,0 +1,28 @@
+' H3-24 Hoạt động UC15 (chấm điểm phía máy chủ). Đối chiếu 30/10/2026: game_service.get_game_cards, submit_session
+' (client_request_id, score_session, insert trước review_plan); game_logic (grade_for: Again/Hard/Good, is_reviewable).
+@startuml
+!include ../_theme/plantuml.iuml
+skinparam defaultFontSize 13
+start
+:Chọn thẻ cho ván, ưu tiên thẻ đến hạn;
+if (Đủ thẻ, ngôn ngữ hỗ trợ?) then (không)
+  :Báo lý do;
+  stop
+else (có)
+endif
+:Người dùng chơi, gửi kết quả từng câu;
+if (Mã yêu cầu đã ghi?) then (có)
+  :Trả kết quả cũ;
+  stop
+else (không)
+endif
+:Tính điểm, sao, XP từ đáp án; lưu ván;
+if (Bật cập nhật lịch ôn?) then (có)
+  :Mỗi thẻ đến hạn: sai → Again,
+  đúng có gợi ý → Hard, đúng ngay → Good;
+  :Cập nhật lịch ôn bằng FSRS;
+else (không)
+endif
+:Trả kết quả, kỷ lục, cấp độ;
+stop
+@enduml

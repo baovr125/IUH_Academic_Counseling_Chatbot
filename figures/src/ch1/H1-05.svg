@@ -1,0 +1,45 @@
+<!-- H1-05 Quy trình nghiên cứu và phát triển của đề tài (mục 1.5).
+     Bước kiểm thử đối chiếu .github/workflows/ci.yml: backend-test-matrix (pytest), rag-eval-benchmark (chỉ kiểm tra
+     công thức độ đo), frontend-tests (Vitest). Đánh giá: thư mục */evaluation/ và scripts/eval/. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="586" height="272" viewBox="0 0 586 272">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#334155"/>
+    </marker>
+  </defs>
+  <!-- Giai đoạn chuẩn bị -->
+  <rect class="box gw" x="8" y="8" width="176" height="52"/>
+  <text class="t-b t-c" x="96" y="25">1. Nghiên cứu tài liệu</text>
+  <text class="t-sm t-c" x="96" y="44">RAG, dịch máy, FSRS…</text>
+  <path class="ln" d="M184,34 L203,34"/>
+  <rect class="box gw" x="205" y="8" width="176" height="52"/>
+  <text class="t-b t-c" x="293" y="25">2. Phân tích yêu cầu</text>
+  <text class="t-sm t-c" x="293" y="44">tác nhân, use case</text>
+  <path class="ln" d="M381,34 L400,34"/>
+  <rect class="box gw" x="402" y="8" width="176" height="52"/>
+  <text class="t-b t-c" x="490" y="25">3. Thiết kế</text>
+  <text class="t-sm t-c" x="490" y="44">kiến trúc, CSDL, API</text>
+  <path class="ln" d="M490,60 L490,72 L96,72 L96,100"/>
+
+  <!-- Vòng lặp theo phân hệ -->
+  <rect class="group" x="4" y="86" width="578" height="120"/>
+  <text class="t-sm t-muted t-r" x="574" y="98">lặp lại theo từng phân hệ</text>
+  <rect class="box chat" x="8" y="102" width="176" height="56"/>
+  <text class="t-b t-c" x="96" y="120">4. Cài đặt</text>
+  <text class="t-sm t-c" x="96" y="140">một service FastAPI</text>
+  <path class="ln" d="M184,130 L203,130"/>
+  <rect class="box auth" x="205" y="102" width="176" height="56"/>
+  <text class="t-b t-c" x="293" y="120">5. Kiểm thử tự động</text>
+  <text class="t-sm t-c" x="293" y="140">pytest · Vitest · CI</text>
+  <path class="ln" d="M381,130 L400,130"/>
+  <rect class="box infra" x="402" y="102" width="176" height="56"/>
+  <text class="t-b t-c" x="490" y="120">6. Đánh giá thực nghiệm</text>
+  <text class="t-sm t-c" x="490" y="140">script trong evaluation/</text>
+  <path class="ln" d="M490,158 L490,182 L96,182 L96,160"/>
+  <text class="t-sm t-c" x="293" y="194">còn phân hệ hoặc cần cải tiến</text>
+
+  <!-- Kết thúc -->
+  <path class="ln" d="M293,206 L293,222"/>
+  <rect class="box fe" x="130" y="224" width="326" height="40"/>
+  <text class="t-b t-c" x="293" y="244">Tích hợp, triển khai Docker Compose, viết báo cáo</text>
+</svg>

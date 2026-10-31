@@ -1,0 +1,26 @@
+' H3-40 Vòng đời phiên đăng nhập và token. Đối chiếu 30/10/2026: auth_service.py (issue_token_for_user: exp 60 phút, oiat;
+' refresh_access_token: oiat ≤ SESSION_MAX_AGE_DAYS = 7, tv khớp; logout_user, change_password: token_version + 1);
+' frontend README §4.1 (sessionStorage/localStorage, interceptor 401, làm mới trước khi hết hạn).
+@startuml
+!include ../_theme/plantuml.iuml
+skinparam defaultFontSize 12
+skinparam state {
+  BorderColor #7C3AED
+  BackgroundColor #F5F3FF
+  ArrowColor #334155
+  FontStyle normal
+}
+hide empty description
+
+[*] --> ChuaDangNhap
+state "Chưa đăng nhập" as ChuaDangNhap
+state "Đang đăng nhập\ntoken còn hạn (≤ 60 phút)" as HopLe
+state "Token hết hạn\nchưa làm mới" as HetHan
+
+ChuaDangNhap --> HopLe : đăng nhập hoặc đăng ký\n/ cấp token, ghi oiat
+HopLe --> HopLe : (1) /auth/refresh trước khi hết hạn\n[oiat ≤ 7 ngày, tv khớp] / token mới, giữ oiat\n(2) đổi mật khẩu / tv + 1, token mới
+HopLe --> HetHan : quá 60 phút
+HetHan --> ChuaDangNhap : API trả 401\n/ xóa token
+HopLe --> ChuaDangNhap : đăng xuất\n/ tv + 1, xóa token
+HopLe --> ChuaDangNhap : làm mới bị từ chối\n[quá 7 ngày hoặc tv lệch]
+@enduml

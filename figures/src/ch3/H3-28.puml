@@ -1,0 +1,54 @@
+' H3-28 Topology RabbitMQ. Đối chiếu 30/10/2026: flashcard_service/app/rabbitmq_consumer.py (exchange chatbot_events topic
+' durable; queue flashcard_service_doc_translated ← doc.translated; flashcard_service_audio_ready ← flashcard.audio_ready;
+' publish flashcard.created); realtime_translation_service/app/rabbitmq_consumer.py (realtime_tts_flashcard_generation
+' ← flashcard.created; publish flashcard.audio_ready).
+@startuml
+!include ../_theme/plantuml.iuml
+skinparam defaultFontSize 12
+skinparam rectangle {
+  FontStyle normal
+}
+skinparam rectangle<<svc_f>> {
+  BorderColor #EA580C
+  BackgroundColor #FFF7ED
+}
+skinparam rectangle<<svc_t>> {
+  BorderColor #16A34A
+  BackgroundColor #F0FDF4
+}
+skinparam rectangle<<svc_d>> {
+  BorderColor #DB2777
+  BackgroundColor #FDF2F8
+  BorderStyle dashed
+}
+skinparam queue {
+  BorderColor #B45309
+  BackgroundColor #FFFBEB
+}
+skinparam rectangle<<ex>> {
+  BorderColor #B45309
+  BackgroundColor #FEF3C7
+}
+hide stereotype
+
+rectangle "Flashcard Service" <<svc_f>> as PF
+rectangle "Translation Service" <<svc_t>> as PT
+rectangle "Dịch tài liệu\n(đang tắt)" <<svc_d>> as PD
+rectangle "**chatbot_events**\nexchange kiểu topic, bền" <<ex>> as EX
+queue "realtime_tts_\nflashcard_generation" as Q1
+queue "flashcard_service_\naudio_ready" as Q2
+queue "flashcard_service_\ndoc_translated" as Q3
+rectangle "Translation Service\nsinh âm thanh" <<svc_t>> as CT
+rectangle "Flashcard Service\ncập nhật audio_url" <<svc_f>> as CF1
+rectangle "Flashcard Service\ntạo thẻ từ thuật ngữ" <<svc_f>> as CF2
+
+PF --> EX : flashcard.created
+PT --> EX : flashcard.audio_ready
+PD ..> EX : doc.translated
+EX --> Q1 : flashcard.created
+EX --> Q2 : flashcard.audio_ready
+EX ..> Q3 : doc.translated
+Q1 --> CT
+Q2 --> CF1
+Q3 ..> CF2
+@enduml

@@ -1,0 +1,36 @@
+' H4-16 Truy xuất lai và rerank đa truy vấn. Đối chiếu 31/10/2026: rag_service.py retrieve_relevant_chunks_multi
+' (dòng 367–555): tối đa 4 sub-query, RPC match_chunks_hybrid_rrf (match_count = 50), rerank bge-reranker-v2-m3,
+' RERANKER_THRESHOLD = 0.20, GOOD_SCORE_THRESHOLD = 0.65, hạn mức theo số sub-query, trộn xen kẽ, gom về đoạn cha.
+@startuml
+!include ../_theme/plantuml.iuml
+skinparam defaultFontSize 12
+skinparam ActivityBackgroundColor #F0FDFA
+skinparam ActivityBorderColor #0D9488
+skinparam partitionBackgroundColor #FAFAFA
+start
+partition "Với mỗi sub-query (tối đa 4, chạy song song)" {
+  :RPC ""match_chunks_hybrid_rrf"": vector top 100
+  + toàn văn top 100 → RRF (k = 60) → 50 đoạn con; <<#FFFBEB>>
+  :Rerank cặp (sub-query, tiêu đề + đoạn con)
+  bằng bge-reranker-v2-m3, điểm trong [0, 1];
+  :Bỏ đoạn con điểm < 0,20,
+  mỗi đoạn cha chỉ giữ đoạn con điểm cao nhất;
+  if (Đủ đoạn cha điểm ≥ 0,65?) then (có)
+    :Lấy các đoạn cha điểm ≥ 0,65
+    (tối đa theo số sub-query);
+  else (không)
+    :Lấy số đoạn cha tối thiểu
+    có điểm cao nhất;
+  endif
+}
+:Trộn xen kẽ kết quả các sub-query, loại đoạn con trùng;
+:Gom đoạn con về đoạn cha (Small-to-Big),
+sắp theo điểm giảm dần, giữ tối đa 5 hoặc 8 đoạn cha;
+if (Điểm cao nhất ≥ 0,20?) then (không)
+  :Không có tài liệu: ngữ cảnh ghi
+  "Không tìm thấy tài liệu phù hợp"; <<#FEF2F2>>
+  detach
+endif
+:Trả về các đoạn cha và top_doc_score; <<#F0FDF4>>
+stop
+@enduml

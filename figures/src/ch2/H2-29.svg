@@ -1,0 +1,27 @@
+<!-- H2-29 Thuật toán Lesk (simple_lesk của pywsd 1.2.5 trên WordNet, chạy thật ngày 30/10/2026).
+     Số từ trùng lấy từ pywsd.lesk.simple_signatures ∩ lemmatize_sentence(câu):
+     câu 1: depository_financial_institution.n.01 = 2 {bank, deposit}, bank.n.09 = 2 {bank, deposit} → trả về depository…n.01
+     câu 2: bank.n.01 = 4 {bank, river, watch, water}; savings_bank.n.02 = 1. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="586" height="298" viewBox="0 0 586 298">
+  <defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#334155"/></marker></defs>
+  <!-- Câu 1 -->
+  <rect class="box fe" x="8" y="8" width="570" height="34"/>
+  <text x="18" y="25">I paid the tuition fee at the <tspan class="t-b" style="fill:#DC2626">bank</tspan> and got a receipt for the <tspan class="t-b" style="fill:#0D9488">deposit</tspan>.</text>
+  <path class="ln" d="M140,42 L140,58"/>
+  <rect class="box trans" x="8" y="60" width="570" height="40" style="stroke-width:2.2"/>
+  <text class="t-sm t-b" x="18" y="73">depository_financial_institution.n.01 · trùng 2 từ: bank, deposit   ✓ được chọn</text>
+  <text class="t-sm" x="18" y="90">a financial institution that accepts <tspan class="t-b" style="fill:#0D9488">deposits</tspan> and channels the money into lending activities</text>
+  <rect class="box gw" x="8" y="106" width="570" height="26" style="opacity:0.6"/>
+  <text class="t-sm t-muted" x="18" y="119">bank.n.09 · trùng 2 từ (hòa điểm): a building in which the business of banking transacted</text>
+
+  <!-- Câu 2 -->
+  <rect class="box fe" x="8" y="152" width="570" height="34"/>
+  <text x="18" y="169">The students sat on the <tspan class="t-b" style="fill:#DC2626">bank</tspan> of the <tspan class="t-b" style="fill:#0D9488">river</tspan> and <tspan class="t-b" style="fill:#0D9488">watched</tspan> the <tspan class="t-b" style="fill:#0D9488">water</tspan>.</text>
+  <path class="ln" d="M140,186 L140,202"/>
+  <rect class="box trans" x="8" y="204" width="570" height="54" style="stroke-width:2.2"/>
+  <text class="t-sm t-b" x="18" y="217">bank.n.01 · trùng 4 từ: bank, river, watch, water   ✓ được chọn</text>
+  <text class="t-sm" x="18" y="234">sloping land (especially the slope beside a body of <tspan class="t-b" style="fill:#0D9488">water</tspan>)</text>
+  <text class="t-sm t-muted t-i" x="18" y="250">ví dụ trong WordNet: “he sat on the bank of the <tspan class="t-b" style="fill:#0D9488">river</tspan> and <tspan class="t-b" style="fill:#0D9488">watched</tspan> the currents”</text>
+  <rect class="box gw" x="8" y="264" width="570" height="26" style="opacity:0.6"/>
+  <text class="t-sm t-muted" x="18" y="277">savings_bank.n.02 · trùng 1 từ: a container (usually with a slot in the top) for keeping money at home</text>
+</svg>

@@ -1,0 +1,35 @@
+<!-- H2-11 Bi-Encoder và Cross-Encoder (sơ đồ khái niệm theo Reimers & Gurevych 2019; Nogueira & Cho 2019).
+     Mô hình trong đề tài: rag_service.get_embedder (vietnamese-bi-encoder), get_reranker (bge-reranker-v2-m3). -->
+<svg xmlns="http://www.w3.org/2000/svg" width="586" height="312" viewBox="0 0 586 312">
+  <defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#334155"/></marker></defs>
+  <text class="t-b t-c" x="146" y="14">Bi-Encoder</text>
+  <text class="t-b t-c" x="440" y="14">Cross-Encoder</text>
+  <line x1="293" y1="26" x2="293" y2="306" stroke="#CBD5E1"/>
+
+  <!-- Bi-Encoder: đi từ dưới lên -->
+  <rect class="box fe" x="16" y="236" width="112" height="30"/><text class="t-sm t-c" x="72" y="251">Câu hỏi q</text>
+  <rect class="box gw" x="164" y="236" width="112" height="30"/><text class="t-sm t-c" x="220" y="251">Đoạn văn bản d</text>
+  <path class="ln" d="M72,236 L72,210"/><path class="ln" d="M220,236 L220,210"/>
+  <rect class="box chat" x="16" y="172" width="112" height="36"/><text class="t-sm t-c" x="72" y="190">Transformer</text>
+  <rect class="box chat" x="164" y="172" width="112" height="36"/><text class="t-sm t-c" x="220" y="190">Transformer</text>
+  <text class="t-sm t-c t-muted" x="146" y="190">chung</text>
+  <path class="ln" d="M72,172 L72,148"/><path class="ln" d="M220,172 L220,148"/>
+  <rect class="box gw" x="16" y="118" width="112" height="28"/><text class="t-sm t-c" x="72" y="132">Gộp trung bình</text>
+  <rect class="box gw" x="164" y="118" width="112" height="28"/><text class="t-sm t-c" x="220" y="132">Gộp trung bình</text>
+  <path class="ln" d="M72,118 L72,96"/><path class="ln" d="M220,118 L220,96"/>
+  <text class="t-b t-c" x="72" y="86">vector u</text><text class="t-b t-c" x="220" y="86">vector v</text>
+  <path class="ln" d="M72,74 L72,62 L124,48"/><path class="ln" d="M220,74 L220,62 L168,48"/>
+  <rect class="box infra" x="96" y="26" width="100" height="26"/><text class="t-sm t-c" x="146" y="39">cos(u, v)</text>
+  <text class="t-sm t-muted" x="10" y="286">Vector văn bản được tính trước;</text><text class="t-sm t-muted" x="10" y="302">mỗi câu hỏi chỉ chạy mô hình 1 lần</text>
+
+  <!-- Cross-Encoder -->
+  <rect class="box fe" x="312" y="236" width="256" height="30"/>
+  <text class="t-sm t-c" x="440" y="251">[CLS] câu hỏi q [SEP] đoạn văn bản d</text>
+  <path class="ln" d="M440,236 L440,210"/>
+  <rect class="box chat" x="350" y="172" width="180" height="36"/><text class="t-sm t-c" x="440" y="190">Transformer</text>
+  <path class="ln" d="M440,172 L440,148"/>
+  <rect class="box gw" x="350" y="118" width="180" height="28"/><text class="t-sm t-c" x="440" y="132">Tuyến tính + sigmoid</text>
+  <path class="ln" d="M440,118 L440,54"/>
+  <rect class="box infra" x="380" y="26" width="120" height="26"/><text class="t-sm t-c" x="440" y="39">điểm s ∈ (0, 1)</text>
+  <text class="t-sm t-muted" x="304" y="286">Chạy mô hình cho từng cặp (q, d):</text><text class="t-sm t-muted" x="304" y="302">chính xác hơn nhưng chậm hơn</text>
+</svg>

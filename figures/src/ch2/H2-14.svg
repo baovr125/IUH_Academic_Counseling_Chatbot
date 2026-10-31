@@ -1,0 +1,31 @@
+<!-- H2-14 Hợp nhất hai danh sách xếp hạng bằng RRF, k = 60 (số liệu minh họa; khớp Ví dụ 2.1 trong bản thảo).
+     d1: 1/62+1/61=0,03252; d3: 1/61+1/63=0,03227; d4: 1/62=0,01613; d5: 1/63=0,01587; d2: 1/64=0,01563; d6: 1/64=0,01563. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="586" height="236" viewBox="0 0 586 236">
+  <defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#334155"/></marker></defs>
+  <text class="t-b t-c" x="70" y="14">Tìm kiếm vector</text>
+  <text class="t-b t-c" x="230" y="14">Tìm kiếm toàn văn</text>
+  <text class="t-b t-c" x="460" y="14">Sau hợp nhất RRF (k = 60)</text>
+  <g class="t-sm">
+    <text class="t-muted" x="8" y="40">1</text><rect class="box chat" x="20" y="28" width="100" height="24"/><text class="t-c" x="70" y="40">d₃</text>
+    <text class="t-muted" x="8" y="70">2</text><rect class="box chat" x="20" y="58" width="100" height="24"/><text class="t-c" x="70" y="70">d₁</text>
+    <text class="t-muted" x="8" y="100">3</text><rect class="box chat" x="20" y="88" width="100" height="24"/><text class="t-c" x="70" y="100">d₅</text>
+    <text class="t-muted" x="8" y="130">4</text><rect class="box chat" x="20" y="118" width="100" height="24"/><text class="t-c" x="70" y="130">d₂</text>
+
+    <text class="t-muted" x="168" y="40">1</text><rect class="box infra" x="180" y="28" width="100" height="24"/><text class="t-c" x="230" y="40">d₁</text>
+    <text class="t-muted" x="168" y="70">2</text><rect class="box infra" x="180" y="58" width="100" height="24"/><text class="t-c" x="230" y="70">d₄</text>
+    <text class="t-muted" x="168" y="100">3</text><rect class="box infra" x="180" y="88" width="100" height="24"/><text class="t-c" x="230" y="100">d₃</text>
+    <text class="t-muted" x="168" y="130">4</text><rect class="box infra" x="180" y="118" width="100" height="24"/><text class="t-c" x="230" y="130">d₆</text>
+  </g>
+  <path class="ln" d="M286,85 L330,85"/>
+  <g class="t-sm">
+    <rect class="box fe" x="336" y="28" width="244" height="24"/><text x="346" y="40">1. d₁</text><text class="t-r t-mono" x="572" y="40">1/62 + 1/61 = 0,03252</text>
+    <rect class="box fe" x="336" y="58" width="244" height="24"/><text x="346" y="70">2. d₃</text><text class="t-r t-mono" x="572" y="70">1/61 + 1/63 = 0,03227</text>
+    <rect class="box gw" x="336" y="88" width="244" height="24"/><text x="346" y="100">3. d₄</text><text class="t-r t-mono" x="572" y="100">1/62 = 0,01613</text>
+    <rect class="box gw" x="336" y="118" width="244" height="24"/><text x="346" y="130">4. d₅</text><text class="t-r t-mono" x="572" y="130">1/63 = 0,01587</text>
+    <rect class="box gw" x="336" y="148" width="244" height="24"/><text x="346" y="160">5. d₂</text><text class="t-r t-mono" x="572" y="160">1/64 = 0,01563</text>
+    <rect class="box gw" x="336" y="178" width="244" height="24"/><text x="346" y="190">6. d₆</text><text class="t-r t-mono" x="572" y="190">1/64 = 0,01563</text>
+  </g>
+  <text class="t-sm t-muted" x="8" y="172">Chỉ dùng thứ hạng, không dùng điểm gốc</text>
+  <text class="t-sm t-muted" x="8" y="188">của hai bộ tìm kiếm (thang điểm khác nhau).</text>
+  <text class="t-sm t-muted" x="8" y="222">d₁, d₃ xuất hiện ở cả hai danh sách nên được xếp trên cùng.</text>
+</svg>

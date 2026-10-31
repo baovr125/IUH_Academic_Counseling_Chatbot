@@ -1,0 +1,41 @@
+' H2-38 Ba kiểu giao tiếp REST, SSE và hàng đợi thông điệp (sơ đồ khái niệm; ví dụ sự kiện lấy từ hệ thống:
+' flashcard.created / flashcard.audio_ready, rabbitmq_consumer.py của hai service).
+@startuml
+!include ../_theme/plantuml.iuml
+skinparam defaultFontSize 12
+skinparam maxMessageSize 160
+skinparam sequenceMessageAlign left
+skinparam sequence {
+  ParticipantBorderColor #475569
+  LifeLineBorderColor #94A3B8
+}
+hide footbox
+participant "Máy khách" as C #EFF6FF
+participant "Service A" as A #F0FDFA
+queue "Message broker" as B #FFFBEB
+participant "Service B" as S #F0FDF4
+
+== REST: một yêu cầu, một phản hồi ==
+C -> A : POST /api/...
+activate A
+A --> C : 200 {ok, data}
+deactivate A
+
+== SSE: một yêu cầu, nhiều sự kiện ==
+C -> A : POST /messages/stream
+activate A
+A --> C : data: metadata
+A --> C : data: delta (phần 1)
+A --> C : data: delta (phần 2)
+A --> C : data: done
+deactivate A
+
+== Hàng đợi thông điệp: bất đồng bộ ==
+A ->> B : publish flashcard.created
+note right of A : A trả lời người dùng\nngay, không chờ B
+B ->> S : giao thông điệp (khi S sẵn sàng)
+activate S
+S ->> B : publish flashcard.audio_ready
+deactivate S
+B ->> A : giao thông điệp
+@enduml

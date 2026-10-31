@@ -1,0 +1,24 @@
+' H4-40 Pipeline sinh từ vựng SELECT → ENRICH → VERIFY. Đối chiếu 31/10/2026: flashcard_service
+' services/vocab_pipeline.py (ENRICH_BATCH_SIZE = 25, PIPELINE_BUDGET_SECONDS = 50, MIN_SECONDS_FOR_VERIFY = 8,
+' MIN_SECONDS_FOR_TOPUP = 22, TOPUP_THRESHOLD = 0.8), services/vocab_quota.py (hạn mức/ngày), routers/vocabulary.py.
+@startuml
+!include ../_theme/plantuml.iuml
+skinparam defaultFontSize 12
+skinparam ActivityBackgroundColor #F0FDFA
+skinparam ActivityBorderColor #0D9488
+start
+:Đầu vào: chủ đề, đoạn văn hoặc ảnh, ngôn ngữ,
+trình độ CEFR, số từ 5–50. Giữ chỗ hạn mức trong ngày; <<#FFFBEB>>
+repeat
+  :**1. SELECT**: LLM chọn từ gốc (hỏi dư khoảng 10%)
+  + kiểm tra bằng mã: hệ chữ, trùng lặp, đã có trong sổ;
+  :**2. ENRICH** (song song, lô 25 từ): phiên âm, nghĩa,
+  từ loại, câu ví dụ + kiểm tra bằng mã;
+  :**3. VERIFY** (nhiệt độ 0): LLM duyệt từng thẻ
+  ok / fix / reject (chỉ khi còn ≥ 8 giây);
+repeat while (Chủ đề, chưa đủ 80% số từ, còn ≥ 22 giây?) is (có)
+->không;
+:Trả bản xem trước kèm thẻ bị loại và thống kê;
+:Người dùng lưu thành sổ mới hoặc vào sổ có sẵn; <<#F0FDF4>>
+stop
+@enduml

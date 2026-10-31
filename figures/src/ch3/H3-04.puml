@@ -1,0 +1,33 @@
+' H3-04 Use case phân hệ Chatbot học vụ. Đối chiếu 30/10/2026: academic_chatbot_service/app/routers/chat.py
+' (messages, messages/stream, DELETE cache - admin), routers/sessions.py (list, messages, PATCH, DELETE).
+@startuml
+!include ../_theme/plantuml.iuml
+skinparam defaultFontSize 12
+left to right direction
+
+actor "Người dùng" as User
+actor "Quản trị viên" as Admin
+actor "Dịch vụ LLM" as LLM
+User <|-- Admin
+
+rectangle "Phân hệ Chatbot học vụ" {
+  usecase "UC05 Hỏi đáp học vụ" as UC05 <<chat>>
+  usecase "Xem trích dẫn nguồn" as C1 <<chat>>
+  usecase "Tạo lại câu trả lời" as C2 <<chat>>
+  usecase "UC06 Quản lý\nphiên hội thoại" as UC06 <<chat>>
+  usecase "Xem lại phiên" as S1 <<chat>>
+  usecase "Đổi tên phiên" as S2 <<chat>>
+  usecase "Xóa phiên" as S3 <<chat>>
+  usecase "Xóa bộ nhớ đệm\nngữ nghĩa" as K1 <<admin>>
+}
+
+User --> UC05
+User --> UC06
+Admin --> K1
+UC05 --> LLM
+C1 .up.> UC05 : <<extend>>
+C2 .up.> UC05 : <<extend>>
+S1 .up.> UC06 : <<extend>>
+S2 .up.> UC06 : <<extend>>
+S3 .up.> UC06 : <<extend>>
+@enduml

@@ -1,0 +1,40 @@
+' H4-14 Semantic cache hai tầng. Đối chiếu 30/10/2026: rag_service.py check_semantic_cache (dòng 172–260),
+' async_cache_writeback (263–327), _embedding_cache TTLCache(500, 1800 s) dòng 58;
+' llm_generation_service.py 319–325, 421–440, 572–578.
+@startuml
+!include ../_theme/plantuml.iuml
+skinparam defaultFontSize 12
+skinparam ActivityBackgroundColor #F0FDFA
+skinparam ActivityBorderColor #0D9488
+start
+:primary_query = queries[0];
+if (Tầng 1 – Redis có khóa câu hỏi?) then (có)
+  :HIT
+(khớp chính xác); <<#F0FDF4>>
+  detach
+else (không)
+endif
+:Embedding bi-encoder (768 chiều)
+→ RPC ""match_semantic_cache"": 1 ứng viên còn hạn; <<#FFFBEB>>
+if (Tầng 2 – cosine ≥ 0,60?) then (có)
+  if (Cross-Encoder ≥ 0,80
+và tập số trùng nhau?) then (có)
+    :HIT
+    (khớp ngữ nghĩa); <<#F0FDF4>>
+    detach
+  else (không)
+  endif
+else (không)
+endif
+:MISS → truy xuất lai và sinh câu trả lời; <<#FEF2F2>>
+:Ghi cache ở nền nếu qua Quality Gate:
+Redis (TTL 24 giờ) + bảng semantic_cache (7 ngày); <<#FFFBEB>>
+note right
+  Quality Gate:
+  • top_doc_score ≥ 0,25
+  • độ dài 10–3000 ký tự
+  • answer_confidence = HIGH
+  • doc_relevance ≠ NO
+end note
+stop
+@enduml

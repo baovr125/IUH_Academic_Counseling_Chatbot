@@ -1,0 +1,30 @@
+' H3-26 Một yêu cầu đi qua Kong. Đối chiếu 30/10/2026: gateway/kong.template.yml (correlation-id, cors, jwt
+' claims_to_verify exp, maximum_expiration 86400, key iss; rate-limiting policy local; request-transformer xóa X-User-*;
+' request-termination ở doc-routes); thứ tự theo độ ưu tiên mặc định của plugin Kong 3.x; frontend/nginx.conf.
+@startuml
+!include ../_theme/plantuml.iuml
+!include ../_theme/seq.iuml
+participant "Trình duyệt" as B #EFF6FF
+participant "nginx" as N #EFF6FF
+participant "Kong" as K #F1F5F9
+participant "Service" as S #F0FDFA
+
+B -> N : GET/POST /api/… (Authorization: Bearer)
+N -> K : proxy_pass, thêm X-Forwarded-For
+K -> K : correlation-id: gắn X-Request-ID
+K -> K : cors: kiểm tra Origin
+K -> K : jwt (nếu route yêu cầu): chữ ký HS256, exp, thời hạn ≤ 24 giờ
+alt token sai hoặc hết hạn
+  K --> B : 401
+end
+K -> K : rate-limiting: giới hạn chung và theo route
+alt vượt giới hạn
+  K --> B : 429
+end
+K -> K : request-transformer: xóa X-User-*
+K -> S : chuyển tiếp tới service theo route
+S -> S : giải mã lại JWT, lấy sub, role
+S --> K : phản hồi JSON hoặc luồng SSE
+K --> N : kèm X-Request-ID
+N --> B : phản hồi (không đệm với SSE)
+@enduml

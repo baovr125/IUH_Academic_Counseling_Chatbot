@@ -1,0 +1,45 @@
+<!-- H2-02 Scaled dot-product attention và multi-head attention (vẽ lại theo Vaswani và cs., 2017, Hình 2). -->
+<svg xmlns="http://www.w3.org/2000/svg" width="586" height="324" viewBox="0 0 586 324">
+  <defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#334155"/></marker></defs>
+  <text class="t-b t-c" x="140" y="14">Scaled dot-product attention</text>
+  <text class="t-b t-c" x="430" y="14">Multi-head attention</text>
+  <line x1="290" y1="30" x2="290" y2="316" stroke="#CBD5E1"/>
+
+  <!-- Trái: đi từ dưới lên -->
+  <path class="ln" d="M130,46 L130,26"/>
+  <rect class="box fe" x="62" y="46" width="136" height="26"/><text class="t-sm t-c" x="130" y="59">Nhân ma trận với V</text>
+  <path class="ln" d="M130,96 L130,74"/>
+  <rect class="box auth" x="62" y="96" width="136" height="26"/><text class="t-sm t-c" x="130" y="109">Softmax</text>
+  <path class="ln" d="M130,146 L130,124"/>
+  <rect class="box gw" x="62" y="146" width="136" height="26"/><text class="t-sm t-c" x="130" y="159">Mặt nạ (tùy chọn)</text>
+  <path class="ln" d="M130,196 L130,174"/>
+  <rect class="box gw" x="62" y="196" width="136" height="26"/><text class="t-sm t-c" x="130" y="209">Chia cho √dₖ</text>
+  <path class="ln" d="M130,246 L130,224"/>
+  <rect class="box fe" x="62" y="246" width="136" height="26"/><text class="t-sm t-c" x="130" y="259">Nhân ma trận QKᵀ</text>
+  <path class="ln" d="M100,296 L100,274"/>
+  <path class="ln" d="M160,296 L160,274"/>
+  <path class="ln" d="M240,296 L240,59 L200,59"/>
+  <text class="t-b t-c" x="100" y="308">Q</text><text class="t-b t-c" x="160" y="308">K</text><text class="t-b t-c" x="240" y="308">V</text>
+
+  <!-- Phải -->
+  <path class="ln" d="M430,46 L430,26"/>
+  <rect class="box auth" x="362" y="46" width="136" height="26"/><text class="t-sm t-c" x="430" y="59">Tuyến tính Wᴼ</text>
+  <path class="ln" d="M430,96 L430,74"/>
+  <rect class="box gw" x="362" y="96" width="136" height="26"/><text class="t-sm t-c" x="430" y="109">Ghép (Concat)</text>
+  <path class="ln" d="M430,146 L430,124"/>
+  <rect class="box fe" x="356" y="166" width="156" height="42" style="opacity:0.4"/>
+  <rect class="box fe" x="350" y="158" width="156" height="42" style="opacity:0.7"/>
+  <rect class="box fe" x="344" y="150" width="156" height="42"/>
+  <text class="t-sm t-c" x="422" y="164">Scaled dot-product</text><text class="t-sm t-c" x="422" y="180">attention</text>
+  <text class="t-sm t-b" x="518" y="190">h đầu</text>
+  <path class="ln" d="M380,246 L380,210"/>
+  <path class="ln" d="M430,246 L430,210"/>
+  <path class="ln" d="M480,246 L480,210"/>
+  <rect class="box flash" x="357" y="246" width="46" height="26"/><text class="t-sm t-c" x="380" y="259">Lin. Q</text>
+  <rect class="box flash" x="407" y="246" width="46" height="26"/><text class="t-sm t-c" x="430" y="259">Lin. K</text>
+  <rect class="box flash" x="457" y="246" width="46" height="26"/><text class="t-sm t-c" x="480" y="259">Lin. V</text>
+  <path class="ln" d="M380,296 L380,274"/>
+  <path class="ln" d="M430,296 L430,274"/>
+  <path class="ln" d="M480,296 L480,274"/>
+  <text class="t-b t-c" x="380" y="308">Q</text><text class="t-b t-c" x="430" y="308">K</text><text class="t-b t-c" x="480" y="308">V</text>
+</svg>

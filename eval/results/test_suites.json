@@ -1,0 +1,54 @@
+{
+ "auth_service": {
+  "elapsed_s": 27.0,
+  "timed_out": false,
+  "failed_tests": [
+   "tests.integration.test_auth_api.TestLogin::test_login_failure_is_logged_without_password"
+  ],
+  "tests": 128,
+  "failures": 1,
+  "errors": 0,
+  "skipped": 0,
+  "passed": 127
+ },
+ "academic_chatbot_service": {
+  "elapsed_s": 116.0,
+  "timed_out": false,
+  "failed_tests": [],
+  "tests": 140,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "passed": 140
+ },
+ "flashcard_service": {
+  "elapsed_s": 6.7,
+  "timed_out": false,
+  "failed_tests": [],
+  "tests": 867,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "passed": 867
+ },
+ "realtime_translation_service": {
+  "elapsed_s": 254.1,
+  "timed_out": false,
+  "failed_tests": [],
+  "tests": 454,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 7,
+  "passed": 447
+ },
+ "doc_translation_service": {
+  "elapsed_s": 27.7,
+  "timed_out": false,
+  "failed_tests": [],
+  "tests": 53,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "passed": 53
+ }
+}

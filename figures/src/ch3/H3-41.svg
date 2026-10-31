@@ -1,0 +1,45 @@
+<!-- H3-41 Các lớp phòng thủ. Đối chiếu 30/10/2026: frontend/nginx.conf (X-Frame-Options, nosniff, Referrer-Policy,
+     Permissions-Policy; chưa có CSP); gateway/kong.template.yml (cors, jwt, rate-limiting, request-transformer,
+     request-termination); utils/security.py, auth_service (bcrypt 12, throttle), guardrails/query_filter.py, vocab_quota.py;
+     db/schema_complete.sql mục 8–9 (RLS, REVOKE anon/authenticated). -->
+<svg xmlns="http://www.w3.org/2000/svg" width="586" height="408" viewBox="0 0 586 408">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#334155"/>
+    </marker>
+  </defs>
+
+  <!-- Mũi tên yêu cầu đi xuyên các lớp -->
+  <path class="ln-sse" d="M20,14 L20,396"/>
+  <text class="t-sm t-muted" x="30" y="10">yêu cầu</text>
+
+  <!-- Lớp 1 -->
+  <rect class="box fe" x="40" y="22" width="538" height="80"/>
+  <text class="t-b" x="52" y="38">1. Trình duyệt và nginx</text>
+  <text class="t-sm" x="52" y="58">• HTTPS qua Tailscale Funnel; chỉ cổng 5173 mở trên 127.0.0.1</text>
+  <text class="t-sm" x="52" y="75">• Header: X-Frame-Options DENY, X-Content-Type-Options, Referrer-Policy</text>
+  <text class="t-sm" x="52" y="92">• Token trong sessionStorage (mặc định); 401 → tự đăng xuất</text>
+
+  <!-- Lớp 2 -->
+  <rect class="box gw" x="40" y="110" width="538" height="80"/>
+  <text class="t-b" x="52" y="126">2. Cổng API Kong</text>
+  <text class="t-sm" x="52" y="146">• CORS theo danh sách nguồn; jwt: chữ ký HS256, exp, thời hạn ≤ 24 giờ</text>
+  <text class="t-sm" x="52" y="163">• Giới hạn tần suất: chung, đăng nhập, phát âm, sinh từ vựng</text>
+  <text class="t-sm" x="52" y="180">• Xóa header X-User-*; route dịch tài liệu luôn trả 503</text>
+
+  <!-- Lớp 3 -->
+  <rect class="box chat" x="40" y="198" width="538" height="114"/>
+  <text class="t-b" x="52" y="214">3. Service</text>
+  <text class="t-sm" x="52" y="234">• Giải mã lại JWT (bắt buộc exp, iss, sub); kiểm tra role = admin cho chức năng quản trị</text>
+  <text class="t-sm" x="52" y="251">• Kiểm tra chủ sở hữu của sổ, thẻ, phiên (chống IDOR)</text>
+  <text class="t-sm" x="52" y="268">• Pydantic kiểm tra kiểu và độ dài đầu vào; lỗi CSDL chỉ trả thông báo chung</text>
+  <text class="t-sm" x="52" y="285">• Auth: bcrypt cost 12, khóa tạm khi đăng nhập sai · Chatbot: lọc tấn công prompt</text>
+  <text class="t-sm" x="52" y="302">• Flashcard: hạn mức sinh từ vựng theo ngày, chấm điểm trò chơi ở máy chủ</text>
+
+  <!-- Lớp 4 -->
+  <rect class="box infra" x="40" y="320" width="538" height="80"/>
+  <text class="t-b" x="52" y="336">4. Cơ sở dữ liệu Supabase</text>
+  <text class="t-sm" x="52" y="356">• RLS bật trên mọi bảng, không có policy; thu quyền anon, authenticated</text>
+  <text class="t-sm" x="52" y="373">• Chỉ khóa service-role phía máy chủ truy cập được</text>
+  <text class="t-sm" x="52" y="390">• Truy vấn qua PostgREST bằng điều kiện trên cột xác định, không ghép chuỗi</text>
+</svg>

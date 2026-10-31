@@ -1,0 +1,18 @@
+# Mẫu của Khoa / báo cáo khóa trước (không đưa lên repo công khai)
+Mau bao cao*.pdf
+04.-MAU-KHOA-LUAN-*.docx
+
+# Bảng đối chiếu V1/V2 của E2: chỉ giữ cục bộ cho tới khi chấm tay xong
+eval/results/rating_mapping.json
+
+# Kết quả kiểm thử chứa chuỗi JWT mẫu; sinh lại bằng eval/run_test_suites.py
+eval/results/junit_*.xml
+
+# Công cụ ngoài (tải lại khi cần) và bản mẫu định dạng không còn dùng
+build/tools/plantuml.jar
+build/tools/mermaid.min.js
+build/MAU_DINH_DANG*
+
+__pycache__/
+*.pyc
+~$*

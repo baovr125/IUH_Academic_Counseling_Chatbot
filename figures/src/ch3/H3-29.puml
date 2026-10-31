@@ -1,0 +1,41 @@
+' H3-29 Phân lớp trong service. Đối chiếu 30/10/2026: cây thư mục app/ của 4 service (routers, schemas, services, utils;
+' chatbot: guardrails, prompts, data_ingestion; realtime: resources; realtime + flashcard: rabbitmq_consumer.py).
+@startuml
+!include ../_theme/plantuml.iuml
+skinparam defaultFontSize 12
+skinparam rectangle {
+  FontStyle normal
+}
+skinparam rectangle<<layer>> {
+  BorderColor #475569
+  BackgroundColor #F8FAFC
+}
+skinparam rectangle<<extra>> {
+  BorderColor #0D9488
+  BackgroundColor #F0FDFA
+}
+skinparam rectangle<<ext>> {
+  BorderColor #6B7280
+  BackgroundColor #FFFFFF
+  BorderStyle dashed
+}
+hide stereotype
+
+rectangle "**main.py**\nkhởi tạo FastAPI, CORS, middleware,\nbộ xử lý lỗi, đăng ký router" <<layer>> as M
+rectangle "**routers/**\nkhai báo endpoint,\nDepends(xác thực)" <<layer>> as R
+rectangle "**schemas/**\nmô hình Pydantic:\nkiểm tra vào, định dạng ra" <<layer>> as SC
+rectangle "**services/**\nlogic nghiệp vụ, truy cập CSDL,\ngọi dịch vụ ngoài" <<layer>> as SV
+rectangle "**utils/**\nsecurity.py (giải mã JWT),\nlogger, cấu hình" <<layer>> as U
+rectangle "**rabbitmq_consumer.py**\n(Translation, Flashcard)\nnhận và phát sự kiện" <<extra>> as RC
+rectangle "Riêng Chatbot:\n**guardrails/**, **prompts/**,\n**data_ingestion/**" <<extra>> as EXT
+rectangle "Supabase · Redis · MinIO\nRabbitMQ · LLM · Edge TTS" <<ext>> as EXTSYS
+
+M -down-> R
+R -right-> SC
+R -down-> SV
+SV -right-> U
+R ..> U : xác thực
+SV -down-> EXTSYS
+RC -down-> SV
+EXT -up-> SV
+@enduml

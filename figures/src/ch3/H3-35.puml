@@ -1,0 +1,71 @@
+' H3-35 ERD nhóm bảng Flashcard. Đối chiếu 30/10/2026: db/schema_complete.sql (flashcard_decks, flashcards, review_logs,
+' vocab_generation_usage, flashcard_game_sessions; UNIQUE một phần).
+@startuml
+!include ../_theme/plantuml.iuml
+!include ../_theme/erd.iuml
+
+entity users <<ref>> {
+  * id : UUID <<PK>>
+}
+entity flashcard_decks <<flash>> {
+  * id : UUID <<PK>>
+  --
+  user_id : UUID <<FK>>
+  * lang_code : VARCHAR
+  * title : VARCHAR
+  is_system, status
+  category, level, slug
+  origin_deck_id : UUID <<FK>>
+  lang_confirmed, is_default
+}
+entity flashcards <<flash>> {
+  * id : UUID <<PK>>
+  --
+  deck_id : UUID <<FK>>
+  user_id : UUID <<FK>>
+  * term, definition
+  phonetic, part_of_speech
+  example, example_translation
+  audio_url, lang_code, target_lang
+  source, level
+  .. FSRS ..
+  state, reps, lapses
+  stability, difficulty
+  elapsed_days, scheduled_days
+  last_review, due
+}
+entity review_logs <<flash>> {
+  * id : UUID <<PK>>
+  --
+  card_id : UUID <<FK>>
+  user_id : UUID <<FK>>
+  * grade : 1..4
+  state, stability, difficulty
+  scheduled_days, reviewed_at
+}
+entity vocab_generation_usage <<flash>> {
+  * user_id : UUID <<PK, FK>>
+  * usage_date : DATE <<PK>>
+  --
+  * used : INT
+}
+entity flashcard_game_sessions <<flash>> {
+  * id : UUID <<PK>>
+  --
+  * user_id : UUID <<FK>>
+  deck_id : UUID <<FK>>
+  * game, mode, lang_code
+  * client_request_id
+  total, correct, mistakes, hints
+  score, stars, xp, best_combo
+  applied_review, reviewed_count
+}
+
+users ||--o{ flashcard_decks : CASCADE
+flashcard_decks |o--o{ flashcard_decks
+flashcard_decks ||--o{ flashcards : CASCADE
+flashcards ||--o{ review_logs : CASCADE
+users ||--o{ vocab_generation_usage : CASCADE
+users ||--o{ flashcard_game_sessions : CASCADE
+flashcard_decks |o--o{ flashcard_game_sessions : SET NULL
+@enduml

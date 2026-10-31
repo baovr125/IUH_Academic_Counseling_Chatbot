@@ -1,0 +1,101 @@
+<!-- H3-30 Sơ đồ triển khai của bản demo công khai.
+     Đối chiếu 30/10/2026: docker-compose.yml + docker-compose.prod.yml (Kong ports !reset; frontend 127.0.0.1:5173;
+     deploy.resources.limits; GPU cho chatbot, realtime); DEPLOY.md (Tailscale Funnel); frontend/nginx.conf (/api → kong-gateway:8000). -->
+<svg xmlns="http://www.w3.org/2000/svg" width="586" height="560" viewBox="0 0 586 560">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#334155"/>
+    </marker>
+    <marker id="arr-g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#9CA3AF"/>
+    </marker>
+  </defs>
+
+  <!-- Người dùng → Funnel -->
+  <rect class="box fe" x="20" y="8" width="150" height="40"/>
+  <text class="t-b t-c" x="95" y="22">Người dùng</text>
+  <text class="t-sm t-c" x="95" y="38">trình duyệt, điện thoại</text>
+  <path class="ln" d="M170,28 L222,28"/>
+  <text class="t-sm t-c" x="196" y="18">HTTPS</text>
+  <rect class="box ext" x="224" y="8" width="160" height="40"/>
+  <text class="t-b t-c" x="304" y="22">Tailscale Funnel</text>
+  <text class="t-sm t-c" x="304" y="38">đường hầm công khai</text>
+  <path class="ln" d="M304,48 L304,92"/>
+
+  <!-- Máy chủ -->
+  <rect class="group" x="4" y="68" width="578" height="372"/>
+  <text class="t-b" x="14" y="82">Máy chủ · Docker Compose · mạng nội bộ của Docker</text>
+
+  <rect class="box fe" x="214" y="94" width="180" height="40"/>
+  <text class="t-b t-c" x="304" y="108">frontend (nginx)</text>
+  <text class="t-sm t-c" x="304" y="124">127.0.0.1:5173 → 80</text>
+  <path class="ln-sse" d="M304,134 L304,162"/>
+  <text class="t-sm t-mono" x="312" y="148">/api</text>
+
+  <rect class="box gw" x="194" y="164" width="220" height="40"/>
+  <text class="t-b t-c" x="304" y="178">kong-gateway :8000</text>
+  <text class="t-sm t-c" x="304" y="194">không mở cổng ra máy chủ</text>
+
+  <path class="ln" d="M220,204 L76,244"/>
+  <path class="ln-sse" d="M270,204 L220,244"/>
+  <path class="ln-sse" d="M338,204 L366,244"/>
+  <path class="ln" d="M390,204 L510,244"/>
+
+  <rect class="box auth" x="12" y="246" width="128" height="62"/>
+  <text class="t-b t-c" x="76" y="260">auth-service</text>
+  <text class="t-sm t-c" x="76" y="277">:8001</text>
+  <text class="t-sm t-c t-muted" x="76" y="294">0,4 CPU · 256 MB</text>
+
+  <rect class="box chat" x="156" y="246" width="128" height="62"/>
+  <text class="t-b t-c" x="220" y="260">chatbot</text>
+  <text class="t-sm t-c" x="220" y="277">:8002 · GPU</text>
+  <text class="t-sm t-c t-muted" x="220" y="294">4 CPU · 4,5 GB</text>
+
+  <rect class="box trans" x="302" y="246" width="128" height="62"/>
+  <text class="t-b t-c" x="366" y="260">translation</text>
+  <text class="t-sm t-c" x="366" y="277">:8003 · GPU</text>
+  <text class="t-sm t-c t-muted" x="366" y="294">2 CPU · 3,5 GB</text>
+
+  <rect class="box flash" x="446" y="246" width="128" height="62"/>
+  <text class="t-b t-c" x="510" y="260">flashcard</text>
+  <text class="t-sm t-c" x="510" y="277">:8005</text>
+  <text class="t-sm t-c t-muted" x="510" y="294">0,4 CPU · 512 MB</text>
+
+  <!-- Hạ tầng trong máy chủ -->
+  <path class="ln" d="M220,308 L150,362"/>
+  <path class="ln" d="M350,308 L170,362"/>
+  <path class="ln" d="M366,308 L300,362"/>
+  <path class="ln" d="M500,308 L320,362"/>
+  <path class="ln" d="M390,308 L450,362"/>
+
+  <rect class="box infra" x="80" y="364" width="140" height="56"/>
+  <text class="t-b t-c" x="150" y="378">redis :6379</text>
+  <text class="t-sm t-c t-muted" x="150" y="396">tối đa 128 MB</text>
+  <text class="t-sm t-c t-muted" x="150" y="410">allkeys-lru</text>
+
+  <rect class="box infra" x="236" y="364" width="140" height="56"/>
+  <text class="t-b t-c" x="306" y="378">rabbitmq :5672</text>
+  <text class="t-sm t-c t-muted" x="306" y="396">exchange</text>
+  <text class="t-sm t-c t-muted" x="306" y="410">chatbot_events</text>
+
+  <rect class="box infra" x="392" y="364" width="140" height="56"/>
+  <text class="t-b t-c" x="462" y="378">minio :9000</text>
+  <text class="t-sm t-c t-muted" x="462" y="396">tệp âm thanh</text>
+  <text class="t-sm t-c t-muted" x="462" y="410">tts/, terms/</text>
+
+  <!-- Dịch vụ bên ngoài -->
+  <path class="ln" d="M150,440 L150,486"/>
+  <text class="t-sm" x="158" y="456">4 service</text>
+  <text class="t-sm" x="158" y="471">khóa service-role</text>
+  <path class="ln" d="M440,440 L440,486"/>
+  <text class="t-sm t-r" x="432" y="456">chatbot, translation,</text>
+  <text class="t-sm t-r" x="432" y="471">flashcard</text>
+
+  <rect class="box ext" x="40" y="488" width="220" height="56"/>
+  <text class="t-b t-c" x="150" y="504">Supabase</text>
+  <text class="t-sm t-c" x="150" y="524">PostgreSQL + pgvector</text>
+
+  <rect class="box ext" x="330" y="488" width="220" height="56"/>
+  <text class="t-b t-c" x="440" y="504">Dịch vụ LLM và TTS</text>
+  <text class="t-sm t-c" x="440" y="524">Gemini · Groq · vLLM · Edge TTS</text>
+</svg>

@@ -1,0 +1,37 @@
+<!-- H2-39 Exchange loại topic của RabbitMQ với khóa và hàng đợi thật.
+     Đối chiếu: flashcard_service/app/rabbitmq_consumer.py (dòng 37, 144–155), realtime_translation_service/app/rabbitmq_consumer.py
+     (dòng 78, 96–97), doc_translation_service/app/utils/rabbitmq_publisher.py (dòng 32, phân hệ thử nghiệm đang tắt). -->
+<svg xmlns="http://www.w3.org/2000/svg" width="586" height="246" viewBox="0 0 586 246">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#334155"/></marker>
+    <marker id="arr-g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#9CA3AF"/></marker>
+  </defs>
+  <text class="t-sm t-b t-muted" x="8" y="12">BÊN PHÁT</text>
+  <text class="t-sm t-b t-muted" x="196" y="12">EXCHANGE</text>
+  <text class="t-sm t-b t-muted" x="330" y="12">HÀNG ĐỢI → BÊN NHẬN</text>
+
+  <rect class="box flash" x="8" y="26" width="136" height="44"/><text class="t-sm t-c t-b" x="76" y="41">Flashcard Service</text><text class="t-sm t-c t-mono" x="76" y="58">flashcard.created</text>
+  <rect class="box trans" x="8" y="96" width="136" height="44"/><text class="t-sm t-c t-b" x="76" y="111">Translation Service</text><text class="t-sm t-c t-mono" x="76" y="128">flashcard.audio_ready</text>
+  <rect class="box doc" x="8" y="166" width="136" height="44"/><text class="t-sm t-c t-b" x="76" y="181">Doc Translation</text><text class="t-sm t-c t-mono" x="76" y="198">doc.translated</text>
+
+  <path class="ln-evt" d="M144,48 L194,104"/><path class="ln-evt" d="M144,118 L194,118"/><path class="ln-ext" d="M144,188 L194,132"/>
+
+  <rect class="box infra" x="196" y="84" width="110" height="68"/>
+  <text class="t-sm t-c t-b t-mono" x="251" y="104">chatbot_events</text>
+  <text class="t-sm t-c" x="251" y="122">loại topic</text>
+  <text class="t-sm t-c" x="251" y="138">durable</text>
+
+  <path class="ln" d="M306,100 L328,48"/><path class="ln" d="M306,118 L328,118"/><path class="ln-ext" d="M306,136 L328,188"/>
+  <g class="t-sm">
+    <rect class="box gw" x="330" y="26" width="248" height="44"/>
+    <text class="t-mono" style="font-size:11px" x="338" y="40">realtime_tts_flashcard_generation</text>
+    <text x="338" y="58">khóa flashcard.created → Translation</text>
+    <rect class="box gw" x="330" y="96" width="248" height="44"/>
+    <text class="t-mono" style="font-size:11px" x="338" y="110">flashcard_service_audio_ready</text>
+    <text x="338" y="128">khóa flashcard.audio_ready → Flashcard</text>
+    <rect class="box gw" x="330" y="166" width="248" height="44" style="stroke-dasharray:5 3"/>
+    <text class="t-mono" style="font-size:11px" x="338" y="180">flashcard_service_doc_translated</text>
+    <text x="338" y="198">khóa doc.translated → Flashcard</text>
+  </g>
+  <text class="t-sm t-muted" x="8" y="236">Nét đứt xám: luồng của phân hệ dịch tài liệu thử nghiệm, hiện không chạy</text>
+</svg>

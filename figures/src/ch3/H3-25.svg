@@ -1,0 +1,153 @@
+<!-- H3-25 Kiến trúc tổng thể của hệ thống (mức container).
+     Đối chiếu ngày 30/10/2026: README §2.1; docker-compose.yml (cổng publish 8000, 5173; RabbitMQ/Redis/MinIO bind 127.0.0.1;
+     doc-translation bị comment); gateway/kong.template.yml (upstream :8001/:8002/:8003/:8004/:8005, plugin jwt, rate-limiting,
+     cors, correlation-id, request-transformer); llm_client.py, llm_service.py, llm_providers.py, ocr_service.py (nhà cung cấp LLM). -->
+<svg xmlns="http://www.w3.org/2000/svg" width="586" height="640" viewBox="0 0 586 640">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#334155"/>
+    </marker>
+    <marker id="arr-g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#9CA3AF"/>
+    </marker>
+  </defs>
+
+  <!-- Trình duyệt và nginx -->
+  <rect class="box fe" x="193" y="8" width="200" height="44"/>
+  <text class="t-b t-c" x="293" y="24">Trình duyệt</text>
+  <text class="t-sm t-c" x="293" y="41">React 18 SPA (TypeScript, Vite)</text>
+
+  <path class="ln-sse" d="M293,52 L293,84"/>
+  <text class="t-sm" x="302" y="68">HTTP · SSE · JWT</text>
+
+  <rect class="box gw" x="193" y="86" width="200" height="40"/>
+  <text class="t-b t-c" x="293" y="100">nginx (frontend)</text>
+  <text class="t-sm t-c" x="293" y="117">cổng 5173 → 80</text>
+
+  <path class="ln-sse" d="M293,126 L293,156"/>
+  <text class="t-sm t-mono" x="302" y="141">/api/*</text>
+
+  <!-- Kong -->
+  <rect class="box gw" x="30" y="158" width="526" height="46"/>
+  <text class="t-b t-c" x="293" y="174">Kong API Gateway · cổng 8000 · DB-less</text>
+  <text class="t-sm t-c" x="293" y="192">jwt · rate-limiting · cors · correlation-id · request-transformer</text>
+
+  <!-- Nhóm microservices (vẽ trước để không che mũi tên) -->
+  <rect class="group" x="4" y="230" width="578" height="146"/>
+
+  <!-- Kong → services -->
+  <path class="ln" d="M64,204 L64,256"/>
+  <path class="ln-sse" d="M178,204 L178,256"/>
+  <path class="ln-sse" d="M292,204 L292,256"/>
+  <path class="ln" d="M406,204 L406,256"/>
+  <path class="ln-ext" d="M520,204 L520,256"/>
+  <rect class="box auth" x="10" y="258" width="108" height="80"/>
+  <text class="t-b t-c" x="64" y="276">Auth</text>
+  <text class="t-sm t-c" x="64" y="296">Service · 8001</text>
+  <text class="t-sm t-c t-muted" x="64" y="318">JWT · bcrypt</text>
+
+  <rect class="box chat" x="124" y="258" width="108" height="80"/>
+  <text class="t-b t-c" x="178" y="276">Chatbot</text>
+  <text class="t-sm t-c" x="178" y="296">Service · 8002</text>
+  <text class="t-sm t-c t-muted" x="178" y="318">Advanced RAG</text>
+
+  <rect class="box trans" x="238" y="258" width="108" height="80"/>
+  <text class="t-b t-c" x="292" y="276">Translation</text>
+  <text class="t-sm t-c" x="292" y="296">Service · 8003</text>
+  <text class="t-sm t-c t-muted" x="292" y="318">NLLB-200 · TTS</text>
+
+  <rect class="box flash" x="352" y="258" width="108" height="80"/>
+  <text class="t-b t-c" x="406" y="276">Flashcard</text>
+  <text class="t-sm t-c" x="406" y="296">Service · 8005</text>
+  <text class="t-sm t-c t-muted" x="406" y="318">FSRS · sinh từ AI</text>
+
+  <rect class="box doc" x="466" y="258" width="108" height="80"/>
+  <text class="t-b t-c t-sm" x="520" y="276">Doc Translation</text>
+  <text class="t-sm t-c" x="520" y="296">Service · 8004</text>
+  <text class="t-sm t-c t-muted" x="520" y="318">thử nghiệm</text>
+
+  <!-- Sự kiện giữa Translation và Flashcard -->
+  <path class="ln-evt" d="M292,338 L292,352 L406,352 L406,342" />
+  <text class="t-sm t-c" x="349" y="366">sự kiện qua RabbitMQ</text>
+  <text class="t-sm t-muted" x="14" y="366">Microservices · FastAPI · Python 3.11</text>
+
+  <!-- Hạ tầng dữ liệu -->
+  <rect class="group" x="4" y="392" width="578" height="98"/>
+  <text class="t-sm t-muted" x="14" y="404">Hạ tầng dữ liệu</text>
+
+  <rect class="box infra" x="10" y="414" width="136" height="68"/>
+  <text class="t-b t-c t-sm" x="78" y="428">Supabase PostgreSQL</text>
+  <text class="t-sm t-c" x="78" y="446">pgvector · FTS · RLS</text>
+
+  <rect class="box infra" x="152" y="414" width="136" height="68"/>
+  <text class="t-b t-c t-sm" x="220" y="428">Redis 7</text>
+  <text class="t-sm t-c" x="220" y="446">cache</text>
+
+  <rect class="box infra" x="294" y="414" width="136" height="68"/>
+  <text class="t-b t-c t-sm" x="362" y="428">RabbitMQ</text>
+  <text class="t-sm t-c t-mono" x="362" y="446">chatbot_events</text>
+
+  <rect class="box infra" x="436" y="414" width="136" height="68"/>
+  <text class="t-b t-c t-sm" x="504" y="428">MinIO</text>
+  <text class="t-sm t-c" x="504" y="446">kho âm thanh (CAS)</text>
+
+  <!-- Chip: service sử dụng thành phần -->
+  <g class="t-sm">
+    <rect x="18" y="458" width="26" height="16" rx="4" fill="#7C3AED"/><text x="31" y="466" class="t-c" style="fill:#fff;font-size:11px">Auth</text>
+    <rect x="47" y="458" width="28" height="16" rx="4" fill="#0D9488"/><text x="61" y="466" class="t-c" style="fill:#fff;font-size:11px">Chat</text>
+    <rect x="78" y="458" width="28" height="16" rx="4" fill="#16A34A"/><text x="92" y="466" class="t-c" style="fill:#fff;font-size:11px">Dịch</text>
+    <rect x="109" y="458" width="28" height="16" rx="4" fill="#EA580C"/><text x="123" y="466" class="t-c" style="fill:#fff;font-size:11px">Thẻ</text>
+
+    <rect x="189" y="458" width="28" height="16" rx="4" fill="#0D9488"/><text x="203" y="466" class="t-c" style="fill:#fff;font-size:11px">Chat</text>
+    <rect x="221" y="458" width="28" height="16" rx="4" fill="#16A34A"/><text x="235" y="466" class="t-c" style="fill:#fff;font-size:11px">Dịch</text>
+
+    <rect x="331" y="458" width="28" height="16" rx="4" fill="#16A34A"/><text x="345" y="466" class="t-c" style="fill:#fff;font-size:11px">Dịch</text>
+    <rect x="363" y="458" width="28" height="16" rx="4" fill="#EA580C"/><text x="377" y="466" class="t-c" style="fill:#fff;font-size:11px">Thẻ</text>
+
+    <rect x="490" y="458" width="28" height="16" rx="4" fill="#16A34A"/><text x="504" y="466" class="t-c" style="fill:#fff;font-size:11px">Dịch</text>
+  </g>
+
+  <!-- Dịch vụ bên ngoài -->
+  <rect class="group" x="4" y="500" width="578" height="90"/>
+  <text class="t-sm t-muted" x="14" y="512">Dịch vụ bên ngoài (gọi qua Internet)</text>
+
+  <rect class="box ext" x="10" y="522" width="136" height="60"/>
+  <text class="t-b t-c t-sm" x="78" y="536">vLLM / Ollama</text>
+  <text class="t-sm t-c" x="78" y="553">tương thích OpenAI</text>
+
+  <rect class="box ext" x="152" y="522" width="136" height="60"/>
+  <text class="t-b t-c t-sm" x="220" y="536">Google Gemini</text>
+  <text class="t-sm t-c" x="220" y="553">LLM · OCR</text>
+
+  <rect class="box ext" x="294" y="522" width="136" height="60"/>
+  <text class="t-b t-c t-sm" x="362" y="536">Groq</text>
+  <text class="t-sm t-c" x="362" y="553">LLM</text>
+
+  <rect class="box ext" x="436" y="522" width="136" height="60"/>
+  <text class="t-b t-c t-sm" x="504" y="536">Microsoft Edge TTS</text>
+  <text class="t-sm t-c" x="504" y="553">tổng hợp tiếng nói</text>
+
+  <g class="t-sm">
+    <rect x="47" y="562" width="28" height="16" rx="4" fill="#0D9488"/><text x="61" y="570" class="t-c" style="fill:#fff;font-size:11px">Chat</text>
+    <rect x="80" y="562" width="28" height="16" rx="4" fill="#EA580C"/><text x="94" y="570" class="t-c" style="fill:#fff;font-size:11px">Thẻ</text>
+
+    <rect x="173" y="562" width="28" height="16" rx="4" fill="#0D9488"/><text x="187" y="570" class="t-c" style="fill:#fff;font-size:11px">Chat</text>
+    <rect x="205" y="562" width="28" height="16" rx="4" fill="#16A34A"/><text x="219" y="570" class="t-c" style="fill:#fff;font-size:11px">Dịch</text>
+    <rect x="237" y="562" width="28" height="16" rx="4" fill="#EA580C"/><text x="251" y="570" class="t-c" style="fill:#fff;font-size:11px">Thẻ</text>
+
+    <rect x="331" y="562" width="28" height="16" rx="4" fill="#16A34A"/><text x="345" y="570" class="t-c" style="fill:#fff;font-size:11px">Dịch</text>
+    <rect x="363" y="562" width="28" height="16" rx="4" fill="#EA580C"/><text x="377" y="570" class="t-c" style="fill:#fff;font-size:11px">Thẻ</text>
+
+    <rect x="490" y="562" width="28" height="16" rx="4" fill="#16A34A"/><text x="504" y="570" class="t-c" style="fill:#fff;font-size:11px">Dịch</text>
+  </g>
+
+  <!-- Chú giải -->
+  <g class="t-sm">
+    <path class="ln" d="M10,612 L44,612"/><text x="50" y="612">REST</text>
+    <path class="ln-sse" d="M96,612 L130,612"/><text x="136" y="612">REST + SSE</text>
+    <path class="ln-evt" d="M218,612 L252,612"/><text x="258" y="612">sự kiện</text>
+    <path class="ln-ext" d="M314,612 L348,612"/><text x="354" y="612">đang tắt</text>
+    <rect x="420" y="604" width="28" height="16" rx="4" fill="#0D9488"/><text x="434" y="612" class="t-c" style="fill:#fff;font-size:11px">Chat</text>
+    <text x="454" y="612">service sử dụng</text>
+  </g>
+</svg>

@@ -1,0 +1,58 @@
+' H3-33 ERD nhóm bảng tri thức RAG. Đối chiếu 30/10/2026: db/schema_complete.sql (documents, document_parents,
+' document_chunks, semantic_cache; chỉ mục HNSW, GIN).
+@startuml
+!include ../_theme/plantuml.iuml
+!include ../_theme/erd.iuml
+
+entity users <<ref>> {
+  * id : UUID <<PK>>
+}
+entity documents <<chat>> {
+  * id : UUID <<PK>>
+  --
+  user_id : UUID <<FK>>
+  * title : TEXT
+  source_url : TEXT <<UNIQUE>>
+  breadcrumbs : TEXT
+  content_hash : VARCHAR
+  chunk_count : INTEGER
+}
+entity document_parents <<chat>> {
+  * id : UUID <<PK>>
+  --
+  * document_id : UUID <<FK>>
+  parent_index : INTEGER
+  header_path : TEXT
+  * content : TEXT
+  metadata : JSONB
+}
+entity document_chunks <<chat>> {
+  * id : UUID <<PK>>
+  --
+  document_id : UUID <<FK>>
+  parent_id : UUID <<FK>>
+  chunk_index : INTEGER
+  * content : TEXT
+  injected_content : TEXT
+  embedding : VECTOR(768) [HNSW]
+  fts_tokens : TSVECTOR [GIN, sinh tự động]
+  metadata : JSONB [GIN]
+  tokens_count : INTEGER
+}
+entity semantic_cache <<chat>> {
+  * id : UUID <<PK>>
+  --
+  * canonical_query : TEXT
+  * query_embedding : VECTOR(768) [HNSW]
+  * cached_answer : TEXT
+  retrieval_score : DOUBLE
+  hit_count : INTEGER
+  * expires_at : TIMESTAMPTZ
+}
+
+users |o--o{ documents : SET NULL
+documents ||--o{ document_parents : CASCADE
+documents ||--o{ document_chunks : CASCADE
+document_parents ||--o{ document_chunks : CASCADE
+documents -[hidden]right- semantic_cache
+@enduml

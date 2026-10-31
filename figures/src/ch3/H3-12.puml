@@ -1,0 +1,33 @@
+' H3-12 Tuần tự UC06. Đối chiếu 30/10/2026: routers/sessions.py (GET limit 20/offset, GET messages kèm
+' document_chunks cho trích dẫn, PATCH title strip()[:100], DELETE conversations).
+@startuml
+!include ../_theme/plantuml.iuml
+!include ../_theme/seq.iuml
+actor "Người dùng" as U
+participant "Frontend" as FE #EFF6FF
+participant "Kong" as K #F1F5F9
+participant "Chatbot Service" as S #F0FDFA
+database "Supabase" as DB #FFFBEB
+
+U -> FE : mở trang Chatbot
+FE -> K : GET /api/v1/chat/sessions?limit=20&offset=0
+K -> S : chuyển tiếp (đã kiểm tra JWT)
+S -> DB : conversations của người dùng, mới nhất trước
+S --> FE : danh sách phiên
+U -> FE : chọn một phiên
+FE -> S : GET /chat/sessions/{id}/messages (qua Kong)
+S -> DB : messages của phiên
+S -> DB : document_chunks theo mã đoạn đã trích dẫn
+S --> FE : tin nhắn kèm trích dẫn
+== Đổi tên ==
+U -> FE : nhập tên mới
+FE -> S : PATCH /chat/sessions/{id} {title}
+S -> S : bỏ khoảng trắng, cắt còn 100 ký tự
+S -> DB : cập nhật conversations.title
+S --> FE : 200 {sessionId, title}
+== Xóa ==
+U -> FE : chọn "Xóa", xác nhận
+FE -> S : DELETE /chat/sessions/{id}
+S -> DB : xóa conversations
+S --> FE : 200
+@enduml

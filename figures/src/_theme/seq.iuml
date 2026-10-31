@@ -1,0 +1,17 @@
+' Bổ sung cho sơ đồ tuần tự (sau plantuml.iuml). Màu nền participant theo bảng màu phân hệ:
+' Frontend #EFF6FF, Kong #F1F5F9, Auth #F5F3FF, Chatbot #F0FDFA, Dịch #F0FDF4, Flashcard #FFF7ED,
+' hạ tầng/CSDL #FFFBEB, dịch vụ ngoài #FFFFFF.
+skinparam defaultFontSize 12
+skinparam maxMessageSize 110
+skinparam sequenceMessageAlign left
+skinparam sequence {
+  ParticipantBorderColor #475569
+  ActorBorderColor #334155
+  LifeLineBorderColor #94A3B8
+  GroupBorderColor #94A3B8
+  GroupBackgroundColor #F1F5F9
+  DividerBackgroundColor #F1F5F9
+  DividerBorderColor #94A3B8
+}
+autonumber
+hide footbox

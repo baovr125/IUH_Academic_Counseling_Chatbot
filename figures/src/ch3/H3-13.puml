@@ -1,0 +1,38 @@
+' H3-13 Tuần tự UC07–UC08. Đối chiếu 30/10/2026: translation.py /stream; llm_service.stream_translation
+' (detection → NLLB, dự phòng Groq → Gemini, không cache); domain_translation.translate_with_domain
+' (cache chuyên ngành, exact/scan từ điển, decide_domain, reset → NLLB).
+@startuml
+!include ../_theme/plantuml.iuml
+!include ../_theme/seq.iuml
+actor "Người dùng" as U
+participant "Frontend" as FE #EFF6FF
+participant "Kong" as K #F1F5F9
+participant "Translation\nService" as T #F0FDF4
+participant "Redis" as R #FFFBEB
+participant "Dịch vụ LLM\n(Groq, Gemini)" as L #FFFFFF
+
+U -> FE : nhập văn bản, chọn ngôn ngữ, chuyên ngành
+FE -> K : POST /api/v1/translate/stream
+K -> T : chuyển tiếp (đã kiểm tra JWT)
+T -> T : nhận diện ngôn ngữ nguồn
+T --> FE : detection
+alt không chắc chắn hoặc không hỗ trợ
+  T --> FE : lỗi, yêu cầu chọn ngôn ngữ nguồn
+else UC07 dịch thông thường
+  T -> T : dịch NLLB-200 (CTranslate2)
+  T --> FE : text
+else UC08 dịch theo chuyên ngành
+  T -> R : tra bộ nhớ đệm chuyên ngành
+  T -> T : tra từ điển: khớp chính xác hoặc quét thuật ngữ
+  T -> L : prompt kèm bảng thuật ngữ
+  L --> T : bản dịch theo luồng
+  T --> FE : domain, text…
+  opt LLM lỗi hoặc bản dịch hỏng
+    T --> FE : reset
+    T -> T : dịch NLLB-200
+    T --> FE : domain (nllb), text
+  end
+  T -> R : lưu kết quả
+end
+FE --> U : hiển thị bản dịch, chuyên ngành, cảnh báo
+@enduml

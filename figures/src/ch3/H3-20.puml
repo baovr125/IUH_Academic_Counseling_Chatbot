@@ -1,0 +1,34 @@
+' H3-20 Tuần tự UC16. Đối chiếu 30/10/2026: kong admin-routes (jwt); admin_ingest.py (files/urls/extract-and-crawl,
+' 400 khi đang chạy, BackgroundTasks, status SSE mỗi 1 s); pdf_extractor (Gemini OCR, Tesseract);
+' run_unified_pipeline (HybridChunker, MD5 loại trùng); supabase_embedder (upsert documents theo source_url, lô 25).
+@startuml
+!include ../_theme/plantuml.iuml
+!include ../_theme/seq.iuml
+actor "Quản trị viên" as U
+participant "Frontend" as FE #EFF6FF
+participant "Kong" as K #F1F5F9
+participant "Chatbot Service" as S #F0FDFA
+participant "Gemini" as G #FFFFFF
+database "Supabase" as DB #FFFBEB
+
+U -> FE : chọn tệp, nhập URL hoặc quét website
+FE -> K : POST /api/admin/ingest/files (hoặc /urls, /extract-and-crawl)
+K -> S : chuyển tiếp (đã kiểm tra JWT)
+S -> S : vai trò admin? có tiến trình khác đang chạy?
+S --> FE : đã nhận (xử lý ở nền)
+FE -> S : GET /api/admin/ingest/status (SSE)
+group Tác vụ nền
+  S -> S : trích xuất: HTML (trafilatura), PDF (PyMuPDF)
+  opt PDF scan
+    S -> G : OCR từng trang (lỗi thì dùng Tesseract)
+  end
+  S --> FE : status: parsing / crawling
+  S -> S : phân đoạn cha–con, loại đoạn con trùng
+  S --> FE : status: chunking
+  S -> DB : upsert documents theo source_url; xóa đoạn cũ
+  S -> S : sinh vector (Bi-Encoder)
+  S -> DB : thêm document_parents, document_chunks (lô 25)
+  S --> FE : status: completed (hoặc error)
+end
+FE --> U : báo hoàn tất
+@enduml

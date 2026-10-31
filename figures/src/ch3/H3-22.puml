@@ -1,0 +1,42 @@
+' H3-22 Hoạt động UC12. Đối chiếu 30/10/2026: StudyMode.tsx (effectiveMode, handleVerify, handleRate,
+' advanceOrFinish, handleRetryWeak); fsrs_algorithm.calculate_fsrs (Scheduler learning_steps=(),
+' relearning_steps=(); _fallback khi không nạp được fsrs); review_card (flashcards, review_logs).
+@startuml
+!include ../_theme/plantuml.iuml
+skinparam defaultFontSize 13
+start
+:Lấy hàng đợi: thẻ đến hạn trước,
+rồi thẻ mới (tối đa 20);
+if (Hàng đợi rỗng?) then (có)
+  :Báo đã hoàn thành;
+  stop
+else (không)
+endif
+repeat
+  :Hiển thị mặt trước theo chế độ gợi ý
+  (thiếu dữ liệu thì về lật thẻ);
+  if (Chế độ gõ chính tả?) then (có)
+    :Người dùng gõ đáp án;
+    :So khớp, gợi ý mức đánh giá;
+  else (không)
+    :Người dùng lật thẻ
+    hoặc chọn đáp án;
+  endif
+  :Người dùng chọn mức 1–4
+  (Again, Hard, Good, Easy);
+  if (Nạp được thư viện FSRS?) then (có)
+    :FSRS tính độ ổn định,
+    độ khó, hạn ôn;
+  else (không)
+    :Lịch dự phòng
+    khoảng cách cố định;
+  endif
+  :Lưu thẻ và nhật ký ôn;
+repeat while (Còn thẻ?) is (có) not (không)
+:Tổng kết phiên;
+note right
+  Có thể ôn lại ngay các thẻ
+  Again, Hard hoặc trả lời sai.
+end note
+stop
+@enduml

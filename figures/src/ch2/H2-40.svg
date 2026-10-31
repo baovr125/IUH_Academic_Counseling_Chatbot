@@ -1,0 +1,25 @@
+<!-- H2-40 Lưu trữ định địa chỉ theo nội dung. Khóa tính đúng theo realtime_translation_service/app/rabbitmq_consumer.py
+     generate_and_upload_tts (dòng 22–41); giá trị MD5 tính thật bằng Python ngày 30/10/2026:
+     en "Tuition" và en "tuition " → terms/en_77e5aae9c3934c82918468d53284c1e4.mp3. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="586" height="232" viewBox="0 0 586 232">
+  <defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#334155"/></marker></defs>
+  <rect class="box flash" x="8" y="22" width="132" height="44"/><text class="t-sm t-c" x="74" y="36">Thẻ của người dùng A</text><text class="t-sm t-c t-mono" x="74" y="54">en, "Tuition"</text>
+  <rect class="box flash" x="8" y="130" width="132" height="44"/><text class="t-sm t-c" x="74" y="144">Thẻ của người dùng B</text><text class="t-sm t-c t-mono" x="74" y="162">en, "tuition "</text>
+  <path class="ln" d="M140,44 L170,80"/><path class="ln" d="M140,152 L170,116"/>
+  <rect class="box auth" x="172" y="70" width="150" height="56"/>
+  <text class="t-sm t-c t-b" x="247" y="86">Tính khóa (2-53)</text>
+  <text class="t-sm t-c" x="247" y="104">strip, lower,</text>
+  <text class="t-sm t-c" x="247" y="118">MD5("en_tuition")</text>
+  <path class="ln" d="M322,98 L346,98"/>
+  <rect class="box infra" x="348" y="70" width="230" height="56"/>
+  <text class="t-sm t-mono t-c" x="463" y="88">terms/en_77e5aae9c393…mp3</text>
+  <text class="t-sm t-c" x="463" y="108">cùng một khóa cho cả A và B</text>
+
+  <rect class="box trans" x="348" y="14" width="230" height="40"/>
+  <text class="t-sm t-c" x="463" y="27">A (lần đầu): chưa có khóa</text>
+  <text class="t-sm t-c" x="463" y="43">→ gọi Edge TTS, tải lên MinIO</text>
+  <rect class="box ok" x="348" y="142" width="230" height="40" style="fill:#F0FDF4;stroke:#16A34A"/>
+  <text class="t-sm t-c" x="463" y="155">B (lần sau): khóa đã tồn tại</text>
+  <text class="t-sm t-c" x="463" y="171">→ dùng lại, không gọi TTS</text>
+  <text class="t-sm t-muted" x="8" y="214">Bucket MinIO: flashcard-audios · khóa chỉ phụ thuộc ngôn ngữ và từ, không phụ thuộc người tạo</text>
+</svg>

@@ -1,0 +1,30 @@
+' H3-39 Dòng sự kiện SSE của hỏi đáp. Đối chiếu 30/10/2026: llm_generation_service.py (_build_sse_metadata với
+' cacheStatus HIT, _build_sse_delta, _build_sse_done, type error; lọc <thinking>; finally lưu phần đã sinh);
+' schemas/chat.py Citation (id, sourceTitle, pageOrSection, snippet, url).
+@startuml
+!include ../_theme/plantuml.iuml
+!include ../_theme/seq.iuml
+autonumber stop
+participant "Frontend" as FE #EFF6FF
+participant "Chatbot Service" as S #F0FDFA
+participant "Dịch vụ LLM" as L #FFFFFF
+
+FE -> S : POST /api/v1/chat/messages/stream\n{sessionId, content, bypassCache}
+alt trùng bộ nhớ đệm
+  S --> FE : data: {type: "metadata", sessionId, citations: [], cacheStatus: "HIT"}
+  S --> FE : data: {type: "delta", text: câu trả lời đã lưu}
+else sinh mới
+  S --> FE : data: {type: "metadata", sessionId, citations: [{id, sourceTitle, pageOrSection, snippet, url}]}
+  S -> L : prompt, stream = true
+  loop mỗi phần văn bản từ LLM
+    L --> S : token
+    S -> S : bỏ phần nằm trong <thinking>…</thinking>
+    S --> FE : data: {type: "delta", text}
+  end
+end
+S --> FE : data: {type: "done"}
+note over FE, S
+  Có lỗi bất kỳ: gửi data: {type: "error", message} thay cho done;
+  phần câu trả lời đã sinh vẫn được lưu vào messages.
+end note
+@enduml

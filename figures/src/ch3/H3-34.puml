@@ -1,0 +1,50 @@
+' H3-34 ERD nhóm bảng người dùng và hội thoại. Đối chiếu 30/10/2026: db/schema_complete.sql (users, password_resets,
+' conversations, messages).
+@startuml
+!include ../_theme/plantuml.iuml
+!include ../_theme/erd.iuml
+left to right direction
+
+entity users <<auth>> {
+  * id : UUID <<PK>>
+  --
+  * email : VARCHAR <<UNIQUE>>
+  student_code : VARCHAR <<UNIQUE>>
+  full_name : VARCHAR
+  department, major : VARCHAR
+  password_hash : VARCHAR
+  role : VARCHAR
+  settings : JSONB
+  * token_version : INTEGER
+}
+entity password_resets <<auth>> {
+  * id : UUID <<PK>>
+  --
+  * email : VARCHAR
+  * otp_code : VARCHAR
+  * expires_at : TIMESTAMPTZ
+  is_used : BOOLEAN
+  (chưa được mã nguồn sử dụng)
+}
+entity conversations <<chat>> {
+  * id : UUID <<PK>>
+  --
+  user_id : UUID <<FK>>
+  title : VARCHAR
+}
+entity messages <<chat>> {
+  * id : UUID <<PK>>
+  --
+  conversation_id : UUID <<FK>>
+  * role : user | assistant
+  * content : TEXT
+  retrieved_chunk_ids : UUID[]
+  feedback : like | dislike | none
+  latency_ms, prompt_tokens,
+  completion_tokens : INTEGER
+  embedding : VECTOR(768)
+}
+
+users ||--o{ conversations : CASCADE
+conversations ||--o{ messages : CASCADE
+@enduml

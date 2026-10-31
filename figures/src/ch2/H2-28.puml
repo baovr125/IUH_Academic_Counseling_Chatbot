@@ -1,0 +1,28 @@
+' H2-28 Quy tắc decide_domain. Đối chiếu realtime_translation_service/DOMAIN_DETECTION.md §3 và
+' app/services/domain_detection.py: LexicalSummary.score (dòng 230–240), decide_domain (288–) với ngưỡng
+' AUTO_DOMAIN_MIN_CONFIDENCE = 0,75 và chênh lệch +2.
+@startuml
+!include ../_theme/plantuml.iuml
+skinparam defaultFontSize 12
+skinparam ActivityBackgroundColor #F0FDF4
+skinparam ActivityBorderColor #16A34A
+start
+:LLM khai báo dòng đầu:
+DOMAIN: d* | CONF: κ;
+if (Header hợp lệ và d* thuộc\ndanh sách 6 chuyên ngành?) then (không)
+  :unknown; <<#FEF2F2>>
+  detach
+endif
+if (κ hợp lệ và κ ≥ 0,75?) then (không)
+  :unknown (độ tin cậy thấp); <<#FEF2F2>>
+  detach
+endif
+:Tính lex(d) cho mọi chuyên ngành (2-37)
+từ thuật ngữ từ điển có trong văn bản; <<#FFFBEB>>
+if (Có d ≠ d* với\nlex(d) ≥ lex(d*) + 2?) then (có)
+  :unknown (mâu thuẫn với từ điển); <<#FEF2F2>>
+  detach
+endif
+:detected: d*; <<#F0FDF4>>
+stop
+@enduml

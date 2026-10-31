@@ -1,0 +1,47 @@
+<!-- H2-07 Cấu trúc prompt hệ thống của chatbot.
+     Đối chiếu: rag_service.build_dynamic_system_instruction (dòng 653–673): base_prompt → rules → few_shots → memory_str
+     → <retrieved_context> → <user_query>; prompt_templates.py (BASE_PERSONA_AND_SAFETY, INTENT_RULES, INTENT_FEW_SHOTS);
+     guardrails/query_filter.wrap_context_sandbox (<source id>, <query_reminder>); llm_generation_service: 6 lượt gần nhất. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="586" height="330" viewBox="0 0 586 330">
+  <defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#334155"/></marker></defs>
+  <rect class="group" x="4" y="4" width="404" height="322"/>
+  <text class="t-sm t-b t-muted" x="14" y="18">Lời nhắc hệ thống (system instruction)</text>
+
+  <rect class="box auth" x="14" y="28" width="384" height="44"/>
+  <text class="t-b" x="24" y="42">1. Persona và luật an toàn</text>
+  <text class="t-sm t-mono" x="24" y="60">BASE_PERSONA_AND_SAFETY</text>
+  <text class="t-sm t-muted" x="230" y="60">kể cả luật Self-RAG</text>
+
+  <rect class="box auth" x="14" y="78" width="384" height="44"/>
+  <text class="t-b" x="24" y="92">2. Luật riêng theo intent</text>
+  <text class="t-sm t-mono" x="24" y="110">INTENT_RULES[intent]</text>
+  <text class="t-sm t-muted" x="200" y="110">vd: CoT số học cho học phí, GPA</text>
+
+  <rect class="box auth" x="14" y="128" width="384" height="44"/>
+  <text class="t-b" x="24" y="142">3. Ví dụ mẫu (few-shot)</text>
+  <text class="t-sm t-mono" x="24" y="160">INTENT_FEW_SHOTS[intent]</text>
+
+  <rect class="box gw" x="14" y="178" width="384" height="34"/>
+  <text class="t-b" x="24" y="195">4. Bộ nhớ hội thoại liên quan</text>
+
+  <rect class="box infra" x="14" y="218" width="384" height="62"/>
+  <text class="t-b" x="24" y="232">5. Ngữ cảnh truy xuất</text>
+  <text class="t-sm t-mono" x="24" y="250">&lt;retrieved_context&gt; &lt;source id="1"&gt;…&lt;/source&gt; …</text>
+  <text class="t-sm t-mono" x="24" y="268">&lt;query_reminder&gt;câu hỏi&lt;/query_reminder&gt;</text>
+
+  <rect class="box fe" x="14" y="286" width="384" height="34"/>
+  <text class="t-b" x="24" y="303">6. Câu hỏi</text>
+  <text class="t-sm t-mono" x="120" y="303">&lt;user_query&gt;…&lt;/user_query&gt;</text>
+
+  <!-- Bên phải -->
+  <rect class="box gw" x="426" y="128" width="152" height="60"/>
+  <text class="t-b t-c" x="502" y="146">Lịch sử hội thoại</text>
+  <text class="t-sm t-c" x="502" y="166">6 lượt gần nhất</text>
+  <path class="ln" d="M502,188 L502,220"/>
+  <rect class="box chat" x="426" y="222" width="152" height="50"/>
+  <text class="t-b t-c" x="502" y="240">LLM</text>
+  <text class="t-sm t-c" x="502" y="258">sinh câu trả lời</text>
+  <path class="ln" d="M408,247 L424,247"/>
+  <text class="t-sm t-muted" x="426" y="294">Thẻ XML cách ly ngữ cảnh</text>
+  <text class="t-sm t-muted" x="426" y="310">với câu lệnh của hệ thống</text>
+</svg>

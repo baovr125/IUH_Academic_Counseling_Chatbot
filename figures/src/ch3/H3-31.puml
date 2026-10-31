@@ -1,0 +1,39 @@
+' H3-31 Phân chia bảng theo service. Đối chiếu 30/10/2026: db/README.md §3, db/schema_complete.sql (14 bảng).
+@startuml
+!include ../_theme/plantuml.iuml
+skinparam defaultFontSize 12
+skinparam rectangle {
+  FontStyle normal
+}
+skinparam rectangle<<auth>> {
+  BorderColor #7C3AED
+  BackgroundColor #F5F3FF
+}
+skinparam rectangle<<chat>> {
+  BorderColor #0D9488
+  BackgroundColor #F0FDFA
+}
+skinparam rectangle<<trans>> {
+  BorderColor #16A34A
+  BackgroundColor #F0FDF4
+}
+skinparam rectangle<<flash>> {
+  BorderColor #EA580C
+  BackgroundColor #FFF7ED
+}
+skinparam package {
+  BorderColor #B45309
+  BackgroundColor #FFFBEB
+}
+hide stereotype
+
+package "Supabase PostgreSQL: một CSDL dùng chung, RLS bật trên mọi bảng" {
+  rectangle "**Auth Service**\n\nusers\npassword_resets\n(chưa dùng)" <<auth>> as A
+  rectangle "**Chatbot Service**\n\ndocuments\ndocument_parents\ndocument_chunks\nsemantic_cache\nconversations\nmessages" <<chat>> as C
+  rectangle "**Flashcard Service**\n\nflashcard_decks\nflashcards\nreview_logs\nvocab_generation_usage\nflashcard_game_sessions" <<flash>> as F
+  rectangle "**Translation Service**\n\ndomain_dictionaries" <<trans>> as T
+}
+A -[hidden]right- C
+C -[hidden]right- F
+F -[hidden]right- T
+@enduml

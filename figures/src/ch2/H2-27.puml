@@ -1,0 +1,34 @@
+' H2-27 Các bước nhận diện ngôn ngữ. Đối chiếu realtime_translation_service/LANGUAGE_DETECTION.md §1–2 và
+' app/services/language_detection.py: _bucket (dòng 518–523), run_lingua (600–608), fusion w_ft/w_lg (618–633),
+' bằng chứng độc lập (635–652), features + meta (694–706); models/detect_calibration.json (ngưỡng theo bucket).
+@startuml
+!include ../_theme/plantuml.iuml
+skinparam defaultFontSize 12
+skinparam ActivityBackgroundColor #F0FDF4
+skinparam ActivityBorderColor #16A34A
+start
+:Tiền xử lý: bỏ HTML, URL, email, chuẩn hóa NFC,
+cắt tối đa 2 000 ký tự, xác định hệ chữ và độ dài;
+if (Có chữ cái?) then (không)
+  :invalid_input / unknown; <<#FEF2F2>>
+  detach
+endif
+if (Hệ chữ quyết định được ngay?\n(Hangul, Kana, Thái, hệ chữ ngoài phạm vi)) then (có)
+  :Kết luận theo hệ chữ; <<#F0FDF4>>
+  detach
+endif
+:fastText lid.176 → top-5;
+if (Văn bản ngắn, fastText chưa chắc\nhoặc nhãn ngoài phạm vi?) then (có)
+  :Lingua (10 + 25 ngôn ngữ dễ nhầm);
+endif
+:Fusion (2-35): w_ft·P_ft + w_lg·P_lg + bằng chứng độc lập
+(tiếng Việt có/không dấu, từ đặc trưng de/fr/es, chữ Hán thuần → zh); <<#FFFBEB>>
+:Meta-confidence (2-36): σ(b + Σ γ_j·f_j); <<#FFFBEB>>
+if (meta ≥ ngưỡng của nhóm độ dài\nvà qua các lớp bảo vệ?) then (có)
+  :detected → dịch; <<#F0FDF4>>
+else (không)
+  :uncertain / unsupported →
+  người dùng chọn ngôn ngữ nguồn; <<#FEF2F2>>
+endif
+stop
+@enduml

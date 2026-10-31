@@ -1,0 +1,54 @@
+' H3-42 Sơ đồ điều hướng. Đối chiếu 30/10/2026: frontend/src/router/AppRouter.tsx (RequireAuth, RequireAdmin, MainLayout,
+' /translation-doc theo isDocTranslationEnabled, * → /dashboard), frontend README §3.
+@startuml
+!include ../_theme/plantuml.iuml
+skinparam defaultFontSize 12
+skinparam rectangle {
+  FontStyle normal
+}
+skinparam rectangle<<pub>> {
+  BorderColor #2563EB
+  BackgroundColor #EFF6FF
+}
+skinparam rectangle<<auth>> {
+  BorderColor #475569
+  BackgroundColor #F8FAFC
+}
+skinparam rectangle<<admin>> {
+  BorderColor #7C3AED
+  BackgroundColor #F5F3FF
+}
+skinparam rectangle<<off>> {
+  BorderColor #DB2777
+  BackgroundColor #FDF2F8
+  BorderStyle dashed
+}
+skinparam package {
+  BorderColor #94A3B8
+  BackgroundColor #FAFAFA
+}
+hide stereotype
+
+rectangle "/login\nĐăng nhập · Đăng ký" <<pub>> as L
+package "RequireAuth · MainLayout (thanh điều hướng)" {
+  rectangle "/dashboard\nTổng quan" <<auth>> as D
+  rectangle "/chat\nChatbot" <<auth>> as C
+  rectangle "/translation\nDịch thuật" <<auth>> as T
+  rectangle "/flashcards\nlưới ngôn ngữ" <<auth>> as F
+  rectangle "/flashcards/:lang\nsổ của một ngôn ngữ" <<auth>> as F2
+  rectangle "/flashcards/:lang/decks/:deckId\nthẻ · ôn tập · trò chơi\nsinh từ · thư viện · nhập Excel" <<auth>> as F3
+  rectangle "/profile · /settings\nHồ sơ · Cài đặt" <<auth>> as P
+  rectangle "/admin (RequireAdmin)\nkho tri thức · từ điển" <<admin>> as A
+  rectangle "/translation-doc\nđang tắt → /translation" <<off>> as TD
+}
+
+L --> D : đăng nhập thành công
+D --> C
+D --> T
+D --> F
+F --> F2
+F2 --> F3
+D --> P
+D --> A : chỉ admin
+T ..> TD
+@enduml

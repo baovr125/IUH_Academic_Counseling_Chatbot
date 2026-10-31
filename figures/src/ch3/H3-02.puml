@@ -1,0 +1,40 @@
+' H3-02 Sơ đồ use case tổng quát (mức chức năng lớn; chi tiết UC01–UC18 ở H3-03 → H3-07).
+' Đối chiếu 30/10/2026: frontend/src/router/AppRouter.tsx (/login công khai; RequireAuth cho mọi trang khác;
+' RequireAdmin cho /admin; /translation-doc theo cờ VITE_FEATURE_DOC_TRANSLATION).
+@startuml
+!include ../_theme/plantuml.iuml
+skinparam defaultFontSize 12
+left to right direction
+
+actor "Khách" as Guest
+actor "Người dùng\n(IUH, công cộng)" as User
+actor "Quản trị viên" as Admin
+actor "Dịch vụ LLM\n(Gemini, Groq, vLLM)" as LLM
+actor "Microsoft\nEdge TTS" as TTS
+User <|-- Admin
+
+rectangle "IUH_Academic_Counseling_Chatbot" {
+  usecase "Đăng ký, đăng nhập\n(UC01–UC02)" as A1 <<auth>>
+  usecase "Quản lý phiên và tài khoản\n(UC03–UC04)" as A2 <<auth>>
+  usecase "Hỏi đáp học vụ\n(UC05–UC06)" as C1 <<chat>>
+  usecase "Dịch văn bản, phân tích từ\n(UC07–UC10)" as T1 <<trans>>
+  usecase "Dịch tài liệu\n«thử nghiệm»" as D1 <<thunghiem>>
+  usecase "Học từ vựng với flashcard\n(UC11–UC15)" as F1 <<flash>>
+  usecase "Quản trị kho tri thức\n(UC16–UC17)" as Q1 <<admin>>
+  usecase "Quản trị từ điển chuyên ngành\n(UC18)" as Q2 <<admin>>
+}
+
+Guest --> A1
+User --> A2
+User --> C1
+User --> T1
+User ..> D1
+User --> F1
+Admin --> Q1
+Admin --> Q2
+
+C1 --> LLM
+T1 --> LLM
+F1 --> LLM
+T1 --> TTS
+@enduml

@@ -1,0 +1,32 @@
+' H3-17 Tuần tự UC12. Đối chiếu 30/10/2026: flashcards.py study-queue (limit 50, new_limit 20), verify-spelling,
+' review; flashcard_service.get_study_queue, review_card (calculate_fsrs, update flashcards, insert review_logs);
+' StudyMode.tsx (handleVerify, handleRate, advanceOrFinish).
+@startuml
+!include ../_theme/plantuml.iuml
+!include ../_theme/seq.iuml
+actor "Người dùng" as U
+participant "Frontend" as FE #EFF6FF
+participant "Flashcard\nService" as F #FFF7ED
+database "Supabase" as DB #FFFBEB
+
+U -> FE : mở sổ thẻ, chọn "Ôn tập"
+FE -> F : GET /decks/{id}/study-queue (qua Kong)
+F -> DB : thẻ của sổ
+F -> F : thẻ đến hạn (quá hạn lâu nhất trước) rồi thẻ mới (≤ 20); gợi ý chế độ
+F --> FE : hàng đợi thẻ
+loop từng thẻ trong hàng đợi
+  FE --> U : mặt trước của thẻ
+  U -> FE : lật thẻ hoặc gõ đáp án
+  opt chế độ gõ
+    FE -> F : POST /cards/{id}/verify-spelling
+    F --> FE : đúng hay sai, độ tương đồng, mức gợi ý
+  end
+  U -> FE : chọn Again, Hard, Good hoặc Easy
+  FE -> F : POST /review {card_id, grade}
+  F -> DB : đọc thẻ, kiểm tra chủ sở hữu
+  F -> F : FSRS: độ ổn định, độ khó, hạn ôn mới
+  F -> DB : cập nhật flashcards; thêm review_logs
+  F --> FE : thẻ đã cập nhật
+end
+FE --> U : tổng kết phiên, gợi ý ôn lại thẻ yếu
+@enduml

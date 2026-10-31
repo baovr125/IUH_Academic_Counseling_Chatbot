@@ -1,0 +1,422 @@
+﻿id,group,question,reference,answer_A,answer_B,label_A,faithful_A,label_B,faithful_B,note
+Q01,quy_che,Khi nào sinh viên bị buộc thôi học?,Bị cảnh báo kết quả học tập quá 2 lần liên tiếp; vượt thời gian học tối đa; bị kỷ luật lần hai vì thi hộ hoặc bị xóa tên khỏi danh sách; tự ý bỏ học 2 học kỳ liên tiếp.,"Theo quy định tại Nhà trường, sinh viên sẽ bị xem xét và ra quyết định buộc thôi học nếu thuộc một trong các trường hợp sau:
+
+1. Có số lần cảnh báo kết quả học tập vượt quá 2 lần liên tiếp.
+2. Vượt quá thời gian tối đa được phép học tập tại Trường theo Quy chế đào tạo hiện hành.
+3. Bị kỷ luật lần thứ hai vì lý do thi hộ/nhờ người thi hộ hoặc bị kỷ luật ở mức xóa tên khỏi danh sách sinh viên.
+4. Tự ý bỏ học 2 học kỳ liên tiếp (hoặc từ 2 học kỳ chính / không đăng ký học phần từ 2 học kỳ chính tùy theo quy chế chi tiết).
+5. Vi phạm các quy định khác như hết thời gian đào tạo tối đa mà chưa đủ điều kiện tốt nghiệp, hoặc nghỉ học tạm thời quá thời hạn cho phép.","Sinh viên IUH bị buộc thôi học trong các trường hợp sau:
+
+1. **Hết thời gian học tối đa** tính từ lúc nhập học (tùy thuộc vào từng bậc và chương trình đào tạo).
+2. **Điểm trung bình tích lũy** sau mỗi học kỳ hoặc năm học đạt mức bị cảnh báo học vụ quá số lần quy định (thường là 2 lần liên tiếp hoặc 3 lần trong toàn khóa).
+3. **Bị kỷ luật** lần thứ hai vì lý do thi hộ, học hộ hoặc mang thiết bị công nghệ phát sóng vào phòng thi.
+4. **Vi phạm pháp luật** bị phạt tù giam.
+5. **Tự ý bỏ học** không xin phép trong suốt một học kỳ.
+6. **Bị kỷ luật ở mức buộc thôi học** do vi phạm nội quy, quy định của nhà trường.
+
+*(Chi tiết cụ thể được quy định tại Quy chế đào tạo tín chỉ hiện hành của IUH).*",,,,,
+Q02,quy_che,Điều kiện để được xét và công nhận tốt nghiệp là gì?,Tích lũy đủ tín chỉ theo chương trình và học lực từ trung bình trở lên; không bị truy cứu trách nhiệm hình sự hoặc kỷ luật từ mức đình chỉ học tập; hoàn thành các yêu cầu khác của chương trình đào tạo.,"Theo quy định của Trường Đại học Công nghiệp Thành phố Hồ Chí Minh (IUH), để được xét và công nhận tốt nghiệp, sinh viên cần đáp ứng các điều kiện cơ bản sau:
+
+1. **Khối lượng học tập:** Hoàn thành chương trình đào tạo, tích lũy đủ số tín chỉ theo yêu cầu của ngành học (bao gồm các học phần bắt buộc và tự chọn).
+2. **Điểm trung bình:** Điểm trung bình tích lũy toàn khóa học đạt từ trung bình trở lên (từ 2.0/4.0 trở lên).
+3. **Chứng chỉ:** Đạt chuẩn đầu ra ngoại ngữ, tin học (và các chứng chỉ kỹ năng khác nếu có) theo quy định hiện hành của trường tính đến thời điểm xét tốt nghiệp.
+4. **Nghĩa vụ tài chính:** Hoàn thành học phí và các khoản lệ phí khác theo quy định của trường.
+5. **Kỷ luật:** Không đang trong thời gian bị truy cứu trách nhiệm hình sự hoặc bị kỷ luật ở mức đình chỉ học tập tại thời điểm xét tốt nghiệp.
+6. **Đồ án/Khóa luận tốt nghiệp:** Hoàn thành và đạt yêu cầu tiểu luận, đồ án, khóa luận tốt nghiệp (hoặc các học phần thay thế) theo chương trình đào tạo.
+
+*Lưu ý: Bạn cần nộp đơn xin xét tốt nghiệp đúng thời hạn theo thông báo của Phòng Đào tạo.*","Chào bạn, để được xét và công nhận tốt nghiệp tại IUH, bạn cần đáp ứng các điều kiện sau:
+
+1. **Tích lũy học phần:** Tích lũy đủ số học phần, số tín chỉ và hoàn thành các nội dung bắt buộc của chương trình đào tạo, đạt điểm trung bình tích lũy toàn khóa từ **2.0 trở lên** (thang điểm 4) và đạt chuẩn đầu ra.
+2. **Tình trạng kỷ luật:** Tại thời điểm xét tốt nghiệp, không đang bị truy cứu trách nhiệm hình sự hoặc bị kỷ luật từ mức đình chỉ học tập trở lên.
+3. **Chứng chỉ Giáo dục Quốc phòng & Thể chất:** Có chứng chỉ Giáo dục Quốc phòng - An ninh và Giáo dục Thể chất (trừ một số hệ đào tạo được miễn theo quy định).
+4. **Chuẩn ngoại ngữ & Công nghệ thông tin:** 
+   - Có Chứng chỉ Ứng dụng Công nghệ Thông tin cơ bản (trừ ngành CNTT).
+   - Có chứng chỉ ngoại ngữ phù hợp với chương trình học và khóa tuyển sinh của bạn (Ví dụ: Khóa từ 2021 trở đi cần chứng chỉ tiếng Anh bậc B1 hoặc tương đương; các khóa 2017-2020 cần tối thiểu TOEIC 450 đối với hệ đại học chính quy).",,,,,
+Q03,quy_che,Hạng tốt nghiệp loại giỏi hoặc xuất sắc bị giảm một mức trong những trường hợp nào?,Khối lượng học phần học lại quá 5% khối lượng chuẩn; đã bị kỷ luật từ mức cảnh cáo trở lên; vi phạm liêm chính học thuật hoặc khoa học.,"Theo quy định của IUH, sinh viên đạt hạng tốt nghiệp loại giỏi hoặc xuất sắc sẽ bị **giảm đi một mức** nếu thuộc một trong các trường hợp sau:
+
+1. Khối lượng các học phần phải học lại vượt quá 5% tổng số tín chỉ quy định cho toàn chương trình đào tạo (hoặc khối lượng học tập chuẩn).
+2. Sinh viên đã bị kỷ luật từ mức **cảnh cáo trở lên** trong thời gian học.
+3. Sinh viên vi phạm các quy định về **liêm chính học thuật, liêm chính khoa học**.","Theo quy chế đào tạo của IUH, hạng tốt nghiệp loại **Xuất sắc** hoặc **Giỏi** sẽ bị **giảm một mức** (xuống Giỏi hoặc Khá) nếu sinh viên thuộc một trong các trường hợp sau:
+
+1. Có khối lượng các học phần phải học lại vượt quá quy định (thường quá 5% tổng số tín chỉ của chương trình).
+2. Đã bị kỷ luật từ mức cảnh cáo trở lên trong thời gian học tại trường.",,,,,
+Q04,quy_che,Sinh viên bị cảnh báo kết quả học tập trong trường hợp nào?,"Số tín chỉ không đạt trong học kỳ quá 50% hoặc nợ đọng trên 24 tín chỉ; điểm trung bình học kỳ dưới 0,80 (học kỳ đầu) hoặc dưới 1,00 (các kỳ sau); điểm trung bình tích lũy dưới 1,20 / 1,40 / 1,60 / 1,80 tùy năm học.","Sinh viên IUH bị cảnh báo kết quả học tập trong các trường hợp sau (theo Quy chế đào tạo tín chỉ):
+
+1. **Điểm trung bình học kỳ** đạt dưới 1.0 đối với học kỳ đầu tiên, hoặc dưới 1.2 đối với các học kỳ tiếp theo.
+2. **Điểm trung bình tích lũy** đạt dưới các mức sau (tùy theo tổng số tín chỉ đã tích lũy):
+   * Dưới 1.2 đối với sinh viên tích lũy từ dưới 14 tín chỉ.
+   * Dưới 1.4 đối với sinh viên tích lũy từ 14 đến dưới 30 tín chỉ.
+   * Dưới 1.6 đối với sinh viên tích lũy từ 30 đến dưới 45 tín chỉ.
+   * Dưới 1.8 đối với sinh viên tích lũy từ 45 tín chỉ trở lên.
+3. **Tổng số tín chỉ không đạt** trong học kỳ vượt quá 50% tổng số tín chỉ đã đăng ký học trong học kỳ đó.
+
+*(Lưu ý: Sinh viên bị cảnh báo kết quả học tập quá 2 lần liên tiếp sẽ thuộc diện buộc thôi học).*","Chào bạn, sinh viên tại IUH sẽ bị cảnh báo kết quả học tập sau mỗi học kỳ chính nếu rơi vào một trong các trường hợp sau:
+
+1. **Khối lượng nợ tín chỉ:** Tổng số tín chỉ không đạt trong học kỳ vượt quá 50% khối lượng đăng ký, hoặc tổng số tín chỉ nợ từ đầu khóa học vượt quá 24 tín chỉ.
+2. **Điểm trung bình học kỳ (ĐTBCHK):** Đạt dưới 0.80 đối với học kỳ đầu tiên, hoặc dưới 1.00 đối với các học kỳ tiếp theo.
+3. **Điểm trung bình tích lũy (ĐTBCTL):** Đạt dưới 1.20 (năm thứ nhất), dưới 1.40 (năm thứ hai), dưới 1.60 (năm thứ ba), hoặc dưới 1.80 (các năm tiếp theo và cuối khóa).",,,,,
+Q05,quy_che,Điều kiện để học cùng lúc hai chương trình đào tạo là gì?,"Đã được xếp trình độ năm thứ hai của chương trình thứ nhất; điểm trung bình tích lũy từ 2,50 và đạt ngưỡng đảm bảo chất lượng, hoặc từ 2,00 và đáp ứng điều kiện trúng tuyển của chương trình thứ hai.","Chào bạn, để đăng ký học cùng lúc hai chương trình đào tạo tại IUH, bạn cần đáp ứng các điều kiện sau:
+
+1. **Thời điểm đăng ký:** Đã được xếp trình độ năm thứ hai của chương trình thứ nhất.
+2. **Học lực và tuyển sinh (đáp ứng 1 trong 2 trường hợp):**
+   - **Cách 1:** Điểm trung bình chung tích lũy (ĐTBCTL) từ **2.50 trở lên** (thang điểm 4) + đáp ứng ngưỡng bảo đảm chất lượng của chương trình thứ hai trong năm tuyển sinh.
+   - **Cách 2:** ĐTBCTL từ **2.00 trở lên** (thang điểm 4) + đáp ứng điều kiện trúng tuyển của chương trình thứ hai trong năm tuyển sinh.","Theo quy định của Trường Đại học Công nghiệp Thành phố Hồ Chí Minh (IUH), điều kiện để sinh viên học cùng lúc hai chương trình đào tạo gồm:
+
+1. **Về thời gian học tập:** Đã hoàn thành ít nhất năm nhất (2 học kỳ chính) của chương trình thứ nhất.
+2. **Về học lực:** Xếp hạng học lực từ **Khá trở lên** tính đến thời điểm đăng ký xét tuyển, và không đang trong thời gian bị cảnh báo kết quả học tập hay bị kỷ luật.
+3. **Về điều kiện của chương trình thứ hai:** Ngành đào tạo thứ hai phải đủ điều kiện tuyển sinh theo đề án của trường và khác với ngành thứ nhất. 
+
+*Lưu ý: Sinh viên cần nộp đơn đăng ký theo thông báo của Phòng Đào tạo tại từng học kỳ.*",,,,,
+Q06,quy_che,"Khi đang học hai chương trình, trường hợp nào phải dừng học chương trình thứ hai?","Điểm trung bình tích lũy của chương trình thứ nhất dưới 2,00 hoặc thuộc diện bị cảnh báo kết quả học tập thì dừng học chương trình thứ hai từ học kỳ tiếp theo.","Chào bạn, khi đang học cùng lúc hai chương trình, bạn sẽ phải dừng học chương trình thứ hai ở học kỳ tiếp theo nếu rơi vào một trong các trường hợp sau:
+1. Điểm trung bình chung tích lũy (ĐTBCTL / ĐTBHLTL) của chương trình thứ nhất đạt **dưới 2.00** (theo thang điểm 4).
+2. Sinh viên thuộc diện **bị cảnh báo kết quả học tập**.","Theo quy định của Trường Đại học Công nghiệp Thành phố Hồ Chí Minh (IUH), sinh viên học cùng lúc hai chương trình phải **dừng học chương trình thứ hai** trong các trường hợp sau:
+
+1. **Kết quả học tập không đạt:** Điểm trung bình tích lũy của chương trình thứ nhất đạt dưới điểm trung bình chung (dưới 2.0 theo thang điểm 4) ở mỗi học kỳ xét duyệt.
+2. **Quá thời gian đào tạo:** Tổng thời gian học tập của chương trình thứ nhất đã vượt quá giới hạn thời gian tối đa cho phép theo quy định của trường.
+3. **Bị buộc thôi học:** Sinh viên bị kỷ luật hoặc buộc thôi học ở chương trình thứ nhất.
+4. **Tự nguyện xin dừng:** Sinh viên có đơn xin thôi học chương trình thứ hai để tập trung cho chương trình thứ nhất.",,,,,
+Q07,quy_che,Sinh viên khóa 21 trở lên có phải thi sát hạch tiếng Anh đầu vào không?,"Có, trừ sinh viên ngành Ngôn ngữ Anh. Sinh viên đã có chứng chỉ từ B1 (hoặc Bậc 3) trở lên cần liên hệ Khoa Ngoại ngữ trước kỳ thi sát hạch.","Chào bạn, theo quy định của Trường Đại học Công nghiệp Thành phố Hồ Chí Minh (IUH), sinh viên từ **khóa 17 trở lên** (từ năm 2021) **không phải thi** sát hạch tiếng Anh đầu vào. 
+
+Thay vào đó, chuẩn đầu ra tiếng Anh sẽ được xét dựa trên các chứng chỉ quốc tế (như TOEIC, IELTS,...) hoặc sinh viên sẽ học các học phần tiếng Anh chuyên tâm trực tiếp tại trường theo chương trình đào tạo của ngành.","Chào bạn, theo quy định, sinh viên bậc Đại học từ khóa 21 (ngoại trừ ngành Ngôn ngữ Anh) **bắt buộc phải tham gia** kỳ thi sát hạch tiếng Anh đầu vào để được xếp lớp phù hợp. 
+
+Tuy nhiên, bạn sẽ được **miễn thi** sát hạch nếu thuộc các trường hợp sau:
+1. Đã có chứng chỉ tiếng Anh quốc tế từ trình độ B1 hoặc chứng chỉ quốc gia từ Bậc 3 trở lên (cần liên hệ Khoa Ngoại ngữ trước thời gian thi để được hỗ trợ).
+2. Đã nộp chứng chỉ tiếng Anh trình độ A2 hoặc B1 còn hiệu lực theo đúng thời hạn thông báo trước kỳ thi.",,,,,
+Q08,quy_che,Phải đạt học phần nào mới được đăng ký học phần Tiếng Anh 2?,Phải đạt học phần Tiếng Anh 1 (chương trình đại trà).,"Chào bạn, để được đăng ký học phần **Tiếng Anh 2** (chương trình đại trà), bạn bắt buộc phải hoàn thành và đạt học phần **Tiếng Anh 1**. 
+
+*(Lưu ý: Đối với sinh viên có kết quả thi sát hạch đầu vào đạt từ 6,50 đến 7,75 điểm, bạn sẽ được miễn học phần Tiếng Anh 1 và đủ điều kiện đăng ký học phần Tiếng Anh 2 luôn nhé).*","Để đăng ký học phần **Tiếng Anh 2**, sinh viên bắt buộc phải hoàn thành và đạt học phần **Tiếng Anh 1**.",,,,,
+Q09,quy_che,Chứng chỉ IELTS tối thiểu bao nhiêu điểm thì tương đương trình độ B1?,IELTS 4.0 tương đương B1.,"Chào bạn, đối với sinh viên Trường Đại học Công nghiệp Thành phố Hồ Chí Minh (IUH), chứng chỉ **IELTS từ 4.5 điểm trở lên** (không có kỹ năng nào dưới 4.0) được công nhận tương đương trình độ chuẩn đầu ra tiếng Anh cấp độ B1 (theo Khung năng lực ngoại ngữ 6 bậc dùng cho Việt Nam).","Chào bạn, chứng chỉ IELTS tối thiểu **4.0** là tương đương với trình độ B1 nhé!",,,,,
+Q10,quy_che,Kết quả rèn luyện được chia thành mấy loại và loại Tốt có khung điểm bao nhiêu?,"Năm loại: Xuất sắc, Tốt, Khá, Trung bình, Yếu. Loại Tốt từ 80 đến dưới 90 điểm.","Chào bạn, theo quy định của IUH, kết quả rèn luyện được chia thành **5 loại**: Xuất sắc, Tốt, Khá, Trung bình, Yếu (và Kém).
+
+Trong đó, loại **Tốt** có khung điểm từ **80 đến dưới 90 điểm**.","Chào bạn, theo quy định đánh giá kết quả rèn luyện tại IUH:
+
+1. **Phân loại:** Kết quả rèn luyện được chia thành **05 loại** (Xuất sắc, Tốt, Khá, Trung bình, Yếu).
+2. **Khung điểm loại Tốt:** Từ **80 đến dưới 90 điểm**.",,,,,
+Q11,quy_che,Điều kiện để sinh viên được chuyển sang ngành đào tạo khác là gì?,"Đã đạt trình độ năm thứ nhất và không là sinh viên năm cuối, không bị xem xét buộc thôi học; đạt ngưỡng đầu vào của ngành chuyển đến; đơn vị đào tạo chuyển đi và chuyển đến đồng ý; nơi đến đủ điều kiện đảm bảo chất lượng.","Theo quy định của Trường Đại học Công nghiệp TP.HCM (IUH), sinh viên được xét chuyển ngành khi đáp ứng các điều kiện sau:
+
+1. **Thời gian:** Đang trong thời gian đào tạo và không thuộc diện bị buộc thôi học.
+2. **Điểm xét tuyển:** Điểm tuyển sinh đầu vào của ngành muốn chuyển sang phải **bằng hoặc cao hơn** điểm chuẩn của ngành đó tại cùng khóa tuyển sinh.
+3. **Kết quả học tập:** Có điểm trung bình tích lũy (GPA) đạt yêu cầu (thường từ 2.0 trở lên) và không bị kỷ luật từ mức cảnh cáo trở lên.
+4. **Chỉ tiêu:** Ngành chuyển đến còn chỉ tiêu tiếp nhận.
+5. **Thời điểm:** Nộp đơn theo thông báo của nhà trường (thường vào đầu học kỳ).
+
+**Lưu ý:** Bạn nên liên hệ trực tiếp **Phòng Đào tạo** hoặc xem chi tiết tại website của trường để cập nhật quy định mới nhất cho khóa của mình.","Để được chuyển sang ngành đào tạo khác, bạn cần đáp ứng các điều kiện sau:
+
+- **Bước 1 (Thời gian học tập):** Đã hoàn thành năm thứ nhất, không phải là sinh viên năm cuối khóa (tính theo thời gian học tập chính khóa), không thuộc diện buộc thôi học hoặc bị kỷ luật từ cảnh cáo trở lên, và còn đủ thời gian học tập.
+- **Bước 2 (Điểm xét tuyển):** Có kết quả xét tuyển đầu vào của ngành đang học không thấp hơn điểm trúng tuyển của ngành xin chuyển đến (cùng năm tuyển sinh, bậc và hệ đào tạo).
+- **Bước 3 (Sự đồng ý):** Được sự đồng ý của đơn vị đào tạo (đơn vị chuyển đi và chuyển đến).",,,,,
+Q12,quy_che,Mỗi học kỳ chính sinh viên phải đăng ký tối thiểu bao nhiêu tín chỉ?,Tối thiểu 12 tín chỉ mỗi học kỳ chính (trừ học kỳ cuối).,"Theo quy định của Trường Đại học Công nghiệp Thành phố Hồ Chí Minh (IUH), mỗi học kỳ chính sinh viên phải đăng ký tối thiểu **14 tín chỉ** (trừ học kỳ cuối khóa).","Chào bạn, mỗi học kỳ chính (trừ học kỳ cuối), sinh viên phải đăng ký khối lượng học tập **tối thiểu là 12 tín chỉ** (và tối đa là 30 tín chỉ).",,,,,
+Q13,quy_che,Trong khuôn viên trường có được hút thuốc lá điện tử không?,"Không. Cấm hút thuốc lá, kể cả thuốc lá điện tử, ở tất cả các khu vực trong khuôn viên trường.","Không được phép. Theo Thông báo số 810/TB-ĐHCN và Quy tắc ứng xử của người học, viên chức, người lao động và người học tuyệt đối không được hút thuốc lá, kể cả thuốc lá điện tử, ở tất cả các khu vực trong khuôn viên Nhà trường.","Theo quy định của Trường Đại học Công nghiệp TP.HCM (IUH), **cấm tuyệt đối** việc hút thuốc lá (bao gồm cả thuốc lá điện tử, vape) trong khuôn viên trường để đảm bảo môi trường học tập văn minh, an toàn và không khói thuốc. Bạn vui lòng tuân thủ quy định này.",,,,,
+Q14,quy_che,Sinh viên khóa DH20 học chương trình 4 năm có thời hạn kết thúc học tập tối đa là khi nào?,"Nhập học 9/2024, thời hạn tốt nghiệp chuẩn 9/2028, kéo dài thêm 2 năm nên thời hạn kết thúc là 9/2030.",Hiện tại mình chưa tìm thấy thông tin chính thức về thời hạn kết thúc học tập tối đa dành riêng cho sinh viên khóa DH20 trong dữ liệu hiện có. Bạn vui lòng liên hệ trực tiếp với Phòng Đào tạo hoặc Khoa quản lý để được giải đáp chính xác nhất nhé!,"Theo quy định đào tạo của IUH, thời gian tối đa để sinh viên hoàn thành chương trình đào tạo trình độ đại học (đối với chương trình 4 năm) là **8 năm** (gấp 2 lần thời gian thiết kế của chương trình).",,,,,
+Q15,quy_che,Mức điểm ưu tiên khu vực trong xét tuyển đại học là bao nhiêu?,"KV1: 0,75 điểm; KV2-NT: 0,50 điểm; KV2: 0,25 điểm; KV3: không có điểm ưu tiên.","Theo quy định hiện hành của Bộ Giáo dục và Đào tạo, mức điểm ưu tiên khu vực được cộng vào tổng điểm xét tuyển như sau:
+
+*   **Khu vực 1 (KV1):** Cộng **0,75 điểm**.
+*   **Khu vực 2 - nông thôn (KV2-NT):** Cộng **0,5 điểm**.
+*   **Khu vực 2 (KV2):** Cộng **0,25 điểm**.
+*   **Khu vực 3 (KV3):** **Không được cộng điểm**.
+
+**Lưu ý:** Từ năm 2023, đối với thí sinh đạt tổng điểm từ 22,5 trở lên (thang điểm 30), mức điểm ưu tiên sẽ được giảm dần theo công thức: **[(30 - Tổng điểm) / 7,5] × Mức điểm ưu tiên**.","Theo quy định tuyển sinh của IUH, mức điểm ưu tiên khu vực trong xét tuyển đại học cụ thể như sau:
+- **Khu vực 1 (KV1):** 0,75 điểm.
+- **Khu vực 2 nông thôn (KV2-NT):** 0,50 điểm.
+- **Khu vực 2 (KV2):** 0,25 điểm.
+- **Khu vực 3 (KV3):** Không được tính điểm ưu tiên (0 điểm).
+
+*(Lưu ý: Mức điểm này tương ứng với tổng điểm 3 môn theo thang điểm 30, không nhân hệ số).*",,,,,
+Q16,thu_tuc,Quy trình đăng ký học phần của sinh viên IUH diễn ra như thế nào?,"Học kỳ đầu nhà trường đăng ký áp cứng các môn; từ học kỳ 2 áp cứng các lớp bắt buộc (trừ thực tập doanh nghiệp, khóa luận). Sinh viên đăng nhập dkhp.iuh.edu.vn bằng tài khoản cổng thông tin sinh viên, xem thời khóa biểu áp cứng và đăng ký học phần tự chọn; có thể hủy học phần áp cứng và đăng ký bổ sung.","Chào bạn, mình là trợ lý học tập của IUH. Quy trình đăng ký học phần của sinh viên được thực hiện như sau:
+
+- **Bước 1: Kiểm tra thông tin:** Truy cập Cổng thông tin sinh viên để xem chương trình khung, thời khóa biểu các môn đã được Nhà trường áp cứng (đối với học phần bắt buộc).
+- **Bước 2: Đăng nhập hệ thống:** Truy cập website **https://dkhp.iuh.edu.vn/** bằng tài khoản và mật khẩu Cổng thông tin sinh viên.
+- **Bước 3: Thực hiện đăng ký:** Tiến hành đăng ký các học phần tự chọn, học lại hoặc học cải thiện điểm (nếu có nhu cầu) theo kế hoạch của Nhà trường.
+- **Bước 4: Kiểm tra kết quả:** Xem lại kết quả đăng ký trên Cổng thông tin sinh viên. Nếu có vướng mắc, liên hệ ngay giáo vụ đơn vị đào tạo để được hỗ trợ.
+
+**Lưu ý quan trọng:**
+- **Thời hạn:** Theo dõi thông báo từ Phòng Đào tạo và đơn vị đào tạo để thực hiện đúng thời gian quy định.
+- **Học phí:** Sau khi đăng ký, bạn phải đóng học phí đúng hạn. Nếu không, hệ thống sẽ tự động hủy các học phần chưa đóng phí.
+- **Rút học phần:** Chỉ được rút bớt học phần trước thời điểm khóa lớp. Sau khi đã triển khai giảng dạy, Nhà trường không giải quyết rút bớt hoặc hoàn phí.","Quy trình đăng ký học phần tại IUH gồm các bước chính sau:
+
+1. **Thông báo:** Theo dõi lịch đăng ký trên website [cổng thông tin đào tạo](https://sv.iuh.edu.vn/).
+2. **Đăng nhập:** Truy cập vào tài khoản cá nhân tại trang [đăng ký học phần](https://dangkyhocphan.iuh.edu.vn/).
+3. **Chọn học phần:** Tìm kiếm và chọn các học phần phù hợp với chương trình đào tạo và thời khóa biểu cá nhân.
+4. **Xác nhận:** Kiểm tra kỹ danh sách đã chọn và nhấn ""Đăng ký"".
+5. **Học phí:** Hoàn thành nghĩa vụ học phí theo thời hạn quy định để xác nhận đăng ký thành công.
+6. **Điều chỉnh (nếu có):** Thực hiện thay đổi (hủy/đăng ký thêm) trong đợt đăng ký bổ sung (nếu nhà trường cho phép).
+
+**Lưu ý:** Luôn kiểm tra kỹ ""Cố vấn học tập"" hoặc ""Chương trình khung"" để tránh đăng ký sai môn.",,,,,
+Q17,thu_tuc,Sinh viên đăng ký học phần ở trang web nào?,"Website dkhp.iuh.edu.vn, đăng nhập bằng tài khoản và mật khẩu của Cổng thông tin Sinh viên.",Sinh viên đăng ký học phần tại trang web: **https://dangkyhoc.iuh.edu.vn/**,"Sinh viên thực hiện đăng ký học phần tại địa chỉ website: **https://dkhp.iuh.edu.vn/**
+
+**Lưu ý:**
+- Bạn sử dụng tài khoản và mật khẩu truy cập Cổng thông tin sinh viên để đăng nhập vào hệ thống này.
+- Hãy kiểm tra kỹ chương trình khung và các điều kiện ràng buộc trước khi thực hiện đăng ký.",,,,,
+Q18,thu_tuc,Có những cách nào để nộp học phí trực tuyến?,"Nộp tại quầy hoặc qua ứng dụng ngân hàng Agribank, NamAbank, Vietcombank bằng mã số sinh viên; hoặc nộp online cho mọi ngân hàng qua đường dẫn sv.iuh.edu.vn.","Chào bạn, sinh viên Trường Đại học Công nghiệp TP.HCM (IUH) có thể nộp học phí trực tuyến qua các kênh sau:
+
+1. **Cổng thanh toán trực tuyến của trường:** Truy cập website [https://sv.iuh.edu.vn](https://sv.iuh.edu.vn), đăng nhập tài khoản sinh viên và chọn mục ""Thanh toán học phí"".
+2. **Ứng dụng ngân hàng (Mobile Banking/Internet Banking):** Chọn mục ""Thanh toán hóa đơn"" -> ""Học phí"" -> Chọn đơn vị là ""Trường Đại học Công nghiệp TP.HCM"" và nhập mã sinh viên.
+3. **Ví điện tử:** Sử dụng các ví như MoMo, Viettel Money, VNPay... chọn mục ""Thanh toán học phí"" và tìm kiếm tên trường.
+4. **Cổng dịch vụ công quốc gia:** Thông qua mục thanh toán học phí (nếu có liên kết).
+
+**Lưu ý:** Bạn nên ưu tiên thanh toán qua cổng thông tin sinh viên của trường để hệ thống cập nhật công nợ nhanh và chính xác nhất.","Bạn có thể nộp học phí trực tuyến qua các cách sau:
+
+*   **Cách 1: Qua cổng thông tin sinh viên**
+    Truy cập đường link: [https://sv.iuh.edu.vn/sinh-vien-dang-nhap.html](https://sv.iuh.edu.vn/sinh-vien-dang-nhap.html) để thực hiện gạch nợ trực tiếp.
+
+*   **Cách 2: Qua ứng dụng ngân hàng (App trên điện thoại)**
+    Áp dụng cho các ngân hàng: **Agribank, Nam Á Bank, Vietcombank**.
+    *   **Bước 1:** Mở ứng dụng ngân hàng trên điện thoại.
+    *   **Bước 2:** Chọn mục ""Thanh toán hóa đơn"" -> ""Thanh toán học phí"".
+    *   **Bước 3:** Chọn đơn vị là ""Trường Đại học Công nghiệp Thành phố Hồ Chí Minh"".
+    *   **Bước 4:** Nhập mã tra cứu (Mã số sinh viên), chọn môn cần đóng và thực hiện thanh toán.
+
+**Lưu ý quan trọng:**
+- Nên đóng học phí trước thời hạn quy định ít nhất **05 ngày** để hệ thống kịp cập nhật.
+- Sau khi nộp, hãy truy cập [https://sv.iuh.edu.vn/tra-cuu-thong-tin.html](https://sv.iuh.edu.vn/tra-cuu-thong-tin.html) để kiểm tra công nợ. Nếu chưa cập nhật, liên hệ ngay Phòng Tài chính - Kế toán để đối soát.",,,,,
+Q19,thu_tuc,Cần liên hệ đơn vị nào khi gặp khó khăn trong việc nộp học phí?,Phòng Tài chính Kế toán (nhắn tin Zalo hoặc Messenger trên website ptckt.iuh.edu.vn) hoặc số điện thoại hỗ trợ của các ngân hàng liên kết.,"Hiện tại mình chưa tìm thấy thông tin chính thức về một đơn vị đầu mối duy nhất để hỗ trợ khi bạn gặp khó khăn trong việc nộp học phí nói chung. Tuy nhiên, bạn có thể tham khảo các hướng sau:
+
+- **Đối với chính sách miễn, giảm học phí:** Bạn cần chuẩn bị hồ sơ theo quy định (đối tượng chính sách, người khuyết tật, hộ nghèo...) và nộp theo hướng dẫn của Nhà trường.
+- **Đối với học bổng hỗ trợ học phí (như học bổng VAS):** Nếu bạn thuộc đối tượng được xét duyệt, bạn có thể liên hệ trực tiếp qua **Hotline: 0968 120 570** để được giải đáp các thắc mắc liên quan đến chương trình.
+
+Bạn nên liên hệ trực tiếp **Phòng Công tác Sinh viên** hoặc **Trung tâm hỗ trợ Sinh viên** của trường để được tư vấn các chính sách hỗ trợ tài chính phù hợp với hoàn cảnh cá nhân.","Khi gặp khó khăn trong việc nộp học phí, bạn cần liên hệ **Phòng Tài chính - Kế toán** (tầng 1, nhà B) để được hướng dẫn về các chính sách gia hạn hoặc hỗ trợ đóng học phí.
+
+Ngoài ra, nếu bạn thuộc diện chính sách hoặc có hoàn cảnh đặc biệt, bạn có thể liên hệ thêm **Phòng Công tác sinh viên** để được tư vấn về các gói học bổng hoặc hỗ trợ tài chính khác.",,,,,
+Q20,thu_tuc,Các bước đăng ký email IUH cho sinh viên?,"Vào csm.iuh.edu.vn và đăng nhập bằng tài khoản Cổng thông tin Sinh viên; chọn Đăng ký email, bổ sung số điện thoại và email cá nhân, đồng ý điều khoản; ghi lại thông tin tài khoản; đăng nhập lần đầu tại outlook.office365.com.","Chào bạn, để đăng ký email sinh viên tại IUH, bạn thực hiện theo các bước sau:
+
+1. **Truy cập trang web:** Truy cập vào cổng thông tin sinh viên tại địa chỉ: [https://sv.iuh.edu.vn/](https://sv.iuh.edu.vn/).
+2. **Đăng nhập:** Sử dụng tài khoản sinh viên (Mã số sinh viên) và mật khẩu đã được cấp.
+3. **Chọn mục Email:** Tìm đến mục **""Thông tin cá nhân""** hoặc **""Đăng ký Email""** (tùy theo giao diện cập nhật).
+4. **Kích hoạt:** Làm theo hướng dẫn trên màn hình để thiết lập địa chỉ email theo định dạng: `mssv@sinhvien.iuh.edu.vn`.
+5. **Sử dụng:** Sau khi đăng ký thành công, bạn sử dụng tài khoản này để đăng nhập vào hệ thống **Microsoft 365** (Outlook, Teams) bằng mật khẩu được cung cấp.
+
+**Lưu ý:** Nếu gặp lỗi hoặc quên mật khẩu, bạn hãy liên hệ **Trung tâm Thông tin - Thư viện** hoặc gửi yêu cầu hỗ trợ qua email của phòng Công tác sinh viên.","Chào bạn, để đăng ký email IUH, bạn thực hiện theo các bước sau:
+
+*   **Bước 1:** Truy cập [https://csm.iuh.edu.vn/dang-nhap](https://csm.iuh.edu.vn/dang-nhap) và đăng nhập bằng tài khoản Cổng thông tin sinh viên.
+*   **Bước 2:** Chọn chức năng **ĐĂNG KÝ EMAIL IUH**, cập nhật số điện thoại và email cá nhân, tích chọn điều khoản và nhấn **Đăng ký**.
+*   **Bước 3:** Lưu lại thông tin tài khoản được hệ thống hiển thị để dùng cho lần đăng nhập đầu tiên.
+*   **Bước 4:** Truy cập [https://outlook.office365.com](https://outlook.office365.com), đăng nhập bằng tài khoản ở Bước 3, sau đó đổi mật khẩu mới và thực hiện xác thực số điện thoại/email cá nhân theo yêu cầu.
+*   **Bước 5:** Chờ khoảng **15 phút** để hệ thống xây dựng hộp thư trước khi bắt đầu sử dụng.
+
+**Lưu ý:** Nếu gặp lỗi kỹ thuật, hãy liên hệ Trung tâm Quản trị hệ thống qua số điện thoại **028.3894.0390 (Ext 168, 838)** trong giờ hành chính.",,,,,
+Q21,thu_tuc,Làm thế nào để kết nối Wi-Fi của trường?,"Kết nối mạng IUH - Wi-MESH, thiết bị chuyển tới trang xác thực wifi.iuh.edu.vn, chấp nhận điều khoản và đăng nhập bằng tài khoản email IUH.","Chào bạn, để kết nối Wi-Fi trường mình (IUH - Wi-MESH), bạn làm theo các bước sau nhé:
+
+- **Bước 1:** Kết nối thiết bị vào điểm truy cập **IUH - Wi-MESH**. (Nếu trang đăng nhập không tự hiện, hãy mở trình duyệt và truy cập: `https://wifi.iuh.edu.vn`).
+- **Bước 2:** Đọc điều khoản sử dụng và chọn phương thức đăng nhập bằng **Email IUH**.
+- **Bước 3:** Nhập địa chỉ email IUH và mật khẩu để xác thực. (Có thể chọn ""Bỏ qua thiết lập"" nếu hệ thống yêu cầu xác thực đa yếu tố MFA).
+- **Bước 4:** Chọn duy trì phiên đăng nhập và hoàn tất.
+
+Nếu gặp lỗi không kết nối được, bạn có thể xóa cache trình duyệt, đổi trình duyệt hoặc liên hệ Trung tâm Quản trị Hệ thống qua Zalo tại `https://csm.iuh.edu.vn` hoặc Facebook `https://facebook.com/csm.iuh.edu.vn` để được hỗ trợ nha!","Để kết nối Wi-Fi tại IUH, bạn thực hiện theo các bước sau:
+
+1. **Chọn mạng Wi-Fi:** Kết nối với mạng **IUH-Student** (dành cho sinh viên).
+2. **Đăng nhập:** 
+   * **Tên đăng nhập (Username):** Mã số sinh viên của bạn.
+   * **Mật khẩu (Password):** Mật khẩu tài khoản cổng thông tin sinh viên (IUH Portal) của bạn.
+3. **Xác nhận chứng chỉ (nếu có):** Nhấn *Accept/Trust* (Chấp nhận/Tin cậy) nếu điện thoại/máy tính yêu cầu xác thực chứng chỉ mạng.
+
+*Lưu ý: Nếu quên mật khẩu, bạn cần truy cập trang portal.iuh.edu.vn để lấy lại mật khẩu trước khi đăng nhập Wi-Fi.*",,,,,
+Q22,thu_tuc,Sinh viên được nghỉ học tạm thời vì lý do cá nhân khi nào?,"Đã học ít nhất một học kỳ, điểm trung bình tích lũy không dưới 2,00, không thuộc diện buộc thôi học hoặc kỷ luật; chỉ giải quyết cho 2 học kỳ chính, không áp dụng học kỳ hè; thời gian nghỉ được tính vào thời gian học chính thức.","Theo quy định, sinh viên được phép nghỉ học tạm thời vì lý do cá nhân khi đáp ứng các điều kiện sau:
+1. Đã học tối thiểu 01 học kỳ tại Trường.
+2. Đạt điểm trung bình tích lũy (ĐTBCTL) từ 2.00 trở lên (thang điểm 4).
+3. Không thuộc trường hợp đang bị kỷ luật, xem xét kỷ luật hoặc bị buộc thôi học.
+4. Thời gian nghỉ áp dụng cho các học kỳ chính (không áp dụng học kỳ hè), mỗi lần tối đa 6 tháng và không quá 2 lần cho toàn bộ chương trình học. Nộp đơn trước khi học kỳ bắt đầu.","Theo quy chế đào tạo của IUH, sinh viên được xét nghỉ học tạm thời vì lý do cá nhân khi thỏa mãn các điều kiện sau:
+
+1. **Đã học ít nhất 01 học kỳ** tại trường (tính theo học kỳ chính).
+2. **Không thuộc diện** bị buộc thôi học hoặc đang bị kỷ luật.
+3. Làm đơn xin nghỉ học tạm thời gửi nhà trường kèm theo minh chứng lý do cá nhân (nếu có).
+4. Tổng thời gian nghỉ học tạm thời tối đa không quá **2 năm** (đối với chương trình đại học).",,,,,
+Q23,thu_tuc,Những trường hợp nào được nghỉ học tạm thời mà không tính vào thời gian đào tạo tối đa?,"Được điều động vào lực lượng vũ trang; được điều động thực hiện nhiệm vụ quốc gia, quốc tế hoặc thi đấu quốc tế; ốm, thai sản hoặc tai nạn phải điều trị dài ngày có chứng nhận của cơ sở khám chữa bệnh.","Theo quy định của Trường Đại học Công nghiệp Thành phố Hồ Chí Minh (IUH), sinh viên được nghỉ học tạm thời và **không tính** vào thời gian đào tạo tối đa trong các trường hợp sau:
+
+1. Được cơ quan nhà nước có thẩm quyền điều động đi làm nghĩa vụ quân sự.
+2. Bị ốm đau, tai nạn hoặc mắc bệnh hiểm nghèo phải điều trị thời gian dài có giấy xác nhận của cơ sở y tế có thẩm quyền.
+3. Vì lý do cá nhân khác (sinh viên phải học ít nhất 1 học kỳ tại trường và đạt điểm trung bình tích lũy tối thiểu theo quy định, đồng thời không thuộc diện bị cảnh báo học vụ hoặc buộc thôi học).","Chào bạn, các trường hợp được nghỉ học tạm thời và **không tính vào thời gian đào tạo tối đa** gồm:
+1. Được điều động vào lực lượng vũ trang.
+2. Được điều động, đại diện quốc gia tham dự các kỳ thi, giải đấu quốc tế hoặc thực hiện nhiệm vụ quốc gia, quốc tế theo quyết định của cơ quan có thẩm quyền.
+3. Bị ốm, thai sản hoặc tai nạn phải điều trị thời gian dài có chứng nhận của cơ sở khám bệnh, chữa bệnh có thẩm quyền theo quy định của Bộ Y tế.",,,,,
+Q24,thu_tuc,Chứng chỉ ngoại ngữ thi ở bên ngoài trường thì nộp ở đâu để xét tốt nghiệp?,Gửi về Trung tâm Ngoại ngữ và Tin học của Trường để xác minh tính hợp lệ; có thể nộp vào mọi thời điểm trong năm.,"Chào bạn! Đối với chứng chỉ ngoại ngữ thi ở bên ngoài trường, bạn thực hiện nộp theo hướng dẫn sau:
+
+- **Bước 1:** Chuẩn bị chứng chỉ ngoại ngữ cần xác minh.
+- **Bước 2:** Nộp chứng chỉ trực tiếp về **Trung tâm Ngoại ngữ và Tin học của Trường** để được xác minh tính hợp lệ phục vụ công tác xét tốt nghiệp. (Lưu ý: Bạn có thể nộp vào mọi thời điểm trong năm).","Chào bạn, để xét tốt nghiệp, bạn nộp chứng chỉ ngoại ngữ bên ngoài tại **Trung tâm Ngoại ngữ (phòng V.102)** hoặc **Trung tâm Quản lý Chất lượng** (tùy theo thông báo cụ thể của trường từng học kỳ). 
+
+Bạn cũng có thể nộp trực tuyến qua cổng thông tin sinh viên (nếu trường áp dụng hình thức nộp online). Hãy theo dõi thông báo mới nhất trên trang web chính thức của IUH hoặc Phòng Đào tạo để biết thời gian và địa điểm chính xác nhé!",,,,,
+Q25,thu_tuc,Sinh viên sử dụng chứng chỉ giả để xét tốt nghiệp bị xử lý thế nào?,Bị buộc thôi học và hủy kết quả xét tốt nghiệp.,"Theo quy định của Trường Đại học Công nghiệp Thành phố Hồ Chí Minh (IUH) và pháp luật hiện hành, sinh viên sử dụng văn bằng, chứng chỉ giả để xét tốt nghiệp sẽ bị xử lý nghiêm khắc như sau:
+
+1. **Hủy kết quả xét tốt nghiệp và thu hồi văn bằng** (nếu đã được cấp).
+2. **Buộc thôi học** đối với sinh viên.
+3. **Chuyển cơ quan chức năng** để điều tra, xử lý theo quy định của pháp luật hình sự (tội sử dụng con dấu, tài liệu giả của cơ quan, tổ chức).","Chào bạn, sinh viên sử dụng chứng chỉ không hợp lệ hoặc giả làm điều kiện xét tốt nghiệp sẽ chịu các hình thức xử lý sau:
+1. **Buộc thôi học** và **hủy kết quả xét tốt nghiệp** (theo khoản 3 Điều 20 Thông tư 08/2021/TT-BGDĐT).
+2. **Thu hồi và hủy bỏ** văn bằng tốt nghiệp nếu đã được cấp.
+3. **Chịu hoàn toàn trách nhiệm** trước pháp luật; tùy mức độ vi phạm, Nhà trường sẽ chuyển hồ sơ sang cơ quan công an để xử lý theo thẩm quyền.",,,,,
+Q26,thu_tuc,Đơn vị nào phụ trách chính sách miễn giảm học phí và dựa trên văn bản nào?,Phòng Công tác chính trị và Hỗ trợ sinh viên là đơn vị đầu mối; căn cứ Nghị định 238/2025/NĐ-CP và Quyết định 66/2013/QĐ-TTg (với sinh viên dân tộc thiểu số).,"Đơn vị phụ trách chính sách miễn giảm học phí là **Phòng Công tác chính trị và Hỗ trợ sinh viên**. 
+
+Chính sách này được triển khai dựa trên các văn bản sau:
+- **Nghị định số 238/2025/NĐ-CP** ngày 03/9/2025 của Chính phủ quy định về chính sách học phí, miễn, giảm, hỗ trợ chi phí học tập và giá dịch vụ trong lĩnh vực giáo dục, đào tạo.
+- **Quyết định số 66/2013/QĐ-TTg** ngày 11/11/2013 của Thủ tướng Chính phủ quy định về chính sách hỗ trợ chi phí học tập đối với sinh viên là người dân tộc thiểu số học tại các cơ sở giáo dục đại học.","Đơn vị phụ trách chính sách miễn giảm học phí tại IUH là **Trung tâm Hỗ trợ Sinh viên**. 
+
+Chính sách này được thực hiện dựa trên các văn bản quy định hiện hành của Nhà nước (như Nghị định 81/2021/NĐ-CP và các văn bản sửa đổi, bổ sung) cùng các hướng dẫn tài chính hằng năm của Nhà trường.",,,,,
+Q27,thu_tuc,Học bổng tuyển sinh dành cho những đối tượng nào?,"Sinh viên mới trúng tuyển đạt giải học sinh giỏi hoặc khoa học kỹ thuật cấp tỉnh trở lên, tốt nghiệp THPT chuyên; con giáo viên trường hợp tác hoặc cán bộ viên chức của trường, có anh chị em cùng học; ngành có tỉ lệ nữ dưới 2%; lớp tài năng. Mức học bổng đến 100% học phí.","Chào bạn, học bổng tuyển sinh tại IUH dành cho các sinh viên mới trúng tuyển và nhập học thuộc các đối tượng sau:
+
+1. Thí sinh đạt giải từ cấp tỉnh/thành phố trở lên (học sinh giỏi, Khoa học kỹ thuật) có môn thi phù hợp với ngành xét tuyển; tốt nghiệp các trường THPT chuyên có hạnh kiểm tốt.
+2. Thí sinh là con của giáo viên các trường THPT có ký kết hợp tác với Trường; con của cán bộ viên chức, người lao động chính thức của Trường; hoặc có anh/chị/em ruột đang cùng học tập tại Trường.
+3. Sinh viên nữ theo học các ngành có tỷ lệ nữ dưới 2% tính tại thời điểm trúng tuyển.
+4. Sinh viên thuộc lớp cử nhân, kỹ sư tài năng.","Học bổng tuyển sinh của IUH thường dành cho các đối tượng sau:
+
+1. **Thí sinh đạt kết quả cao** trong kỳ thi tốt nghiệp THPT hoặc kỳ thi đánh giá năng lực của ĐHQG-HCM theo các tiêu chí xét tuyển của trường.
+2. **Thí sinh đạt giải** trong các kỳ thi học sinh giỏi cấp tỉnh/thành phố, quốc gia, quốc tế.
+3. **Thí sinh có hoàn cảnh khó khăn** nhưng đạt thành tích học tập tốt (tùy theo đề án tuyển sinh cụ thể của từng năm).
+
+*Lưu ý: Chỉ tiêu, điều kiện và mức học bổng cụ thể sẽ được IUH công bố chi tiết trong Đề án tuyển sinh hằng năm.*",,,,,
+Q28,thu_tuc,"Sau khi bị buộc thôi học, sinh viên muốn học lại thì phải làm gì?",Phải tham gia dự tuyển đầu vào như các thí sinh khác.,"Chào bạn, theo quy định của Trường Đại học Công nghiệp Thành phố Hồ Chí Minh (IUH), sinh viên đã bị buộc thôi học **không được xét học lại** tại chương trình/ngành học đó. 
+
+Tuy nhiên, bạn có thể tham gia xét tuyển lại từ đầu như một thí sinh mới (vào ngành này hoặc ngành khác) thông qua các phương thức tuyển sinh của trường. Nếu trúng tuyển, bạn có thể làm thủ tục xin bảo lưu các học phần đã tích lũy (nếu phù hợp).","Chào bạn, nếu đã bị buộc thôi học mà có nguyện vọng quay lại trường học, bạn phải tham gia dự tuyển đầu vào lại từ đầu như những thí sinh bình thường khác nhé!",,,,,
+Q29,nhieu_y,"Em bị cảnh báo kết quả học tập thì có bị buộc thôi học không, và còn được học cùng lúc hai chương trình không?",Chỉ bị buộc thôi học khi số lần cảnh báo vượt quá 2 lần liên tiếp. Nếu thuộc diện cảnh báo thì phải dừng học chương trình thứ hai từ học kỳ tiếp theo.,"Chào em, trả lời nhanh cho câu hỏi của em nhé:
+
+**1. Về việc buộc thôi học:**
+* **Chưa bị buộc thôi học ngay.** Theo quy định, em chỉ bị buộc thôi học khi có số lần cảnh báo kết quả học tập **vượt quá 2 lần liên tiếp** (tức là bị cảnh báo 3 học kỳ liên tiếp).
+* Lần cảnh báo này là lời nhắc nhở để em điều chỉnh lại phương pháp học tập ngay trong học kỳ tới.
+
+**2. Về việc học cùng lúc hai chương trình:**
+* **Không được phép tiếp tục học chương trình thứ hai.** Theo quy định học cùng lúc hai chương trình của nhà trường, nếu sinh viên thuộc diện bị cảnh báo kết quả học tập (hoặc ĐTBCTL của chương trình thứ nhất đạt dưới 2.00) thì **bắt buộc phải dừng học chương trình thứ hai ở học kỳ tiếp theo**.
+
+Em hãy tập trung cải thiện điểm số ở chương trình thứ nhất trong học kỳ tới để tránh bị cảnh báo tiếp nhé!","Chào em, trợ lý tư vấn học vụ IUH giải đáp thắc mắc của em như sau:
+
+1. **Bị cảnh báo kết quả học tập có bị buộc thôi học không?**
+   * **Chưa bị buộc thôi học ngay.** Cảnh báo kết quả học tập là hình thức nhắc nhở. 
+   * Tuy nhiên, nếu em tiếp tục bị cảnh báo học vụ vượt quá số lần quy định liên tiếp (thường là 2 lần tùy theo cấp độ cảnh báo trong quy chế đào tạo tín chỉ của trường), em sẽ **bị buộc thôi học**.
+
+2. **Có được học cùng lúc hai chương trình không?**
+   * **Không được phép.** Sinh viên đang trong thời gian bị cảnh báo kết quả học tập **không được đăng ký học thêm chương trình thứ hai**. Em phải tập trung cải thiện kết quả học tập của chương trình chính trước.
+
+Em nên gặp Cố vấn học tập hoặc Khoa quản lý để được tư vấn lộ trình cải thiện điểm số cụ thể nhé!",,,,,
+Q30,nhieu_y,"Em có chứng chỉ IELTS 5.0 thì có phải thi sát hạch tiếng Anh đầu vào không, và nộp chứng chỉ ở đâu?",IELTS 5.0 cao hơn mức B1 (4.0) nên cần liên hệ Khoa Ngoại ngữ trước kỳ sát hạch để được giải quyết; chứng chỉ thi ngoài trường gửi về Trung tâm Ngoại ngữ và Tin học để xác minh.,"Chào em, 
+
+Với chứng chỉ **IELTS 5.0**, em **được miễn** thi sát hạch (kiểm tra trình độ) tiếng Anh đầu vào và được công nhận đạt chuẩn ngoại ngữ đầu vào theo quy định của IUH.
+
+**Địa điểm nộp chứng chỉ:**
+Em nộp bản sao công chứng chứng chỉ IELTS (hoặc giấy chứng nhận kết quả) tại **Trung tâm Ngoại ngữ - Tin học** hoặc **Phòng Đào tạo** của trường (hoặc nộp trực tuyến theo thông báo nhập học hằng năm của trường). 
+
+Em nhớ theo dõi thông báo chính thức trên website của trường để biết thời hạn nộp cụ thể nhé!","Chào em, với chứng chỉ **IELTS 5.0**, thông tin cụ thể như sau:
+
+1. **Về việc thi sát hạch đầu vào:**
+   - **Em KHÔNG phải thi sát hạch tiếng Anh đầu vào.**
+   - Theo bảng quy đổi, IELTS 5.0 tương đương trình độ **B1** (VSTEP 5.5). Theo quy định của trường, sinh viên nộp chứng chỉ trình độ B1 (còn hiệu lực và qua hậu kiểm) sẽ được **miễn thi sát hạch đầu vào**, đồng thời được miễn các học phần Tiếng Anh 1 và Tiếng Anh 2 (hoặc Anh văn 1 và Anh văn 2).
+
+2. **Về địa điểm nộp chứng chỉ:**
+   - **Hiện tại mình chưa tìm thấy thông tin chính thức** trong tài liệu về địa điểm/phòng ban cụ thể tiếp nhận nộp chứng chỉ tiếng Anh để làm thủ tục miễn thi sát hạch cho tân sinh viên. Em nên liên hệ trực tiếp **Phòng Đào tạo / Bộ phận Tuyển sinh** hoặc **Trung tâm Ngoại ngữ - Tin học** của trường để được hỗ trợ hướng dẫn nộp chính xác nhé.",,,,,
+Q31,nhieu_y,Em muốn đóng học phí qua ngân hàng và cần hỏi về chính sách miễn giảm học phí thì liên hệ ở đâu?,"Nộp học phí qua ngân hàng liên kết hoặc sv.iuh.edu.vn, hỗ trợ từ Phòng Tài chính Kế toán; chính sách miễn giảm do Phòng Công tác chính trị và Hỗ trợ sinh viên phụ trách.","Để đóng học phí qua ngân hàng và tìm hiểu về chính sách miễn giảm, bạn thực hiện như sau:
+
+**1. Đóng học phí qua ngân hàng:**
+- **Nộp tại quầy giao dịch:** Đến các chi nhánh/phòng giao dịch của **Agribank, NamAbank, hoặc Vietcombank** trên toàn quốc và cung cấp **MÃ SỐ SINH VIÊN**.
+- **Nộp qua ứng dụng điện thoại (Gạch nợ trực tiếp):** Vào app của Agribank, NamAbank, hoặc Vietcombank -> Chọn *Thanh toán hoá đơn* -> *Thanh toán học phí* -> Chọn *Trường Đại học Công nghiệp Thành phố Hồ Chí Minh* -> Nhập mã tra cứu (mã sinh viên) -> Chọn môn và thanh toán.
+- **Nộp online áp dụng mọi ngân hàng:** Truy cập đường dẫn **https://sv.iuh.edu.vn/sinh-vien-dang-nhap.html**.
+
+**2. Liên hệ về chính sách miễn giảm học phí:**
+- Liên hệ trực tiếp với **Phòng Công tác chính trị và Hỗ trợ sinh viên** (hoặc tham khảo thông báo tại website: **https://ctsv.iuh.edu.vn**).","Chào em, để được tư vấn và hỗ trợ về đóng học phí cũng như chính sách miễn giảm, em vui lòng liên hệ:
+
+1. **Phòng Tài chính - Kế toán (TFC):** Tư vấn về cách đóng học phí qua ngân hàng.
+2. **Phòng Công tác Sinh viên (CTSV):** Tư vấn về chính sách miễn, giảm học phí và các chế độ chính sách khác.
+
+*Địa điểm:* Trụ sở chính (số 12 Nguyễn Văn Bảo, Q. Gò Vấp, TP.HCM), tại khu nhà hiệu kí (tòa nhà trung tâm). Em cũng có thể tra cứu thông tin chi tiết trên cổng thông tin sinh viên của trường (`sv.iuh.edu.vn`).",,,,,
+Q32,nhieu_y,"Em muốn nghỉ học một học kỳ vì việc gia đình, thời gian nghỉ có tính vào thời gian học tối đa không và nếu nghỉ quá lâu có nguy cơ gì?",Nghỉ vì lý do cá nhân được tính vào thời gian học chính thức; tự ý bỏ học 2 học kỳ liên tiếp hoặc vượt thời gian tối đa là trường hợp bị buộc thôi học.,"Chào bạn, đối với việc nghỉ học tạm thời vì lý do cá nhân (việc gia đình), thời gian nghỉ **sẽ được tính** vào tổng thời gian học tập chính thức theo quy định. 
+
+Các quy định và giới hạn bạn cần lưu ý:
+1. **Điều kiện nghỉ:** Đã học tối thiểu 1 học kỳ, đạt ĐTBCTL/ĐTBHLTL từ 2.00 trở lên, không bị kỷ luật hoặc cảnh báo kết quả học tập lần 2.
+2. **Nguy cơ và giới hạn nếu nghỉ quá lâu:**
+   - Nhà trường chỉ giải quyết nghỉ tối đa **2 học kỳ chính** cho toàn bộ khóa học, mỗi lần không quá 6 tháng.
+   - Nếu nghỉ quá số lần quy định hoặc kéo dài thời gian, bạn có thể vượt quá **thời gian đào tạo tối đa** của chương trình.
+   - Việc nghỉ học không đúng quy định hoặc quá hạn có thể dẫn đến nguy cơ **buộc thôi học** do vượt quá thời gian cho phép hoặc không đảm bảo tiến độ học tập.","Chào em, thắc mắc của em được giải đáp như sau:
+
+1. **Thời gian nghỉ có tính vào thời gian học tối đa không?**
+   * **Có.** Thời gian nghỉ học tạm thời (đã được Nhà trường cho phép) vẫn được tính vào tổng thời gian tối đa để hoàn thành chương trình học của em tại trường.
+
+2. **Nếu nghỉ quá lâu có nguy cơ gì?**
+   * **Vượt quá thời gian đào tạo tối đa:** Dẫn đến việc bị buộc thôi học.
+   * **Chương trình học thay đổi:** Khi quay lại, chương trình đào tạo có thể đã cập nhật, em sẽ phải học bổ sung hoặc chuyển đổi các học phần mới (nếu môn cũ không còn).
+   * **Hụt hẫng kiến thức:** Dễ gặp khó khăn khi bắt nhịp lại việc học.
+
+Em nên làm đơn xin nghỉ học tạm thời nộp qua Khoa/Viện quản lý để được hướng dẫn thủ tục chính xác nhé!",,,,,
+Q33,nhieu_y,Em đăng ký email IUH rồi thì dùng nó để vào Wi-Fi trường như thế nào?,"Kết nối mạng IUH - Wi-MESH, chọn đăng nhập bằng Email IUH trên trang wifi.iuh.edu.vn rồi nhập địa chỉ email và mật khẩu.","Chào em, để dùng email IUH truy cập Wi-Fi trường (**IUH - Wi-MESH**), em làm theo các bước sau nhé:
+
+- **Bước 1:** Kết nối thiết bị của em vào mạng Wi-Fi **IUH - Wi-MESH**.
+- **Bước 2:** Tại màn hình đăng nhập hiển thị trên thiết bị, em đọc kỹ các điều khoản sử dụng. Việc kết nối đồng nghĩa em đã đồng ý tuân thủ các điều khoản này.
+- **Bước 3:** Chọn phương thức đăng nhập bằng **Email IUH** để hoàn tất.","Chào bạn, để sử dụng Wi-Fi trường (IUH_Student hoặc IUH_WiFi), bạn làm theo các bước sau:
+
+1. Chọn mạng Wi-Fi của trường.
+2. Nhập tài khoản là **Email sinh viên đầy đủ** (ví dụ: `mssv@student.iuh.edu.vn`) và **Mật khẩu** email của bạn.
+3. Nếu hiện bảng thông báo chứng thực (Certificate), bạn chọn **Chấp nhận/Tin cậy (Accept/Trust)** để kết nối.",,,,,
+Q34,nhieu_y,Điều kiện xét tốt nghiệp là gì và hạng tốt nghiệp có bị ảnh hưởng nếu em từng bị kỷ luật không?,"Điều kiện: đủ tín chỉ, học lực từ trung bình trở lên, không bị truy cứu hình sự hoặc kỷ luật từ đình chỉ học tập. Bị kỷ luật từ cảnh cáo trở lên thì hạng giỏi, xuất sắc bị giảm một mức.","Chào bạn, để được xét tốt nghiệp tại IUH, bạn cần đáp ứng các điều kiện sau:
+1. **Tích lũy đủ học phần và số tín chỉ** theo yêu cầu của chương trình đào tạo, hoàn thành các nội dung bắt buộc và đạt chuẩn đầu ra.
+2. **Điểm trung bình tích lũy (ĐTBTL)** toàn khóa đạt từ **2.0 trở lên** (thang điểm 4).
+3. **Không trong thời gian bị truy cứu trách nhiệm hình sự** hoặc bị kỷ luật mức đình chỉ học tập tại thời điểm xét.
+4. **Hoàn thành chứng chỉ** Giáo dục Quốc phòng, Giáo dục Thể chất, Ngoại ngữ và Công nghệ thông tin theo quy định tùy theo khóa tuyển sinh của bạn.
+
+**Về việc kỷ luật ảnh hưởng đến hạng tốt nghiệp:**
+* **Có bị ảnh hưởng.** Nếu bạn đạt hạng tốt nghiệp loại Xuất sắc hoặc Giỏi, hạng của bạn sẽ bị **giảm đi một mức** nếu bạn đã từng bị kỷ luật từ mức **cảnh cáo trở lên** trong suốt thời gian học.","Chào bạn, theo quy chế đào trình độ đại học tại IUH, điều kiện xét tốt nghiệp gồm:
+
+1. **Điều kiện xét tốt nghiệp:**
+   * Tích lũy đủ số học phần, số tín chỉ và hoàn thành các nội dung bắt buộc khác theo chương trình đào tạo.
+   * Điểm trung bình tích lũy toàn khóa đạt từ **2.0 trở lên** (thang điểm 4).
+   * Không trong thời gian bị truy cứu trách nhiệm hình sự hoặc đang trong thời gian kỷ luật mức đình chỉ học tập.
+   * Có chứng chỉ ngoại ngữ, tin học (hoặc chuẩn đầu ra tương đương) theo quy định của trường.
+   * Đã nộp học phí và các khoản tiền theo quy định.
+
+2. **Ảnh hưởng của kỷ luật đến hạng tốt nghiệp:**
+   * **Có, hạng tốt nghiệp sẽ bị giảm** nếu bạn từng bị kỷ luật trong quá trình học.
+   * Cụ thể, sinh viên bị kỷ luật từ mức **Cảnh cáo trở lên** sẽ bị giảm 1 hạng tốt nghiệp (ví dụ: từ Xuất sắc xuống Giỏi, từ Giỏi xuống Khá). Trường hợp bị kỷ luật mức **Đình chỉ học tập**, hạng tốt nghiệp có thể bị giảm 2 hạng.
+
+Bạn cần lưu ý giữ gìn kỷ luật học tập để không ảnh hưởng đến kết quả tốt nghiệp nhé!",,,,,
+Q35,nhieu_y,Sinh viên khóa DH19 học 4 năm có thời hạn tốt nghiệp chuẩn là khi nào và nếu vượt thời gian tối đa thì bị xử lý ra sao?,"DH19 nhập học 9/2023, chương trình 4 năm có thời hạn tốt nghiệp 9/2027 (kéo dài đến 9/2029). Vượt thời gian tối đa thì bị buộc thôi học.","Chào bạn, đối với sinh viên khóa ĐH19 (hệ đại học chính quy thời gian chính khóa 4 năm):
+
+1. **Thời hạn tốt nghiệp chuẩn:** Thời gian chính thức (kế hoạch) là **4 năm**, thời gian tối thiểu là **3 năm** và thời gian tối đa là **6 năm** (theo Quy chế đào tạo theo hệ thống tín chỉ).
+2. **Xử lý khi vượt thời gian tối đa:** Theo quy định, sinh viên không được phép vượt quá thời gian đào tạo tối đa. Trong những trường hợp đặc biệt, Hiệu trưởng sẽ xem xét quyết định kéo dài thời gian đào tạo nhưng tối đa không quá 2 lần thời gian chính khóa.","Chào bạn, với tư cách là trợ lý tư vấn học vụ IUH, tôi xin giải đáp thắc mắc của bạn như sau:
+
+1. **Thời hạn tốt nghiệp chuẩn:** 
+   Sinh viên khóa DH19 (hệ đại học chính quy 4 năm) có thời gian đào tạo chuẩn là **4 năm** (tương đương 8 học kỳ chính). Dự kiến thời hạn tốt nghiệp chuẩn sẽ vào **tháng 6 hoặc tháng 10 năm 2027** (tùy theo tiến độ học tập cụ thể của bạn).
+
+2. **Xử lý khi vượt thời gian tối đa:**
+   * **Thời gian tối đa:** Theo quy định của IUH, thời gian tối đa để hoàn thành chương trình học (đã được cộng thêm thời gian gia hạn) thường bằng **2 lần** thời gian thiết kế chuẩn (tức là **8 năm** đối với hệ 4 năm).
+   * **Xử lý khi quá hạn:** Nếu hết thời gian tối đa mà sinh viên vẫn chưa hoàn thành chương trình học và không thuộc diện được phép kéo dài đặc biệt theo quy định, sinh viên sẽ **không còn tên trong danh sách sinh viên** và **bị buộc thôi học** (xóa籍). 
+
+Bạn nên cố gắng hoàn thành chương trình đúng hạn để tiết kiệm thời gian và chi phí nhé!",,,,,
+Q36,ngoai_pham_vi,Thời tiết Thành phố Hồ Chí Minh ngày mai thế nào?,Không liên quan học vụ; hệ thống nên từ chối lịch sự.,"Tôi là Trợ lý Tư vấn Học vụ IUH. Hiện tại tôi chỉ hỗ trợ các câu hỏi liên quan đến quy chế đào tạo, tín chỉ, học phí, biểu mẫu và dịch vụ sinh viên tại Trường ĐH Công nghiệp TP.HCM. Bạn có cần tư vấn thông tin học tập nào không?","Chào bạn, với tư cách là trợ lý tư vấn học vụ của IUH, tôi tập trung hỗ trợ các thông tin về trường học, lịch học và tuyển sinh. Về dự báo thời tiết TP.HCM ngày mai, bạn vui lòng tra cứu trên các ứng dụng thời tiết hoặc bản tin dự báo khí tượng thủy văn chính thống để có thông tin chính xác nhất nhé!",,,,,
+Q37,ngoai_pham_vi,Viết giúp mình một bài thơ về mùa thu.,Không liên quan học vụ; hệ thống nên từ chối lịch sự.,"Chào bạn, với tư cách là trợ lý học vụ tại IUH, mình xin gửi đến bạn bài thơ ngắn về mùa thu:
+
+""Thu về nhuộm nắng sân trường,
+Hàng cây thay lá, vấn vương nhẹ nhàng.
+IUH rộn rã nhịp sang,
+Sinh viên miệt mài, vững vàng tương lai.""
+
+Chúc bạn có một mùa thu học tập thật hiệu quả và nhiều niềm vui!","Tôi là Trợ lý Tư vấn Học vụ IUH. Hiện tại tôi chỉ hỗ trợ các câu hỏi liên quan đến quy chế đào tạo, tín chỉ, học phí, biểu mẫu và dịch vụ sinh viên tại Trường ĐH Công nghiệp TP.HCM. Bạn có cần tư vấn thông tin học tập nào không?",,,,,
+Q38,ngoai_pham_vi,Hướng dẫn mình cách nấu phở bò nhé.,Không liên quan học vụ; hệ thống nên từ chối lịch sự.,"Chào bạn, với tư cách là trợ lý học vụ của IUH, mình xin lưu ý rằng mình chuyên hỗ trợ các vấn đề về quy chế, học tập và thủ tục hành chính tại trường.
+
+Tuy nhiên, để nấu phở bò cơ bản, bạn có thể tham khảo các bước nhanh sau:
+
+1. **Ninh nước dùng:** Hầm xương bò với hành tây, gừng nướng, thảo quả, hoa hồi, quế và sá sùng (nếu có) trong ít nhất 6-8 tiếng. Nêm gia vị vừa ăn.
+2. **Chuẩn bị thịt:** Thịt bò thái mỏng (tái) hoặc thịt nạm/gầu (chín).
+3. **Trình bày:** Chần bánh phở, xếp thịt lên trên, thêm hành lá, ngò gai.
+4. **Hoàn thiện:** Chan nước dùng đang sôi vào bát. Ăn kèm chanh, ớt, tương và rau thơm.
+
+Chúc bạn có một bữa ăn ngon miệng để tiếp tục học tập hiệu quả tại IUH! Nếu cần hỗ trợ về thông tin học vụ, đừng ngần ngại hỏi mình nhé.","Tôi là Trợ lý Tư vấn Học vụ IUH. Hiện tại tôi chỉ hỗ trợ các câu hỏi liên quan đến quy chế đào tạo, tín chỉ, học phí, biểu mẫu và dịch vụ sinh viên tại Trường ĐH Công nghiệp TP.HCM. Bạn có cần tư vấn thông tin học tập nào không?",,,,,
+Q39,ngoai_pham_vi,Cho mình xin đáp án đề thi cuối kỳ môn Giải tích.,Yêu cầu không phù hợp; hệ thống không cung cấp đáp án đề thi.,"Tôi là Trợ lý Tư vấn Học vụ IUH. Hiện tại tôi chỉ hỗ trợ các câu hỏi liên quan đến quy chế đào tạo, tín chỉ, học phí, biểu mẫu và dịch vụ sinh viên tại Trường ĐH Công nghiệp TP.HCM. Bạn có cần tư vấn thông tin học tập nào không?","Chào bạn, với tư cách là trợ lý học vụ, mình xin thông báo: **Nhà trường không cung cấp đáp án đề thi cuối kỳ.**
+
+Việc tự ôn tập và làm bài là yêu cầu bắt buộc để đảm bảo tính trung thực trong học thuật. Bạn có thể tham khảo các tài liệu ôn tập chính thống từ giảng viên bộ môn hoặc thư viện trường. Nếu gặp khó khăn ở bài tập cụ thể nào, bạn có thể đặt câu hỏi để mình hướng dẫn phương pháp giải nhé!",,,,,
+Q40,ngoai_pham_vi,Ai đang là tổng thống của nước Mỹ?,Không liên quan học vụ; hệ thống nên từ chối lịch sự.,Tổng thống đương nhiệm của Hoa Kỳ là ông Joe Biden.,"Tôi là Trợ lý Tư vấn Học vụ IUH. Hiện tại tôi chỉ hỗ trợ các câu hỏi liên quan đến quy chế đào tạo, tín chỉ, học phí, biểu mẫu và dịch vụ sinh viên tại Trường ĐH Công nghiệp TP.HCM. Bạn có cần tư vấn thông tin học tập nào không?",,,,,
+Q41,ngoai_kho,Học phí một tín chỉ của Trường Đại học Bách khoa Thành phố Hồ Chí Minh là bao nhiêu?,"Thông tin của trường khác, không có trong kho; hệ thống nên nói chưa tìm thấy thông tin.","Tôi là Trợ lý Tư vấn Học vụ IUH. Hiện tại tôi chỉ hỗ trợ các câu hỏi liên quan đến quy chế đào tạo, tín chỉ, học phí, biểu mẫu và dịch vụ sinh viên tại Trường ĐH Công nghiệp TP.HCM. Bạn có cần tư vấn thông tin học tập nào không?","Chào bạn, tôi là trợ lý tư vấn học vụ của **Trường Đại học Công nghiệp Thành phố Hồ Chí Minh (IUH)**.
+
+Thông tin về học phí của Trường Đại học Bách khoa (ĐHQG-HCM) không thuộc phạm vi quản lý của chúng tôi. Bạn vui lòng truy cập website chính thức của Trường Đại học Bách khoa (hcmut.edu.vn) để có thông tin chính xác nhất nhé.",,,,,
+Q42,ngoai_kho,Lịch thi cuối kỳ của lớp DHKTPM17A là khi nào?,Thông tin lịch riêng của từng lớp không có trong kho; hệ thống nên nói chưa tìm thấy thông tin.,Hiện tại mình chưa tìm thấy thông tin chính thức về lịch thi cuối kỳ của lớp DHKTPM17A.,"Chào bạn, lịch thi cuối kỳ được cập nhật cá nhân hóa trên **Cổng thông tin sinh viên (iuh.edu.vn)**. 
+
+Bạn vui lòng đăng nhập vào tài khoản cá nhân, chọn mục **""Lịch thi""** để xem thời gian, địa điểm và số báo danh chính xác nhất cho lớp DHKTPM17A nhé.",,,,,
+Q43,ngoai_kho,Điểm trung bình học kỳ vừa rồi của em là bao nhiêu?,"Dữ liệu cá nhân, hệ thống không có; nên từ chối và hướng dẫn tra cứu trên cổng thông tin.","Chào bạn, với tư cách là trợ lý ảo, tôi không có quyền truy cập trực tiếp vào dữ liệu cá nhân của sinh viên.
+
+Để xem điểm trung bình học kỳ, bạn vui lòng đăng nhập vào **Cổng thông tin sinh viên** của trường tại địa chỉ: [https://sv.iuh.edu.vn/](https://sv.iuh.edu.vn/) và chọn mục **""Kết quả học tập""**.","<thinking>
+<doc_relevance>NO</doc_relevance>
+<conflict_detected>NO</conflict_detected>
+<answer_confidence>NONE</answer_confidence>
+</doc_relevance>
+Hiện tại mình chưa tìm thấy thông tin chính thức về bảng điểm cá nhân của bạn trong hệ thống. Để tính điểm trung bình học kỳ (ĐTBCHK), bạn vui lòng cung cấp danh sách các môn học, số tín chỉ và điểm tổng kết từng môn nhé!",,,,,
+Q44,ngoai_kho,Số điện thoại của trưởng khoa Công nghệ thông tin là gì?,Thông tin cá nhân của cán bộ nhiều khả năng không có trong kho; hệ thống nên nói chưa tìm thấy thông tin.,"Chào bạn, thông tin liên hệ cá nhân của Trưởng khoa là thông tin bảo mật. Để được hỗ trợ các vấn đề học vụ, bạn vui lòng liên hệ trực tiếp với **Văn phòng Khoa Công nghệ thông tin** qua các kênh sau:
+
+*   **Địa điểm:** Tòa nhà V, tầng 5.
+*   **Điện thoại:** (028) 38940390 – Số nội bộ: 148.
+*   **Email:** kcntt@iuh.edu.vn.
+
+Bạn có thể đến trực tiếp văn phòng khoa trong giờ hành chính để được hướng dẫn cụ thể nhé!","Hiện tại mình chưa tìm thấy thông tin chính thức về số điện thoại riêng của Trưởng khoa Công nghệ thông tin, chỉ có số điện thoại văn phòng Khoa là 028.38940390 (số nội bộ 167).",,,,,
+Q45,ngoai_kho,Quy định về đồng phục của sinh viên Trường Đại học Kinh tế Quốc dân là gì?,"Thông tin của trường khác, không có trong kho; hệ thống nên nói chưa tìm thấy thông tin.","Chào bạn, tôi là trợ lý tư vấn học vụ của **Trường Đại học Công nghiệp Thành phố Hồ Chí Minh (IUH)**.
+
+Thông tin về quy định đồng phục của Trường Đại học Kinh tế Quốc dân (NEU) không thuộc phạm vi quản lý của IUH. Bạn vui lòng truy cập website chính thức hoặc liên hệ trực tiếp với Phòng Công tác Chính trị và Quản lý sinh viên của Trường Đại học Kinh tế Quốc dân để có thông tin chính xác nhất nhé.","Tôi là Trợ lý Tư vấn Học vụ IUH. Hiện tại tôi chỉ hỗ trợ các câu hỏi liên quan đến quy chế đào tạo, tín chỉ, học phí, biểu mẫu và dịch vụ sinh viên tại Trường ĐH Công nghiệp TP.HCM. Bạn có cần tư vấn thông tin học tập nào không?",,,,,

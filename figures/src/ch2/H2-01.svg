@@ -1,0 +1,57 @@
+<!-- H2-01 Kiến trúc Transformer (vẽ lại theo Vaswani và cs., 2017, Hình 1). -->
+<svg xmlns="http://www.w3.org/2000/svg" width="470" height="506" viewBox="0 0 470 506">
+  <defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#334155"/></marker></defs>
+  <text class="t-b t-c" x="350" y="14">Xác suất token tiếp theo</text>
+  <path class="ln" d="M350,44 L350,24"/>
+  <rect class="box auth" x="270" y="44" width="160" height="26"/><text class="t-c" x="350" y="57">Softmax</text>
+  <path class="ln" d="M350,84 L350,72"/>
+  <rect class="box auth" x="270" y="84" width="160" height="26"/><text class="t-c" x="350" y="97">Tuyến tính (Linear)</text>
+  <path class="ln" d="M350,124 L350,112"/>
+
+  <!-- Bộ giải mã -->
+  <rect class="group" x="252" y="124" width="196" height="248"/>
+  <text class="t-b" x="452" y="250">N×</text>
+  <rect class="box gw" x="270" y="134" width="160" height="26"/><text class="t-sm t-c" x="350" y="147">Cộng và chuẩn hóa</text>
+  <path class="ln" d="M350,172 L350,162"/>
+  <rect class="box flash" x="270" y="172" width="160" height="26"/><text class="t-sm t-c" x="350" y="185">Mạng truyền thẳng</text>
+  <path class="ln" d="M350,210 L350,200"/>
+  <rect class="box gw" x="270" y="210" width="160" height="26"/><text class="t-sm t-c" x="350" y="223">Cộng và chuẩn hóa</text>
+  <path class="ln" d="M350,248 L350,238"/>
+  <rect class="box fe" x="270" y="248" width="160" height="34"/><text class="t-sm t-c" x="350" y="259">Multi-head attention</text><text class="t-sm t-c" x="350" y="274">(chú ý chéo)</text>
+  <path class="ln" d="M350,294 L350,284"/>
+  <rect class="box gw" x="270" y="294" width="160" height="26"/><text class="t-sm t-c" x="350" y="307">Cộng và chuẩn hóa</text>
+  <path class="ln" d="M350,332 L350,322"/>
+  <rect class="box fe" x="262" y="332" width="176" height="30"/><text class="t-sm t-c" x="350" y="347">Masked multi-head attention</text>
+  <path class="ln" d="M350,384 L350,364"/>
+
+  <!-- Bộ mã hóa -->
+  <rect class="group" x="12" y="210" width="196" height="162"/>
+  <text class="t-b" x="0" y="290" style="font-size:12px">N×</text>
+  <rect class="box gw" x="30" y="220" width="160" height="26"/><text class="t-sm t-c" x="110" y="233">Cộng và chuẩn hóa</text>
+  <path class="ln" d="M110,258 L110,248"/>
+  <rect class="box flash" x="30" y="258" width="160" height="26"/><text class="t-sm t-c" x="110" y="271">Mạng truyền thẳng</text>
+  <path class="ln" d="M110,296 L110,286"/>
+  <rect class="box gw" x="30" y="296" width="160" height="26"/><text class="t-sm t-c" x="110" y="309">Cộng và chuẩn hóa</text>
+  <path class="ln" d="M110,334 L110,324"/>
+  <rect class="box fe" x="30" y="334" width="160" height="28"/><text class="t-sm t-c" x="110" y="348">Multi-head attention</text>
+  <path class="ln" d="M110,384 L110,364"/>
+  <!-- Đầu ra bộ mã hóa sang chú ý chéo -->
+  <path class="ln" d="M110,210 L110,192 L232,192 L232,265 L268,265"/>
+  <text class="t-sm t-muted" x="116" y="182">K, V từ bộ mã hóa</text>
+
+  <!-- Mã hóa vị trí và embedding -->
+  <circle cx="110" cy="396" r="11" fill="#fff" stroke="#334155"/><text class="t-c t-b" x="110" y="397">+</text>
+  <circle cx="350" cy="396" r="11" fill="#fff" stroke="#334155"/><text class="t-c t-b" x="350" y="397">+</text>
+  <text class="t-sm" x="126" y="396">mã hóa vị trí</text>
+  <text class="t-sm t-r" x="334" y="396">mã hóa vị trí</text>
+  <path class="ln" d="M110,420 L110,408"/>
+  <path class="ln" d="M350,420 L350,408"/>
+  <rect class="box infra" x="30" y="420" width="160" height="26"/><text class="t-sm t-c" x="110" y="433">Embedding đầu vào</text>
+  <rect class="box infra" x="270" y="420" width="160" height="26"/><text class="t-sm t-c" x="350" y="433">Embedding đầu ra</text>
+  <path class="ln" d="M110,470 L110,448"/>
+  <path class="ln" d="M350,470 L350,448"/>
+  <text class="t-sm t-c" x="110" y="480">Chuỗi đầu vào</text>
+  <text class="t-sm t-c" x="350" y="480">Các token đã sinh</text>
+  <text class="t-sm t-b t-c t-muted" x="110" y="498">BỘ MÃ HÓA</text>
+  <text class="t-sm t-b t-c t-muted" x="350" y="498">BỘ GIẢI MÃ</text>
+</svg>

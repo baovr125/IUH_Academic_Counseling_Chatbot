@@ -1,0 +1,107 @@
+{
+ "duong_xu_ly_theo_nhom": {
+  "quy_che": {
+   "rag": 15
+  },
+  "thu_tuc": {
+   "rag": 13
+  },
+  "nhieu_y": {
+   "rag": 7
+  },
+  "ngoai_pham_vi": {
+   "router_reject": 5
+  },
+  "ngoai_kho": {
+   "router_reject": 2,
+   "rag": 3
+  }
+ },
+ "hit@1_dau_cuoi": {
+  "chat": "77.1% [61–88] (27/35)",
+  "noi_long": "88.6% [74–95] (31/35)"
+ },
+ "hit@3_dau_cuoi": {
+  "chat": "91.4% [78–97] (32/35)",
+  "noi_long": "91.4% [78–97] (32/35)"
+ },
+ "hit@5_dau_cuoi": {
+  "chat": "91.4% [78–97] (32/35)",
+  "noi_long": "91.4% [78–97] (32/35)"
+ },
+ "qua_bo_dinh_tuyen": {
+  "so_cau_hoi_co_dap_an": 35,
+  "so_cau_bi_chan_hoac_tu_choi": 0,
+  "so_truy_van_trung_binh": 1.2
+ },
+ "tu_danh_gia_doc_relevance_x_confidence": {
+  "NO/NONE": 1,
+  "PARTIAL/HIGH": 1,
+  "PARTIAL/NONE": 2,
+  "UNKNOWN/UNKNOWN": 1,
+  "YES/HIGH": 33
+ },
+ "ngoai_pham_vi_ngoai_kho": {
+  "Q36": {
+   "group": "ngoai_pham_vi",
+   "path": "router_reject",
+   "co_cum_tu_choi": true,
+   "top_doc_score": null
+  },
+  "Q37": {
+   "group": "ngoai_pham_vi",
+   "path": "router_reject",
+   "co_cum_tu_choi": true,
+   "top_doc_score": null
+  },
+  "Q38": {
+   "group": "ngoai_pham_vi",
+   "path": "router_reject",
+   "co_cum_tu_choi": true,
+   "top_doc_score": null
+  },
+  "Q39": {
+   "group": "ngoai_pham_vi",
+   "path": "router_reject",
+   "co_cum_tu_choi": true,
+   "top_doc_score": null
+  },
+  "Q40": {
+   "group": "ngoai_pham_vi",
+   "path": "router_reject",
+   "co_cum_tu_choi": true,
+   "top_doc_score": null
+  },
+  "Q41": {
+   "group": "ngoai_kho",
+   "path": "router_reject",
+   "co_cum_tu_choi": true,
+   "top_doc_score": null
+  },
+  "Q42": {
+   "group": "ngoai_kho",
+   "path": "rag",
+   "co_cum_tu_choi": true,
+   "top_doc_score": 0.0
+  },
+  "Q43": {
+   "group": "ngoai_kho",
+   "path": "rag",
+   "co_cum_tu_choi": true,
+   "top_doc_score": 0.9707
+  },
+  "Q44": {
+   "group": "ngoai_kho",
+   "path": "rag",
+   "co_cum_tu_choi": true,
+   "top_doc_score": 0.9722
+  },
+  "Q45": {
+   "group": "ngoai_kho",
+   "path": "router_reject",
+   "co_cum_tu_choi": true,
+   "top_doc_score": null
+  }
+ },
+ "ngoai_pham_vi_ngoai_kho_tu_choi": "100.0% [72–100] (10/10)"
+}

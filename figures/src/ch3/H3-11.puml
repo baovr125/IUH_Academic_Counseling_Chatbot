@@ -1,0 +1,35 @@
+' H3-11 Tuần tự UC05 (mức tổng quan). Chi tiết bên trong Chatbot Service ở H4-11a, H4-11b.
+' Đối chiếu 30/10/2026: kong chat-routes (jwt), chat.py messages/stream, llm_generation_service.process_chat_message_stream,
+' rag_service (semantic_cache, match_chunks_hybrid_rrf) — cache và tài liệu đều nằm trong Supabase.
+@startuml
+!include ../_theme/plantuml.iuml
+!include ../_theme/seq.iuml
+actor "Người dùng" as U
+participant "Frontend" as FE #EFF6FF
+participant "Kong" as K #F1F5F9
+participant "Chatbot Service" as S #F0FDFA
+participant "Dịch vụ LLM" as L #FFFFFF
+database "Supabase" as DB #FFFBEB
+
+U -> FE : nhập câu hỏi
+FE -> K : POST /api/v1/chat/messages/stream
+K -> K : kiểm tra JWT
+K -> S : chuyển tiếp
+S -> DB : lưu tin nhắn người dùng
+S -> S : kiểm tra an toàn (regex)
+S -> L : định tuyến: viết lại, phân loại, tách câu hỏi con
+L --> S : intent, câu hỏi con (≤ 4)
+S -> DB : tra bộ nhớ đệm ngữ nghĩa (sau khi tra Redis khớp chính xác)
+alt trùng bộ nhớ đệm
+  S --> FE : metadata (HIT), delta, done
+else không trùng
+  S -> DB : truy xuất lai (vector + FTS, RRF)
+  S -> S : xếp hạng lại, lấy đoạn cha
+  S --> FE : metadata (trích dẫn)
+  S -> L : prompt kèm tài liệu
+  L --> S : câu trả lời theo luồng
+  S --> FE : delta…, done
+end
+FE --> U : hiển thị câu trả lời, trích dẫn
+S -> DB : lưu câu trả lời; ghi bộ nhớ đệm nếu qua cổng chất lượng
+@enduml

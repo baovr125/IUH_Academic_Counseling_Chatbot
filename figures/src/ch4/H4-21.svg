@@ -1,0 +1,60 @@
+<!-- H4-21 Ví dụ thật: văn bản mô hình sinh (có khối <thinking>) và phần giao diện hiển thị.
+     Nguồn: IUH_Academic_Counseling_Chatbot/logs/academic_chatbot/2026-10-29/142502-quy-trinh-ang-ky-hoc.md
+     (mục "AI Answer & Thinking Stage", chép nguyên văn, dấu … là phần lược bớt).
+     Cơ chế: llm_generation_service.process_chat_message_stream (bộ lọc <thinking> theo luồng, dòng 457–525);
+     frontend ChatMessageBubble.tsx (dòng 69–91: tách <query> thành gợi ý, bỏ <suggested_queries>). -->
+<svg xmlns="http://www.w3.org/2000/svg" width="586" height="372" viewBox="0 0 586 372">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#334155"/>
+    </marker>
+  </defs>
+
+  <!-- Văn bản mô hình sinh -->
+  <rect class="group" x="4" y="4" width="344" height="364"/>
+  <text class="t-sm t-b" x="14" y="18">Văn bản mô hình sinh ra (lưu vào CSDL và log)</text>
+
+  <!-- khối thinking -->
+  <rect class="box flash" x="14" y="30" width="324" height="132"/>
+  <text class="t-mono" x="22" y="44">&lt;thinking&gt;</text>
+  <text class="t-mono" x="22" y="59">&lt;doc_relevance&gt;PARTIAL&lt;/doc_relevance&gt;</text>
+  <text class="t-mono" x="22" y="74">&lt;conflict_detected&gt;NO&lt;/conflict_detected&gt;</text>
+  <text class="t-mono" x="22" y="89">&lt;answer_confidence&gt;PARTIAL&lt;/answer_confidence&gt;</text>
+  <text class="t-mono" x="22" y="104">- Tài liệu đề cập đến việc đăng ký học phần</text>
+  <text class="t-mono" x="22" y="119">  bổ sung … KHÔNG có thông tin cụ thể về</text>
+  <text class="t-mono" x="22" y="134">  "cách xử lý khi môn học bị trùng lịch".</text>
+  <text class="t-mono" x="22" y="149">&lt;/thinking&gt;</text>
+
+  <!-- câu trả lời -->
+  <rect class="box trans" x="14" y="170" width="324" height="124"/>
+  <text class="t-sm" x="22" y="185">Chào bạn, để đăng ký học phần bổ sung tại IUH,</text>
+  <text class="t-sm" x="22" y="201">bạn thực hiện theo các bước sau:</text>
+  <text class="t-sm" x="22" y="219">- Bước 1: Truy cập vào cổng đăng ký học phần …</text>
+  <text class="t-sm" x="22" y="235">- Bước 2: Kiểm tra thời khóa biểu … đăng ký …</text>
+  <text class="t-sm" x="22" y="251">- Bước 3: Theo dõi thông báo đăng ký bổ sung …</text>
+  <text class="t-sm" x="22" y="269">Hiện tại mình chưa tìm thấy thông tin chính thức</text>
+  <text class="t-sm" x="22" y="285">về cách xử lý khi môn học bị trùng lịch. …</text>
+
+  <!-- gợi ý -->
+  <rect class="box gw" x="14" y="302" width="324" height="58"/>
+  <text class="t-mono" x="22" y="316">&lt;suggested_queries&gt;</text>
+  <text class="t-mono" x="22" y="331">&lt;query&gt;Khối lượng học tập tối thiểu và …</text>
+  <text class="t-mono" x="22" y="346">&lt;query&gt;Quy định về việc rút bớt học phần …</text>
+
+  <!-- nhãn bên phải -->
+  <path class="ln" d="M338,96 L372,96"/>
+  <text class="t-sm t-b" x="378" y="64">Chat Service</text>
+  <text class="t-sm" x="378" y="82">lọc khối &lt;thinking&gt;</text>
+  <text class="t-sm" x="378" y="98">khỏi luồng SSE</text>
+  <text class="t-sm t-muted" x="378" y="114">(vẫn dùng cho log và</text>
+  <text class="t-sm t-muted" x="378" y="130">cổng ghi bộ nhớ đệm)</text>
+
+  <path class="ln-sse" d="M338,232 L372,232"/>
+  <text class="t-sm t-b" x="378" y="206">Các sự kiện delta</text>
+  <text class="t-sm" x="378" y="224">gửi tới giao diện</text>
+
+  <path class="ln" d="M338,330 L372,330"/>
+  <text class="t-sm t-b" x="378" y="314">Giao diện</text>
+  <text class="t-sm" x="378" y="332">tách &lt;query&gt; thành</text>
+  <text class="t-sm" x="378" y="348">nút câu hỏi gợi ý</text>
+</svg>

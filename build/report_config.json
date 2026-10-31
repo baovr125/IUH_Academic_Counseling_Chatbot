@@ -1,0 +1,81 @@
+{
+  "_ghi_chu": "Cấu hình ghép báo cáo. Đường dẫn tính từ thư mục Report. File chưa có sẽ được bỏ qua kèm cảnh báo.",
+  "header_text": "IUH_Academic_Counseling_Chatbot",
+  "header_align": "right",
+  "header_italic": true,
+  "students": [
+    "Họ tên Sinh viên 1",
+    "Họ tên Sinh viên 2"
+  ],
+  "_heading1_layout": "one_line_left = 'CHƯƠNG 1 <tab> TÊN CHƯƠNG' căn trái (PDF của Khoa, tr.17); two_lines_center = hai dòng căn giữa",
+  "heading1_layout": "one_line_left",
+  "_caption_sep": "colon = 'Hình 2.1: ...' (ví dụ trong PDF của Khoa và cuốn QuyLong); period = 'Hình 2.1. ...'",
+  "caption_sep": "colon",
+  "_front_page_numbers": "roman = i, ii, ... (mục lục mẫu của Khoa dùng x, xi); none = không đánh số",
+  "front_page_numbers": "roman",
+  "output": "build/IUH_EduBot_BaoCao.docx",
+  "parts": {
+    "cover": [
+      "drafts/00_bia.md"
+    ],
+    "front": [
+      "drafts/00_phan_dau.md"
+    ],
+    "main": [
+      "drafts/01_tong_quan.md",
+      "drafts/02_1_llm_rag.md",
+      "drafts/02_2_dich_may_srs.md",
+      "drafts/02_3_microservices_congnghe.md",
+      "drafts/03_1_yeu_cau_usecase.md",
+      "drafts/03_2_kien_truc_csdl_api.md",
+      "drafts/04_1_ingestion.md",
+      "drafts/04_2_chatbot.md",
+      "drafts/04_3_phan_he_ho_tro.md",
+      "drafts/05_kiem_thu_danh_gia.md",
+      "drafts/06_ket_luan.md",
+      "drafts/90_tai_lieu_tham_khao.md"
+    ],
+    "appendix": [
+      "drafts/91_phu_luc.md",
+      "drafts/92_nhat_ky.md"
+    ]
+  },
+  "sample_output": "build/MAU_DINH_DANG.docx",
+  "sample_parts": {
+    "front": [
+      "build/sample/00_front.md"
+    ],
+    "main": [
+      "build/sample/01_chuong_mau.md",
+      "build/sample/02_chuong_mau.md",
+      "build/sample/03_hinh_mau.md",
+      "build/sample/90_tltk.md"
+    ],
+    "appendix": [
+      "build/sample/91_phu_luc.md"
+    ]
+  },
+  "_page_budget": "Ngân sách trang theo KE_HOACH_V2.md mục 2. Build có --pdf sẽ in số trang thực tế từng chương; vượt quá 10% thì phải cắt.",
+  "page_budget": {
+    "1": 8,
+    "2": 24,
+    "3": 22,
+    "4": 42,
+    "5": 18,
+    "6": 4,
+    "TLTK": 6,
+    "main": 130
+  },
+  "cover": {
+    "title_vi": "HỆ THỐNG CHATBOT TƯ VẤN HỌC VỤ CHO SINH VIÊN IUH DỰA TRÊN SINH TĂNG CƯỜNG TRUY XUẤT VÀ KIẾN TRÚC MICROSERVICES",
+    "title_en": "ACADEMIC ADVISING CHATBOT SYSTEM FOR IUH STUDENTS BASED ON RETRIEVAL-AUGMENTED GENERATION AND MICROSERVICES ARCHITECTURE",
+    "major_vi": "[TODO: ngành]",
+    "major_en": "[TODO: major]",
+    "supervisor_vi": "[TODO: học vị và họ tên GVHD]",
+    "supervisor_en": "[TODO: title and full name of supervisor]",
+    "date_vi": "THÀNH PHỐ HỒ CHÍ MINH, THÁNG … NĂM 2026",
+    "date_en": "HO CHI MINH CITY – 2026",
+    "_ghi_chu": "Tên đề tài là tên tạm do trợ lý đề xuất; nhóm thay bằng tên chính thức. Các giá trị [TODO] nhóm điền."
+  },
+  "_ghi_chu_parts": "cover = bìa và hai phụ bìa (không số trang, không đầu/chân trang)"
+}

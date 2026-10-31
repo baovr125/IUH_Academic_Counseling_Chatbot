@@ -1,0 +1,17 @@
+{
+  "_ghi_chu": "Bảng màu cố định theo thành phần (kế hoạch mục 6.2). Mọi theme khác (Mermaid, PlantUML, CSS, matplotlib) đọc hoặc chép từ file này.",
+  "fe":    {"stroke": "#2563EB", "fill": "#EFF6FF", "ten": "Người dùng, trình duyệt, frontend"},
+  "gw":    {"stroke": "#475569", "fill": "#F1F5F9", "ten": "nginx, Kong Gateway"},
+  "auth":  {"stroke": "#7C3AED", "fill": "#F5F3FF", "ten": "Auth Service"},
+  "chat":  {"stroke": "#0D9488", "fill": "#F0FDFA", "ten": "Academic Chatbot Service"},
+  "trans": {"stroke": "#16A34A", "fill": "#F0FDF4", "ten": "Realtime Translation Service"},
+  "flash": {"stroke": "#EA580C", "fill": "#FFF7ED", "ten": "Flashcard Service"},
+  "doc":   {"stroke": "#DB2777", "fill": "#FDF2F8", "ten": "Document Translation (thử nghiệm)", "dash": true},
+  "infra": {"stroke": "#B45309", "fill": "#FFFBEB", "ten": "Hạ tầng dữ liệu"},
+  "ext":   {"stroke": "#6B7280", "fill": "#FFFFFF", "ten": "Dịch vụ bên ngoài", "dash": true},
+  "text": "#111827",
+  "line": "#334155",
+  "muted": "#6B7280",
+  "ok": "#16A34A",
+  "bad": "#DC2626"
+}

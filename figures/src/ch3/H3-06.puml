@@ -1,0 +1,31 @@
+' H3-06 Use case phân hệ Flashcard. Đối chiếu 30/10/2026: flashcard_service/app/routers
+' (flashcards.py, catalog.py, games.py, vocabulary.py, languages.py).
+@startuml
+!include ../_theme/plantuml.iuml
+skinparam defaultFontSize 12
+left to right direction
+
+actor "Người dùng" as User
+actor "Dịch vụ LLM" as LLM
+
+rectangle "Phân hệ Flashcard" {
+  usecase "UC11 Quản lý\nsổ thẻ và thẻ" as UC11 <<flash>>
+  usecase "UC12 Ôn tập theo FSRS" as UC12 <<flash>>
+  usecase "Kiểm tra chính tả" as F1 <<flash>>
+  usecase "Xem thống kê,\nchuỗi ngày học" as F2 <<flash>>
+  usecase "UC13 Sinh từ vựng\nbằng AI" as UC13 <<flash>>
+  usecase "Kiểm tra hạn mức" as F3 <<flash>>
+  usecase "UC14 Dùng bộ từ mẫu\nvà nhập Excel" as UC14 <<flash>>
+  usecase "UC15 Trò chơi ôn từ" as UC15 <<flash>>
+}
+
+User --> UC11
+User --> UC12
+User --> F2
+User --> UC13
+User --> UC14
+User --> UC15
+F1 .up.> UC12 : <<extend>>
+UC13 ..> F3 : <<include>>
+UC13 --> LLM
+@enduml

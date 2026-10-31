@@ -1,0 +1,34 @@
+' H4-11b Tuần tự POST /messages/stream – phần 2: nhánh MISS (truy xuất, sinh) và khối finally.
+' Đối chiếu 30/10/2026: llm_generation_service.process_chat_message_stream dòng 442–578.
+@startuml
+!include ../_theme/plantuml.iuml
+skinparam defaultFontSize 12
+skinparam maxMessageSize 95
+skinparam sequenceMessageAlign left
+skinparam sequence {
+  ParticipantBorderColor #475569
+  LifeLineBorderColor #94A3B8
+  GroupBorderColor #94A3B8
+  GroupBackgroundColor #F1F5F9
+}
+autonumber
+hide footbox
+participant "Frontend" as C #EFF6FF
+participant "Chat Service" as S #F0FDFA
+participant "Truy xuất lai\n+ Rerank" as RG #F0FDFA
+participant "LLM Provider" as L #FFFFFF
+participant "Semantic Cache" as CA #FFFBEB
+database "Supabase" as DB #FFFBEB
+
+S -> RG : ≤4 sub-query song song
+RG -> DB : RPC hybrid RRF (mỗi sub-query)
+RG --> S : parent, điểm rerank, citations
+S --> C : metadata(citations)
+S -> L : prompt + ngữ cảnh + 6 lượt gần nhất
+L --> S : token stream (mở đầu bằng khối thinking)
+S --> C : delta… (đã bóc thinking) → done
+group finally
+  S -> DB : lưu tin nhắn trợ lý
+  S ->> CA : ghi cache ở nền (Quality Gate)
+end
+@enduml

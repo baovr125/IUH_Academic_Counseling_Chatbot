@@ -1,0 +1,29 @@
+' H3-16 Tuần tự UC11. Đối chiếu 30/10/2026: flashcard routers languages.py (GET /languages), flashcards.py
+' (POST/PUT/DELETE decks, GET decks/{id}/cards, POST/PUT/DELETE cards; POST cards publish flashcard.created).
+@startuml
+!include ../_theme/plantuml.iuml
+!include ../_theme/seq.iuml
+actor "Người dùng" as U
+participant "Frontend" as FE #EFF6FF
+participant "Flashcard\nService" as F #FFF7ED
+database "Supabase" as DB #FFFBEB
+queue "RabbitMQ" as Q #FFFBEB
+
+U -> FE : mở trang Flashcard
+FE -> F : GET /flashcards/languages (qua Kong)
+F -> DB : đếm sổ, thẻ, thẻ đến hạn theo ngôn ngữ
+F --> FE : lưới ngôn ngữ
+U -> FE : chọn ngôn ngữ, tạo hoặc mở sổ
+FE -> F : POST /decks hoặc GET /decks/{id}/cards
+F -> DB : kiểm tra quyền sở hữu; ghi hoặc đọc
+F --> FE : sổ thẻ, danh sách thẻ
+U -> FE : thêm thẻ (mặt trước, mặt sau, ví dụ)
+FE -> F : POST /cards
+F -> DB : kiểm tra sổ thuộc người dùng; thêm thẻ
+F -> Q : flashcard.created (sinh âm thanh như UC10)
+F --> FE : thẻ mới
+U -> FE : sửa hoặc xóa thẻ, sổ
+FE -> F : PUT/DELETE /cards/{id}, PUT/DELETE /decks/{id}
+F -> DB : kiểm tra quyền sở hữu; cập nhật hoặc xóa
+F --> FE : 200
+@enduml

@@ -1,0 +1,49 @@
+{
+ "taken_at": "2026-10-31T08:01:10+07:00",
+ "updated_at_range": [
+  "2026-10-13T12:20:38.974545+00:00",
+  "2026-10-30T13:42:42.274923+00:00"
+ ],
+ "by_domain": {
+  "ctsv.iuh.edu.vn": {
+   "documents": 222,
+   "parents": 256,
+   "chunks": 537
+  },
+  "iuh.edu.vn": {
+   "documents": 87,
+   "parents": 465,
+   "chunks": 973
+  },
+  "camnang.iuh.edu.vn": {
+   "documents": 60,
+   "parents": 199,
+   "chunks": 597
+  },
+  "csm.iuh.edu.vn": {
+   "documents": 35,
+   "parents": 49,
+   "chunks": 262
+  },
+  "tuyensinh.iuh.edu.vn": {
+   "documents": 4,
+   "parents": 104,
+   "chunks": 675
+  },
+  "(tệp do quản trị viên tải lên)": {
+   "documents": 4,
+   "parents": 15,
+   "chunks": 125
+  },
+  "pdt.iuh.edu.vn": {
+   "documents": 3,
+   "parents": 4,
+   "chunks": 12
+  }
+ },
+ "total": {
+  "documents": 415,
+  "parents": 1092,
+  "chunks": 3181
+ }
+}

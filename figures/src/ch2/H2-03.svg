@@ -1,0 +1,35 @@
+<!-- H2-03 Mô hình decoder-only sinh văn bản tự hồi quy (sơ đồ khái niệm, ví dụ minh họa). -->
+<svg xmlns="http://www.w3.org/2000/svg" width="586" height="196" viewBox="0 0 586 196">
+  <defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#334155"/></marker></defs>
+  <text class="t-sm t-muted" x="4" y="30">Bước 1</text>
+  <rect class="box fe" x="54" y="18" width="40" height="24"/><text class="t-sm t-c" x="74" y="30">Học</text>
+  <rect class="box fe" x="98" y="18" width="40" height="24"/><text class="t-sm t-c" x="118" y="30">phí</text>
+  <rect class="box fe" x="142" y="18" width="50" height="24"/><text class="t-sm t-c" x="167" y="30">được</text>
+  <path class="ln" d="M196,30 L430,30"/>
+  <text class="t-sm t-muted" x="4" y="90">Bước 2</text>
+  <rect class="box fe" x="54" y="78" width="40" height="24"/><text class="t-sm t-c" x="74" y="90">Học</text>
+  <rect class="box fe" x="98" y="78" width="40" height="24"/><text class="t-sm t-c" x="118" y="90">phí</text>
+  <rect class="box fe" x="142" y="78" width="50" height="24"/><text class="t-sm t-c" x="167" y="90">được</text>
+  <rect class="box fe" x="196" y="78" width="50" height="24" style="stroke-dasharray:4 2"/><text class="t-sm t-c" x="221" y="90">đóng</text>
+  <path class="ln" d="M250,90 L430,90"/>
+  <text class="t-sm t-muted" x="4" y="150">Bước 3</text>
+  <rect class="box fe" x="54" y="138" width="40" height="24"/><text class="t-sm t-c" x="74" y="150">Học</text>
+  <rect class="box fe" x="98" y="138" width="40" height="24"/><text class="t-sm t-c" x="118" y="150">phí</text>
+  <rect class="box fe" x="142" y="138" width="50" height="24"/><text class="t-sm t-c" x="167" y="150">được</text>
+  <rect class="box fe" x="196" y="138" width="50" height="24" style="stroke-dasharray:4 2"/><text class="t-sm t-c" x="221" y="150">đóng</text>
+  <rect class="box fe" x="250" y="138" width="50" height="24" style="stroke-dasharray:4 2"/><text class="t-sm t-c" x="275" y="150">theo</text>
+  <path class="ln" d="M304,150 L430,150"/>
+
+  <rect class="box chat" x="432" y="12" width="70" height="156"/>
+  <text class="t-b t-c" x="467" y="80">LLM</text>
+  <text class="t-sm t-c" x="467" y="98">decoder-</text>
+  <text class="t-sm t-c" x="467" y="113">only</text>
+
+  <path class="ln" d="M502,30 L518,30"/>
+  <path class="ln" d="M502,90 L518,90"/>
+  <path class="ln" d="M502,150 L518,150"/>
+  <rect class="box trans" x="520" y="18" width="58" height="24"/><text class="t-sm t-c t-b" x="549" y="30">đóng</text>
+  <rect class="box trans" x="520" y="78" width="58" height="24"/><text class="t-sm t-c t-b" x="549" y="90">theo</text>
+  <rect class="box trans" x="520" y="138" width="58" height="24"/><text class="t-sm t-c t-b" x="549" y="150">học kỳ</text>
+  <text class="t-sm t-muted" x="54" y="186">Khung nét đứt: token vừa sinh ở bước trước được nối vào đầu vào của bước sau</text>
+</svg>

@@ -1,0 +1,68 @@
+<!-- H1-03 Tổng quan giải pháp: năm phân hệ và liên kết.
+     Đối chiếu: README §1 (bảng chức năng), §2.3 (sự kiện flashcard.created / flashcard.audio_ready —
+     realtime_translation_service/app/rabbitmq_consumer.py dòng 48–97, flashcard_service/app/rabbitmq_consumer.py dòng 37),
+     AppRouter.tsx (RequireAuth, RequireAdmin), gateway/kong.template.yml. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="586" height="372" viewBox="0 0 586 372">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#334155"/>
+    </marker>
+  </defs>
+
+  <!-- Người dùng -->
+  <rect class="box fe" x="110" y="8" width="160" height="36"/>
+  <text class="t-b t-c" x="190" y="26">Người dùng</text>
+  <rect class="box fe" x="316" y="8" width="160" height="36"/>
+  <text class="t-b t-c" x="396" y="26">Quản trị viên</text>
+  <path class="ln" d="M190,44 L190,72"/>
+  <path class="ln" d="M396,44 L396,72"/>
+
+  <!-- Xác thực + cổng API -->
+  <rect class="box auth" x="8" y="74" width="570" height="46"/>
+  <text class="t-b t-c" x="293" y="90">Phân hệ xác thực và cổng API</text>
+  <text class="t-sm t-c" x="293" y="108">Auth Service · Kong Gateway: đăng nhập, JWT, phân quyền, giới hạn tần suất</text>
+
+  <path class="ln" d="M88,120 L88,150"/>
+  <path class="ln" d="M293,120 L293,150"/>
+  <path class="ln" d="M498,120 L498,150"/>
+
+  <!-- Ba phân hệ chính -->
+  <rect class="box chat" x="8" y="152" width="160" height="78"/>
+  <text class="t-b t-c" x="88" y="170">Chatbot học vụ</text>
+  <text class="t-sm t-c" x="88" y="190">Hỏi đáp quy chế,</text>
+  <text class="t-sm t-c" x="88" y="206">học phí, học bổng</text>
+  <text class="t-sm t-c t-muted" x="88" y="222">RAG, có trích dẫn</text>
+
+  <rect class="box trans" x="213" y="152" width="160" height="78"/>
+  <text class="t-b t-c" x="293" y="170">Dịch thời gian thực</text>
+  <text class="t-sm t-c" x="293" y="190">10 ngôn ngữ</text>
+  <text class="t-sm t-c" x="293" y="206">6 chuyên ngành, phát âm</text>
+  <text class="t-sm t-c t-muted" x="293" y="222">NLLB-200, LLM, TTS</text>
+
+  <rect class="box flash" x="418" y="152" width="160" height="78"/>
+  <text class="t-b t-c" x="498" y="170">Flashcard</text>
+  <text class="t-sm t-c" x="498" y="190">Sổ thẻ, ôn tập, trò chơi</text>
+  <text class="t-sm t-c" x="498" y="206">sinh từ vựng bằng AI</text>
+  <text class="t-sm t-c t-muted" x="498" y="222">lập lịch FSRS</text>
+
+  <!-- Liên kết Dịch ↔ Flashcard -->
+  <path class="ln" d="M373,176 L416,176"/>
+  <path class="ln-evt" d="M418,212 L375,212"/>
+  <text class="t-sm" x="420" y="252">① lưu từ đang dịch thành thẻ</text>
+  <text class="t-sm" x="420" y="268">② thẻ mới → sự kiện</text>
+  <text class="t-sm t-mono" x="434" y="284">flashcard.created</text>
+  <text class="t-sm" x="434" y="300">→ sinh âm thanh phát âm</text>
+  <text class="t-sm" x="394" y="170" style="font-size:11px">①</text>
+  <text class="t-sm" x="394" y="226" style="font-size:11px">②</text>
+
+  <!-- Quản trị -->
+  <rect class="box gw" x="8" y="282" width="365" height="56"/>
+  <text class="t-b t-c" x="190" y="300">Phân hệ quản trị</text>
+  <text class="t-sm t-c" x="190" y="320">Nạp tri thức (web, PDF) · Quản lý từ điển chuyên ngành</text>
+  <path class="ln" d="M88,282 L88,232"/>
+  <path class="ln" d="M293,282 L293,232"/>
+  <text class="t-sm t-muted" x="96" y="258">kho tri thức</text>
+  <text class="t-sm t-muted" x="301" y="258">thuật ngữ</text>
+
+  <text class="t-sm t-muted" x="8" y="360">Nét liền: gọi trực tiếp (REST) · Nét đứt: sự kiện bất đồng bộ qua RabbitMQ</text>
+</svg>

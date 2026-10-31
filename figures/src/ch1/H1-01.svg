@@ -1,0 +1,56 @@
+<!-- H1-01 Thông tin học vụ phân tán trên nhiều nguồn.
+     Tên miền theo services/academic_chatbot_service/app/data_ingestion/sources.py (SITEMAP_SOURCES, CATEGORY_SOURCES,
+     BFS_SOURCES, FIXED_URLS). Mô tả camnang theo tiêu đề trang trong log ("Cẩm nang người học"); tuyensinh theo các URL
+     cố định quyChe, nganhDaoTao, diemChuan, deAnTS. ctsv, csm: chưa xác minh vai trò nên chỉ ghi "trang đơn vị". -->
+<svg xmlns="http://www.w3.org/2000/svg" width="586" height="300" viewBox="0 0 586 300">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#334155"/>
+    </marker>
+  </defs>
+
+  <!-- Sinh viên -->
+  <rect class="box fe" x="8" y="104" width="150" height="76"/>
+  <text class="t-b t-c" x="83" y="122">Sinh viên</text>
+  <text class="t-sm t-c t-i" x="83" y="144">“Điều kiện xét học</text>
+  <text class="t-sm t-c t-i" x="83" y="160">bổng là gì?”</text>
+
+  <!-- Tia tới các nguồn -->
+  <path class="ln" d="M158,142 C200,142 200,28 234,28"/>
+  <path class="ln" d="M158,142 C200,142 200,72 234,72"/>
+  <path class="ln" d="M158,142 C200,142 200,116 234,116"/>
+  <path class="ln" d="M158,142 C200,142 200,160 234,160"/>
+  <path class="ln" d="M158,142 C200,142 200,204 234,204"/>
+  <path class="ln" d="M158,142 C200,142 200,248 234,248"/>
+
+  <!-- Nguồn -->
+  <rect class="box gw" x="236" y="10" width="342" height="36"/>
+  <text class="t-mono t-b" x="248" y="28">camnang.iuh.edu.vn</text>
+  <text class="t-sm" x="404" y="28">Cẩm nang người học</text>
+
+  <rect class="box gw" x="236" y="54" width="342" height="36"/>
+  <text class="t-mono t-b" x="248" y="72">iuh.edu.vn</text>
+  <text class="t-sm" x="404" y="72">Mục thông báo</text>
+
+  <rect class="box gw" x="236" y="98" width="342" height="36"/>
+  <text class="t-mono t-b" x="248" y="116">tuyensinh.iuh.edu.vn</text>
+  <text class="t-sm" x="404" y="116">Quy chế, ngành, điểm chuẩn</text>
+
+  <rect class="box gw" x="236" y="142" width="342" height="36"/>
+  <text class="t-mono t-b" x="248" y="160">ctsv.iuh.edu.vn</text>
+  <text class="t-sm" x="404" y="160">Trang đơn vị</text>
+
+  <rect class="box gw" x="236" y="186" width="342" height="36"/>
+  <text class="t-mono t-b" x="248" y="204">csm.iuh.edu.vn</text>
+  <text class="t-sm" x="404" y="204">Trang đơn vị</text>
+
+  <rect class="box infra" x="236" y="230" width="342" height="36"/>
+  <text class="t-b" x="248" y="248">Văn bản PDF</text>
+  <text class="t-sm" x="404" y="248">Quy chế, có bản scan</text>
+
+  <text class="t-sm t-muted" x="8" y="214">Tự tìm văn bản liên quan,</text>
+  <text class="t-sm t-muted" x="8" y="230">đọc và đối chiếu nhiều</text>
+  <text class="t-sm t-muted" x="8" y="246">điều khoản</text>
+
+  <text class="t-sm t-muted" x="236" y="286">Tên miền theo cấu hình nguồn thu thập (sources.py)</text>
+</svg>

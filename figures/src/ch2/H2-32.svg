@@ -1,0 +1,43 @@
+<!-- H2-32 Mô hình trí nhớ DSR (sơ đồ khái niệm; công thức tham chiếu (2-45)…(2-50), theo gói fsrs 6.3.2). -->
+<svg xmlns="http://www.w3.org/2000/svg" width="586" height="264" viewBox="0 0 586 264">
+  <defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#334155"/></marker></defs>
+  <!-- Ba đại lượng -->
+  <rect class="box flash" x="20" y="30" width="150" height="66"/>
+  <text class="t-b t-c" x="95" y="50">Độ khó D</text>
+  <text class="t-sm t-c" x="95" y="68">1 … 10</text>
+  <text class="t-sm t-c t-muted" x="95" y="84">thẻ khó hay dễ</text>
+
+  <rect class="box chat" x="218" y="30" width="150" height="66"/>
+  <text class="t-b t-c" x="293" y="50">Độ ổn định S</text>
+  <text class="t-sm t-c" x="293" y="68">ngày để R giảm còn 0,9</text>
+  <text class="t-sm t-c t-muted" x="293" y="84">trí nhớ bền đến đâu</text>
+
+  <rect class="box fe" x="416" y="30" width="150" height="66"/>
+  <text class="t-b t-c" x="491" y="50">Khả năng nhớ R</text>
+  <text class="t-sm t-c" x="491" y="68">0 … 1</text>
+  <text class="t-sm t-c t-muted" x="491" y="84">xác suất nhớ lúc này</text>
+
+  <!-- Quan hệ -->
+  <path class="ln" d="M368,52 L414,52"/>
+  <text class="t-sm t-c" x="391" y="14">R(t, S) giảm dần theo t (2-45)</text>
+  
+
+  <!-- Lần ôn -->
+  <rect class="box auth" x="168" y="160" width="250" height="56"/>
+  <text class="t-b t-c" x="293" y="178">Lần ôn: chọn Again / Hard / Good / Easy</text>
+  <text class="t-sm t-c" x="293" y="198">tại thời điểm có khả năng nhớ R</text>
+
+  <path class="ln" d="M220,160 C180,130 120,120 100,98"/>
+  <text class="t-sm" x="16" y="140">cập nhật D theo đánh giá</text>
+  <text class="t-sm t-muted" x="16" y="156">(2-48)</text>
+
+  <path class="ln" d="M293,160 L293,98"/>
+  <text class="t-sm" x="300" y="128">cập nhật S theo D, S, R</text>
+  <text class="t-sm t-muted" x="300" y="144">nhớ: (2-49) · quên: (2-50)</text>
+
+  <path class="ln" d="M470,96 C470,160 450,188 420,188"/>
+  <text class="t-sm t-r" x="578" y="128">R tại lúc ôn</text>
+  <text class="t-sm t-muted t-r" x="578" y="144">ảnh hưởng S mới</text>
+
+  <text class="t-sm t-muted" x="8" y="236">Khoảng ôn kế tiếp được chọn sao cho R giảm đúng tới tỉ lệ ghi nhớ mong muốn r (2-46);</text><text class="t-sm t-muted" x="8" y="252">với r = 0,9 thì khoảng ôn bằng S.</text>
+</svg>

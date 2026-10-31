@@ -1,0 +1,41 @@
+' H3-23 Hoạt động UC16. Đối chiếu 30/10/2026: admin_ingest.py (process_uploaded_files, process_crawled_urls,
+' process_full_extract_and_crawl, run_unified_pipeline, set_status); pdf_extractor (Gemini OCR → Tesseract);
+' supabase_embedder.run_embedding.
+@startuml
+!include ../_theme/plantuml.iuml
+skinparam defaultFontSize 13
+start
+if (Là admin và không có tiến trình khác?) then (không)
+  :Từ chối (HTTP 403 hoặc báo phải chờ);
+  stop
+else (có)
+endif
+switch (Nguồn?)
+case (Tệp)
+  if (PDF?) then (có)
+    :PyMuPDF trích văn bản;
+    if (PDF scan?) then (có)
+      :OCR Gemini
+      (lỗi: Tesseract);
+    else (không)
+    endif
+  else (MD, TXT)
+    :Đọc UTF-8;
+  endif
+case (URL)
+  :trafilatura
+  trích nội dung;
+case (Website trường)
+  :Lấy URL từ
+  sitemap và BFS;
+  :trafilatura
+  trích nội dung;
+endswitch
+:Phân đoạn cha–con, loại đoạn con trùng;
+repeat
+  :Upsert tài liệu theo URL nguồn, xóa đoạn cũ;
+  :Ghi đoạn cha; sinh vector và ghi đoạn con (lô 25);
+repeat while (Còn tài liệu?) is (có) not (không)
+:Trạng thái "completed";
+stop
+@enduml

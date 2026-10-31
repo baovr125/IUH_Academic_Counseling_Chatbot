@@ -1,0 +1,34 @@
+<!-- H2-24 Tìm kiếm chùm B = 2 (số liệu minh họa: log-xác suất tự đặt). Điểm chuẩn hóa = tổng log P / độ dài (α = 1). -->
+<svg xmlns="http://www.w3.org/2000/svg" width="586" height="282" viewBox="0 0 586 282">
+  <defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#334155"/></marker></defs>
+  <text class="t-sm t-muted" x="8" y="12">Câu nguồn: “học phí”   ·   số trong ngoặc: tổng log P của giả thuyết</text>
+  <text class="t-sm t-b t-c" x="160" y="34">Bước 1</text><text class="t-sm t-b t-c" x="330" y="34">Bước 2</text><text class="t-sm t-b t-c" x="500" y="34">Bước 3</text>
+  <g transform="translate(0,20)">
+  <rect class="box infra" x="8" y="124" width="56" height="26"/><text class="t-sm t-c t-mono" x="36" y="137">&lt;s&gt;</text>
+
+  <!-- Bước 1 -->
+  <path class="ln" d="M64,137 L108,74"/><path class="ln" d="M64,137 L108,137"/><path class="ln-ext" d="M64,137 L108,200"/>
+  <rect class="box fe" x="110" y="60" width="100" height="28" style="stroke-width:2.4"/><text class="t-sm t-c" x="160" y="74">The (−0,4)</text>
+  <rect class="box fe" x="110" y="123" width="100" height="28" style="stroke-width:2.4"/><text class="t-sm t-c" x="160" y="137">Tuition (−0,9)</text>
+  <rect class="box gw" x="110" y="186" width="100" height="28" style="opacity:0.45"/><text class="t-sm t-c t-muted" x="160" y="200">Fee (−1,6)</text>
+
+  <!-- Bước 2 -->
+  <path class="ln" d="M210,74 L258,58"/><path class="ln-ext" d="M210,74 L258,96"/>
+  <path class="ln" d="M210,137 L258,140"/><path class="ln-ext" d="M210,137 L258,178"/>
+  <rect class="box fe" x="260" y="44" width="140" height="28" style="stroke-width:2.4"/><text class="t-sm t-c" x="330" y="58">The tuition (−0,7)</text>
+  <rect class="box gw" x="260" y="82" width="140" height="28" style="opacity:0.45"/><text class="t-sm t-c t-muted" x="330" y="96">The fee (−1,6)</text>
+  <rect class="box fe" x="260" y="126" width="140" height="28" style="stroke-width:2.4"/><text class="t-sm t-c" x="330" y="140">Tuition fee (−1,1)</text>
+  <rect class="box gw" x="260" y="164" width="140" height="28" style="opacity:0.45"/><text class="t-sm t-c t-muted" x="330" y="178">Tuition fees (−1,7)</text>
+
+  <!-- Bước 3 -->
+  <path class="ln" d="M400,58 L424,42"/><path class="ln-ext" d="M400,58 L424,82"/>
+  <path class="ln" d="M400,140 L424,128"/><path class="ln-ext" d="M400,140 L424,166"/>
+  <rect class="box trans" x="426" y="28" width="156" height="28" style="stroke-width:2.4"/><text class="t-sm t-c" x="504" y="42">The tuition fee (−1,0)</text>
+  <rect class="box gw" x="426" y="68" width="156" height="28" style="opacity:0.45"/><text class="t-sm t-c t-muted" x="504" y="82">The tuition is (−2,2)</text>
+  <rect class="box fe" x="426" y="114" width="156" height="28" style="stroke-width:2.4"/><text class="t-sm t-c" x="504" y="128">Tuition fee &lt;/s&gt; (−1,5)</text>
+  <rect class="box gw" x="426" y="152" width="156" height="28" style="opacity:0.45"/><text class="t-sm t-c t-muted" x="504" y="166">Tuition fee is (−2,6)</text>
+
+  </g>
+  <text class="t-sm" x="8" y="252">Khung đậm: B = 2 giả thuyết được giữ lại ở mỗi bước · khung mờ: bị loại</text>
+  <text class="t-sm" x="8" y="270">Chuẩn hóa độ dài (α = 1): −1,0 / 3 ≈ −0,33 và −1,5 / 3 = −0,50 → chọn “The tuition fee”</text>
+</svg>

@@ -1,0 +1,73 @@
+' Theme chung cho sơ đồ PlantUML của báo cáo (kế hoạch mục 6.2).
+' Mỗi file .puml thêm dòng:  !include ../_theme/plantuml.iuml
+skinparam dpi 200
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName Arial
+skinparam defaultFontSize 13
+skinparam defaultFontColor #111827
+skinparam shadowing false
+skinparam roundCorner 8
+skinparam ArrowColor #334155
+skinparam ArrowThickness 1.1
+skinparam actorStyle awesome
+skinparam actor {
+  BorderColor #334155
+  BackgroundColor #FFFFFF
+}
+skinparam usecase {
+  BorderColor #2563EB
+  BackgroundColor #EFF6FF
+  BorderThickness 1.2
+}
+skinparam rectangle {
+  BorderColor #94A3B8
+  BackgroundColor #FFFFFF
+  FontStyle bold
+}
+skinparam package {
+  BorderColor #94A3B8
+  BackgroundColor #FAFAFA
+  FontStyle bold
+}
+skinparam note {
+  BorderColor #B45309
+  BackgroundColor #FFFBEB
+}
+skinparam activity {
+  BorderColor #475569
+  BackgroundColor #F8FAFC
+  DiamondBorderColor #334155
+  DiamondBackgroundColor #FFFFFF
+}
+skinparam node {
+  BorderColor #475569
+  BackgroundColor #F8FAFC
+}
+' Màu theo phân hệ: dùng làm stereotype, ví dụ  usecase "Hỏi đáp" as UC05 <<chat>>
+skinparam usecase<<auth>> {
+  BorderColor #7C3AED
+  BackgroundColor #F5F3FF
+}
+skinparam usecase<<chat>> {
+  BorderColor #0D9488
+  BackgroundColor #F0FDFA
+}
+skinparam usecase<<trans>> {
+  BorderColor #16A34A
+  BackgroundColor #F0FDF4
+}
+skinparam usecase<<flash>> {
+  BorderColor #EA580C
+  BackgroundColor #FFF7ED
+}
+skinparam usecase<<admin>> {
+  BorderColor #475569
+  BackgroundColor #F1F5F9
+}
+skinparam usecase<<thunghiem>> {
+  BorderColor #DB2777
+  BackgroundColor #FDF2F8
+  BorderStyle dashed
+}
+skinparam stereotypeCBackgroundColor #FFFFFF
+hide stereotype

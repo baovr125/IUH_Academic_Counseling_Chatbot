@@ -1,0 +1,46 @@
+' H4-11a Tuần tự POST /messages/stream – phần 1: tiếp nhận, định tuyến, tra cache.
+' Đối chiếu 30/10/2026: llm_generation_service.process_chat_message_stream dòng 276–440.
+@startuml
+!include ../_theme/plantuml.iuml
+skinparam defaultFontSize 12
+skinparam maxMessageSize 150
+skinparam sequenceMessageAlign left
+skinparam sequence {
+  ParticipantBorderColor #475569
+  LifeLineBorderColor #94A3B8
+  GroupBorderColor #94A3B8
+  GroupBackgroundColor #F1F5F9
+}
+autonumber
+hide footbox
+participant "Frontend" as C #EFF6FF
+participant "Chat Service" as S #F0FDFA
+participant "Router (LLM)" as RT #F0FDFA
+participant "Semantic Cache" as CA #FFFBEB
+participant "LLM Provider" as L #FFFFFF
+database "Supabase" as DB #FFFBEB
+
+C -> S : POST /messages/stream
+S -> DB : lưu tin nhắn người dùng
+S -> S : guardrail (regex)
+opt vi phạm guardrail
+  S --> C : metadata → delta(lời từ chối) → done
+end
+S -> RT : viết lại, phân loại câu hỏi
+RT --> S : need_retrieval, intent, queries[≤4]
+opt router từ chối (ngoài phạm vi)
+  S --> C : metadata → delta(lời từ chối) → done
+end
+S -> S : embedding queries[0]
+alt need_retrieval = false
+  S -> L : prompt không kèm tài liệu
+  L --> C : metadata → delta… → done
+else cần truy xuất
+  S -> CA : tra cache
+  alt HIT
+    CA --> C : metadata(HIT) → delta → done
+  else MISS
+    note over S : truy xuất và sinh câu trả lời
+  end
+end
+@enduml

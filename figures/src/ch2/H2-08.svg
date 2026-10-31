@@ -1,0 +1,31 @@
+<!-- H2-08 Ba hạn chế của LLM và hướng khắc phục trong đề tài (sơ đồ khái niệm).
+     Hướng khắc phục đối chiếu: guardrails/query_filter.py (regex, wrap_context_sandbox), data_ingestion (kho tri thức), RAG có trích dẫn. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="586" height="232" viewBox="0 0 586 232">
+  <defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#334155"/></marker></defs>
+  <text class="t-sm t-b t-muted" x="8" y="12">HẠN CHẾ CỦA LLM</text>
+  <text class="t-sm t-b t-muted" x="320" y="12">HƯỚNG KHẮC PHỤC TRONG ĐỀ TÀI</text>
+
+  <rect class="box" x="8" y="24" width="250" height="56" style="fill:#FEF2F2;stroke:#DC2626"/>
+  <text class="t-b" x="18" y="42">Ảo giác</text>
+  <text class="t-sm" x="18" y="62">Câu trả lời trôi chảy nhưng sai sự thật</text>
+  <path class="ln" d="M258,52 L318,52"/>
+  <rect class="box chat" x="320" y="24" width="258" height="56"/>
+  <text class="t-b" x="330" y="42">RAG có trích dẫn nguồn</text>
+  <text class="t-sm" x="330" y="62">Trả lời dựa trên văn bản tìm được</text>
+
+  <rect class="box" x="8" y="94" width="250" height="56" style="fill:#FEF2F2;stroke:#DC2626"/>
+  <text class="t-b" x="18" y="112">Kiến thức có ngày cắt</text>
+  <text class="t-sm" x="18" y="132">Không biết quy định mới, văn bản nội bộ</text>
+  <path class="ln" d="M258,122 L318,122"/>
+  <rect class="box chat" x="320" y="94" width="258" height="56"/>
+  <text class="t-b" x="330" y="112">Kho tri thức cập nhật</text>
+  <text class="t-sm" x="330" y="132">Thu thập từ website IUH, PDF</text>
+
+  <rect class="box" x="8" y="164" width="250" height="56" style="fill:#FEF2F2;stroke:#DC2626"/>
+  <text class="t-b" x="18" y="182">Tấn công qua prompt</text>
+  <text class="t-sm" x="18" y="202">Jailbreak, prompt injection</text>
+  <path class="ln" d="M258,192 L318,192"/>
+  <rect class="box chat" x="320" y="164" width="258" height="56"/>
+  <text class="t-b" x="330" y="182">Guardrail và cách ly ngữ cảnh</text>
+  <text class="t-sm" x="330" y="202">Lọc regex, thẻ XML, luật prompt</text>
+</svg>

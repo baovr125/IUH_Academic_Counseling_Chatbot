@@ -1,0 +1,37 @@
+' H3-14 Tuần tự UC09. Đối chiếu 30/10/2026: translation.py /analyze_word, word_analysis_service (spaCy, simple_lesk,
+' synsets[0], _fallback_analysis NLLB), /tts (khóa tts/{md5(text_voice)}.mp3 trong MinIO, edge-tts, 503 khi lỗi).
+@startuml
+!include ../_theme/plantuml.iuml
+!include ../_theme/seq.iuml
+actor "Người dùng" as U
+participant "Frontend" as FE #EFF6FF
+participant "Kong" as K #F1F5F9
+participant "Translation\nService" as T #F0FDF4
+participant "MinIO" as M #FFFBEB
+participant "Edge TTS" as E #FFFFFF
+
+U -> FE : chọn một từ trong văn bản nguồn
+FE -> K : POST /api/v1/translate/analyze_word {word, context}
+K -> T : chuyển tiếp (đã kiểm tra JWT)
+alt văn bản tiếng Anh
+  T -> T : spaCy: từ loại, dạng gốc
+  T -> T : Lesk chọn nghĩa trong WordNet (lỗi thì lấy nghĩa đầu)
+  T -> T : dịch định nghĩa sang ngôn ngữ đích
+else ngôn ngữ khác hoặc WordNet lỗi
+  T -> T : chỉ dịch từ bằng NLLB
+end
+T --> FE : nghĩa, từ loại, phiên âm
+U -> FE : nhấn biểu tượng loa
+FE -> K : GET /api/v1/translate/tts?text=…&lang=… (route công khai)
+K -> T : chuyển tiếp
+T -> M : tts/{khóa}.mp3 đã có?
+alt đã có
+  M --> T : âm thanh
+else chưa có
+  T -> E : tổng hợp tiếng nói
+  E --> T : âm thanh MP3
+  T -> M : lưu tệp
+end
+T --> FE : audio/mpeg
+FE --> U : phát âm thanh
+@enduml

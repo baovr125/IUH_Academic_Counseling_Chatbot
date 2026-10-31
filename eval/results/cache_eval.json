@@ -1,0 +1,355 @@
+{
+ "rows": [
+  {
+   "id": "P01",
+   "type": "dien_dat_lai",
+   "q2": "Những trường hợp nào thì sinh viên bị buộc thôi học?",
+   "candidate": "Khi nào sinh viên bị buộc thôi học?",
+   "candidate_is_partner": true,
+   "cos": 0.915,
+   "ce": 0.9995,
+   "numbers_match": true,
+   "hit": true,
+   "hit_without_number_rule": true,
+   "check_ms": 24.2
+  },
+  {
+   "id": "P02",
+   "type": "dien_dat_lai",
+   "q2": "Em cần đáp ứng những gì để được công nhận tốt nghiệp?",
+   "candidate": "Sinh viên khóa 19 chương trình 4 năm có thời hạn tốt nghiệp chuẩn là khi nào?",
+   "candidate_is_partner": false,
+   "cos": 0.3384,
+   "ce": null,
+   "numbers_match": false,
+   "hit": false,
+   "hit_without_number_rule": false,
+   "check_ms": 7.3
+  },
+  {
+   "id": "P03",
+   "type": "dien_dat_lai",
+   "q2": "Trường hợp nào thì bị cảnh báo học vụ?",
+   "candidate": "Sinh viên năm 1 có điểm trung bình tích lũy dưới bao nhiêu thì bị cảnh báo học vụ?",
+   "candidate_is_partner": false,
+   "cos": 0.5508,
+   "ce": null,
+   "numbers_match": false,
+   "hit": false,
+   "hit_without_number_rule": false,
+   "check_ms": 7.3
+  },
+  {
+   "id": "P04",
+   "type": "dien_dat_lai",
+   "q2": "Muốn học song song hai chương trình đào tạo thì cần đạt những gì?",
+   "candidate": "Điều kiện để học cùng lúc hai chương trình là gì?",
+   "candidate_is_partner": true,
+   "cos": 0.708,
+   "ce": 0.9971,
+   "numbers_match": true,
+   "hit": true,
+   "hit_without_number_rule": true,
+   "check_ms": 18.3
+  },
+  {
+   "id": "P05",
+   "type": "dien_dat_lai",
+   "q2": "Em đăng ký môn học trên trang nào của trường?",
+   "candidate": "Sinh viên đăng ký học phần ở trang web nào?",
+   "candidate_is_partner": true,
+   "cos": 0.6436,
+   "ce": 0.9976,
+   "numbers_match": true,
+   "hit": true,
+   "hit_without_number_rule": true,
+   "check_ms": 18.2
+  },
+  {
+   "id": "P06",
+   "type": "dien_dat_lai",
+   "q2": "Làm sao để đóng học phí online?",
+   "candidate": "Có những cách nào để nộp học phí trực tuyến?",
+   "candidate_is_partner": true,
+   "cos": 0.7554,
+   "ce": 0.9976,
+   "numbers_match": true,
+   "hit": true,
+   "hit_without_number_rule": true,
+   "check_ms": 24.4
+  },
+  {
+   "id": "P07",
+   "type": "dien_dat_lai",
+   "q2": "Em xin bảo lưu kết quả học tập vì việc riêng thì cần điều kiện gì?",
+   "candidate": "Nếu bị cảnh báo kết quả học tập 2 lần liên tiếp thì có bị buộc thôi học không?",
+   "candidate_is_partner": false,
+   "cos": 0.4009,
+   "ce": null,
+   "numbers_match": false,
+   "hit": false,
+   "hit_without_number_rule": false,
+   "check_ms": 8.4
+  },
+  {
+   "id": "P08",
+   "type": "dien_dat_lai",
+   "q2": "Em tạo email của trường bằng cách nào?",
+   "candidate": "Sinh viên đăng ký học phần ở trang web nào?",
+   "candidate_is_partner": false,
+   "cos": 0.4961,
+   "ce": null,
+   "numbers_match": true,
+   "hit": false,
+   "hit_without_number_rule": false,
+   "check_ms": 7.0
+  },
+  {
+   "id": "P09",
+   "type": "dien_dat_lai",
+   "q2": "Trường có cho phép dùng thuốc lá điện tử trong khuôn viên không?",
+   "candidate": "Trong khuôn viên trường có được hút thuốc lá điện tử không?",
+   "candidate_is_partner": true,
+   "cos": 0.7852,
+   "ce": 1.0,
+   "numbers_match": true,
+   "hit": true,
+   "hit_without_number_rule": true,
+   "check_ms": 19.0
+  },
+  {
+   "id": "P10",
+   "type": "dien_dat_lai",
+   "q2": "Ai được xét học bổng khi mới trúng tuyển nhập học?",
+   "candidate": "Học bổng tuyển sinh dành cho những đối tượng nào?",
+   "candidate_is_partner": true,
+   "cos": 0.6689,
+   "ce": 0.1217,
+   "numbers_match": true,
+   "hit": false,
+   "hit_without_number_rule": false,
+   "check_ms": 18.3
+  },
+  {
+   "id": "P11",
+   "type": "dien_dat_lai",
+   "q2": "Tân sinh viên K21 có cần thi sát hạch tiếng Anh không?",
+   "candidate": "Sinh viên khóa 21 có phải thi sát hạch tiếng Anh đầu vào không?",
+   "candidate_is_partner": true,
+   "cos": 0.8481,
+   "ce": 1.0,
+   "numbers_match": true,
+   "hit": true,
+   "hit_without_number_rule": true,
+   "check_ms": 20.2
+  },
+  {
+   "id": "P12",
+   "type": "dien_dat_lai",
+   "q2": "Em muốn chuyển sang học ngành khác thì cần đáp ứng điều kiện nào?",
+   "candidate": "Điều kiện để chuyển sang ngành đào tạo khác là gì?",
+   "candidate_is_partner": true,
+   "cos": 0.6191,
+   "ce": 1.0,
+   "numbers_match": true,
+   "hit": true,
+   "hit_without_number_rule": true,
+   "check_ms": 19.5
+  },
+  {
+   "id": "P13",
+   "type": "dien_dat_lai",
+   "q2": "Các mức xếp loại rèn luyện của sinh viên gồm những loại nào?",
+   "candidate": "Kết quả rèn luyện được chia thành mấy loại?",
+   "candidate_is_partner": true,
+   "cos": 0.6152,
+   "ce": 0.7695,
+   "numbers_match": true,
+   "hit": false,
+   "hit_without_number_rule": false,
+   "check_ms": 19.6
+  },
+  {
+   "id": "P14",
+   "type": "dien_dat_lai",
+   "q2": "Em thi chứng chỉ tiếng Anh bên ngoài thì nộp cho đơn vị nào để xét tốt nghiệp?",
+   "candidate": "Chứng chỉ ngoại ngữ thi ở ngoài trường thì nộp ở đâu?",
+   "candidate_is_partner": true,
+   "cos": 0.7168,
+   "ce": 0.9985,
+   "numbers_match": true,
+   "hit": true,
+   "hit_without_number_rule": true,
+   "check_ms": 18.6
+  },
+  {
+   "id": "P15",
+   "type": "dien_dat_lai",
+   "q2": "Số tín chỉ tối thiểu em phải đăng ký trong một học kỳ chính là bao nhiêu?",
+   "candidate": "Mỗi học kỳ chính phải đăng ký tối thiểu bao nhiêu tín chỉ?",
+   "candidate_is_partner": true,
+   "cos": 0.875,
+   "ce": 1.0,
+   "numbers_match": true,
+   "hit": true,
+   "hit_without_number_rule": true,
+   "check_ms": 18.1
+  },
+  {
+   "id": "N01",
+   "type": "khac_con_so",
+   "q2": "Sinh viên khóa 21 chương trình 4 năm có thời hạn kết thúc học tập tối đa là khi nào?",
+   "candidate": "Sinh viên khóa 20 chương trình 4 năm có thời hạn kết thúc học tập tối đa là khi nào?",
+   "candidate_is_partner": true,
+   "cos": 0.9727,
+   "ce": 0.9824,
+   "numbers_match": false,
+   "hit": false,
+   "hit_without_number_rule": true,
+   "check_ms": 17.7
+  },
+  {
+   "id": "N02",
+   "type": "khac_con_so",
+   "q2": "Sinh viên năm 2 có điểm trung bình tích lũy dưới bao nhiêu thì bị cảnh báo học vụ?",
+   "candidate": "Sinh viên năm 1 có điểm trung bình tích lũy dưới bao nhiêu thì bị cảnh báo học vụ?",
+   "candidate_is_partner": true,
+   "cos": 0.7114,
+   "ce": 0.96,
+   "numbers_match": false,
+   "hit": false,
+   "hit_without_number_rule": true,
+   "check_ms": 16.8
+  },
+  {
+   "id": "N03",
+   "type": "khac_con_so",
+   "q2": "Điểm IELTS tối thiểu tương đương trình độ B2 là bao nhiêu?",
+   "candidate": "Điểm IELTS tối thiểu tương đương trình độ B1 là bao nhiêu?",
+   "candidate_is_partner": true,
+   "cos": 0.749,
+   "ce": 0.7715,
+   "numbers_match": false,
+   "hit": false,
+   "hit_without_number_rule": false,
+   "check_ms": 17.3
+  },
+  {
+   "id": "N04",
+   "type": "khac_con_so",
+   "q2": "Điều kiện để đăng ký học phần Tiếng Anh 3 là gì?",
+   "candidate": "Điều kiện để đăng ký học phần Tiếng Anh 2 là gì?",
+   "candidate_is_partner": true,
+   "cos": 0.6748,
+   "ce": 0.5088,
+   "numbers_match": false,
+   "hit": false,
+   "hit_without_number_rule": false,
+   "check_ms": 21.0
+  },
+  {
+   "id": "N05",
+   "type": "khac_con_so",
+   "q2": "Sinh viên khóa 18 chương trình 4 năm có thời hạn tốt nghiệp chuẩn là khi nào?",
+   "candidate": "Sinh viên khóa 19 chương trình 4 năm có thời hạn tốt nghiệp chuẩn là khi nào?",
+   "candidate_is_partner": true,
+   "cos": 0.9683,
+   "ce": 0.9116,
+   "numbers_match": false,
+   "hit": false,
+   "hit_without_number_rule": true,
+   "check_ms": 21.2
+  },
+  {
+   "id": "N06",
+   "type": "khac_con_so",
+   "q2": "Sinh viên khóa 20 có phải thi sát hạch tiếng Anh đầu vào không?",
+   "candidate": "Sinh viên khóa 21 có phải thi sát hạch tiếng Anh đầu vào không?",
+   "candidate_is_partner": false,
+   "cos": 0.8872,
+   "ce": 0.999,
+   "numbers_match": false,
+   "hit": false,
+   "hit_without_number_rule": true,
+   "check_ms": 18.1
+  },
+  {
+   "id": "N07",
+   "type": "khac_con_so",
+   "q2": "Học kỳ 2 của năm nhất sinh viên bị cảnh báo khi điểm trung bình học kỳ dưới bao nhiêu?",
+   "candidate": "Học kỳ 1 của năm nhất sinh viên bị cảnh báo khi điểm trung bình học kỳ dưới bao nhiêu?",
+   "candidate_is_partner": true,
+   "cos": 0.8882,
+   "ce": 0.6729,
+   "numbers_match": false,
+   "hit": false,
+   "hit_without_number_rule": false,
+   "check_ms": 22.4
+  },
+  {
+   "id": "N08",
+   "type": "khac_con_so",
+   "q2": "Nếu bị cảnh báo kết quả học tập 3 lần liên tiếp thì có bị buộc thôi học không?",
+   "candidate": "Nếu bị cảnh báo kết quả học tập 2 lần liên tiếp thì có bị buộc thôi học không?",
+   "candidate_is_partner": true,
+   "cos": 0.9316,
+   "ce": 0.9995,
+   "numbers_match": false,
+   "hit": false,
+   "hit_without_number_rule": true,
+   "check_ms": 22.5
+  }
+ ],
+ "summary": {
+  "dien_dat_lai": {
+   "n": 15,
+   "hit_dung_cap": "60.0% [36–80] (9/15)",
+   "hit_nham_cap_khac": 0,
+   "khong_hit": 6
+  },
+  "khac_con_so": {
+   "n": 8,
+   "hit_nham_cap_dung_cung_cau_goc": "0.0% [0–32] (0/8)",
+   "hit_nham_neu_bo_luat_so": "50.0% [22–78] (4/8)",
+   "hit_bat_ky": 0
+  },
+  "check_ms_p50": 18.3,
+  "check_ms_p95": 24.0,
+  "nguong": {
+   "cosine": 0.6,
+   "cross_encoder": 0.8
+  },
+  "quet_nguong_cross_encoder": [
+   {
+    "ce_min": 0.5,
+    "hit_dien_dat_lai": "10/15",
+    "hit_nham_khac_con_so_neu_bo_luat_so": "7/8"
+   },
+   {
+    "ce_min": 0.6,
+    "hit_dien_dat_lai": "10/15",
+    "hit_nham_khac_con_so_neu_bo_luat_so": "6/8"
+   },
+   {
+    "ce_min": 0.7,
+    "hit_dien_dat_lai": "10/15",
+    "hit_nham_khac_con_so_neu_bo_luat_so": "5/8"
+   },
+   {
+    "ce_min": 0.8,
+    "hit_dien_dat_lai": "9/15",
+    "hit_nham_khac_con_so_neu_bo_luat_so": "4/8"
+   },
+   {
+    "ce_min": 0.9,
+    "hit_dien_dat_lai": "9/15",
+    "hit_nham_khac_con_so_neu_bo_luat_so": "4/8"
+   },
+   {
+    "ce_min": 0.95,
+    "hit_dien_dat_lai": "9/15",
+    "hit_nham_khac_con_so_neu_bo_luat_so": "3/8"
+   }
+  ]
+ }
+}

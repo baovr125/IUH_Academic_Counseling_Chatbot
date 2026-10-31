@@ -1,0 +1,35 @@
+' H3-21 Tuần tự UC17–UC18. Đối chiếu 30/10/2026: admin_ingest.py documents (GET page/search, PATCH title, DELETE chunks
+' rồi document); admin_dictionary.py (GET, POST, PUT, bulk-delete, import upsert on_conflict domain,word;
+' sync_dictionary_to_redis, increment_domain_version, generate_audio_for_entries).
+@startuml
+!include ../_theme/plantuml.iuml
+!include ../_theme/seq.iuml
+actor "Quản trị viên" as U
+participant "Frontend" as FE #EFF6FF
+participant "Chatbot Service" as S #F0FDFA
+participant "Translation\nService" as T #F0FDF4
+participant "Redis" as R #FFFBEB
+database "Supabase" as DB #FFFBEB
+
+== UC17 Quản lý tài liệu tri thức ==
+FE -> S : GET /api/admin/ingest/documents?page=…&search=… (qua Kong)
+S -> DB : documents, phân trang, tìm theo tiêu đề, URL
+S --> FE : danh sách tài liệu
+U -> FE : đổi tên tài liệu
+FE -> S : PATCH /documents/{id} {title}
+S -> DB : cập nhật documents.title
+U -> FE : xóa tài liệu, xác nhận
+FE -> S : DELETE /documents/{id}
+S -> DB : xóa document_chunks, rồi xóa documents
+S --> FE : 200
+== UC18 Quản lý từ điển chuyên ngành ==
+FE -> T : GET /api/v1/admin/dictionary (qua Kong)
+T -> DB : domain_dictionaries
+T --> FE : danh sách mục từ
+U -> FE : thêm, sửa, xóa hoặc tải tệp CSV/JSON
+FE -> T : POST, PUT, bulk-delete hoặc import
+T -> DB : ghi mục từ (import: upsert theo chuyên ngành, thuật ngữ)
+T -> R : đồng bộ từ điển; tăng phiên bản bộ nhớ đệm
+T -> T : sinh âm thanh cho mục mới (nền)
+T --> FE : kết quả
+@enduml

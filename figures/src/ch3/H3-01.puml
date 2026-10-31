@@ -1,0 +1,40 @@
+' H3-01 Sơ đồ ngữ cảnh. Đối chiếu 30/10/2026: frontend/src/router/AppRouter.tsx, gateway/kong.template.yml,
+' docker-compose.yml (Supabase, LLM, Edge TTS nằm ngoài các container), .env.example (SUPABASE_URL, OLLAMA_HOST/USE_VLLM).
+@startuml
+!include ../_theme/plantuml.iuml
+skinparam defaultFontSize 12
+left to right direction
+skinparam rectangle<<sys>> {
+  BorderColor #2563EB
+  BackgroundColor #EFF6FF
+  BorderThickness 2
+}
+skinparam rectangle<<ext>> {
+  BorderColor #6B7280
+  BackgroundColor #FFFFFF
+  BorderStyle dashed
+  FontStyle normal
+}
+
+actor "Khách" as Guest
+actor "Người dùng IUH\n(student)" as Student
+actor "Người dùng công cộng\n(public)" as Public
+actor "Quản trị viên\n(admin)" as Admin
+
+rectangle "**IUH_Academic_Counseling_Chatbot**\n\nChatbot học vụ · Dịch thuật\nFlashcard · Quản trị" <<sys>> as Sys
+
+rectangle "Dịch vụ LLM\nGemini, Groq\nvLLM / Ollama" <<ext>> as LLM
+rectangle "Microsoft Edge TTS" <<ext>> as TTS
+rectangle "Supabase\nPostgreSQL + pgvector" <<ext>> as DB
+rectangle "Website của IUH\n(nguồn tri thức)" <<ext>> as Web
+
+Guest --> Sys : đăng ký, đăng nhập
+Student --> Sys : hỏi đáp, dịch, học từ
+Public --> Sys : hỏi đáp, dịch, học từ
+Admin --> Sys : nạp tri thức,\nquản lý từ điển
+
+Sys --> LLM : prompt / câu trả lời
+Sys --> TTS : văn bản / âm thanh
+Sys --> DB : truy vấn SQL, vector
+Sys --> Web : thu thập HTML, PDF
+@enduml

@@ -1,0 +1,24 @@
+' H3-08a Tuần tự UC01 Đăng ký. Đối chiếu 30/10/2026: auth_service/app/routers/auth.py (register 201, login 200),
+' services/auth_service.py register_user, login_user (throttle trong bộ nhớ, bcrypt với hash giả), kong.template.yml.
+@startuml
+!include ../_theme/plantuml.iuml
+!include ../_theme/seq.iuml
+actor "Khách" as U
+participant "Frontend" as FE #EFF6FF
+participant "Kong" as K #F1F5F9
+participant "Auth Service" as A #F5F3FF
+database "Supabase" as DB #FFFBEB
+
+U -> FE : nhập họ tên, email, mật khẩu, vai trò
+FE -> K : POST /api/v1/auth/register
+K -> K : giới hạn 10/phút, 100/giờ
+K -> A : chuyển tiếp
+A -> A : kiểm tra dữ liệu, chính sách mật khẩu, miền email
+A -> DB : tìm email, MSSV trùng
+alt đã tồn tại
+  A --> FE : 409 (email hoặc MSSV đã dùng)
+else hợp lệ
+  A -> DB : lưu users (mật khẩu băm bcrypt)
+  A --> FE : 201 {token, user}
+end
+@enduml

@@ -1,0 +1,52 @@
+<!-- H3-38 Cấu trúc phản hồi. Đối chiếu 30/10/2026: schemas ApiResult {ok, data, error} (4 service);
+     auth_service/app/main.py _error (message, field, details); flashcard_service/app/main.py api_error_handler (code, message, data);
+     chatbot/realtime: HTTPException mặc định {detail}; Kong {message}; frontend/src/services/apiClient.ts (chuẩn hóa). -->
+<svg xmlns="http://www.w3.org/2000/svg" width="586" height="396" viewBox="0 0 586 396">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#334155"/>
+    </marker>
+  </defs>
+
+  <!-- Thành công -->
+  <rect class="box trans" x="8" y="8" width="230" height="122"/>
+  <text class="t-b" x="20" y="26">Thành công (mọi service)</text>
+  <text class="t-mono" x="20" y="52">{</text>
+  <text class="t-mono" x="34" y="70">"ok": true,</text>
+  <text class="t-mono" x="34" y="88">"data": { … }</text>
+  <text class="t-mono" x="20" y="106">}</text>
+  <text class="t-sm t-muted" x="20" y="122">HTTP 200 hoặc 201</text>
+
+  <!-- Lỗi -->
+  <rect class="box auth" x="252" y="8" width="326" height="58"/>
+  <text class="t-b" x="264" y="24">Lỗi · Auth Service</text>
+  <text class="t-mono" x="264" y="44">{"ok": false, "error": {"message",</text>
+  <text class="t-mono" x="264" y="58"> "field"?, "details"?}}</text>
+
+  <rect class="box flash" x="252" y="74" width="326" height="58"/>
+  <text class="t-b" x="264" y="90">Lỗi · Flashcard Service</text>
+  <text class="t-mono" x="264" y="110">{"ok": false, "error": {"code",</text>
+  <text class="t-mono" x="264" y="124"> "message", "data"?}}</text>
+
+  <rect class="box chat" x="252" y="140" width="160" height="58"/>
+  <text class="t-b" x="264" y="156">Lỗi · Chatbot,</text>
+  <text class="t-b" x="264" y="172">Translation</text>
+  <text class="t-mono" x="264" y="190">{"detail": "…"}</text>
+
+  <rect class="box gw" x="420" y="140" width="158" height="58"/>
+  <text class="t-b" x="432" y="156">Lỗi · Kong</text>
+  <text class="t-sm" x="432" y="172">401, 429, 503</text>
+  <text class="t-mono" x="432" y="190">{"message": "…"}</text>
+
+  <!-- Chuẩn hóa ở giao diện -->
+  <path class="ln" d="M123,130 L123,262"/>
+  <path class="ln" d="M332,198 L332,262"/>
+  <path class="ln" d="M499,198 L499,262"/>
+
+  <rect class="box fe" x="8" y="264" width="570" height="124"/>
+  <text class="t-b" x="20" y="282">Frontend · các client gom phản hồi về một dạng chung</text>
+  <text class="t-mono" x="20" y="308">thành công:  {ok: true,  data: body.data ?? body}</text>
+  <text class="t-mono" x="20" y="330">lỗi:         {ok: false, error: {message, code: mã HTTP, field?, details?}}</text>
+  <text class="t-sm" x="20" y="354">apiClient (Auth, Cài đặt): đọc error.message, rồi message, rồi câu mặc định;</text>
+  <text class="t-sm" x="20" y="372">client Flashcard, Translation đọc thêm detail; client Chatbot báo lỗi chung kèm mã HTTP.</text>
+</svg>

@@ -1,0 +1,44 @@
+' H3-32 ERD tổng thể (chỉ tên bảng và quan hệ). Đối chiếu 30/10/2026: db/schema_complete.sql (REFERENCES, ON DELETE).
+@startuml
+!include ../_theme/plantuml.iuml
+!include ../_theme/erd.iuml
+skinparam linetype polyline
+left to right direction
+skinparam defaultFontSize 13
+skinparam ranksep 40
+skinparam nodesep 18
+
+entity users <<auth>>
+entity password_resets <<auth>>
+entity conversations <<chat>>
+entity messages <<chat>>
+entity documents <<chat>>
+entity document_parents <<chat>>
+entity document_chunks <<chat>>
+entity semantic_cache <<chat>>
+entity flashcard_decks <<flash>>
+entity flashcards <<flash>>
+entity review_logs <<flash>>
+entity vocab_generation_usage <<flash>>
+entity flashcard_game_sessions <<flash>>
+entity domain_dictionaries <<trans>>
+
+users ||--o{ conversations
+conversations ||--o{ messages
+users |o--o{ documents : SET NULL
+documents ||--o{ document_parents
+documents ||--o{ document_chunks
+document_parents ||--o{ document_chunks
+users ||--o{ flashcard_decks
+flashcard_decks |o--o{ flashcard_decks : sao chép từ
+flashcard_decks ||--o{ flashcards
+users ||--o{ flashcards
+flashcards ||--o{ review_logs
+users ||--o{ review_logs
+users ||--o{ vocab_generation_usage
+users ||--o{ flashcard_game_sessions
+flashcard_decks |o--o{ flashcard_game_sessions : SET NULL
+
+password_resets -[hidden]- semantic_cache
+semantic_cache -[hidden]- domain_dictionaries
+@enduml

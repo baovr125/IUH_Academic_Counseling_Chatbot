@@ -1,0 +1,31 @@
+<!-- H2-09 Kiến trúc RAG cơ bản (Naive RAG) – sơ đồ khái niệm theo Lewis và cs. (2020), Gao và cs. (2023). -->
+<svg xmlns="http://www.w3.org/2000/svg" width="586" height="246" viewBox="0 0 586 246">
+  <defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#334155"/></marker></defs>
+  <!-- Lập chỉ mục -->
+  <rect class="group" x="4" y="4" width="578" height="80"/>
+  <text class="t-sm t-b t-muted" x="14" y="18">① LẬP CHỈ MỤC (làm trước, ngoại tuyến)</text>
+  <rect class="box gw" x="14" y="32" width="104" height="40"/><text class="t-sm t-c" x="66" y="52">Tài liệu</text>
+  <path class="ln" d="M118,52 L138,52"/>
+  <rect class="box gw" x="140" y="32" width="104" height="40"/><text class="t-sm t-c" x="192" y="52">Phân đoạn</text>
+  <path class="ln" d="M244,52 L264,52"/>
+  <rect class="box chat" x="266" y="32" width="124" height="40"/><text class="t-sm t-c" x="328" y="45">Mô hình nhúng</text><text class="t-sm t-c" x="328" y="61">(Bi-Encoder)</text>
+  <path class="ln" d="M390,52 L436,52"/>
+  <rect class="box infra" x="438" y="26" width="136" height="52"/><text class="t-b t-c" x="506" y="44">CSDL vector</text><text class="t-sm t-c" x="506" y="62">đoạn + vector</text>
+
+  <!-- Truy vấn -->
+  <rect class="group" x="4" y="100" width="578" height="142"/>
+  <text class="t-sm t-b t-muted" x="14" y="114">② TRUY XUẤT VÀ ③ SINH (khi có câu hỏi)</text>
+  <rect class="box fe" x="14" y="128" width="104" height="40"/><text class="t-sm t-c" x="66" y="148">Câu hỏi</text>
+  <path class="ln" d="M118,148 L264,148"/>
+  <rect class="box chat" x="266" y="128" width="124" height="40"/><text class="t-sm t-c" x="328" y="141">Mô hình nhúng</text><text class="t-sm t-c" x="328" y="157">vector câu hỏi</text>
+  <path class="ln" d="M390,148 L436,148"/>
+  <rect class="box infra" x="438" y="128" width="136" height="40"/><text class="t-sm t-c" x="506" y="141">Tìm k đoạn</text><text class="t-sm t-c" x="506" y="157">gần nhất</text>
+  <path d="M506,78 L506,126" stroke="#B45309" stroke-width="1.4" stroke-dasharray="4 3" fill="none"/>
+  <path class="ln" d="M506,168 L506,190 L392,190 L392,208"/>
+  <path class="ln" d="M66,168 L66,190 L250,190 L250,208"/>
+  <rect class="box auth" x="196" y="208" width="240" height="30"/><text class="t-sm t-c" x="316" y="223">Prompt = câu hỏi + k đoạn ngữ cảnh</text>
+  <path class="ln" d="M436,223 L458,223"/>
+  <rect class="box chat" x="460" y="208" width="54" height="30"/><text class="t-sm t-c t-b" x="487" y="223">LLM</text>
+  <path class="ln" d="M514,223 L530,223"/>
+  <text class="t-sm t-b" x="532" y="218">Câu</text><text class="t-sm t-b" x="532" y="232">trả lời</text>
+</svg>

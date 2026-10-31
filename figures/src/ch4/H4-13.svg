@@ -1,0 +1,61 @@
+<!-- H4-13 Ví dụ thật: Router viết lại và tách câu hỏi.
+     Nguồn: IUH_Academic_Counseling_Chatbot/logs/academic_chatbot/2026-10-29/142502-quy-trinh-ang-ky-hoc.md
+     (Query, Sub-Queries, Detected Intent, Need Retrieval chép nguyên văn). Luồng sau Router đối chiếu
+     llm_generation_service.py dòng 319–325 (queries[0] dùng cho cache) và rag_service.build_rag_payload (≤4 sub-query). -->
+<svg xmlns="http://www.w3.org/2000/svg" width="586" height="360" viewBox="0 0 586 360">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#334155"/>
+    </marker>
+  </defs>
+
+  <!-- Câu hỏi gốc -->
+  <rect class="box fe" x="8" y="8" width="570" height="62"/>
+  <text class="t-sm t-muted" x="20" y="24">Câu hỏi của sinh viên</text>
+  <text x="20" y="44">“Quy trình đăng ký học phần bổ sung và cách xử lý khi môn học bị</text>
+  <text x="20" y="61">trùng lịch tại IUH?”</text>
+
+  <path class="ln" d="M293,70 L293,104"/>
+  <text class="t-sm" x="302" y="87">Router (LLM): viết lại · phân loại · tách ý</text>
+
+  <!-- Kết quả Router -->
+  <rect class="box chat" x="8" y="106" width="570" height="150"/>
+  <text class="t-sm t-muted" x="20" y="122">Kết quả JSON của Router</text>
+
+  <text class="t-mono" x="20" y="146">need_retrieval</text>
+  <text class="t-mono t-b" x="150" y="146">true</text>
+  <text class="t-sm t-muted" x="300" y="146">cần tra cứu tài liệu</text>
+
+  <text class="t-mono" x="20" y="170">intent</text>
+  <text class="t-mono t-b" x="150" y="170">PROCEDURE</text>
+  <text class="t-sm t-muted" x="300" y="170">1 trong 7 intent → chọn luật prompt</text>
+
+  <text class="t-mono" x="20" y="194">queries[0]</text>
+  <rect class="hl" x="146" y="184" width="250" height="20" rx="3"/>
+  <text x="150" y="194">“Quy trình đăng ký học phần bổ sung”</text>
+
+  <text class="t-mono" x="20" y="222">queries[1]</text>
+  <rect class="hl" x="146" y="212" width="262" height="20" rx="3"/>
+  <text x="150" y="222">“cách xử lý khi môn học bị trùng lịch”</text>
+
+  <text class="t-sm t-muted" x="20" y="244">Câu hỏi kép được tách thành 2 sub-query độc lập, giữ nguyên từ khóa cốt lõi.</text>
+
+  <!-- Sau Router -->
+  <path class="ln" d="M83,256 L83,292"/>
+
+  <rect class="box infra" x="8" y="294" width="150" height="56"/>
+  <text class="t-sm t-b t-c" x="83" y="310">Semantic cache</text>
+  <text class="t-sm t-c" x="83" y="328">tra bằng queries[0]</text>
+
+  <path class="ln" d="M158,322 L196,322"/>
+  <text class="t-sm t-b t-c" x="177" y="312">MISS</text>
+
+  <rect class="group" x="198" y="282" width="380" height="72"/>
+  <text class="t-sm t-muted" x="208" y="292">Truy xuất lai chạy song song cho từng sub-query</text>
+  <rect class="box chat" x="206" y="302" width="180" height="44"/>
+  <text class="t-sm t-b t-c" x="296" y="316">Truy xuất lai #1</text>
+  <text class="t-sm t-c" x="296" y="333">queries[0]</text>
+  <rect class="box chat" x="392" y="302" width="180" height="44"/>
+  <text class="t-sm t-b t-c" x="482" y="316">Truy xuất lai #2</text>
+  <text class="t-sm t-c" x="482" y="333">queries[1]</text>
+</svg>

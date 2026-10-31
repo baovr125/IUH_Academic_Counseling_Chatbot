@@ -1,0 +1,30 @@
+<!-- H2-42 Bản đồ công nghệ theo tầng. Đối chiếu README §4, frontend/package.json, services/*/requirements*.txt,
+     docker-compose.yml (image kong:3.9.3, redis:7-alpine, rabbitmq:3-management-alpine, nginx:alpine, python:3.11-slim). -->
+<svg xmlns="http://www.w3.org/2000/svg" width="586" height="322" viewBox="0 0 586 322">
+  <g class="t-sm">
+    <rect class="box fe" x="8" y="8" width="570" height="44"/>
+    <text class="t-b" x="18" y="30">Giao diện</text>
+    <text x="118" y="30">React 18 · TypeScript 5 · Vite 5 · Tailwind CSS 3 · TanStack Query 5 · React Router 6</text>
+
+    <rect class="box gw" x="8" y="58" width="570" height="44"/>
+    <text class="t-b" x="18" y="80">Cổng vào</text>
+    <text x="118" y="80">nginx (phục vụ SPA) · Kong Gateway 3.9.3 DB-less (JWT, rate limit, CORS)</text>
+
+    <rect class="box chat" x="8" y="108" width="570" height="44"/>
+    <text class="t-b" x="18" y="130">Dịch vụ</text>
+    <text x="118" y="130">Python 3.11 · FastAPI · Pydantic v2 · Uvicorn · httpx · aio-pika · python-jose · bcrypt</text>
+
+    <rect class="box flash" x="8" y="158" width="570" height="60"/>
+    <text class="t-b" x="18" y="180">AI</text>
+    <text x="118" y="180">ONNX Runtime · sentence-transformers · CTranslate2 (NLLB-200) · fastText · Lingua</text>
+    <text x="118" y="200">spaCy · WordNet · LLM: Qwen (vLLM/Ollama), Gemini, Groq · Edge TTS · gói fsrs</text>
+
+    <rect class="box infra" x="8" y="224" width="570" height="44"/>
+    <text class="t-b" x="18" y="246">Dữ liệu</text>
+    <text x="118" y="246">Supabase PostgreSQL (pgvector, FTS, RLS) · Redis 7 · MinIO · RabbitMQ 3</text>
+
+    <rect class="box auth" x="8" y="274" width="570" height="44"/>
+    <text class="t-b" x="18" y="296">Hạ tầng</text>
+    <text x="118" y="296">Docker · Docker Compose (prod, low-VRAM) · GitHub Actions · Tailscale Funnel</text>
+  </g>
+</svg>

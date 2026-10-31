@@ -1,0 +1,33 @@
+' H3-18 Tuần tự UC13. Đối chiếu 30/10/2026: kong flashcard-vocabulary-routes (6/phút, 60/giờ); vocabulary.py
+' (quota, generate, generate-image, decks/from-generated); vocab_quota.reserve/refund (bảng theo ngày);
+' vocab_pipeline (SELECT, ENRICH, VERIFY); llm_client (Groq → Gemini → vLLM).
+@startuml
+!include ../_theme/plantuml.iuml
+!include ../_theme/seq.iuml
+actor "Người dùng" as U
+participant "Frontend" as FE #EFF6FF
+participant "Kong" as K #F1F5F9
+participant "Flashcard\nService" as F #FFF7ED
+participant "Dịch vụ LLM" as L #FFFFFF
+database "Supabase" as DB #FFFBEB
+
+FE -> F : GET /vocabulary/quota (qua Kong)
+F --> FE : số lượt còn lại hôm nay
+U -> FE : ngôn ngữ, chủ đề, đoạn văn hoặc ảnh, trình độ, số từ
+FE -> K : POST /api/v1/flashcards/vocabulary/generate
+K -> F : chuyển tiếp (JWT; 6/phút, 60/giờ)
+F -> DB : giữ chỗ 1 lượt
+alt hết lượt
+  F --> FE : 429 hết hạn mức, giờ cấp lại
+else còn lượt
+  F -> L : SELECT: chọn danh sách từ
+  F -> F : kiểm tra hệ chữ, loại trùng
+  F -> L : ENRICH: nghĩa, phiên âm, ví dụ (chia lô)
+  F -> L : VERIFY: kiểm duyệt từng thẻ
+  F --> FE : danh sách từ xem trước, số lượt còn lại
+end
+U -> FE : bỏ bớt, sửa từ, đặt tên sổ, lưu
+FE -> F : POST /decks/from-generated
+F -> DB : tạo sổ, thêm thẻ (bỏ từ trùng)
+F --> FE : sổ thẻ mới
+@enduml

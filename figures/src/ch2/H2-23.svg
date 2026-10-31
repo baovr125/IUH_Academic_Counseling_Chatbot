@@ -1,0 +1,57 @@
+<!-- H2-23 Mô hình mã hóa – giải mã với chú ý chéo cho dịch máy (sơ đồ khái niệm; độ dày đường là trọng số minh họa).
+     Mã ngôn ngữ đích làm token đầu chuỗi đích như target_prefix trong translation_service.py. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="586" height="300" viewBox="0 0 586 300">
+  <defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#334155"/></marker></defs>
+  <!-- Bộ mã hóa -->
+  <text class="t-sm t-b t-muted" x="8" y="12">BỘ MÃ HÓA (đọc toàn bộ câu nguồn)</text>
+  <g class="t-sm">
+    <rect class="box gw" x="8" y="246" width="44" height="24"/><text class="t-c" x="30" y="258">Học</text>
+    <rect class="box gw" x="56" y="246" width="44" height="24"/><text class="t-c" x="78" y="258">phí</text>
+    <rect class="box gw" x="104" y="246" width="44" height="24"/><text class="t-c" x="126" y="258">được</text>
+    <rect class="box gw" x="152" y="246" width="44" height="24"/><text class="t-c" x="174" y="258">đóng</text>
+    <rect class="box gw" x="200" y="246" width="44" height="24"/><text class="t-c" x="222" y="258">theo</text>
+    <rect class="box gw" x="248" y="246" width="44" height="24"/><text class="t-c" x="270" y="258">học kỳ</text>
+  </g>
+  <rect class="box chat" x="8" y="176" width="284" height="44"/>
+  <text class="t-b t-c" x="150" y="198">Encoder (self-attention ×N)</text>
+  <path class="ln" d="M150,244 L150,222"/>
+  <path class="ln" d="M150,176 L150,150"/>
+  <g>
+    <circle cx="30" cy="136" r="9" fill="#F0FDFA" stroke="#0D9488"/>
+    <circle cx="78" cy="136" r="9" fill="#F0FDFA" stroke="#0D9488"/>
+    <circle cx="126" cy="136" r="9" fill="#F0FDFA" stroke="#0D9488"/>
+    <circle cx="174" cy="136" r="9" fill="#0D9488" stroke="#0D9488"/>
+    <circle cx="222" cy="136" r="9" fill="#F0FDFA" stroke="#0D9488"/>
+    <circle cx="270" cy="136" r="9" fill="#F0FDFA" stroke="#0D9488"/>
+  </g>
+  <text class="t-sm t-muted" x="8" y="112">Hᵉⁿᶜ: một vector cho mỗi token nguồn</text>
+
+  <!-- Bộ giải mã -->
+  <text class="t-sm t-b t-muted" x="340" y="12">BỘ GIẢI MÃ (sinh từng token đích)</text>
+  <g class="t-sm">
+    <rect class="box infra" x="340" y="246" width="74" height="24"/><text class="t-c t-mono" x="377" y="258">eng_Latn</text>
+    <rect class="box fe" x="418" y="246" width="60" height="24"/><text class="t-c" x="448" y="258">Tuition</text>
+    <rect class="box fe" x="482" y="246" width="40" height="24"/><text class="t-c" x="502" y="258">is</text>
+  </g>
+  <rect class="box auth" x="340" y="176" width="238" height="44"/>
+  <text class="t-b t-c" x="459" y="190">Decoder</text>
+  <text class="t-sm t-c" x="459" y="208">masked self-attention + chú ý chéo</text>
+  <path class="ln" d="M431,244 L431,222"/>
+  <path class="ln" d="M459,176 L459,64"/>
+  <rect class="box trans" x="414" y="30" width="90" height="32"/>
+  <text class="t-b t-c" x="459" y="46">paid</text>
+  <text class="t-sm t-muted" x="512" y="46">token kế tiếp</text>
+
+  <!-- Chú ý chéo: truy vấn từ decoder tới các vector của encoder -->
+  <g fill="none" stroke="#7C3AED" stroke-linecap="round">
+    <path d="M340,186 C300,170 60,150 30,145" stroke-width="0.8" opacity="0.6"/>
+    <path d="M340,186 C300,170 100,150 78,145" stroke-width="0.8" opacity="0.6"/>
+    <path d="M340,186 C300,170 140,150 126,145" stroke-width="1.5" opacity="0.7"/>
+    <path d="M340,186 C300,170 190,150 174,145" stroke-width="5"/>
+    <path d="M340,186 C300,172 236,150 222,145" stroke-width="1.5" opacity="0.7"/>
+    <path d="M340,186 C305,174 280,152 270,145" stroke-width="1.2" opacity="0.6"/>
+  </g>
+  <text class="t-sm" x="316" y="140" style="fill:#7C3AED">chú ý chéo:</text>
+  <text class="t-sm" x="316" y="156" style="fill:#7C3AED">“paid” ↔ “đóng”</text>
+  <text class="t-sm t-muted" x="340" y="288">Token đầu là mã ngôn ngữ đích (NLLB)</text>
+</svg>

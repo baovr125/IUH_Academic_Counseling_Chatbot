@@ -1,0 +1,22 @@
+{
+ "os": "Windows-10-10.0.26300-SP0",
+ "cpu": "13th Gen Intel(R) Core(TM) i7-13650HX",
+ "cpu_cores_logical": "20",
+ "ram_gb": "23.7",
+ "gpu": "NVIDIA GeForce RTX 4060 Laptop GPU, 8188 MiB, 576.80",
+ "python": "3.11.8",
+ "packages": {
+  "torch": "2.5.1+cu121",
+  "sentence-transformers": "4.1.0",
+  "transformers": "4.57.6",
+  "ctranslate2": "4.6.0",
+  "fsrs": "6.3.2",
+  "fastapi": "0.115.7",
+  "pydantic": "2.11.7",
+  "pytest": "8.4.2",
+  "supabase": "2.31.0",
+  "redis": "6.4.0",
+  "numpy": "1.26.4",
+  "onnxruntime": "1.20.1"
+ }
+}

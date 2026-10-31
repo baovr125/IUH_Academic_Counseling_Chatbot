@@ -1,0 +1,27 @@
+' H3-05 Use case phân hệ Dịch thuật. Đối chiếu 30/10/2026: realtime_translation_service/app/routers
+' (text, stream, detect, analyze_word, tts, audio), flashcard_service .../cards/from-translation.
+@startuml
+!include ../_theme/plantuml.iuml
+skinparam defaultFontSize 12
+left to right direction
+
+actor "Người dùng" as User
+actor "Dịch vụ LLM" as LLM
+actor "Microsoft\nEdge TTS" as TTS
+
+rectangle "Phân hệ Dịch thuật" {
+  usecase "UC07 Dịch văn bản" as UC07 <<trans>>
+  usecase "Nhận diện\nngôn ngữ nguồn" as T1 <<trans>>
+  usecase "UC08 Dịch theo\nchuyên ngành" as UC08 <<trans>>
+  usecase "UC09 Phân tích từ\nvà nghe phát âm" as UC09 <<trans>>
+  usecase "UC10 Lưu từ\nthành thẻ học" as UC10 <<flash>>
+}
+
+User --> UC07
+User --> UC09
+User --> UC10
+T1 <.. UC07 : <<include>>
+UC08 .up.> UC07 : <<extend>>
+UC08 --> LLM
+UC09 --> TTS
+@enduml

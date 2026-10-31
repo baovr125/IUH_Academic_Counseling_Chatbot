@@ -1,0 +1,27 @@
+' H3-27 Ba kiểu giao tiếp. Đối chiếu 30/10/2026: REST (flashcards.py), SSE (chat.py messages/stream,
+' llm_generation_service: metadata/delta/done), sự kiện (rabbitmq_consumer.py của flashcard và realtime).
+@startuml
+!include ../_theme/plantuml.iuml
+!include ../_theme/seq.iuml
+autonumber stop
+participant "Frontend" as FE #EFF6FF
+participant "Flashcard\nService" as F #FFF7ED
+participant "Chatbot\nService" as C #F0FDFA
+queue "RabbitMQ" as Q #FFFBEB
+participant "Translation\nService" as T #F0FDF4
+
+== REST đồng bộ ==
+FE -> F : POST /review {card_id, grade}
+F --> FE : 200 {ok: true, data}
+== SSE: một yêu cầu, nhiều sự kiện ==
+FE -> C : POST /chat/messages/stream
+C --> FE : data: {type: metadata}
+C --> FE : data: {type: delta} (lặp lại)
+C --> FE : data: {type: done}
+== Sự kiện bất đồng bộ ==
+F ->> Q : flashcard.created
+note left of Q : Flashcard không chờ kết quả
+Q ->> T : giao cho hàng đợi đã đăng ký
+T ->> Q : flashcard.audio_ready
+Q ->> F : giao sự kiện
+@enduml

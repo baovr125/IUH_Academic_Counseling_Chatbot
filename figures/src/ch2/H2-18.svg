@@ -1,0 +1,40 @@
+<!-- H2-18 Small-to-Big (Parent–Child): truy xuất trên đoạn con, đưa đoạn cha vào ngữ cảnh.
+     Đối chiếu: chunkers/hybrid_chunker.py (child ≤ 600 ký tự, overlap 100; parent ≤ ~1200 token);
+     rag_service.retrieve_relevant_chunks_multi bước 5 (gộp child cùng parent, dùng parent_content). -->
+<svg xmlns="http://www.w3.org/2000/svg" width="586" height="250" viewBox="0 0 586 250">
+  <defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#334155"/></marker></defs>
+  <text class="t-sm t-b t-muted" x="8" y="12">KHO TRI THỨC</text>
+  <!-- Parent 1 -->
+  <rect class="box gw" x="8" y="22" width="250" height="100"/>
+  <text class="t-sm t-b" x="18" y="36">Đoạn cha P₁ · “1. Khối lượng học tập”</text>
+  <rect class="box chat" x="18" y="48" width="72" height="62" style="opacity:0.55"/><text class="t-sm t-c" x="54" y="79">con c₁</text>
+  <rect class="box chat" x="96" y="48" width="72" height="62" style="stroke-width:3"/><text class="t-sm t-c t-b" x="132" y="79">con c₂</text>
+  <rect class="box chat" x="174" y="48" width="72" height="62" style="opacity:0.55"/><text class="t-sm t-c" x="210" y="79">con c₃</text>
+  <!-- Parent 2 -->
+  <rect class="box gw" x="8" y="136" width="250" height="100"/>
+  <text class="t-sm t-b" x="18" y="150">Đoạn cha P₂ · “2. Đăng ký học phần”</text>
+  <rect class="box chat" x="18" y="162" width="72" height="62" style="opacity:0.55"/><text class="t-sm t-c" x="54" y="193">con c₄</text>
+  <rect class="box chat" x="96" y="162" width="72" height="62" style="opacity:0.55"/><text class="t-sm t-c" x="132" y="193">con c₅</text>
+  <rect class="box chat" x="174" y="162" width="72" height="62" style="opacity:0.55"/><text class="t-sm t-c" x="210" y="193">con c₆</text>
+
+  <!-- Câu hỏi -->
+  <rect class="box fe" x="292" y="22" width="190" height="44"/>
+  <text class="t-sm t-c t-b" x="387" y="36">Câu hỏi</text><text class="t-sm t-c" x="387" y="54">“tối đa bao nhiêu tín chỉ?”</text>
+  <path class="ln" d="M292,48 L170,58"/>
+  <text class="t-sm" x="190" y="18" style="display:none">.</text>
+  <text class="t-sm t-muted" x="292" y="80">① so khớp, xếp hạng trên đoạn con</text>
+  
+
+  <!-- Đưa parent vào prompt -->
+  <path class="ln" d="M258,100 L330,100 L330,160 L386,160"/>
+  <text class="t-sm t-muted" x="264" y="186">② đưa cả đoạn</text>
+  <text class="t-sm t-muted" x="264" y="202">cha chứa c₂</text>
+  <rect class="box auth" x="388" y="96" width="190" height="140"/>
+  <text class="t-sm t-b t-c" x="483" y="112">Ngữ cảnh đưa cho LLM</text>
+  <rect class="box gw" x="400" y="124" width="166" height="100"/>
+  <text class="t-sm t-c t-b" x="483" y="140">Toàn bộ P₁</text>
+  <text class="t-sm t-c" x="483" y="160">a) đăng ký học phần…</text>
+  <text class="t-sm t-c" x="483" y="178">b) tối thiểu 12, tối đa 30</text>
+  <text class="t-sm t-c" x="483" y="194">tín chỉ mỗi học kỳ…</text>
+  <text class="t-sm t-c" x="483" y="212">c) học bổng khuyến khích…</text>
+</svg>

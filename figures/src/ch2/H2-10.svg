@@ -1,0 +1,52 @@
+<!-- H2-10 So sánh Naive RAG, Advanced RAG và Modular RAG (vẽ lại, đơn giản hóa theo Gao và cs., 2023, Hình 3;
+     paper/check_2312.10997v5.pdf). -->
+<svg xmlns="http://www.w3.org/2000/svg" width="586" height="318" viewBox="0 0 586 318">
+  <defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#334155"/></marker></defs>
+  <text class="t-b t-c" x="96" y="14">Naive RAG</text>
+  <text class="t-b t-c" x="292" y="14">Advanced RAG</text>
+  <text class="t-b t-c" x="488" y="14">Modular RAG</text>
+
+  <!-- Naive -->
+  <rect class="group" x="4" y="24" width="184" height="290"/>
+  <rect class="box gw" x="24" y="40" width="144" height="30"/><text class="t-sm t-c" x="96" y="55">Lập chỉ mục</text>
+  <path class="ln" d="M96,70 L96,124"/>
+  <rect class="box infra" x="24" y="126" width="144" height="30"/><text class="t-sm t-c" x="96" y="141">Truy xuất</text>
+  <path class="ln" d="M96,156 L96,214"/>
+  <rect class="box auth" x="24" y="216" width="144" height="30"/><text class="t-sm t-c" x="96" y="231">Ghép prompt</text>
+  <path class="ln" d="M96,246 L96,264"/>
+  <rect class="box chat" x="24" y="266" width="144" height="30"/><text class="t-sm t-c" x="96" y="281">LLM sinh câu trả lời</text>
+
+  <!-- Advanced -->
+  <rect class="group" x="200" y="24" width="184" height="290"/>
+  <rect class="box gw" x="220" y="36" width="144" height="28"/><text class="t-sm t-c" x="292" y="50">Lập chỉ mục tối ưu</text>
+  <path class="ln" d="M292,64 L292,76"/>
+  <rect class="box fe" x="220" y="78" width="144" height="38"/><text class="t-sm t-c t-b" x="292" y="90">Trước truy xuất</text><text class="t-sm t-c" x="292" y="105">viết lại, mở rộng câu hỏi</text>
+  <path class="ln" d="M292,116 L292,128"/>
+  <rect class="box infra" x="220" y="130" width="144" height="28"/><text class="t-sm t-c" x="292" y="144">Truy xuất</text>
+  <path class="ln" d="M292,158 L292,170"/>
+  <rect class="box fe" x="220" y="172" width="144" height="38"/><text class="t-sm t-c t-b" x="292" y="184">Sau truy xuất</text><text class="t-sm t-c" x="292" y="199">xếp hạng lại, nén</text>
+  <path class="ln" d="M292,210 L292,222"/>
+  <rect class="box auth" x="220" y="224" width="144" height="28"/><text class="t-sm t-c" x="292" y="238">Ghép prompt</text>
+  <path class="ln" d="M292,252 L292,264"/>
+  <rect class="box chat" x="220" y="266" width="144" height="30"/><text class="t-sm t-c" x="292" y="281">LLM sinh câu trả lời</text>
+
+  <!-- Modular -->
+  <rect class="group" x="396" y="24" width="186" height="290"/>
+  <text class="t-sm t-muted t-c" x="489" y="42">Các mô-đun ghép linh hoạt</text>
+  <g class="t-sm">
+    <rect class="box fe" x="406" y="54" width="80" height="28"/><text class="t-c" x="446" y="68">Định tuyến</text>
+    <rect class="box fe" x="492" y="54" width="80" height="28"/><text class="t-c" x="532" y="68">Viết lại</text>
+    <rect class="box infra" x="406" y="90" width="80" height="28"/><text class="t-c" x="446" y="104">Tìm kiếm</text>
+    <rect class="box infra" x="492" y="90" width="80" height="28"/><text class="t-c" x="532" y="104">Hợp nhất</text>
+    <rect class="box fe" x="406" y="126" width="80" height="28"/><text class="t-c" x="446" y="140">Xếp hạng lại</text>
+    <rect class="box gw" x="492" y="126" width="80" height="28"/><text class="t-c" x="532" y="140">Bộ nhớ</text>
+    <rect class="box gw" x="406" y="162" width="80" height="28"/><text class="t-c" x="446" y="176">Bộ nhớ đệm</text>
+    <rect class="box auth" x="492" y="162" width="80" height="28"/><text class="t-c" x="532" y="176">Tự đánh giá</text>
+    <rect class="box auth" x="406" y="198" width="80" height="28"/><text class="t-c" x="446" y="212">Ví dụ mẫu</text>
+    <rect class="box chat" x="492" y="198" width="80" height="28"/><text class="t-c" x="532" y="212">Sinh</text>
+  </g>
+  <text class="t-sm t-c" x="489" y="250">Luồng có thể lặp, rẽ nhánh</text>
+  <text class="t-sm t-c" x="489" y="266">hoặc bỏ qua bước truy xuất</text>
+  <text class="t-sm t-c t-muted" x="489" y="292">(đề tài: Advanced RAG</text>
+  <text class="t-sm t-c t-muted" x="489" y="306">tổ chức theo mô-đun)</text>
+</svg>

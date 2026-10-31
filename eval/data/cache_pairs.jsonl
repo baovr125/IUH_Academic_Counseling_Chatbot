@@ -1,0 +1,23 @@
+{"id": "P01", "type": "dien_dat_lai", "q1": "Khi nào sinh viên bị buộc thôi học?", "q2": "Những trường hợp nào thì sinh viên bị buộc thôi học?"}
+{"id": "P02", "type": "dien_dat_lai", "q1": "Điều kiện xét tốt nghiệp là gì?", "q2": "Em cần đáp ứng những gì để được công nhận tốt nghiệp?"}
+{"id": "P03", "type": "dien_dat_lai", "q1": "Sinh viên bị cảnh báo kết quả học tập khi nào?", "q2": "Trường hợp nào thì bị cảnh báo học vụ?"}
+{"id": "P04", "type": "dien_dat_lai", "q1": "Điều kiện để học cùng lúc hai chương trình là gì?", "q2": "Muốn học song song hai chương trình đào tạo thì cần đạt những gì?"}
+{"id": "P05", "type": "dien_dat_lai", "q1": "Sinh viên đăng ký học phần ở trang web nào?", "q2": "Em đăng ký môn học trên trang nào của trường?"}
+{"id": "P06", "type": "dien_dat_lai", "q1": "Có những cách nào để nộp học phí trực tuyến?", "q2": "Làm sao để đóng học phí online?"}
+{"id": "P07", "type": "dien_dat_lai", "q1": "Điều kiện nghỉ học tạm thời vì lý do cá nhân là gì?", "q2": "Em xin bảo lưu kết quả học tập vì việc riêng thì cần điều kiện gì?"}
+{"id": "P08", "type": "dien_dat_lai", "q1": "Các bước đăng ký email IUH cho sinh viên?", "q2": "Em tạo email của trường bằng cách nào?"}
+{"id": "P09", "type": "dien_dat_lai", "q1": "Trong khuôn viên trường có được hút thuốc lá điện tử không?", "q2": "Trường có cho phép dùng thuốc lá điện tử trong khuôn viên không?"}
+{"id": "P10", "type": "dien_dat_lai", "q1": "Học bổng tuyển sinh dành cho những đối tượng nào?", "q2": "Ai được xét học bổng khi mới trúng tuyển nhập học?"}
+{"id": "P11", "type": "dien_dat_lai", "q1": "Sinh viên khóa 21 có phải thi sát hạch tiếng Anh đầu vào không?", "q2": "Tân sinh viên K21 có cần thi sát hạch tiếng Anh không?"}
+{"id": "P12", "type": "dien_dat_lai", "q1": "Điều kiện để chuyển sang ngành đào tạo khác là gì?", "q2": "Em muốn chuyển sang học ngành khác thì cần đáp ứng điều kiện nào?"}
+{"id": "P13", "type": "dien_dat_lai", "q1": "Kết quả rèn luyện được chia thành mấy loại?", "q2": "Các mức xếp loại rèn luyện của sinh viên gồm những loại nào?"}
+{"id": "P14", "type": "dien_dat_lai", "q1": "Chứng chỉ ngoại ngữ thi ở ngoài trường thì nộp ở đâu?", "q2": "Em thi chứng chỉ tiếng Anh bên ngoài thì nộp cho đơn vị nào để xét tốt nghiệp?"}
+{"id": "P15", "type": "dien_dat_lai", "q1": "Mỗi học kỳ chính phải đăng ký tối thiểu bao nhiêu tín chỉ?", "q2": "Số tín chỉ tối thiểu em phải đăng ký trong một học kỳ chính là bao nhiêu?"}
+{"id": "N01", "type": "khac_con_so", "q1": "Sinh viên khóa 20 chương trình 4 năm có thời hạn kết thúc học tập tối đa là khi nào?", "q2": "Sinh viên khóa 21 chương trình 4 năm có thời hạn kết thúc học tập tối đa là khi nào?"}
+{"id": "N02", "type": "khac_con_so", "q1": "Sinh viên năm 1 có điểm trung bình tích lũy dưới bao nhiêu thì bị cảnh báo học vụ?", "q2": "Sinh viên năm 2 có điểm trung bình tích lũy dưới bao nhiêu thì bị cảnh báo học vụ?"}
+{"id": "N03", "type": "khac_con_so", "q1": "Điểm IELTS tối thiểu tương đương trình độ B1 là bao nhiêu?", "q2": "Điểm IELTS tối thiểu tương đương trình độ B2 là bao nhiêu?"}
+{"id": "N04", "type": "khac_con_so", "q1": "Điều kiện để đăng ký học phần Tiếng Anh 2 là gì?", "q2": "Điều kiện để đăng ký học phần Tiếng Anh 3 là gì?"}
+{"id": "N05", "type": "khac_con_so", "q1": "Sinh viên khóa 19 chương trình 4 năm có thời hạn tốt nghiệp chuẩn là khi nào?", "q2": "Sinh viên khóa 18 chương trình 4 năm có thời hạn tốt nghiệp chuẩn là khi nào?"}
+{"id": "N06", "type": "khac_con_so", "q1": "Sinh viên khóa 22 có phải thi sát hạch tiếng Anh đầu vào không?", "q2": "Sinh viên khóa 20 có phải thi sát hạch tiếng Anh đầu vào không?"}
+{"id": "N07", "type": "khac_con_so", "q1": "Học kỳ 1 của năm nhất sinh viên bị cảnh báo khi điểm trung bình học kỳ dưới bao nhiêu?", "q2": "Học kỳ 2 của năm nhất sinh viên bị cảnh báo khi điểm trung bình học kỳ dưới bao nhiêu?"}
+{"id": "N08", "type": "khac_con_so", "q1": "Nếu bị cảnh báo kết quả học tập 2 lần liên tiếp thì có bị buộc thôi học không?", "q2": "Nếu bị cảnh báo kết quả học tập 3 lần liên tiếp thì có bị buộc thôi học không?"}

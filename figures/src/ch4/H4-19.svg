@@ -1,0 +1,86 @@
+<!-- H4-19 Khung prompt gửi tới LLM và vị trí các thẻ cách ly.
+     Đối chiếu 31/10/2026: rag_service.build_dynamic_system_instruction (dòng 653–673: persona + luật intent + few-shot +
+     ký ức + <retrieved_context> + <user_query>), guardrails/query_filter.wrap_context_sandbox (dòng 95–123: sắp xếp
+     Sandwich, thẻ <source id>, <query_reminder>), rag_service.build_rag_payload (dòng 782–786: 6 tin nhắn gần nhất).
+     Minh họa với 5 đoạn cha: thứ tự trong prompt là hạng [1, 3, 5, 4, 2] (công thức 2-5). -->
+<svg xmlns="http://www.w3.org/2000/svg" width="586" height="452" viewBox="0 0 586 452">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#334155"/>
+    </marker>
+  </defs>
+
+  <!-- system_instruction -->
+  <rect class="group" x="4" y="4" width="402" height="444"/>
+  <text class="t-sm t-b" x="14" y="18">system_instruction (một chuỗi văn bản)</text>
+
+  <rect class="box chat" x="14" y="30" width="382" height="34"/>
+  <text class="t-sm t-b" x="24" y="42">Persona và 9 quy tắc bắt buộc</text>
+  <text class="t-sm t-muted" x="24" y="56">chỉ dựa vào ngữ cảnh · không bịa · Self-RAG trong &lt;thinking&gt;</text>
+
+  <rect class="box chat" x="14" y="70" width="382" height="34"/>
+  <text class="t-sm t-b" x="24" y="82">Luật theo loại câu hỏi (intent)</text>
+  <text class="t-sm t-muted" x="24" y="96">1 trong 7 nhóm do Router chọn</text>
+
+  <rect class="box chat" x="14" y="110" width="382" height="34"/>
+  <text class="t-sm t-b" x="24" y="122">Ví dụ mẫu (few-shot) của intent đó</text>
+  <text class="t-sm t-muted" x="24" y="136">một ví dụ gồm khối &lt;thinking&gt; và câu trả lời</text>
+
+  <rect class="box infra" x="14" y="150" width="382" height="30" style="stroke-dasharray:6 4"/>
+  <text class="t-sm t-b" x="24" y="165">[KÝ ỨC DÀI HẠN …]</text>
+  <text class="t-sm t-muted" x="190" y="165">nếu có (tối đa 3 tin nhắn cũ)</text>
+
+  <!-- retrieved_context -->
+  <rect class="box fe" x="14" y="186" width="382" height="212" style="fill:#F8FAFC"/>
+  <text class="t-mono t-b" x="24" y="200">&lt;retrieved_context&gt;</text>
+
+  <rect class="panel hl" x="26" y="210" width="358" height="24" style="fill:#FEF9C3"/>
+  <text class="t-mono" x="34" y="222">&lt;source id="1"&gt;</text>
+  <text class="t-sm t-r" x="376" y="222">đoạn cha hạng 1</text>
+
+  <rect class="panel" x="26" y="238" width="358" height="24"/>
+  <text class="t-mono" x="34" y="250">&lt;source id="2"&gt;</text>
+  <text class="t-sm t-r" x="376" y="250">đoạn cha hạng 3</text>
+
+  <rect class="panel" x="26" y="266" width="358" height="24"/>
+  <text class="t-mono" x="34" y="278">&lt;source id="3"&gt;</text>
+  <text class="t-sm t-r" x="376" y="278">đoạn cha hạng 5</text>
+
+  <rect class="panel" x="26" y="294" width="358" height="24"/>
+  <text class="t-mono" x="34" y="306">&lt;source id="4"&gt;</text>
+  <text class="t-sm t-r" x="376" y="306">đoạn cha hạng 4</text>
+
+  <rect class="panel hl" x="26" y="322" width="358" height="24" style="fill:#FEF9C3"/>
+  <text class="t-mono" x="34" y="334">&lt;source id="5"&gt;</text>
+  <text class="t-sm t-r" x="376" y="334">đoạn cha hạng 2</text>
+
+  <rect class="panel" x="26" y="354" width="358" height="34" style="fill:#FFF7ED;stroke:#EA580C"/>
+  <text class="t-mono" x="34" y="366">&lt;query_reminder&gt;</text>
+  <text class="t-sm t-muted" x="34" y="380">nhắc lại câu hỏi ở cuối ngữ cảnh</text>
+
+  <!-- user_query -->
+  <rect class="box fe" x="14" y="404" width="382" height="34"/>
+  <text class="t-mono t-b" x="24" y="416">&lt;user_query&gt;</text>
+  <text class="t-sm t-muted" x="24" y="430">câu hỏi của sinh viên (đã qua bộ lọc an toàn)</text>
+
+  <!-- contents -->
+  <rect class="group" x="418" y="4" width="164" height="122"/>
+  <text class="t-sm t-b" x="428" y="18">contents (lịch sử)</text>
+  <rect class="panel" x="428" y="28" width="144" height="52"/>
+  <text class="t-sm" x="436" y="43">6 tin nhắn gần</text>
+  <text class="t-sm" x="436" y="58">nhất của phiên</text>
+  <text class="t-sm t-muted" x="436" y="72">user / model</text>
+  <rect class="panel" x="428" y="88" width="144" height="28" style="fill:#EFF6FF;stroke:#2563EB"/>
+  <text class="t-sm" x="436" y="102">câu hỏi hiện tại</text>
+
+  <!-- chú thích Sandwich -->
+  <path d="M400,210 C412,210 412,346 400,346" fill="none" stroke="#CA8A04" stroke-width="1.6"/>
+  <text class="t-sm t-b" x="418" y="226">Sắp xếp Sandwich</text>
+  <text class="t-sm" x="418" y="244">Thứ tự trong prompt:</text>
+  <text class="t-sm" x="418" y="260">hạng [1, 3, 5, 4, 2].</text>
+  <text class="t-sm" x="418" y="282">Đoạn hạng 1 và 2 ở hai</text>
+  <text class="t-sm" x="418" y="298">đầu, hạng thấp nhất ở</text>
+  <text class="t-sm" x="418" y="314">giữa, để tránh hiện</text>
+  <text class="t-sm" x="418" y="330">tượng “lạc giữa ngữ</text>
+  <text class="t-sm" x="418" y="346">cảnh”.</text>
+</svg>

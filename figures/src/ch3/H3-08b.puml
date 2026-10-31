@@ -1,0 +1,28 @@
+' H3-08b Tuần tự UC02 Đăng nhập. Đối chiếu 30/10/2026: auth_service/app/routers/auth.py (register 201, login 200),
+' services/auth_service.py register_user, login_user (throttle trong bộ nhớ, bcrypt với hash giả), kong.template.yml.
+@startuml
+!include ../_theme/plantuml.iuml
+!include ../_theme/seq.iuml
+actor "Khách" as U
+participant "Frontend" as FE #EFF6FF
+participant "Kong" as K #F1F5F9
+participant "Auth Service" as A #F5F3FF
+database "Supabase" as DB #FFFBEB
+
+U -> FE : email hoặc MSSV, mật khẩu
+FE -> K : POST /api/v1/auth/login
+K -> A : chuyển tiếp
+A -> A : kiểm tra bộ đếm lần sai
+opt đang bị tạm khóa
+  A --> FE : 429 kèm thời gian phải chờ
+end
+A -> DB : tìm người dùng theo email hoặc MSSV
+A -> A : so khớp bcrypt (hash giả nếu không có tài khoản)
+alt sai
+  A -> A : tăng bộ đếm lần sai
+  A --> FE : 401 (thông báo chung)
+else đúng
+  A --> FE : 200 {token, user}
+  FE -> FE : lưu token, chuyển tới Dashboard
+end
+@enduml

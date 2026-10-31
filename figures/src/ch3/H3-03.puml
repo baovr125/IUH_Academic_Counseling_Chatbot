@@ -1,0 +1,28 @@
+' H3-03 Use case phân hệ Xác thực. Đối chiếu 30/10/2026: services/auth_service/app/routers/auth.py
+' (register, login, refresh, logout, me, profile, change-password, settings GET/PUT).
+@startuml
+!include ../_theme/plantuml.iuml
+skinparam defaultFontSize 12
+left to right direction
+
+actor "Khách" as Guest
+actor "Người dùng" as User
+
+rectangle "Phân hệ Xác thực" {
+  usecase "UC01 Đăng ký tài khoản" as UC01 <<auth>>
+  usecase "UC02 Đăng nhập" as UC02 <<auth>>
+  usecase "UC03 Làm mới phiên\nvà đăng xuất" as UC03 <<auth>>
+  usecase "UC04 Quản lý hồ sơ,\nmật khẩu và cài đặt" as UC04 <<auth>>
+  usecase "Cập nhật hồ sơ" as P1 <<auth>>
+  usecase "Đổi mật khẩu" as P2 <<auth>>
+  usecase "Cài đặt giao diện" as P3 <<auth>>
+}
+
+Guest --> UC01
+Guest --> UC02
+User --> UC03
+User --> UC04
+P1 .up.> UC04 : <<extend>>
+P2 .up.> UC04 : <<extend>>
+P3 .up.> UC04 : <<extend>>
+@enduml

@@ -1,0 +1,32 @@
+' H3-15 Tuần tự UC10. Đối chiếu 30/10/2026: flashcard languages.py cards/from-translation → publish flashcard.created;
+' realtime rabbitmq_consumer.generate_and_upload_tts (CAS terms/{l2}_{md5}.mp3) → flashcard.audio_ready;
+' flashcard rabbitmq_consumer cập nhật audio_url.
+@startuml
+!include ../_theme/plantuml.iuml
+!include ../_theme/seq.iuml
+skinparam maxMessageSize 60
+actor "Người dùng" as U
+participant "Frontend" as FE #EFF6FF
+participant "Flashcard\nService" as F #FFF7ED
+database "Supabase" as DB #FFFBEB
+queue "RabbitMQ" as Q #FFFBEB
+participant "Translation\nService" as T #F0FDF4
+participant "MinIO" as M #FFFBEB
+
+U -> FE : "Lưu Flashcard", chọn sổ
+FE -> F : POST /cards/from-translation
+F -> F : kiểm tra ngôn ngữ, sổ
+F -> DB : tìm từ trùng
+F -> DB : thêm thẻ mới
+F --> FE : 200 {card, deck}
+F -> Q : flashcard.created
+Q -> T : giao sự kiện
+T -> M : tệp CAS đã có?
+opt chưa có
+  T -> T : Edge TTS
+  T -> M : lưu tệp
+end
+T -> Q : flashcard.audio_ready
+Q -> F : giao sự kiện
+F -> DB : cập nhật audio_url
+@enduml

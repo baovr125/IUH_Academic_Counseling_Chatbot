@@ -1,0 +1,35 @@
+' Bổ sung cho ERD (sau plantuml.iuml): thực thể dạng bảng, tô màu theo service sở hữu bảng (kế hoạch mục 6.2).
+skinparam defaultFontSize 12
+hide circle
+hide empty members
+skinparam linetype ortho
+skinparam class {
+  BorderColor #475569
+  BackgroundColor #FFFFFF
+  HeaderBackgroundColor #F8FAFC
+  ArrowColor #334155
+  FontStyle bold
+  AttributeFontSize 11
+}
+skinparam class<<auth>> {
+  BorderColor #7C3AED
+  BackgroundColor #F5F3FF
+}
+skinparam class<<chat>> {
+  BorderColor #0D9488
+  BackgroundColor #F0FDFA
+}
+skinparam class<<flash>> {
+  BorderColor #EA580C
+  BackgroundColor #FFF7ED
+}
+skinparam class<<trans>> {
+  BorderColor #16A34A
+  BackgroundColor #F0FDF4
+}
+skinparam class<<ref>> {
+  BorderColor #94A3B8
+  BackgroundColor #FFFFFF
+  BorderStyle dashed
+}
+hide stereotype

@@ -1,0 +1,32 @@
+' H3-36 Lưu trữ của phân hệ Dịch thuật. Đối chiếu 30/10/2026: db/schema_complete.sql (domain_dictionaries);
+' realtime_translation_service/app/services/cache_service.py (trans:, trans_warn:, domtrans:, tts_url:, domain_ver:,
+' global_dict_ver), domain_dict_service.py (domain_dict:{domain} hash); translation.py /tts (tts/{md5}.mp3),
+' rabbitmq_consumer.py (terms/{l2}_{md5}.mp3).
+@startuml
+!include ../_theme/plantuml.iuml
+!include ../_theme/erd.iuml
+skinparam rectangle {
+  FontStyle normal
+}
+skinparam rectangle<<infra>> {
+  BorderColor #B45309
+  BackgroundColor #FFFBEB
+}
+allowmixing
+skinparam linetype polyline
+
+entity domain_dictionaries <<trans>> {
+  * id : UUID <<PK>>
+  --
+  * domain : VARCHAR
+  * word : VARCHAR
+  * translation : TEXT
+  phonetic, pos, audio_url
+  UNIQUE(domain, word)
+}
+rectangle "**Redis**\n\ndomain_dict:{chuyên ngành} (hash)\ndomain_ver:{chuyên ngành}, global_dict_ver\ntrans:{khóa}, domtrans:{khóa} (24 giờ)\ntts_url:{khóa} (7 ngày)" <<infra>> as R
+rectangle "**MinIO**\n\ntts/{MD5(văn bản_giọng)}.mp3\nterms/{ngôn ngữ}_{MD5}.mp3" <<infra>> as M
+
+domain_dictionaries --> R : đồng bộ khi sửa,\ntăng phiên bản
+R --> M : tts_url trỏ tới tệp
+@enduml

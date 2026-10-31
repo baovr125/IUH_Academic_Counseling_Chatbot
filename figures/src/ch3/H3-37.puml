@@ -1,0 +1,32 @@
+' H3-37 Chỉ mục và luồng của match_chunks_hybrid_rrf. Đối chiếu 30/10/2026: db/schema_complete.sql dòng 366–432
+' (vector_search, keyword_search LIMIT GREATEST(match_count*2, 60), rrf_fusion FULL OUTER JOIN, JOIN parents, documents);
+' rag_service.retrieve_relevant_chunks_multi (match_count = candidate_count = 50).
+@startuml
+!include ../_theme/plantuml.iuml
+skinparam defaultFontSize 12
+start
+:Đầu vào: query_text, query_embedding (768 chiều),
+match_count = n (mã gọi dùng 50), rrf_k = 60;
+fork
+  :**vector_search**
+  sắp theo embedding <=> query_embedding
+  (chỉ mục HNSW, cosine);
+  :Lấy max(2n, 60) đoạn,
+  hạng r_v = 1, 2, …;
+fork again
+  :**keyword_search**
+  fts_tokens @@ websearch_to_tsquery
+  ('simple', unaccent(query_text))
+  (chỉ mục GIN);
+  :Xếp theo ts_rank_cd, lấy max(2n, 60) đoạn,
+  hạng r_k = 1, 2, …;
+end fork
+:**rrf_fusion**: FULL OUTER JOIN theo id
+điểm = 1/(60 + r_v) + 1/(60 + r_k)
+(thiếu phía nào thì phần đó bằng 0);
+:JOIN document_chunks, LEFT JOIN document_parents
+(parent_content = nội dung đoạn cha, nếu không có thì đoạn con),
+LEFT JOIN documents (source_url);
+:Sắp theo điểm RRF giảm dần, lấy n dòng;
+stop
+@enduml

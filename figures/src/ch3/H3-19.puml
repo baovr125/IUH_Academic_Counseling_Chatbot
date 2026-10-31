@@ -1,0 +1,35 @@
+' H3-19 Tuần tự UC14. Đối chiếu 30/10/2026: catalog.py (list, preview, clone), catalog_service.clone (_existing_clone
+' trả bản sao cũ, bulk_insert_cards); flashcards.py template, import-excel; excel_importer.parse_excel_or_csv.
+@startuml
+!include ../_theme/plantuml.iuml
+!include ../_theme/seq.iuml
+actor "Người dùng" as U
+participant "Frontend" as FE #EFF6FF
+participant "Flashcard\nService" as F #FFF7ED
+database "Supabase" as DB #FFFBEB
+
+== Dùng bộ từ mẫu ==
+FE -> F : GET /catalog/decks (qua Kong)
+F -> DB : sổ hệ thống đã xuất bản
+F --> FE : thư viện bộ từ
+U -> FE : xem trước một bộ
+FE -> F : GET /catalog/decks/{id}/preview
+F --> FE : một số thẻ mẫu
+U -> FE : chọn "Bắt đầu học"
+FE -> F : POST /catalog/decks/{id}/clone
+F -> DB : đã có bản sao của người dùng?
+alt đã có
+  F --> FE : bản sao cũ
+else chưa có
+  F -> DB : tạo sổ riêng, chép các thẻ
+  F --> FE : sổ mới
+end
+== Nhập Excel ==
+FE -> F : GET /template
+F --> FE : tệp mẫu .xlsx
+U -> FE : điền dữ liệu, tải tệp lên một sổ
+FE -> F : POST /decks/{id}/import-excel
+F -> F : đọc .xlsx, .xls hoặc .csv; nhận diện cột
+F -> DB : thêm thẻ, bỏ qua từ đã có trong sổ
+F --> FE : số thẻ đã thêm, số từ trùng
+@enduml

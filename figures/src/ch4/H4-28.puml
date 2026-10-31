@@ -1,0 +1,43 @@
+' H4-28 Dịch streaming qua SSE (POST /translate/stream). Đối chiếu 31/10/2026: realtime_translation_service
+' routers/translation.py (stream_translate_endpoint), services/llm_service.py stream_translation (dòng 206–318),
+' services/domain_translation.py translate_with_domain (nhánh chuyên ngành, reset + NLLB khi bản dịch hỏng).
+@startuml
+!include ../_theme/plantuml.iuml
+skinparam defaultFontSize 12
+skinparam maxMessageSize 150
+skinparam sequenceMessageAlign left
+skinparam sequence {
+  ParticipantBorderColor #475569
+  LifeLineBorderColor #94A3B8
+  GroupBorderColor #94A3B8
+  GroupBackgroundColor #F1F5F9
+}
+autonumber
+hide footbox
+participant "Frontend" as C #EFF6FF
+participant "Translation Service" as S #F0FDFA
+participant "Nhận diện ngôn ngữ" as D #F0FDFA
+participant "NLLB-200" as N #F0FDF4
+participant "LLM (Groq → Gemini)" as L #FFFFFF
+
+C -> S : POST /translate/stream
+S -> D : nhận diện ngôn ngữ nguồn
+D --> S : status, ứng viên, độ tin cậy
+S --> C : sự kiện detection
+alt status ≠ detected
+  S --> C : sự kiện error (mã LANG_UNCERTAIN…), dừng
+else detected
+  S --> C : sự kiện resolved_source_lang
+  alt dịch thông thường
+    S -> N : translate_batch (đã bóc HTML)
+    N --> S : bản dịch cả lô
+    S --> C : một sự kiện text chứa toàn bộ bản dịch
+    note over S, L : NLLB lỗi thì chuyển sang LLM, phát từng đoạn text
+  else dịch chuyên ngành
+    S -> L : một lời gọi stream kèm thuật ngữ từ từ điển
+    L --> S : (auto) DOMAIN và độ tin cậy, rồi bản dịch
+    S --> C : sự kiện domain, các sự kiện text, sự kiện warnings
+    note over S, N : bản dịch hỏng hoặc mọi LLM lỗi thì reset và dùng NLLB
+  end
+end
+@enduml
